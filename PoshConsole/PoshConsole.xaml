@@ -1,0 +1,159 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Posh="clr-namespace:Huddled.PoshConsole"
+    xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+
+    xmlns:PoshProps="clr-namespace:Huddled.PoshConsole.Properties"
+	
+    x:Class="Huddled.PoshConsole.PoshConsole"
+    x:Name="window"
+    Title="{Binding Path=buffer.Title}"
+    BorderThickness="0"
+    Visibility="Visible"
+	 AllowsTransparency="True" WindowStyle="None"
+
+    SnapsToDevicePixels="True"
+    SourceInitialized="Window_SourceInitialized"
+    Closing="Window_Closing"
+    LocationChanged="Window_LocationChanged"
+    Loaded="Window_Loaded"
+    Activated="Window_Activated"
+    Deactivated="Window_Deactivated"
+	 Background="Transparent"
+    ResizeMode="CanResizeWithGrip"
+    SizeChanged="Window_SizeChanged"
+    >
+    <Window.Resources>
+        <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type PoshProps:Settings}"/>
+        <Style x:Key="{x:Type TextBoxBase}" BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="AllowDrop" Value="true"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                        <aero:ListBoxChrome SnapsToDevicePixels="true" x:Name="Bd"
+                                                  Background="{TemplateBinding Background}"
+                                                  BorderThickness="0"
+                                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                                  RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
+                                                  RenderMouseOver="{TemplateBinding IsMouseOver}">
+                            <ScrollViewer SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost" Padding="0,0,0,0" />
+                        </aero:ListBoxChrome>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type Posh:ConsoleTextBox}">
+            <Style.Resources>
+                <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
+                    <Setter Property="OverridesDefaultStyle" Value="true"/>
+                </Style>
+            </Style.Resources>
+            <Setter Property="MinWidth" Value="10"/>
+            <Style.BasedOn>
+                <StaticResource ResourceKey="{x:Type TextBoxBase}"/>
+            </Style.BasedOn>
+        </Style>
+        <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
+                        <GradientStop Offset="0">
+                            <GradientStop.Color>
+                                <Binding Path="BorderColorTopLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
+                            </GradientStop.Color>
+                        </GradientStop>
+                        <GradientStop Offset="0.803">
+                            <GradientStop.Color>
+                                <Binding Path="BorderColorBottomRight" Mode="Default" Source="{StaticResource SettingsDS}"/>
+                            </GradientStop.Color>
+                        </GradientStop>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderThickness">
+                <Setter.Value>
+                    <Binding Path="BorderThickness" Mode="Default" Source="{StaticResource SettingsDS}"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Window.ShowInTaskbar>
+        <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.ShowInTaskbar>
+    <Window.Opacity>
+        <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Opacity>
+    <Window.Width>
+        <Binding Path="WindowWidth" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Width>
+    <Window.Height>
+        <Binding Path="WindowHeight" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Height>
+    <Window.Left>
+        <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Left>
+    <Window.Top>
+        <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Top>
+    <Window.Topmost>
+        <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Topmost>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Stop"
+							 Executed="HandleControlC"
+							 CanExecute="CanHandleControlC"/>
+    </Window.CommandBindings>
+    <!-- 
+	<Window.InputBindings>
+		<KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+	</Window.InputBindings>
+	-->
+    <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Posh:ProgressPanel  Grid.RowSpan="1" Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
+            <Posh:ConsoleTextBox Grid.Row="1" Grid.RowSpan="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                 FontSize="12" FontFamily="Consolas, Bitstream Vera Sans Mono, Lucida Console, Courier New, Global Monospace"
+                                 AcceptsTab="True" 
+                                 IsUndoEnabled="False"
+
+                                 Background="#FF000000" Foreground="#FFFFFFFF"
+                                 
+
+                                 TabComplete="buffer_TabComplete"
+                                 CommandEntered="buffer_CommandEntered"
+                                 GetHistory="buffer_GetHistory"
+                                 SizeChanged="buffer_SizeChanged"
+                                 PreviewMouseWheel="buffer_PreviewMouseWheel"
+
+                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" >
+                <Posh:ConsoleTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </Posh:ConsoleTextBox.Resources>
+                <FlowDocument />
+            </Posh:ConsoleTextBox>
+        </Grid>
+    </Border>
+</Window>

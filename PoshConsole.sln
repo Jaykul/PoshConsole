@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole", "PoshConsole\PoshConsole.csproj", "{44C927E3-2C76-4CA4-9677-28DA10E3FA83}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs04.codeplex.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = PoshConsole\\PoshConsole.csproj
+		SccProjectName1 = PoshConsole
+		SccLocalPath1 = PoshConsole
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44C927E3-2C76-4CA4-9677-28DA10E3FA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44C927E3-2C76-4CA4-9677-28DA10E3FA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44C927E3-2C76-4CA4-9677-28DA10E3FA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44C927E3-2C76-4CA4-9677-28DA10E3FA83}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

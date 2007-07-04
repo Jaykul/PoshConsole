@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Huddled.PoshConsole.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ConsoleBlack" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF000000</Value>
+    </Setting>
+    <Setting Name="ConsoleBlue" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF0066FF</Value>
+    </Setting>
+    <Setting Name="ConsoleCyan" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF99CCFF</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkBlue" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF003399</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkCyan" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF006699</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkGray" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF666666</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkGreen" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF006633</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkMagenta" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF800080</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkRed" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF800000</Value>
+    </Setting>
+    <Setting Name="ConsoleDarkYellow" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF9900</Value>
+    </Setting>
+    <Setting Name="ConsoleGray" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFCCCCCC</Value>
+    </Setting>
+    <Setting Name="ConsoleGreen" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF66CC00</Value>
+    </Setting>
+    <Setting Name="ConsoleMagenta" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF1493</Value>
+    </Setting>
+    <Setting Name="ConsoleRed" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF0000</Value>
+    </Setting>
+    <Setting Name="ConsoleWhite" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFFFFF</Value>
+    </Setting>
+    <Setting Name="ConsoleYellow" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFD700</Value>
+    </Setting>
+    <Setting Name="CopyOnMouseSelect" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="FocusKey" Type="Huddled.Hotkeys.Hotkey" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ConsoleDefaultForeground" Type="System.ConsoleColor" Scope="User">
+      <Value Profile="(Default)">White</Value>
+    </Setting>
+    <Setting Name="ConsoleDefaultBackground" Type="System.ConsoleColor" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
+      <Value Profile="(Default)">None</Value>
+    </Setting>
+    <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="WindowHeight" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">300</Value>
+    </Setting>
+    <Setting Name="WindowLeft" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">300</Value>
+    </Setting>
+    <Setting Name="WindowWidth" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">700</Value>
+    </Setting>
+    <Setting Name="WindowTop" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="Animate" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SnapToScreenEdge" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SnapDistance" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="AlwaysOnTop" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Opacity" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="BorderColorTopLeft" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#CC0C355B</Value>
+    </Setting>
+    <Setting Name="BorderColorBottomRight" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF104C85</Value>
+    </Setting>
+    <Setting Name="BorderThickness" Type="System.Windows.Thickness" Scope="User">
+      <Value Profile="(Default)">4,8,4,4</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
