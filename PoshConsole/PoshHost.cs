@@ -168,6 +168,21 @@ namespace Huddled.PoshConsole
 				 //   Huddled.PoshConsole.Properties.Settings.Default = value;
 				 //}
 			 }
-		 }
+
+             public double FullPrimaryScreenWidth
+             {
+                 get
+                 {
+                     return System.Windows.SystemParameters.FullPrimaryScreenWidth;
+                 }
+             }
+             public double FullPrimaryScreenHeight
+             {
+                 get
+                 {
+                     return System.Windows.SystemParameters.FullPrimaryScreenHeight;
+                 }
+             }
+         }
     }
 }

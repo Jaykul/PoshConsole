@@ -100,6 +100,7 @@ namespace Huddled.PoshConsole
 
 			// problems with data binding
 			this.WindowStyle = Properties.Settings.Default.WindowStyle;
+            this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
 
             // Some delegates we think we can get away with making only once...
             endOutput = new ConsoleTextBox.EndOutputDelegate(buffer.EndOutput);
@@ -177,7 +178,11 @@ namespace Huddled.PoshConsole
 					} break;
 				case "WindowStyle":
 					{
-						this.WindowStyle = Properties.Settings.Default.WindowStyle;
+                        buffer.WriteOutput(ConsoleColor.Red, ConsoleColor.Black, "Window Style change requires a restart to take effect", true);
+                        //this.WindowStyle = Properties.Settings.Default.WindowStyle;
+                        //this.Hide();
+                        //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
+                        //this.Show();
 					} break;
 				case "ShowInTaskbar":
 					{
@@ -201,8 +206,12 @@ namespace Huddled.PoshConsole
 					} break;
 				case "Animate":
 					{
-						// do nothing, this setting is checked for each animation.
-					} break;
+                        // do nothing, this setting is checked for each animation.
+                    } break;
+                case "AutoHide":
+                    {
+                        // do nothing, this setting is checked for each hide event.
+                    } break;
 				case "SnapToScreenEdge":
 					{
 						// do nothing, this setting is checked for each move
@@ -221,15 +230,21 @@ namespace Huddled.PoshConsole
 					} break;
 				case "BorderColorTopLeft":
 					{
-						// todo: don't know how to handle this
+                        if (border.BorderBrush is LinearGradientBrush)
+                        {
+                            ((LinearGradientBrush)border.BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
+                        }						
 					} break;
 				case "BorderColorBottomRight":
 					{
-						// todo: don't know how to handle this
-					} break;
+                        if (border.BorderBrush is LinearGradientBrush)
+                        {
+                            ((LinearGradientBrush)border.BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
+                        }
+                    } break;
 				case "BorderThickness":
 					{
-						// todo: don't know how to handle this
+                        border.BorderThickness = Properties.Settings.Default.BorderThickness;
 					} break;
 				case "FocusKey":
 					{
@@ -922,22 +937,30 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
 		private void Window_Activated(object sender, EventArgs e)
 		{
-			if(Properties.Settings.Default.Animate)
-			{
-				ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-				visi.Duration = lasts;
-				visi.KeyFrames.Add(visKeyVisible);
+            if (IsHiding)
+            {
+                if (Properties.Settings.Default.Animate)
+                {
+                    ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
+                    visi.Duration = lasts;
+                    visi.KeyFrames.Add(visKeyVisible);
 
-				// Go!
-				this.BeginAnimation(HeightProperty, showHeightAnimation, HandoffBehavior.SnapshotAndReplace);
-				this.BeginAnimation(OpacityProperty, showOpacityAnimation, HandoffBehavior.SnapshotAndReplace);
-				this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
-			}
+                    // Go!
+                    this.BeginAnimation(HeightProperty, showHeightAnimation, HandoffBehavior.SnapshotAndReplace);
+                    this.BeginAnimation(OpacityProperty, showOpacityAnimation, HandoffBehavior.SnapshotAndReplace);
+                    this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+                }
+                else
+                {
+                    Show();
+                }
+            }
 			buffer.Focus();
 		}
 
 
 		bool IsClosing = false;
+        bool IsHiding = false;
 
 		private static Duration lasts = Duration.Automatic;
 		private DoubleAnimation hideHeightAnimations = new DoubleAnimation(0.0, lasts);
@@ -954,27 +977,40 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_Deactivated(object sender, EventArgs e)
 		{
-			if(!IsClosing && Properties.Settings.Default.Animate)
+			if(!IsClosing && Properties.Settings.Default.AutoHide)
 			{
-				ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-				visi.Duration = lasts;
-				visi.KeyFrames.Add(visKeyHidden);
-
-				hideOpacityAnimations.AccelerationRatio = 0.25;
-				hideHeightAnimations.AccelerationRatio = 0.5;
-				showOpacityAnimation.AccelerationRatio = 0.25;
-				showHeightAnimation.AccelerationRatio = 0.5;
-
-				// before we start animating, set the animation endpoints to the current values.
-				hideOpacityAnimations.From = showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
-				hideHeightAnimations.From = showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
-
-				// GO!
-				this.BeginAnimation(HeightProperty, hideHeightAnimations, HandoffBehavior.SnapshotAndReplace);
-				this.BeginAnimation(OpacityProperty, hideOpacityAnimations, HandoffBehavior.SnapshotAndReplace);
-				this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+                HideWindow();
 			}
 		}
+
+        private void HideWindow()
+        {
+            IsHiding = true;
+            if (Properties.Settings.Default.Animate)
+            {
+                ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
+                visi.Duration = lasts;
+                visi.KeyFrames.Add(visKeyHidden);
+
+                hideOpacityAnimations.AccelerationRatio = 0.25;
+                hideHeightAnimations.AccelerationRatio = 0.5;
+                showOpacityAnimation.AccelerationRatio = 0.25;
+                showHeightAnimation.AccelerationRatio = 0.5;
+
+                // before we start animating, set the animation endpoints to the current values.
+                hideOpacityAnimations.From = showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
+                hideHeightAnimations.From = showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
+
+                // GO!
+                this.BeginAnimation(HeightProperty, hideHeightAnimations, HandoffBehavior.SnapshotAndReplace);
+                this.BeginAnimation(OpacityProperty, hideOpacityAnimations, HandoffBehavior.SnapshotAndReplace);
+                this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+            }
+            else
+            {
+                Hide();
+            }
+        }
 
 
 
@@ -1028,11 +1064,7 @@ namespace Huddled.PoshConsole
 					this.Top = workarea.Bottom - this.RestoreBounds.Height;
 				}
 
-				Border border = (Border)buffer.Template.FindName("Border", buffer);
-				if(border != null)
-				{
-					border.CornerRadius = radi;
-				}
+				border.CornerRadius = radi;
 			}
 
 
