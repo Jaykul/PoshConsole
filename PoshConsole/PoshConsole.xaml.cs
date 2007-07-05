@@ -716,16 +716,20 @@ namespace Huddled.PoshConsole
                 {
                     ExecuteHelper(cmd.ToString(), null, false, false);
                 }
-			    catch(RuntimeException rte)
-			    {
-				    // An exception occurred that we want to display ...
-				    // We have to run another pipeline, and pass in the error record.
-				    // The runtime will bind the input to the $input variable
-				    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
-			    }
+                catch (RuntimeException rte)
+                {
+                    // An exception occurred that we want to display ...
+                    // We have to run another pipeline, and pass in the error record.
+                    // The runtime will bind the input to the $input variable
+                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                }
             }
             else
+            {
                 Prompt();
+                this.Cursor = Cursors.SizeAll;
+                buffer.Cursor = Cursors.IBeam;
+            }
 		}
 
 		protected int MaxBufferLength = 500;

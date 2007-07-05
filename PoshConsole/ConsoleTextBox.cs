@@ -731,20 +731,15 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt text.</param>
         public void Prompt(Brush foreground, Brush background, string prompt)
         {
-            // toggle undo to prevent "undo"ing past this point.
-            IsUndoEnabled = false;
-            TrimOutput();
+            TrimCurrentParagraph();
 
             //currentParagraph.ContentStart.GetOffsetToPosition(currentParagraph.ContentEnd) + PromptPadding.Length;
-            Run prmt = new Run( prompt, currentParagraph.ContentEnd);
+            Run prmt = new Run( prompt );
             prmt.Background = background;
             prmt.Foreground = foreground;
-
-            commandStart = prmt.ElementEnd;
+            currentParagraph.Inlines.Add(prmt);
 
             SetPrompt();
-            // toggle undo to prevent "undo"ing past this point.
-            IsUndoEnabled = true;
         }
 
         private void SetPrompt()
@@ -753,10 +748,11 @@ namespace Huddled.PoshConsole
             command.Background = Background;
             command.Foreground = Foreground;
 
-            commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
-
             ScrollToEnd();
-            CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+            CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+            // toggle undo to prevent "undo"ing past this point.
+            IsUndoEnabled = false;
+            IsUndoEnabled = true;
         }
 
         Paragraph currentParagraph = null;
@@ -768,31 +764,44 @@ namespace Huddled.PoshConsole
         /// </summary>
         public void EndOutput()
         {
-            TrimOutput();
-            if (currentParagraph.Margin.Bottom == 0 && currentParagraph.Margin.Top == 0){
-                currentParagraph.ContentEnd.InsertLineBreak();
+            if (currentParagraph != null)
+            {
+                TrimCurrentParagraph();
+                if (currentParagraph.Margin.Bottom == 0 && currentParagraph.Margin.Top == 0)
+                {
+                    currentParagraph.ContentEnd.InsertLineBreak();
+                }
             }
-            currentParagraph = new Paragraph();            
-            Document.Blocks.Add(currentParagraph);
+            Document.ContentEnd.InsertParagraphBreak();
+            currentParagraph = (Paragraph)Document.Blocks.LastBlock;
         }
 
-        public void TrimOutput()
+        /// <summary>
+        /// Trims whitespace from the current paragraph.
+        /// </summary>
+        public void TrimCurrentParagraph()
         {
             BeginChange();
-            TextPointer D, C;
-            char[] ch = new char[1];
-
-            D = C = Document.ContentEnd;
-            while (C != null && ((C.GetPointerContext(LogicalDirection.Backward) != TextPointerContext.Text) ||
-                D.GetTextInRun(System.Windows.Documents.LogicalDirection.Backward, ch, /*startIndex*/0, /*count*/1) == 0
-            ))
+            // if the paragraph has content
+            if (currentParagraph.Inlines.Count > 0)
             {
-                D = C;
-                C = C.GetNextInsertionPosition(LogicalDirection.Backward);
+                // trim from the end until we run out of inlines or hit some non-whitespace
+                Inline ln = currentParagraph.Inlines.LastInline;
+                while (ln != null)
+                {
+                    Run run = ln as Run;
+                    if (run != null)
+                    {
+                        run.Text = run.Text.TrimEnd();
+                        // if there's text in this run, stop trimming!!!
+                        if (run.Text.Length > 0) break;
+                    }
+                    // if( run == null || run.Text.Length == 0 )
+                    Inline tmp = ln;
+                    ln = ln.PreviousInline;
+                    currentParagraph.Inlines.Remove(tmp);
+                }
             }
-            new TextRange(D, Document.ContentEnd).Text = String.Empty;
-            //Selection.Select(D, CaretPosition);
-            //Selection.Text = String.Empty;
             EndChange();
         }
 
