@@ -111,10 +111,11 @@ namespace Huddled.PoshConsole
 			//buffer.Foreground = ConsoleBrush(myUI.CurrentForeground);
 
 			myHost.ShouldExit += new PoshHost.ExitHandler(WeShouldExit);
-			myUI.Input += new PoshUI.InputHandler(GetInput);
-			myUI.Output += new PoshUI.OutputHandler(OnOutput);
-			myUI.OutputLine += new PoshUI.OutputHandler(OnOutputLine);
+			myUI.Input += new PoshUI.InputDelegate(GetInput);
+			myUI.Output += new PoshUI.OutputDelegate(OnOutput);
+			myUI.OutputLine += new PoshUI.OutputDelegate(OnOutputLine);
             myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate(OnProgressUpdate);
+            myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
 
 			myRunSpace = RunspaceFactory.CreateRunspace(myHost);
 			myRunSpace.Open();
@@ -316,6 +317,20 @@ namespace Huddled.PoshConsole
         //}
 
 
+        void WritePrompt(ConsoleColor foreground, ConsoleColor background, string text)
+        {
+            // TODO: Colors
+            // Oh, my! .CheckAccess() is there, but intellisense-invisible!
+            if (Dispatcher.CheckAccess())
+            {
+                buffer.Prompt(text);
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, new ConsoleTextBox.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
+            }
+        }
+
 
 		/// <summary>
 		/// Write text to the console buffer
@@ -378,10 +393,9 @@ namespace Huddled.PoshConsole
 
 			waitingForInput = true;
 			GotInput.WaitOne();
+            waitingForInput = false;
 
-			result = lastInputString;
-			lastInputString = null;
-
+            result = lastInputString;
 			return result;
 		}
 
@@ -456,9 +470,12 @@ namespace Huddled.PoshConsole
 		/// <param name="input">Any input arguments to pass to the script.</param>
 		void ExecuteHelper(string cmd, object input, bool history, bool suppressOutput)
 		{
-			// Ignore empty command lines.
-			if(String.IsNullOrEmpty(cmd))
-				return;
+            //// Ignore empty command lines.
+            if (String.IsNullOrEmpty(cmd))
+            {
+                history = false;
+                //return;
+            }
 
 			if(ready.WaitOne(10000, true))
 			{
@@ -526,7 +543,7 @@ namespace Huddled.PoshConsole
 		{
 			if(e.PipelineStateInfo.State != PipelineState.Running && e.PipelineStateInfo.State != PipelineState.Stopping)
 			{
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, new voidDelegate( delegate{ this.Cursor = Cursors.IBeam; } ));
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, new voidDelegate(delegate { this.Cursor = Cursors.SizeAll; buffer.Cursor = Cursors.IBeam; }));
                 //if(currentPipeline.Commands[0].CommandText.Equals("prompt"))
                 //{
                 //    ConsoleTextBox.PromptDelegate np = new ConsoleTextBox.PromptDelegate(buffer.PostPrompt);
@@ -630,8 +647,10 @@ namespace Huddled.PoshConsole
 			{
 				lock(instanceLock)
 				{
-					if(currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
-						currentPipeline.Stop();
+                    if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
+                        currentPipeline.Stop();
+                    //else
+                    //    ApplicationCommands.Copy.Execute(null, buffer);
 				}
 				e.Handled = true;
 			}
@@ -652,7 +671,8 @@ namespace Huddled.PoshConsole
 		/// </summary>
 		private void LoadShellProfile()
 		{
-            Cursor = Cursors.AppStarting;
+            this.Cursor = Cursors.AppStarting;
+            buffer.Cursor = Cursors.AppStarting;
 			//* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
 			//  This profile applies to all users and all shells.
 			//* %windir%\system32\WindowsPowerShell\v1.0\ Microsoft.PowerShell_profile.ps1
@@ -746,7 +766,8 @@ namespace Huddled.PoshConsole
 		/// <param name="command">The command.</param>
 		private void buffer_CommandEntered(string command)
 		{
-			if(waitingForInput)
+            lastInputString = command;
+            if (waitingForInput)
 			{
 				GotInput.Set();
 			}
@@ -848,8 +869,10 @@ namespace Huddled.PoshConsole
 			// make the whole window glassy
 			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
 			// hook mousedown and call DragMove() to make the whole window a drag handle
-
-			buffer.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(DragHandler);
+            MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
+            progress.PreviewMouseLeftButtonDown += mbeh;
+            border.PreviewMouseLeftButtonDown += mbeh;
+            buffer.PreviewMouseLeftButtonDown += mbeh;
 
             hkManager = new WPFHotkeyManager(this);
             hkManager.HotkeyPressed += new WPFHotkeyManager.HotkeyPressedEvent(Hotkey_Pressed);
@@ -871,8 +894,8 @@ namespace Huddled.PoshConsole
 
 		void DragHandler(object sender, MouseButtonEventArgs e)
 		{
-			if((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control ||
-					  (buffer.InputHitTest(e.GetPosition((Border)buffer.Template.FindName("Border", buffer))) is Border))
+
+            if (e.Source is Border || e.Source is ProgressPanel || (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
 			{
 				DragMove();
 				e.Handled = true;

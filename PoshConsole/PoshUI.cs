@@ -53,14 +53,18 @@ namespace Huddled.PoshConsole
         public override Dictionary<string, PSObject> Prompt( 
             string caption, string message, Collection<FieldDescription> descriptions)
         {
-            
-            Write(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + " ");
+
+            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + " ");
 
             Dictionary<string, PSObject> results = new Dictionary<string, PSObject>();
             foreach (FieldDescription fd in descriptions)
             {
                 string[] label = GetHotkeyAndLabel(fd.Label);
-                WriteLine(label[1]);
+                if( !String.IsNullOrEmpty( fd.HelpMessage ) )
+                    Write( fd.HelpMessage);
+                if( null != WritePrompt )
+                    WritePrompt(ConsoleColor.Blue, ConsoleColor.Black, String.Format("\n{0}> ", label[1]));
+
                 string userData = ReadLine();
                 if (userData == null)
                     return null;
@@ -175,8 +179,6 @@ namespace Huddled.PoshConsole
             }
         }
 
-        public delegate string InputHandler();
-        public event InputHandler Input;
 
         public override string ReadLine()
         {
@@ -210,11 +212,15 @@ namespace Huddled.PoshConsole
 
 
         #region OutputMethods
-        public delegate void OutputHandler(ConsoleColor foreground, ConsoleColor background, string text);
+        public delegate void OutputDelegate(ConsoleColor foreground, ConsoleColor background, string text);
+        public delegate void PromptDelegate(ConsoleColor background, ConsoleColor foreground, string prompt);
         public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
+        public delegate string InputDelegate();
 
-        public event OutputHandler Output;
-        public event OutputHandler OutputLine;
+        public event InputDelegate Input;
+        public event OutputDelegate Output;
+        public event OutputDelegate OutputLine;
+        public event PromptDelegate WritePrompt;
         public event WriteProgressDelegate ProgressUpdate;
 
         public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
