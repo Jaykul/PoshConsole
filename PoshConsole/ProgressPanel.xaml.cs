@@ -78,7 +78,7 @@ namespace Huddled.PoshConsole
         {
             get { return ((int)base.GetValue(PercentCompleteProperty)); }
             set {
-                if (value == null || value < 0)
+                if (value <= 0)
                 {
                     this.progressBar.Visibility = Visibility.Collapsed;
                 }

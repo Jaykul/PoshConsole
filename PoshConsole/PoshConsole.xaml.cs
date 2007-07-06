@@ -715,7 +715,7 @@ namespace Huddled.PoshConsole
 			{
 				if(File.Exists(path))
 				{
-					cmd.AppendFormat(". {0};", path);
+					cmd.AppendFormat(". \"{0}\";", path);
 				}
 			}
             if (cmd.Length > 0)
