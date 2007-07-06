@@ -12,6 +12,15 @@ namespace Win32
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        //[DllImport("user32.dll")]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //public static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+         
+
 		/// <summary>
 		/// The GetWindow function retrieves a handle to a window that has the specified relationship (Z-Order or owner) to the specified window.
 		/// </summary>
@@ -20,7 +29,9 @@ namespace Win32
 		/// <returns>If the function succeeds, the return value is a window handle. If no window exists with the specified relationship to the specified window, the return value is IntPtr.Zero. To get extended error information, call GetLastError.</returns>
 		[DllImport("user32.dll")]
 		public static extern IntPtr GetWindow(IntPtr windowHandle, GetWindowCommand command);
-
+        
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
 
 		public enum GetWindowCommand : uint
 		{
@@ -54,6 +65,22 @@ namespace Win32
 			Popup    = 6
 		}
 
+        public enum ShowWindowCommand : int
+        {
+            Hide = 0,
+            Normal = 1,
+            ShowMinimized = 2,
+            ShowMaximized = 3,
+            ShowNoActivate = 4,
+            Show = 5,
+            Minimize = 6,
+            ShowMinNoActive = 7,
+            ShowNA = 8,
+            Restore = 9,
+            ShowDefault = 10,
+            ForceMinimize = 11,
+            Max = 11
+        }
 
 		/// <summary>
 		/// Gets the next window.
@@ -61,9 +88,15 @@ namespace Win32
 		/// <returns></returns>
 		public static IntPtr GetNextWindow()
 		{
-			return GetWindow(
-				new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle,
-				GetWindowCommand.Next);
+            IntPtr handle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
+            IntPtr next = GetWindow(handle, GetWindowCommand.Next);
+
+            // and then make sure we have a visible window
+            while (!IsWindowVisible(next))
+            {
+                next = GetWindow(next, GetWindowCommand.Next);
+            }
+            return next;
 		}
 
 		/// <summary>
@@ -72,7 +105,10 @@ namespace Win32
 		/// <returns></returns>
 		public static bool ActivateNextWindow()
 		{
-			return SetForegroundWindow(GetNextWindow());
+            IntPtr next = GetNextWindow();
+            ShowWindow(next,ShowWindowCommand.Show);
+            return SetForegroundWindow(next);
+            
 		}
 	}
 }

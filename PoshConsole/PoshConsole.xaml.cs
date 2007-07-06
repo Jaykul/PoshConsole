@@ -655,8 +655,32 @@ namespace Huddled.PoshConsole
 		}
 
 
+        void HandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
+        {
+            buffer.FontSize += 1;
+            RecalculateSizes();
+        }
 
-		/// <summary>
+        void HandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
+        {
+            buffer.FontSize -= 1;
+            RecalculateSizes();
+        }
+
+        void HandleSetZoom(object sender, ExecutedRoutedEventArgs e)
+        {
+            double zoom;
+            if (e.Parameter is double)
+            {
+                zoom = (double)e.Parameter;
+                buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
+            }else if (e.Parameter is string && double.TryParse(e.Parameter.ToString(), out zoom)) {
+                buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
+            }
+            RecalculateSizes();
+        }
+
+        /// <summary>
 		/// Method used to handle control-C's from the user. It calls the
 		/// pipeline Stop() method to stop execution. If any exceptions occur,
 		/// they are printed to the console; otherwise they are ignored.
@@ -994,10 +1018,10 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_Deactivated(object sender, EventArgs e)
 		{
-			if(!IsClosing && Properties.Settings.Default.AutoHide)
-			{
+            if (!IsClosing && Properties.Settings.Default.AutoHide)
+            {
                 HideWindow();
-			}
+            }
 		}
 
         private void HideWindow()

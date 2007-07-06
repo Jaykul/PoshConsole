@@ -51,6 +51,7 @@ namespace Huddled.PoshConsole
             : base()
         {
             DataObject.AddPastingHandler(this, OnDataObjectPasting);
+
             //this._words = new List<Word>();
             //this.TextChanged += this.TextChangedEventHandler;
 
@@ -60,7 +61,6 @@ namespace Huddled.PoshConsole
 
             //this.ContextMenu = myContextMenu;
         }
-
 
 
         /// <summary>

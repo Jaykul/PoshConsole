@@ -115,15 +115,29 @@
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Stop"
-							 Executed="HandleControlC"
-							 CanExecute="CanHandleControlC"/>
-    </Window.CommandBindings>
-    <!-- 
+        <CommandBinding Command="ApplicationCommands.Stop" Executed="HandleControlC" CanExecute="CanHandleControlC"/>
+		<CommandBinding Command="NavigationCommands.Zoom" Executed="HandleSetZoom" />
+		<CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="HandleIncreaseZoom" />
+		<CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
+	</Window.CommandBindings>
 	<Window.InputBindings>
-		<KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+		<!-- <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> -->
+		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
+		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
 	</Window.InputBindings>
-	-->
     <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}">
         <Grid>
             <Grid.RowDefinitions>
@@ -133,7 +147,6 @@
             <Posh:ProgressPanel  Grid.RowSpan="1" Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
             <Posh:ConsoleTextBox Grid.Row="1" Grid.RowSpan="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 FontSize="12" FontFamily="Consolas, Bitstream Vera Sans Mono, Lucida Console, Courier New, Global Monospace"
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
 
@@ -147,7 +160,13 @@
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
 
                                  Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" >
-                <Posh:ConsoleTextBox.Resources>
+				<Posh:ConsoleTextBox.FontSize>
+					<Binding Path="FontSize" Mode="Default" Source="{StaticResource SettingsDS}"/>
+				</Posh:ConsoleTextBox.FontSize>
+				<Posh:ConsoleTextBox.FontFamily>
+					<Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
+				</Posh:ConsoleTextBox.FontFamily>
+				<Posh:ConsoleTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
                     </Style>
