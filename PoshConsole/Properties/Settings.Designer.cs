@@ -441,5 +441,17 @@ namespace Huddled.PoshConsole.Properties {
                 this["AutoHide"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool StartupBanner {
+            get {
+                return ((bool)(this["StartupBanner"]));
+            }
+            set {
+                this["StartupBanner"] = value;
+            }
+        }
     }
 }

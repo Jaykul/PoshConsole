@@ -89,14 +89,21 @@ namespace Huddled.PoshConsole
 			hideOpacityAnimations.From = showOpacityAnimation.To = Opacity;
 			hideHeightAnimations.From = showHeightAnimation.To = this.Height;
 
-			myRawUI = new PoshRawUI(buffer);
+            try
+            {
+                myRawUI = new PoshRawUI(buffer);
+                myUI = new PoshUI(myRawUI);
+                myHost = new PoshHost(myUI);
+            }
+            catch
+            {
+                MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed?", "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
+                Application.Current.Shutdown(1);
+            }
 
             // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
-			buffer.ConsoleBackground = myRawUI.BackgroundColor;
-			buffer.ConsoleForeground = myRawUI.ForegroundColor;
-
-			myUI = new PoshUI(myRawUI);
-			myHost = new PoshHost(myUI);
+            buffer.ConsoleBackground = myRawUI.BackgroundColor;
+            buffer.ConsoleForeground = myRawUI.ForegroundColor;
 
 			// problems with data binding
 			this.WindowStyle = Properties.Settings.Default.WindowStyle;
@@ -688,6 +695,7 @@ namespace Huddled.PoshConsole
 		{
             this.Cursor = Cursors.AppStarting;
             buffer.Cursor = Cursors.AppStarting;
+
 			//* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
 			//  This profile applies to all users and all shells.
 			//* %windir%\system32\WindowsPowerShell\v1.0\ Microsoft.PowerShell_profile.ps1
@@ -902,7 +910,12 @@ namespace Huddled.PoshConsole
 			{
 				Properties.Settings.Default.FocusKey = new Hotkey(Modifiers.Win, Keys.Oemtilde);
 			}
-			
+
+            if (!Properties.Settings.Default.StartupBanner)
+            {
+                buffer.ClearScreen();
+            }
+
 			// this shouldn't be needed, because we hooked the settings.change event earlier
 			if(FocusKey == null || FocusKey.Id == 0)
 			{

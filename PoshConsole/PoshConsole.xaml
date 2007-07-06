@@ -152,7 +152,18 @@
                         <Setter Property="Margin" Value="0"/>
                     </Style>
                 </Posh:ConsoleTextBox.Resources>
-                <FlowDocument />
+                <FlowDocument>
+                	<Paragraph xml:space="preserve">
+                        <Floater Margin="0,0,0,0" Padding="0,0,0,0">
+                			<Paragraph><Image Height="180" Margin="0,0,0,0" Source="PoshConsoleLogo.png" /></Paragraph>
+                		</Floater>
+                        <Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
+                			<Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="Pescadero"><Run FontSize="28" Typography.ContextualSwashes="1" xml:space="preserve">Posh </Run><Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run><Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run></Paragraph>
+                			<Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="Pescadero"><Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run><LineBreak/><Run FontSize="20" Typography.ContextualSwashes="1" xml:space="preserve">brought to you by </Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run><Run FontFamily="Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run></Paragraph>
+                			<Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="Pescadero"><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run><LineBreak/><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole/</Run></Paragraph>
+                		</Floater>
+                    </Paragraph>
+                </FlowDocument>
             </Posh:ConsoleTextBox>
         </Grid>
     </Border>

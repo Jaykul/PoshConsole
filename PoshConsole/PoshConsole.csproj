@@ -118,6 +118,15 @@
   <ItemGroup>
     <Resource Include="PoshConsole.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Fonts\Linds.ttf" />
+    <Resource Include="Fonts\Pesca.ttf" />
+    <Resource Include="Fonts\Pescab.ttf" />
+    <None Include="PoshConsoleBanner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="PoshConsoleLogo.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />
 </Project>
