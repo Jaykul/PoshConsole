@@ -335,24 +335,27 @@ namespace Huddled.PoshConsole
         {
             if (null != commandStart)
             {
-                if (currentParagraph.Inlines.Count > 0)
+                if (currentParagraph.Inlines.Count < promptInlines)
                 {
-                    int promptLen = commandStart.GetOffsetToPosition(currentParagraph.Inlines.LastInline.ElementStart.GetInsertionPosition(LogicalDirection.Backward));
-                    if (promptLen != 0)
-                    {
-                        if (promptLen < 0)
-                        {
-                            TextRange tr = new TextRange(commandStart, currentParagraph.Inlines.LastInline.ElementStart);
-                            tr.Text = String.Empty;
-                        }
-                        else
-                        {
-                            TextRange tr = new TextRange(commandStart, Document.ContentEnd);
-                            tr.Text = String.Empty;
-                        }
-                        SetPrompt();
-                    }
-                }
+                    SetPrompt();
+                } 
+                //else {
+                //    int promptLen = commandStart.GetOffsetToPosition(currentParagraph.Inlines.LastInline.ElementStart.GetInsertionPosition(LogicalDirection.Backward));
+                //    if (promptLen != 0)
+                //    {
+                //        if (promptLen < 0)
+                //        {
+                //            TextRange tr = new TextRange(commandStart, currentParagraph.Inlines.LastInline.ElementStart);
+                //            tr.Text = String.Empty;
+                //        }
+                //        else
+                //        {
+                //            TextRange tr = new TextRange(commandStart, Document.ContentEnd);
+                //            tr.Text = String.Empty;
+                //        }
+                //        SetPrompt();
+                //    }
+                //}
 
                 bool inPrompt = CaretInCommand;
                 bool isTabbing = false;
@@ -482,7 +485,7 @@ namespace Huddled.PoshConsole
                                 }
                             }
                             int offset = 0;
-                            if (currentParagraph.Inlines.Count > 0)
+                            if (currentParagraph.Inlines.Count > promptInlines)
                             {
                                 offset = currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
                             }
@@ -493,6 +496,7 @@ namespace Huddled.PoshConsole
                             if (!(offset > 0 && CurrentCommand.Length > 0))
                             {
                                 e.Handled = true;
+                                return;
                             }
 
                         } break;
@@ -697,8 +701,9 @@ namespace Huddled.PoshConsole
         public string PromptPadding = " ";
 
 
-        //int promptLength = 0;
+        int promptInlines = 0;
         TextPointer commandStart = null;
+
 
         public delegate void EndOutputDelegate();
         public delegate void PromptDelegate(string prompt);
@@ -753,6 +758,7 @@ namespace Huddled.PoshConsole
             // toggle undo to prevent "undo"ing past this point.
             IsUndoEnabled = false;
             IsUndoEnabled = true;
+            promptInlines = currentParagraph.Inlines.Count;
         }
 
         Paragraph currentParagraph = null;
@@ -764,6 +770,8 @@ namespace Huddled.PoshConsole
         /// </summary>
         public void EndOutput()
         {
+            promptInlines = 0; // there are no promt inlines we need to save
+
             if (currentParagraph != null)
             {
                 TrimCurrentParagraph();
@@ -783,7 +791,7 @@ namespace Huddled.PoshConsole
         {
             BeginChange();
             // if the paragraph has content
-            if (currentParagraph.Inlines.Count > 0)
+            if (currentParagraph.Inlines.Count > promptInlines)
             {
                 // trim from the end until we run out of inlines or hit some non-whitespace
                 Inline ln = currentParagraph.Inlines.LastInline;
