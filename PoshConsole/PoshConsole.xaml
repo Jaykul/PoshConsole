@@ -15,17 +15,15 @@
     Title="{Binding Path=buffer.Title}"
     BorderThickness="0"
     Visibility="Visible"
-	 AllowsTransparency="True" WindowStyle="None"
+	Background="Transparent"
+    ResizeMode="CanResizeWithGrip"
+    AllowsTransparency="True" WindowStyle="None"
 
     SnapsToDevicePixels="True"
     SourceInitialized="Window_SourceInitialized"
-    Closing="Window_Closing"
+    Loaded="Window_Loaded"       Closing="Window_Closing"
+    Activated="Window_Activated" Deactivated="Window_Deactivated"
     LocationChanged="Window_LocationChanged"
-    Loaded="Window_Loaded"
-    Activated="Window_Activated"
-    Deactivated="Window_Deactivated"
-	 Background="Transparent"
-    ResizeMode="CanResizeWithGrip"
     SizeChanged="Window_SizeChanged"
     >
     <Window.Resources>
@@ -149,10 +147,7 @@
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
-
                                  Background="#FF000000" Foreground="#FFFFFFFF"
-                                 
-
                                  TabComplete="buffer_TabComplete"
                                  CommandEntered="buffer_CommandEntered"
                                  GetHistory="buffer_GetHistory"

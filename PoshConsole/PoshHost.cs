@@ -23,11 +23,13 @@ namespace Huddled.PoshConsole
     /// </summary>
     class PoshHost : PSHost
     {
-		  PSObject Options;
+        internal PoshOptions Options;
+        internal List<string> StringHistory;
         public PoshHost(PoshUI ui)
         {
             myPoshUI = ui;
-				Options = PSObject.AsPSObject(new PoshOptions());
+            StringHistory = new List<string>();
+			Options = new PoshOptions( this );
         }
         private PoshUI myPoshUI;
 
@@ -87,10 +89,7 @@ namespace Huddled.PoshConsole
         }
 
         /// <summary>
-        /// This API is called before an external application process is started. Typically
-        /// it's used to save state that the child process may alter so the parent can
-        /// restore that state when the child exits. In this sample, we don't need this so
-        /// the method simple returns.
+        /// This API is called before an external application process is started.
         /// </summary>
         public override void NotifyBeginApplication()
         {
@@ -101,16 +100,13 @@ namespace Huddled.PoshConsole
         private string savedTitle = String.Empty;
 
         /// <summary>
-        /// This API is called after an external application process finishes. Typically
-        /// it's used to restore state that the child process may have altered. In this
-        /// sample, we don't need this so the method simple returns.
+        /// This API is called after an external application process finishes.
         /// </summary>
         public override void NotifyEndApplication()
         {
             myPoshUI.RawUI.WindowTitle = savedTitle;
             return; // Do nothing...
         }
-
 
         /// <summary>
         /// Indicate to the host application that exit has
@@ -152,11 +148,18 @@ namespace Huddled.PoshConsole
 		 {
 			 get
 			 {
-				 return Options;
+                 return PSObject.AsPSObject( Options );
 			 }
 		 }
 
 		 public class PoshOptions {
+
+             PoshHost MyHost;
+             public PoshOptions(PoshHost myHost)
+             {
+                 MyHost = myHost;
+             }
+
 			 public Properties.Settings Settings
 			 {
 				 get
@@ -181,6 +184,13 @@ namespace Huddled.PoshConsole
                  get
                  {
                      return System.Windows.SystemParameters.FullPrimaryScreenHeight;
+                 }
+             }
+
+             public List<string> History {
+                 get
+                 {
+                     return MyHost.StringHistory;
                  }
              }
          }

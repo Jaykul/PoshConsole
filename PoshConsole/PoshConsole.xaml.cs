@@ -479,7 +479,6 @@ namespace Huddled.PoshConsole
 			return output;
 		}
 
-		List<string> cmdHistory = new List<string>();
 
 		ManualResetEvent ready = new ManualResetEvent(true);
 
@@ -502,7 +501,7 @@ namespace Huddled.PoshConsole
 			if(ready.WaitOne(10000, true))
 			{
 
-				if(history) cmdHistory.Add(cmd);
+                if (history) myHost.StringHistory.Add(cmd);
 
 				// Create the pipeline object and make it available
 				// to the ctrl-C handle through the currentPipeline instance
@@ -712,27 +711,29 @@ namespace Huddled.PoshConsole
 			e.CanExecute = true;
 		}
 
-		/// <summary>
-		/// Loads the shell profile(s).
-		/// </summary>
-		private void LoadShellProfile()
+
+        /// <summary>
+        /// Executes the startup profile(s).
+        /// </summary>
+		private void ExecuteStartupProfile()
 		{
             this.Cursor = Cursors.AppStarting;
             buffer.Cursor = Cursors.AppStarting;
 
 			//* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
 			//  This profile applies to all users and all shells.
-			//* %windir%\system32\WindowsPowerShell\v1.0\ Microsoft.PowerShell_profile.ps1
+            //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile.ps1
 			//  This profile applies to all users, but only to the Microsoft.PowerShell shell.
 			//* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
 			//  This profile applies only to the current user, but affects all shells.
-			//* %UserProfile%\\My Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
+            //* %UserProfile%\My Documents\WindowsPowerShell\Huddled.PoshConsole_profile.ps1
 			//  This profile applies only to the current user and the Microsoft.PowerShell shell.
 
 			StringBuilder cmd = new StringBuilder();
 			foreach(string path in
-				 new string[3] {
+				 new string[4] {
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\Huddled.PoshConsole_profile.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\Huddled.PoshConsole_profile.ps1")),
                 })
@@ -759,10 +760,65 @@ namespace Huddled.PoshConsole
             else
             {
                 Prompt();
+                // we have to reset the cursors if we don't execute a command
                 this.Cursor = Cursors.SizeAll;
                 buffer.Cursor = Cursors.IBeam;
             }
 		}
+
+        /// <summary>
+        /// Executes the shutdown profile(s).
+        /// </summary>
+        private void ExecuteShutdownProfile()
+        {
+            this.Cursor = Cursors.AppStarting;
+            buffer.Cursor = Cursors.AppStarting;
+
+            //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
+            //  This profile applies to all users and all shells.
+            //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile_exit.ps1
+            //  This profile applies to all users, but only to the Huddled.PoshConsole shell.
+            //* %UserProfile%\My Documents\WindowsPowerShell\profile_exit.ps1
+            //  This profile applies only to the current user, but affects all shells.
+            //* %UserProfile%\\My Documents\WindowsPowerShell\Huddled.PoshConsole_profile_exit.ps1
+            //  This profile applies only to the current user and the Huddled.PoshConsole shell.
+
+            StringBuilder cmd = new StringBuilder();
+            foreach (string path in
+                 new string[4] {
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\Huddled.PoshConsole_profile_exit.ps1")),
+                })
+            {
+                if (File.Exists(path))
+                {
+                    cmd.AppendFormat(". \"{0}\";", path);
+                }
+            }
+            if (cmd.Length > 0)
+            {
+                try
+                {
+                    ExecuteHelper(cmd.ToString(), null, false, false);
+                }
+                catch (RuntimeException rte)
+                {
+                    // An exception occurred that we want to display ...
+                    // We have to run another pipeline, and pass in the error record.
+                    // The runtime will bind the input to the $input variable
+                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                }
+            }
+            else
+            {
+                Prompt();
+                // we have to reset the cursors if we don't execute a profile script in here
+                this.Cursor = Cursors.SizeAll;
+                buffer.Cursor = Cursors.IBeam;
+            }
+        }
 
 		protected int MaxBufferLength = 500;
 
@@ -832,11 +888,11 @@ namespace Huddled.PoshConsole
 		{
             if (historyIndex == -1)
             {
-                historyIndex = cmdHistory.Count;
+                historyIndex = myHost.StringHistory.Count;
             }
-			if(historyIndex > 0 && historyIndex <= cmdHistory.Count)
+            if (historyIndex > 0 && historyIndex <= myHost.StringHistory.Count)
 			{
-				return cmdHistory[cmdHistory.Count - historyIndex];
+                return myHost.StringHistory[myHost.StringHistory.Count - historyIndex];
 			}
 			else
 			{
@@ -968,37 +1024,8 @@ namespace Huddled.PoshConsole
 			buffer.Document.IsColumnWidthFlexible = false;
 
 			RecalculateSizes();
-			LoadShellProfile();
+			ExecuteStartupProfile();
 		}
-
-		/// <summary>
-		/// Handles the Activated event of the Window control.
-		/// </summary>
-		/// <param name="sender">The source of the event.</param>
-		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-		private void Window_Activated(object sender, EventArgs e)
-		{
-            if (IsHiding)
-            {
-                if (Properties.Settings.Default.Animate)
-                {
-                    ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-                    visi.Duration = lasts;
-                    visi.KeyFrames.Add(visKeyVisible);
-
-                    // Go!
-                    this.BeginAnimation(HeightProperty, showHeightAnimation, HandoffBehavior.SnapshotAndReplace);
-                    this.BeginAnimation(OpacityProperty, showOpacityAnimation, HandoffBehavior.SnapshotAndReplace);
-                    this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
-                }
-                else
-                {
-                    Show();
-                }
-            }
-			buffer.Focus();
-		}
-
 
 		bool IsClosing = false;
         bool IsHiding = false;
@@ -1024,6 +1051,37 @@ namespace Huddled.PoshConsole
             }
 		}
 
+        /// <summary>
+        /// Handles the Activated event of the Window control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            if (IsHiding)
+            {
+                if (Properties.Settings.Default.Animate)
+                {
+                    ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
+                    visi.Duration = lasts;
+                    visi.KeyFrames.Add(visKeyVisible);
+
+                    // Go!
+                    this.BeginAnimation(HeightProperty, showHeightAnimation, HandoffBehavior.SnapshotAndReplace);
+                    this.BeginAnimation(OpacityProperty, showOpacityAnimation, HandoffBehavior.SnapshotAndReplace);
+                    this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+                }
+                else
+                {
+                    Show();
+                }
+            }
+            buffer.Focus();
+        }
+
+        /// <summary>
+        /// Hides the window.
+        /// </summary>
         private void HideWindow()
         {
             IsHiding = true;
@@ -1053,11 +1111,7 @@ namespace Huddled.PoshConsole
             }
         }
 
-
-
-		/// <summary>
-		/// Handles the LocationChanged event of the Window control.
-		/// </summary>
+		/// <summary>Handles the LocationChanged event of the Window control.</summary>
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_LocationChanged(object sender, EventArgs e)
@@ -1115,14 +1169,13 @@ namespace Huddled.PoshConsole
 		}
 
 
-		/// <summary>
-		/// Handles the Closing event of the Window control.
-		/// </summary>
+		/// <summary>Handles the Closing event of the Window control.</summary>
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			IsClosing = true;
+            ExecuteShutdownProfile();
 
 			Properties.Settings.Default.WindowStyle = WindowStyle;
 			Properties.Settings.Default.ShowInTaskbar = ShowInTaskbar;
@@ -1130,6 +1183,8 @@ namespace Huddled.PoshConsole
 
 			Properties.Settings.Default.Save();
 		}
+
+
 
 		/// <summary>
 		/// Handles the SizeChanged event of the Window control.
@@ -1174,6 +1229,5 @@ namespace Huddled.PoshConsole
 				}
 			}
 		}
-
-	}
+    }
 }
