@@ -920,7 +920,7 @@ namespace Huddled.PoshConsole
                 tabCompleteLast = cmdline;
             }
 
-            System.Text.RegularExpressions.Regex splitter = new System.Text.RegularExpressions.Regex("[^ \"']+|[\"][^\"]+[\"][^ \"']*|'[^']+'[^ \"']+|[\"'][^\"']+$", System.Text.RegularExpressions.RegexOptions.Compiled);
+            System.Text.RegularExpressions.Regex splitter = new System.Text.RegularExpressions.Regex("[^ \"']+|\"[^\"]+\"[^ \"']*|'[^']+'[^ \"']*|[\"'][^\"']+$", System.Text.RegularExpressions.RegexOptions.Compiled);
 			System.Text.RegularExpressions.MatchCollection words = splitter.Matches(cmdline);
 
             if (words.Count >= 1)
