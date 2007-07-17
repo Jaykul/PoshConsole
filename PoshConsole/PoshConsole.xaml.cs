@@ -906,12 +906,13 @@ namespace Huddled.PoshConsole
 		private string buffer_TabComplete(string cmdline)
 		{
 			string completion = cmdline;
-            int tc = 0;
+            string lastWord = null;
+            int lastIndex = 0, lastLength = 0, tabCount = 0;
 			// if they're asking for another tab complete of the same thing as last time
 			// we'll look at the next thing in the list, otherwise, start at zero
             if (tabCompleteLast.Equals(cmdline))
             {
-                tc = ++tabCompleteCount;
+                tabCount = ++tabCompleteCount;
             }
             else
             {
@@ -919,46 +920,87 @@ namespace Huddled.PoshConsole
                 tabCompleteLast = cmdline;
             }
 
-			System.Text.RegularExpressions.Regex splitter = new System.Text.RegularExpressions.Regex("[^ \"']+|[\"'][^\"']+[\"']", System.Text.RegularExpressions.RegexOptions.Compiled);
+            System.Text.RegularExpressions.Regex splitter = new System.Text.RegularExpressions.Regex("[^ \"']+|[\"][^\"]+[\"][^ \"']*|'[^']+'[^ \"']+|[\"'][^\"']+$", System.Text.RegularExpressions.RegexOptions.Compiled);
 			System.Text.RegularExpressions.MatchCollection words = splitter.Matches(cmdline);
+
+            if (words.Count >= 1)
+            {
+                System.Text.RegularExpressions.Match lw = words[words.Count - 1];
+                lastWord = lw.Value;
+                lastIndex = lw.Index;
+                lastLength = lw.Length;
+                if (lastWord[0] == '"')
+                {
+                    lastWord = lastWord.Replace("\"", string.Empty);
+                }
+                else if(lastWord[0] == '\'')
+                {
+                    lastWord = lastWord.Replace("'", string.Empty);
+                }
+
+            }
+
 
             // Still need to do more Tab Completion
             // TODO: Make "PowerTab" obsolete for PoshConsole users.
-            // TODO: TabComplete Cmdlets inside the pipeline
-            // TODO: TabComplete Parameters
-            // TODO: TabComplete Variables
-            // TODO: TabComplete Aliases
-            // TODO: TabComplete Paths
-            // TODO: TabComplete Executables in (current?) path
+            //   TODO: TabComplete Parameters
+            //   TODO: TabComplete Variables
+            //   TODO: TabComplete Aliases
+            //   TODO: TabComplete Executables in (current?) path
 
-			if(words.Count == 1)
+            if (lastWord != null)
 			{
-				foreach(RunspaceConfigurationEntry cmdlet in myRunSpace.RunspaceConfiguration.Cmdlets)
+                // TODO: TabComplete Cmdlets inside the pipeline
+                foreach (RunspaceConfigurationEntry cmdlet in myRunSpace.RunspaceConfiguration.Cmdlets)
 				{
-					if(cmdlet.Name.StartsWith(cmdline))
+                    if (cmdlet.Name.StartsWith(lastWord))
 					{
 						completion = cmdlet.Name;
-                        if (0 == tc--) return completion;
+                        if (0 == tabCount--) return completion;
 					}
 				}
-			}
-            if (words.Count >= 1)
-            {
-                System.Text.RegularExpressions.Match lastword = words[words.Count - 1];
+
+                // TODO: TabComplete Paths
                 try
                 {
-                    Collection<PSObject> tabCompletion = InvokeHelper("TabExpansion '" + cmdline + "' '" + lastword.Value + "'", null);
-                    if (tabCompletion.Count > tabCompleteCount)
+                    Collection<PSObject> tabCompletion = InvokeHelper("resolve-path '" + lastWord + "*'", null);
+                    if (tabCompletion.Count > tabCount)
                     {
-                        completion = tabCompletion[tabCompleteCount].ToString();
-                        return cmdline.Substring(0, lastword.Index) + completion;
+                        completion = tabCompletion[tabCount].ToString();
+                        if (completion.Contains(" "))
+                        {
+                            return string.Format( "{0}\"{1}\"", cmdline.Substring(0, lastIndex), completion);
+                        } 
+                        else return cmdline.Substring(0, lastIndex) + completion;
+                    }
+                    else
+                    {
+                        tabCount -= tabCompletion.Count;
+                    }
+                //}
+                //catch (RuntimeException)
+                //{
+                //    // hide the error
+                //}
+                //
+                //// Invoke the TabComplete function
+                //try
+                //{
+                    tabCompletion = InvokeHelper("TabExpansion '" + cmdline + "' '" + lastWord + "'", null);
+                    if (tabCompletion.Count > tabCount)
+                    {
+                        completion = tabCompletion[tabCount].ToString();
+                        return cmdline.Substring(0, lastIndex) + completion;
+                    }
+                    else
+                    {
+                        tabCount -= tabCompletion.Count;
                     }
                 }
                 catch (RuntimeException)
                 {
                     // hide the error
                 }
-
             }
             // failed to find a match, reset so we can cycle back through
             tabCompleteCount = 0;
