@@ -148,9 +148,7 @@
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
                                  Background="#FF000000" Foreground="#FFFFFFFF"
-                                 TabComplete="buffer_TabComplete"
-                                 CommandEntered="buffer_CommandEntered"
-                                 GetHistory="buffer_GetHistory"
+
                                  SizeChanged="buffer_SizeChanged"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
 
