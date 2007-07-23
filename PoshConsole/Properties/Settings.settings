@@ -63,7 +63,7 @@
       <Value Profile="(Default)">Black</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">None</Value>
+      <Value Profile="(Default)">ThreeDBorderWindow</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -115,6 +115,12 @@
     </Setting>
     <Setting Name="FontSize" Type="System.Double" Scope="User">
       <Value Profile="(Default)">12</Value>
+    </Setting>
+    <Setting Name="ScrollBarVisibility" Type="System.Windows.Controls.ScrollBarVisibility" Scope="User">
+      <Value Profile="(Default)">Hidden</Value>
+    </Setting>
+    <Setting Name="StatusBar" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

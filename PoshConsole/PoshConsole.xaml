@@ -15,9 +15,8 @@
     Title="{Binding Path=buffer.Title}"
     BorderThickness="0"
     Visibility="Visible"
-	Background="Transparent"
-    ResizeMode="CanResizeWithGrip"
-    AllowsTransparency="True" WindowStyle="None"
+	 Background="Transparent"
+    ResizeMode="CanResizeWithGrip"    
 
     SnapsToDevicePixels="True"
     SourceInitialized="Window_SourceInitialized"
@@ -25,9 +24,28 @@
     Activated="Window_Activated" Deactivated="Window_Deactivated"
     LocationChanged="Window_LocationChanged"
     SizeChanged="Window_SizeChanged"
+    AllowsTransparency="False"
     >
     <Window.Resources>
         <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type PoshProps:Settings}"/>
+        <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
+            <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+            <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                        <Grid SnapsToDevicePixels="True" Background="Transparent">
+                            <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom" 
+                                  Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                            <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}" 
+                                  HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom" 
+                                  Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="{x:Type TextBoxBase}" BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
             <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
@@ -136,14 +154,15 @@
 		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
 	</Window.InputBindings>
-    <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}">
+    <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="22"/>
             </Grid.RowDefinitions>
-            <Posh:ProgressPanel  Grid.RowSpan="1" Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
-            <Posh:ConsoleTextBox Grid.Row="1" Grid.RowSpan="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+            <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
+            <Posh:ConsoleTextBox Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
@@ -152,31 +171,60 @@
                                  SizeChanged="buffer_SizeChanged"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
 
-                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" >
+                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" Title="PoshConsole" >
+				<Posh:ConsoleTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </Posh:ConsoleTextBox.Resources>
 				<Posh:ConsoleTextBox.FontSize>
 					<Binding Path="FontSize" Mode="Default" Source="{StaticResource SettingsDS}"/>
 				</Posh:ConsoleTextBox.FontSize>
 				<Posh:ConsoleTextBox.FontFamily>
 					<Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
 				</Posh:ConsoleTextBox.FontFamily>
-				<Posh:ConsoleTextBox.Resources>
-                    <Style TargetType="{x:Type Paragraph}">
-                        <Setter Property="Margin" Value="0"/>
-                    </Style>
-                </Posh:ConsoleTextBox.Resources>
                 <FlowDocument>
-                	<Paragraph xml:space="preserve">
-                        <Floater Margin="0,0,0,0" Padding="0,0,0,0">
-                			<Paragraph><Image Height="180" Margin="0,0,0,0" Source="PoshConsoleLogo.png" /></Paragraph>
+                	<Paragraph xml:space="preserve"> <Floater Margin="0,0,0,0" Padding="0,0,0,0">
+                			<Paragraph Background="#00FFFFFF"><Image Height="180" Margin="0,0,0,0" Source="PoshConsoleLogo.png" ClipToBounds="False" IsEnabled="True" SnapsToDevicePixels="True" Stretch="Uniform" /></Paragraph>
                 		</Floater>
-                        <Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
-                			<Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="Pescadero"><Run FontSize="28" Typography.ContextualSwashes="1" xml:space="preserve">Posh </Run><Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run><Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run></Paragraph>
-                			<Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="Pescadero"><Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run><LineBreak/><Run FontSize="20" Typography.ContextualSwashes="1" xml:space="preserve">brought to you by </Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run><Run FontFamily="Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run></Paragraph>
+<Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
+                			<Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="Pescadero"><Run FontSize="28" Typography.ContextualSwashes="1">Posh </Run><Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run><Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run></Paragraph>
+                			<Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="Pescadero"><Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run><LineBreak/><Run FontSize="20" Typography.ContextualSwashes="1">brought to you by </Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run><Run FontFamily="Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run><Run FontFamily="Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run></Paragraph>
                 			<Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="Pescadero"><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run><LineBreak/><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole/</Run></Paragraph>
                 		</Floater>
                     </Paragraph>
                 </FlowDocument>
             </Posh:ConsoleTextBox>
+        	<StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
+                       Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
+                       Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0" 
+                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderBrush="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" >
+        		<!--<StatusBar.BitmapEffect>
+        			<BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
+        		</StatusBar.BitmapEffect>-->
+                <StatusBarItem x:Name="title" Padding="4,0,4,0" DockPanel.Dock="Left" Content="{Binding Path=Title, ElementName=buffer, Mode=Default}" >
+                	<StatusBarItem.BitmapEffect>
+                		<DropShadowBitmapEffect/>
+                	</StatusBarItem.BitmapEffect>
+                </StatusBarItem>
+
+                <Separator DockPanel.Dock="Left" />
+
+                <StatusBarItem x:Name="admin" Padding="4,0,4,0" DockPanel.Dock="Right" HorizontalContentAlignment="Right" Content="Normal" Cursor="Hand" ToolTip="Double Click to re-start as administrator" FontWeight="Bold" Foreground="#FF11CC11" MouseDoubleClick="admin_MouseDoubleClick" >
+                    <StatusBarItem.BitmapEffect>
+                        <DropShadowBitmapEffect/>
+                    </StatusBarItem.BitmapEffect>
+                </StatusBarItem>
+
+                <Separator DockPanel.Dock="Right" />
+
+                <!-- Last item is docked in center, as usual. -->
+                <StatusBarItem HorizontalAlignment="Center" HorizontalContentAlignment="Center" Content="" Width="Auto" x:Name="statusMiddle" >
+                    <StatusBarItem.BitmapEffect>
+                        <DropShadowBitmapEffect/>
+                    </StatusBarItem.BitmapEffect>
+                </StatusBarItem>
+            </StatusBar>
         </Grid>
     </Border>
 </Window>

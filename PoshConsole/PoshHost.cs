@@ -45,6 +45,11 @@ namespace Huddled.PoshConsole
         /// (So it can be stopped by Control-C or Break).
         /// </summary>
         private Pipeline currentPipeline;
+        
+        /// <summary>
+        /// A Console window wrapper that hides the console
+        /// </summary>
+        private Console console;
 
         /// <summary>
         /// Used to serialize access to instance data...
@@ -63,7 +68,6 @@ namespace Huddled.PoshConsole
         delegate void voidDelegate();
         public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
 
-        
         public event WriteProgressDelegate ProgressUpdate;
 
 
@@ -74,11 +78,15 @@ namespace Huddled.PoshConsole
             this.buffer = buffer;
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
-
+            console = new Console();
             try
             {
                 myRawUI = new PoshRawUI(buffer);
                 myUI = new PoshUI(myRawUI);
+                // prebuild this
+                outDefault = new Command("Out-Default");
+                // for now, merge the errors with the rest of the output
+                outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
             }
             catch
             {
@@ -433,14 +441,14 @@ namespace Huddled.PoshConsole
             {
                 try
                 {
-                    ExecuteHelper(cmd.ToString(), null, false, false);
+                    ExecuteHelper(cmd.ToString(), null, false);
                 }
                 catch (RuntimeException rte)
                 {
                     // An exception occurred that we want to display ...
                     // We have to run another pipeline, and pass in the error record.
                     // The runtime will bind the input to the $input variable
-                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
                 }
             }
             else
@@ -487,14 +495,14 @@ namespace Huddled.PoshConsole
             {
                 try
                 {
-                    ExecuteHelper(cmd.ToString(), null, false, false);
+                    ExecuteHelper(cmd.ToString(), null, false);
                 }
                 catch (RuntimeException rte)
                 {
                     // An exception occurred that we want to display ...
                     // We have to run another pipeline, and pass in the error record.
                     // The runtime will bind the input to the $input variable
-                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
                 }
             }
             else
@@ -591,6 +599,8 @@ namespace Huddled.PoshConsole
 
         ManualResetEvent ready = new ManualResetEvent(true);
 
+        Command outDefault;
+
         /// <summary>
         /// A helper method which builds and executes a pipeline that writes to the default output.
         /// Any exceptions that are thrown are just passed to the caller. 
@@ -598,7 +608,7 @@ namespace Huddled.PoshConsole
         /// </summary>
         /// <param name="cmd">The script to run</param>
         /// <param name="input">Any input arguments to pass to the script.</param>
-        void ExecuteHelper(string cmd, object input, bool history, bool suppressOutput)
+        void ExecuteHelper(string cmd, object input, bool history)
         {
             //// Ignore empty command lines.
             if (String.IsNullOrEmpty(cmd))
@@ -631,8 +641,8 @@ namespace Huddled.PoshConsole
                     // commands. This will result in the output being written using the PSHost
                     // and PSHostUserInterface classes instead of returning objects to the hosting
                     // application.
-                    if (!suppressOutput) currentPipeline.Commands.Add("out-default");
-                    currentPipeline.Commands[0].MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+                    
+                    currentPipeline.Commands.Add( outDefault );
 
                     currentPipeline.InvokeAsync();
                     if (input != null)
@@ -706,7 +716,7 @@ namespace Huddled.PoshConsole
         /// Invoke's the user's PROMPT function to display a prompt.
         /// Called after each command completes
         /// </summary>
-        private void Prompt()
+        internal void Prompt()
         {
             StringBuilder sb = new StringBuilder();
             try
@@ -729,8 +739,8 @@ namespace Huddled.PoshConsole
                 // An exception occurred that we want to display ...
                 // We have to run another pipeline, and pass in the error record.
                 // The runtime will bind the input to the $input variable
-                ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false, false);
-                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
+                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
                 sb.Append("\n> ");
             }
             finally
@@ -749,7 +759,7 @@ namespace Huddled.PoshConsole
             try
             {
                 // execute the command with no input...
-                ExecuteHelper(cmd, null, true, false);
+                ExecuteHelper(cmd, null, true);
             }
             catch (RuntimeException rte)
             {
@@ -757,7 +767,7 @@ namespace Huddled.PoshConsole
                 // An exception occurred that we want to display ...
                 // We have to run another pipeline, and pass in the error record.
                 // The runtime will bind the input to the $input variable
-                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false, false);
+                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
             }
         }
 
@@ -822,6 +832,10 @@ namespace Huddled.PoshConsole
                 case "ConsoleDefaultBackground":
                     {
                         myRawUI.BackgroundColor = Properties.Settings.Default.ConsoleDefaultBackground;
+                    } break;
+                case "ScrollBarVisibility":
+                    {
+                        buffer.VerticalScrollBarVisibility = Properties.Settings.Default.ScrollBarVisibility;
                     } break;
                 default:
                     break;
@@ -955,7 +969,7 @@ namespace Huddled.PoshConsole
 			 }
 		 }
 
-		 public class PoshOptions {
+		 public class PoshOptions : DependencyObject {
 
              PoshHost MyHost;
              public PoshOptions(PoshHost myHost)
@@ -974,6 +988,38 @@ namespace Huddled.PoshConsole
 				 //   Huddled.PoshConsole.Properties.Settings.Default = value;
 				 //}
 			 }
+
+             private delegate string GetStringDelegate();
+             private delegate void  SetStringDelegate( /* string value */ );
+
+             public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
+
+             public string StatusText
+             {
+                 get
+                 {
+                     if (!Dispatcher.CheckAccess())
+                     {
+                         return (string)Dispatcher.Invoke(DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
+                     }
+                     else
+                     {
+                         return (string)base.GetValue(StatusTextProperty);
+                     }
+                 }
+                 set 
+                 {
+                     if (!Dispatcher.CheckAccess())
+                     {
+                         Dispatcher.BeginInvoke(DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
+                     }
+                     else
+                     {
+                         base.SetValue(StatusTextProperty, value);
+                     }
+                 }
+             }
+	
 
              public double FullPrimaryScreenWidth
              {

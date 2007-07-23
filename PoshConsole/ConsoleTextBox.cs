@@ -270,7 +270,7 @@ namespace Huddled.PoshConsole
             if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
             {
                 Clipboard.SetText(Selection.Text);
-                CaretPosition = Document.ContentEnd;
+                // CaretPosition = Document.ContentEnd;
             }
             base.OnPreviewMouseLeftButtonUp(e);
         }

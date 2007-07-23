@@ -17,6 +17,8 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using System.Windows.Controls.Primitives;
+using System.Diagnostics;
 
 namespace Huddled.PoshConsole
 {
@@ -76,14 +78,45 @@ namespace Huddled.PoshConsole
                 Application.Current.Shutdown(1);
             }
 
+            Binding statusBinding = new Binding("StatusText");
+            statusBinding.Source = myHost.Options;
+            // StatusBarItems:: Title, Separator, Admin, Separator, Status
+            StatusBarItem el = status.Items[status.Items.Count - 1] as StatusBarItem;
+            if (el != null)
+            {
+                el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
+            }
+
             // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
             myHost.ProgressUpdate += new PoshHost.WriteProgressDelegate(OnProgressUpdate);
 
-			// problems with data binding
-			this.WindowStyle = Properties.Settings.Default.WindowStyle;
-            this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
+            if (Win32.Application.IsUserAnAdmin())
+            {
+                // StatusBarItems:: Title, Separator, Admin, Separator, Status
+                el = status.Items[2] as StatusBarItem;
+                if( el != null ) {
+                    el.Content = "Elevated!";
+                    el.Foreground = new SolidColorBrush(Color.FromRgb((byte)204, (byte)119, (byte)17));
+                    el.ToolTip = "PoshConsole is running as Administrator";
+                    el.Cursor = this.Cursor;
+                }
+            }
+
+            // problems with data binding 
+            WindowStyle = Properties.Settings.Default.WindowStyle;
+            if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
+            {
+                AllowsTransparency = true;
+                ResizeMode = ResizeMode.CanResizeWithGrip;
+            }
+            else
+            {
+                // we ignore the border if the windowstyle isn't "None"
+                border.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
+                ResizeMode = ResizeMode.CanResize;
+            }
 
 		}
 
@@ -194,6 +227,10 @@ namespace Huddled.PoshConsole
                     {
                         this.ShowInTaskbar = Properties.Settings.Default.ShowInTaskbar;
                     } break;
+                case "StatusBar":
+                    { 
+                        status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
+                    } break;
                 case "WindowHeight":
                     {
                         this.Height = Properties.Settings.Default.WindowHeight;
@@ -282,7 +319,7 @@ namespace Huddled.PoshConsole
 		private void Window_SourceInitialized(object sender, EventArgs e)
 		{
 			// make the whole window glassy
-			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
+			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(2,20,10,1));
 			// hook mousedown and call DragMove() to make the whole window a drag handle
             MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
             progress.PreviewMouseLeftButtonDown += mbeh;
@@ -484,9 +521,9 @@ namespace Huddled.PoshConsole
             myHost.IsClosing = true;
             myHost.ExecuteShutdownProfile();
 
-			Properties.Settings.Default.WindowStyle = WindowStyle;
-			Properties.Settings.Default.ShowInTaskbar = ShowInTaskbar;
-			Properties.Settings.Default.FocusKey = FocusKey;
+            // Properties.Settings.Default.WindowStyle = WindowStyle;
+            // Properties.Settings.Default.ShowInTaskbar = ShowInTaskbar;
+            // Properties.Settings.Default.FocusKey = FocusKey;
 
 			Properties.Settings.Default.Save();
 		}
@@ -557,5 +594,35 @@ namespace Huddled.PoshConsole
 				}
 			}
 		}
+
+        private void admin_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (!Win32.Application.IsUserAnAdmin())
+            {
+                Process current = Process.GetCurrentProcess();
+
+                Process proc = new Process();
+                proc.StartInfo = new ProcessStartInfo();
+                //proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.Verb = "RunAs";
+                proc.StartInfo.FileName = current.MainModule.FileName;
+                proc.StartInfo.Arguments = current.StartInfo.Arguments;
+                try
+                {
+                    if( proc.Start() ) {
+                        this.myHost.SetShouldExit(0);
+                    }
+                }
+                catch (System.ComponentModel.Win32Exception w32)
+                {
+                    // if( w32.Message == "The operation was canceled by the user" )
+                    // if( w32.NativeErrorCode == 1223 ) {
+                    buffer.WriteOutput(ConsoleColor.Red,ConsoleColor.Black, 
+                            "Error Starting new instance:" + w32.Message, true );
+                    // myHost.Prompt();
+                }
+            }
+        }
     }
 }

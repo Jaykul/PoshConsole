@@ -82,6 +82,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Console.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="HotKeyManager.cs">
       <SubType>Code</SubType>
