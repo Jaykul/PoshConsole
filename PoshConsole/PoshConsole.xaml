@@ -12,7 +12,7 @@
 	
     x:Class="Huddled.PoshConsole.PoshConsole"
     x:Name="window"
-    Title="{Binding Path=buffer.Title}"
+    Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
     BorderThickness="0"
     Visibility="Visible"
 	 Background="Transparent"
@@ -159,7 +159,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="22"/>
+                <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
             </Grid.RowDefinitions>
             <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
             <Posh:ConsoleTextBox Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
