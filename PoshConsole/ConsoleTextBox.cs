@@ -39,9 +39,6 @@ namespace Huddled.PoshConsole
             NullOutCommands();
 
             RegisterClipboardCommands();
-
-            keywords1 = new List<string>();
-            keywords1.Add("Get");
         }
 
         /// <summary>
@@ -62,6 +59,46 @@ namespace Huddled.PoshConsole
             //this.ContextMenu = myContextMenu;
         }
 
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            this.ContextMenu = new ContextMenu();
+            this.myHistory = new List<string>();
+        }
+
+        //protected class HistoryMenu : ContextMenu
+        //{
+        //    override onm
+
+        //}
+
+
+
+        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        {
+            this.ContextMenu.Items.Clear();//.ItemsSource = myHistory;
+            int i = 0;
+            foreach (string item in myHistory)
+            {
+                MenuItem m = new MenuItem();
+                m.Header = "_" + item.Replace("_","__");
+                m.Click += new RoutedEventHandler(history_select);
+                this.ContextMenu.Items.Insert(0,m);
+            }
+
+            base.OnContextMenuOpening(e);
+        }
+
+        void  history_select(object sender, RoutedEventArgs e)
+        {
+            CurrentCommand = (sender as MenuItem).Header.ToString();
+        }
+
+        protected override void OnContextMenuClosing(ContextMenuEventArgs e)
+        {
+            base.OnContextMenuClosing(e);
+        }
 
         /// <summary>
         /// Registers the clipboard commands.
@@ -362,6 +399,7 @@ namespace Huddled.PoshConsole
                 // happens when starting up with a slow profile script
                 switch (e.Key)
                 {
+
                     case Key.Up:
                         {
                             if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
@@ -415,6 +453,7 @@ namespace Huddled.PoshConsole
                                 //TextRange tr = new TextRange(currentParagraph.ContentStart.GetPositionAtOffset(promptLength), currentParagraph.ContentEnd);
                                 //string cmd = EndOfPrompt.GetTextInRun(LogicalDirection.Forward);
                                 currentParagraph.ContentEnd.InsertLineBreak();
+                                myHistory.Add(cmd);
                                 CommandEntered(cmd);
                             }
                             e.Handled = true;
@@ -676,7 +715,7 @@ namespace Huddled.PoshConsole
         #region Private Members
 
         // Static member for email names dictionary.
-        private static readonly List<string> keywords1;
+        private List<string> myHistory;
 
         // Static list of editing formatting commands. In the ctor we disable all these commands.
         private static readonly RoutedUICommand[] _formattingCommands = new RoutedUICommand[]
@@ -697,9 +736,6 @@ namespace Huddled.PoshConsole
             };
 
         #endregion Private Members
-
-        public string PromptPadding = " ";
-
 
         int promptInlines = 0;
         TextPointer commandStart = null;

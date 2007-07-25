@@ -132,12 +132,14 @@
     </Window.Topmost>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Stop" Executed="HandleControlC" CanExecute="CanHandleControlC"/>
-		<CommandBinding Command="NavigationCommands.Zoom" Executed="HandleSetZoom" />
+        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
+        <CommandBinding Command="NavigationCommands.Zoom" Executed="HandleSetZoom" />
 		<CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="HandleIncreaseZoom" />
 		<CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
 	</Window.CommandBindings>
 	<Window.InputBindings>
-		<!-- <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> -->
+        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" />
+        <!-- <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> -->
 		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
@@ -153,7 +155,9 @@
 		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
-	</Window.InputBindings>
+
+
+    </Window.InputBindings>
     <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}">
         <Grid>
             <Grid.RowDefinitions>
@@ -183,6 +187,9 @@
 				<Posh:ConsoleTextBox.FontFamily>
 					<Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
 				</Posh:ConsoleTextBox.FontFamily>
+            	<Posh:ConsoleTextBox.ContextMenu>
+            		<ContextMenu/>
+            	</Posh:ConsoleTextBox.ContextMenu>
                 <FlowDocument>
                 	<Paragraph xml:space="preserve"> <Floater Margin="0,0,0,0" Padding="0,0,0,0">
                 			<Paragraph Background="#00FFFFFF"><Image Height="180" Margin="0,0,0,0" Source="PoshConsoleLogo.png" ClipToBounds="False" IsEnabled="True" SnapsToDevicePixels="True" Stretch="Uniform" /></Paragraph>
