@@ -25,7 +25,7 @@ namespace Huddled.PoshConsole
         public delegate void CommandHandler(string commandLine);
         public event CommandHandler CommandEntered;
 
-        public delegate string TabCompleteHandler(string commandLine);
+        public delegate List<string> TabCompleteHandler(string commandLine);
         public event TabCompleteHandler TabComplete;
 
         public delegate string HistoryHandler(ref int index);
@@ -49,6 +49,12 @@ namespace Huddled.PoshConsole
         {
             DataObject.AddPastingHandler(this, OnDataObjectPasting);
 
+            ApplicationCommands.ContextMenu.InputGestures.Add(new KeyGesture(Key.F7));
+            ApplicationCommands.ContextMenu.InputGestures.Add(new KeyGesture(Key.F7, ModifierKeys.Control));
+
+            //KeyBinding f7 = new KeyBinding(ApplicationCommands.ContextMenu, Key.F7, ModifierKeys.None)
+            InputBindings.Add(new KeyBinding(ApplicationCommands.ContextMenu, Key.F7, ModifierKeys.None));
+            InputBindings.Add(new KeyBinding(ApplicationCommands.ContextMenu, Key.F7, ModifierKeys.Control));
             //this._words = new List<Word>();
             //this.TextChanged += this.TextChangedEventHandler;
 
@@ -78,10 +84,12 @@ namespace Huddled.PoshConsole
         protected override void OnContextMenuOpening(ContextMenuEventArgs e)
         {
             this.ContextMenu.Items.Clear();//.ItemsSource = myHistory;
-            int i = 0;
+
+            //int i = myHistory.Count;
             foreach (string item in myHistory)
             {
                 MenuItem m = new MenuItem();
+                m.Margin = new Thickness(0.0);
                 m.Header = "_" + item.Replace("_","__");
                 m.Click += new RoutedEventHandler(history_select);
                 this.ContextMenu.Items.Insert(0,m);
@@ -92,7 +100,7 @@ namespace Huddled.PoshConsole
 
         void  history_select(object sender, RoutedEventArgs e)
         {
-            CurrentCommand = (sender as MenuItem).Header.ToString();
+            CurrentCommand = (sender as MenuItem).Header.ToString().Substring(1);
         }
 
         protected override void OnContextMenuClosing(ContextMenuEventArgs e)
@@ -363,6 +371,8 @@ namespace Huddled.PoshConsole
         }
 
         private string tabbing = null;
+        private int tabbingCount = 0;
+        private List<string> completions = null;
         private int historyIndex = 0;
         /// <summary>
         /// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
@@ -376,29 +386,40 @@ namespace Huddled.PoshConsole
                 {
                     SetPrompt();
                 } 
-                //else {
-                //    int promptLen = commandStart.GetOffsetToPosition(currentParagraph.Inlines.LastInline.ElementStart.GetInsertionPosition(LogicalDirection.Backward));
-                //    if (promptLen != 0)
-                //    {
-                //        if (promptLen < 0)
-                //        {
-                //            TextRange tr = new TextRange(commandStart, currentParagraph.Inlines.LastInline.ElementStart);
-                //            tr.Text = String.Empty;
-                //        }
-                //        else
-                //        {
-                //            TextRange tr = new TextRange(commandStart, Document.ContentEnd);
-                //            tr.Text = String.Empty;
-                //        }
-                //        SetPrompt();
-                //    }
-                //}
 
                 bool inPrompt = CaretInCommand;
-                bool isTabbing = false;
                 // happens when starting up with a slow profile script
                 switch (e.Key)
                 {
+                    case Key.Tab:
+                        {
+                            if (inPrompt)
+                            {
+                                tabbingCount += ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1;
+                                if (tabbing == null)
+                                {
+                                    tabbing = CurrentCommand;
+                                    if (!string.IsNullOrEmpty(tabbing))
+                                    {
+                                        completions = TabComplete(tabbing);
+                                    } // make sure it's never an empty string.
+                                    else tabbing = null; 
+                                }
+                                if (tabbing != null)
+                                {
+                                    if (tabbingCount < 0 || tabbingCount >= completions.Count)
+                                    {
+                                        tabbingCount = 0;
+                                    }
+                                    CurrentCommand = completions[tabbingCount];
+                                }
+                            }
+                            e.Handled = true;
+                        } break;
+                    case Key.F7:
+                        {
+                            ApplicationCommands.ContextMenu.Execute(null, this);
+                        } break;
 
                     case Key.Up:
                         {
@@ -406,7 +427,25 @@ namespace Huddled.PoshConsole
                             {
                                 historyIndex++;
                                 if (null != GetHistory)
+                                {
                                     CurrentCommand = GetHistory(ref historyIndex);
+                                }
+                                else
+                                {
+                                    if (historyIndex == -1)
+                                    {
+                                        historyIndex = StringHistory.Count;
+                                    }
+                                    if (historyIndex > 0 && historyIndex <= StringHistory.Count)
+                                    {
+                                        CurrentCommand = StringHistory[StringHistory.Count - historyIndex];
+                                    }
+                                    else
+                                    {
+                                        historyIndex = 0;
+                                        CurrentCommand = string.Empty;
+                                    }
+                                }
                                 e.Handled = true;
                             }
                         } break;
@@ -420,26 +459,7 @@ namespace Huddled.PoshConsole
                                 e.Handled = true;
                             }
                         } break;
-                    case Key.Tab:
-                        {
-                            if (inPrompt)
-                            {
-                                isTabbing = true;
-                                if (tabbing == null)
-                                {
-                                    tabbing = CurrentCommand;
-                                }
-                                if (string.IsNullOrEmpty(tabbing))
-                                {
-                                    tabbing = null;
-                                }
-                                else
-                                {
-                                    CurrentCommand = TabComplete(tabbing);
-                                }
-                            }
-                            e.Handled = true;
-                        } break;
+
                     case Key.Escape:
                         {
                             historyIndex = 0;
@@ -550,7 +570,7 @@ namespace Huddled.PoshConsole
                             }
                         } break;
 
-                    // here's a few keys we don't react to:
+                    // here's a few keys we want the base control to handle:
                     case Key.Right: break;
                     case Key.RightAlt: break;
                     case Key.LeftAlt: break;
@@ -569,6 +589,9 @@ namespace Huddled.PoshConsole
                     // if a key isn't in the list above, then make sure we're in the prompt before we let it through
                     default:
                         {
+                            tabbing = null;
+                            tabbingCount = 0;
+
                             //System.Diagnostics.Debug.WriteLine(CaretPosition.GetOffsetToPosition(EndOfOutput));
                             if (commandStart == null || CaretPosition.GetOffsetToPosition(commandStart) > 0)
                             {
@@ -582,7 +605,6 @@ namespace Huddled.PoshConsole
                         } break;
                 }
 
-                if (!isTabbing) tabbing = null;
             }
             base.OnPreviewKeyDown(e);
         }
@@ -714,8 +736,13 @@ namespace Huddled.PoshConsole
 
         #region Private Members
 
-        // Static member for email names dictionary.
         private List<string> myHistory;
+        public List<string> StringHistory
+        {
+            get { return myHistory; }
+            set { myHistory = value; }
+        }
+	
 
         // Static list of editing formatting commands. In the ctor we disable all these commands.
         private static readonly RoutedUICommand[] _formattingCommands = new RoutedUICommand[]

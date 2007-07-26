@@ -87,6 +87,7 @@ namespace Huddled.PoshConsole
                 outDefault = new Command("Out-Default");
                 // for now, merge the errors with the rest of the output
                 outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+                outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
             }
             catch
             {
@@ -99,9 +100,9 @@ namespace Huddled.PoshConsole
 
             buffer.TabComplete +=new ConsoleTextBox.TabCompleteHandler(buffer_TabComplete);
             buffer.CommandEntered +=new ConsoleTextBox.CommandHandler(buffer_CommandEntered);
-            buffer.GetHistory +=new ConsoleTextBox.HistoryHandler(buffer_GetHistory);
+            //buffer.GetHistory +=new ConsoleTextBox.HistoryHandler(buffer_GetHistory);
 
-            this.ShouldExit += new ExitHandler(WeShouldExit);
+            // this.ShouldExit += new ExitHandler(WeShouldExit);
             myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
             myUI.Input += new PoshUI.InputDelegate(GetInput);
             myUI.Output += new PoshUI.OutputDelegate(OnOutput);
@@ -116,9 +117,10 @@ namespace Huddled.PoshConsole
 
             myRunSpace = RunspaceFactory.CreateRunspace(this);
 
-
-
             myRunSpace.Open();
+
+            // Finally, STARTUP!
+            ExecuteStartupProfile();
         }
 
         #region ConsoleTextBox Event Handlers
@@ -129,23 +131,27 @@ namespace Huddled.PoshConsole
         /// A Delegate for calling WeShouldExit
         /// </summary>
         private delegate void ExitDelegate(int exitCode);
+
         /// <summary>
-        /// Shuts down the console in a thread-safe manner
+        /// Indicate to the host application that exit has
+        /// been requested. Pass the exit code that the host
+        /// application should use when exiting the process.
         /// </summary>
-        /// <param name="exitCode">The exit code.</param>
-        void WeShouldExit(int exitCode)
+        /// <param name="exitCode"></param>
+        public override void SetShouldExit(int exitCode)
         {
             if (buffer.Dispatcher.CheckAccess())
             {
+                ExecuteShutdownProfile();
                 Application.Current.Shutdown(exitCode);
             }
             else
             {
                 this.IsClosing = true;
-                ExitDelegate ex = new ExitDelegate(WeShouldExit);
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Send, ex, exitCode);
+                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Send, new ExitDelegate(SetShouldExit), exitCode);
             }
         }
+
 
         /// <summary>
         /// Writes the prompt.
@@ -234,44 +240,33 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private string buffer_GetHistory(ref int historyIndex)
-        {
-            if (historyIndex == -1)
-            {
-                historyIndex = StringHistory.Count;
-            }
-            if (historyIndex > 0 && historyIndex <= StringHistory.Count)
-            {
-                return StringHistory[StringHistory.Count - historyIndex];
-            }
-            else
-            {
-                historyIndex = 0;
-                return string.Empty;
-            }
-        }
+        //private string buffer_GetHistory(ref int historyIndex)
+        //{
+        //    if (historyIndex == -1)
+        //    {
+        //        historyIndex = StringHistory.Count;
+        //    }
+        //    if (historyIndex > 0 && historyIndex <= StringHistory.Count)
+        //    {
+        //        return StringHistory[StringHistory.Count - historyIndex];
+        //    }
+        //    else
+        //    {
+        //        historyIndex = 0;
+        //        return string.Empty;
+        //    }
+        //}
 
         //Regex splitter = new Regex("[^ \"']+|\"[^\"]+\"[^ \"']*|'[^']+'[^ \"']*|[\"'][^\"']+$", RegexOptions.Compiled);
         static Regex chunker = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$", RegexOptions.Compiled);
 
-        string tabCompleteLast = String.Empty;
-        int tabCompleteCount = 0;
-        private string buffer_TabComplete(string cmdline)
+        private List<string> buffer_TabComplete(string cmdline)
         {
-            string completion = cmdline;
+            List<string> completions = new List<string>();
+            completions.Add(cmdline);
+
             string lastWord = null;
-            int lastIndex = 0, lastLength = 0, tabCount = 0;
-            // if they're asking for another tab complete of the same thing as last time
-            // we'll look at the next thing in the list, otherwise, start at zero
-            if (tabCompleteLast.Equals(cmdline))
-            {
-                tabCount = ++tabCompleteCount;
-            }
-            else
-            {
-                tabCompleteCount = 0;
-                tabCompleteLast = cmdline;
-            }
+            string prefix = null;
 
             MatchCollection words = chunker.Matches(cmdline);
 
@@ -279,8 +274,6 @@ namespace Huddled.PoshConsole
             {
                 System.Text.RegularExpressions.Match lw = words[words.Count - 1];
                 lastWord = lw.Value;
-                lastIndex = lw.Index;
-                lastLength = lw.Length;
                 if (lastWord[0] == '"')
                 {
                     lastWord = lastWord.Replace("\"", string.Empty);
@@ -289,11 +282,12 @@ namespace Huddled.PoshConsole
                 {
                     lastWord = lastWord.Replace("'", string.Empty);
                 }
-
+                prefix = cmdline.Substring(0, lw.Index);
             }
 
             // Still need to do more Tab Completion
             // TODO: Make "PowerTab" obsolete for PoshConsole users.
+            // TODO: Make each TabExpansion optional -- maybe plugins?
             //   TODO: TabComplete Parameters
             //   TODO: TabComplete Variables
             //   TODO: TabComplete Aliases
@@ -306,69 +300,40 @@ namespace Huddled.PoshConsole
                 {
                     if (cmdlet.Name.StartsWith(lastWord))
                     {
-                        completion = cmdlet.Name;
-                        if (0 == tabCount--) return completion;
+                        completions.Add(cmdlet.Name);
                     }
                 }
 
                 // TODO: TabComplete Paths
                 try
                 {
-                    Collection<PSObject> tabCompletion = null;
                     if (lastWord[0] == '$')
                     {
-                        tabCompletion = InvokeHelper("get-variable " + lastWord.Substring(1) + "*", null);
-                        if (tabCompletion.Count > tabCount)
+                        foreach( PSObject opt in InvokeHelper("get-variable " + lastWord.Substring(1) + "*", null) ) 
                         {
-                            PSVariable var = tabCompletion[tabCount].ImmediateBaseObject as PSVariable;
+                            PSVariable var = opt.ImmediateBaseObject as PSVariable;
                             if (var != null)
                             {
-                                completion = "$" + var.Name;
-                                if (completion.Contains(" "))
-                                {
-                                    return string.Format("{0}\"{1}\"", cmdline.Substring(0, lastIndex), completion);
-                                }
-                                else return cmdline.Substring(0, lastIndex) + completion;
+                                completions.Add( prefix + "$" + var.Name);
                             }
-                        }
-                        else
-                        {
-                            tabCount -= tabCompletion.Count;
                         }
                     }
 
-                    tabCompletion = InvokeHelper("resolve-path \"" + lastWord + "*\"", null);
-                    if (tabCompletion.Count > tabCount)
+
+                    foreach( PSObject opt in InvokeHelper("resolve-path \"" + lastWord + "*\"", null) )
                     {
-                        completion = tabCompletion[tabCount].ToString();
+                        string completion = opt.ToString();
                         if (completion.Contains(" "))
                         {
-                            return string.Format("{0}\"{1}\"", cmdline.Substring(0, lastIndex), completion);
+                            completions.Add(string.Format("{0}\"{1}\"", prefix, completion));
                         }
-                        else return cmdline.Substring(0, lastIndex) + completion;
+                        else completions.Add(prefix + completion);
                     }
-                    else
+
+                    // Finally, call the TabExpansion string
+                    foreach( PSObject opt in InvokeHelper("TabExpansion '" + cmdline + "' '" + lastWord + "'", null) )
                     {
-                        tabCount -= tabCompletion.Count;
-                    }
-                    //}
-                    //catch (RuntimeException)
-                    //{
-                    //    // hide the error
-                    //}
-                    //
-                    //// Invoke the TabComplete function
-                    //try
-                    //{
-                    tabCompletion = InvokeHelper("TabExpansion '" + cmdline + "' '" + lastWord + "'", null);
-                    if (tabCompletion.Count > tabCount)
-                    {
-                        completion = tabCompletion[tabCount].ToString();
-                        return cmdline.Substring(0, lastIndex) + completion;
-                    }
-                    else
-                    {
-                        tabCount -= tabCompletion.Count;
+                        completions.Add(prefix + opt.ToString());
                     }
                 }
                 catch (RuntimeException)
@@ -376,10 +341,7 @@ namespace Huddled.PoshConsole
                     // hide the error
                 }
             }
-            // failed to find a match, reset so we can cycle back through
-            tabCompleteCount = 0;
-            tabCompleteLast = String.Empty;
-            return cmdline;
+            return completions;
         }
         #endregion
 
@@ -619,7 +581,7 @@ namespace Huddled.PoshConsole
 
             if (ready.WaitOne(10000, true))
             {
-                if (history) StringHistory.Add(cmd);
+                //if (history) StringHistory.Add(cmd);
 
                 // Create the pipeline object and make it available
                 // to the ctrl-C handle through the currentPipeline instance
@@ -925,21 +887,6 @@ namespace Huddled.PoshConsole
             return; // Do nothing...
         }
 
-        /// <summary>
-        /// Indicate to the host application that exit has
-        /// been requested. Pass the exit code that the host
-        /// application should use when exiting the process.
-        /// </summary>
-        /// <param name="exitCode"></param>
-        public override void SetShouldExit(int exitCode)
-        {
-            if( null != ShouldExit ) ShouldExit(exitCode);
-        }
-
-        public delegate void ExitHandler(int exitCode);
-        public event ExitHandler ShouldExit;
-
-
 
         /// <summary>
         /// Return an instance of the implementation of the PSHostUserInterface
@@ -1039,7 +986,7 @@ namespace Huddled.PoshConsole
              public List<string> History {
                  get
                  {
-                     return MyHost.StringHistory;
+                     return MyHost.buffer.StringHistory;
                  }
              }
          }

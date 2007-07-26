@@ -369,7 +369,6 @@ namespace Huddled.PoshConsole
 			buffer.Document.IsColumnWidthFlexible = false;
 
 			RecalculateSizes();
-			myHost.ExecuteStartupProfile();
 		}
 
         bool IsHiding = false;
@@ -519,11 +518,7 @@ namespace Huddled.PoshConsole
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
             myHost.IsClosing = true;
-            myHost.ExecuteShutdownProfile();
-
-            // Properties.Settings.Default.WindowStyle = WindowStyle;
-            // Properties.Settings.Default.ShowInTaskbar = ShowInTaskbar;
-            // Properties.Settings.Default.FocusKey = FocusKey;
+            myHost.SetShouldExit(0);
 
 			Properties.Settings.Default.Save();
 		}

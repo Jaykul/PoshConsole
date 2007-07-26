@@ -138,8 +138,10 @@
 		<CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
 	</Window.CommandBindings>
 	<Window.InputBindings>
-        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" />
-        <!-- <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> -->
+        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
+        <!-- 
+        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> 
+        -->
 		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
 		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
@@ -176,7 +178,11 @@
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
 
                                  Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" Title="PoshConsole" >
-				<Posh:ConsoleTextBox.Resources>
+                <Posh:ConsoleTextBox.InputBindings>
+                    <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
+                </Posh:ConsoleTextBox.InputBindings>
+
+                <Posh:ConsoleTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
                     </Style>
