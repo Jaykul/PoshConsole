@@ -264,7 +264,7 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ThreeDBorderWindow")]
+        [global::System.Configuration.DefaultSettingValueAttribute("SingleBorderWindow")]
         public global::System.Windows.WindowStyle WindowStyle {
             get {
                 return ((global::System.Windows.WindowStyle)(this["WindowStyle"]));
@@ -276,7 +276,7 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool ShowInTaskbar {
             get {
                 return ((bool)(this["ShowInTaskbar"]));
@@ -336,7 +336,7 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Animate {
             get {
                 return ((bool)(this["Animate"]));
@@ -481,7 +481,7 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Hidden")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Auto")]
         public global::System.Windows.Controls.ScrollBarVisibility ScrollBarVisibility {
             get {
                 return ((global::System.Windows.Controls.ScrollBarVisibility)(this["ScrollBarVisibility"]));

@@ -428,7 +428,7 @@ namespace Huddled.PoshConsole
                                     popup.Closed += popupClosing;
                                     ShowPopup(completions, false, false);
                                 }
-                                else
+                                else if(tabbingCount < completions.Count)
                                 {
                                     CurrentCommand = tabbing.Substring(0, tabbing.Length - lastWord.Length) + completions[tabbingCount];
                                 }
@@ -512,6 +512,9 @@ namespace Huddled.PoshConsole
                     {
                         IsUndoEnabled = false;
                         IsUndoEnabled = true;
+                        
+                        // keep them in the same (relative) place in the history buffer.
+                        if( historyIndex != 0 ) historyIndex++; 
 
                         if (CommandEntered != null)
                         {   // the "EndOfOutput" marker gets stuck just before the last character of the prompt...

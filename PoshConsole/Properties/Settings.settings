@@ -63,10 +63,10 @@
       <Value Profile="(Default)">Black</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">ThreeDBorderWindow</Value>
+      <Value Profile="(Default)">SingleBorderWindow</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WindowHeight" Type="System.Double" Scope="User">
       <Value Profile="(Default)">300</Value>
@@ -81,7 +81,7 @@
       <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="Animate" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SnapToScreenEdge" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -117,7 +117,7 @@
       <Value Profile="(Default)">12</Value>
     </Setting>
     <Setting Name="ScrollBarVisibility" Type="System.Windows.Controls.ScrollBarVisibility" Scope="User">
-      <Value Profile="(Default)">Hidden</Value>
+      <Value Profile="(Default)">Auto</Value>
     </Setting>
     <Setting Name="StatusBar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
