@@ -395,7 +395,6 @@ namespace Huddled.PoshConsole
             {
                 case Key.Tab:
                     {
-                        tabTime = DateTime.Now;
                         if (inPrompt)
                         {
                             tabbingCount += ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1;
@@ -405,7 +404,9 @@ namespace Huddled.PoshConsole
                                 if (!string.IsNullOrEmpty(tabbing))
                                 {
                                     lastWord = GetLastWord(tabbing);
+                                    Cursor = Cursors.Wait;
                                     completions = TabComplete(tabbing, lastWord);
+                                    Cursor = Cursors.IBeam;
                                 } // make sure it's never an empty string.
                                 else tabbing = null;
                             }
@@ -418,7 +419,8 @@ namespace Huddled.PoshConsole
                                 // show the menu if:
                                 // TabCompleteMenuThreshold > 0 and there are more items than the threshold
                                 // OR they tabbed twice really fast
-                                if ((Properties.Settings.Default.TabCompleteMenuThreshold > 0 && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
+                                if (    (Properties.Settings.Default.TabCompleteMenuThreshold > 0 
+                                        && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
                                     || ((DateTime.Now - tabTime) < TimeSpan.FromSeconds(1)))
                                 {
                                     string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
@@ -432,6 +434,7 @@ namespace Huddled.PoshConsole
                                 }
                             }
                         }
+                        tabTime = DateTime.Now;
                         e.Handled = true;
                     } break;
                 case Key.F7:
