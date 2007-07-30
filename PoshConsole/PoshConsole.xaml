@@ -25,6 +25,7 @@
     LocationChanged="Window_LocationChanged"
     SizeChanged="Window_SizeChanged"
     AllowsTransparency="False"
+    Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
     >
     <Window.Resources>
         <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type PoshProps:Settings}"/>
@@ -56,13 +57,25 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                        <!--Create a RichTextBox that looks "flat".
+                        The control template for a TextBox or RichTextBox must
+                        include an element tagged as the content host.  An element is
+                        tagged as the content host element when it has the special name
+                        PART_ContentHost.  The content host element must be a ScrollViewer,
+                        or an element that derives from Decorator. 
+                        -->
                         <aero:ListBoxChrome SnapsToDevicePixels="true" x:Name="Bd"
                                                   Background="{TemplateBinding Background}"
                                                   BorderThickness="0"
                                                   BorderBrush="{TemplateBinding BorderBrush}"
                                                   RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
                                                   RenderMouseOver="{TemplateBinding IsMouseOver}">
-                            <ScrollViewer SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost" Padding="0,0,0,0" />
+                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost" Padding="0,0,0,0" />
+                            <!--<StackPanel Name="ConsoleTextBox">
+                                <Popup Name="IntelliPopup">
+                                    <ListBox Name="IntelliList" />
+                                </Popup>
+                            </StackPanel>-->
                         </aero:ListBoxChrome>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="false">
@@ -74,7 +87,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type Posh:ConsoleTextBox}">
+        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type Posh:RichTextConsole}">
             <Style.Resources>
                 <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
                     <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -168,7 +181,7 @@
                 <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
             </Grid.RowDefinitions>
             <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
-            <Posh:ConsoleTextBox Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+            <Posh:RichTextConsole Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
@@ -178,27 +191,24 @@
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
 
                                  Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" Title="PoshConsole" >
-                <Posh:ConsoleTextBox.InputBindings>
-                    <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
-                </Posh:ConsoleTextBox.InputBindings>
 
-                <Posh:ConsoleTextBox.Resources>
+                <Posh:RichTextConsole.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
                     </Style>
-                </Posh:ConsoleTextBox.Resources>
-				<Posh:ConsoleTextBox.FontSize>
+                </Posh:RichTextConsole.Resources>
+				<Posh:RichTextConsole.FontSize>
 					<Binding Path="FontSize" Mode="Default" Source="{StaticResource SettingsDS}"/>
-				</Posh:ConsoleTextBox.FontSize>
-				<Posh:ConsoleTextBox.FontFamily>
+				</Posh:RichTextConsole.FontSize>
+				<Posh:RichTextConsole.FontFamily>
 					<Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
-				</Posh:ConsoleTextBox.FontFamily>
-            	<Posh:ConsoleTextBox.ContextMenu>
+				</Posh:RichTextConsole.FontFamily>
+                <Posh:RichTextConsole.ContextMenu>
             		<ContextMenu/>
-            	</Posh:ConsoleTextBox.ContextMenu>
-                <FlowDocument>
-                	<Paragraph xml:space="preserve"> <Floater Margin="0,0,0,0" Padding="0,0,0,0">
-                			<Paragraph Background="#00FFFFFF"><Image Height="180" Margin="0,0,0,0" Source="PoshConsoleLogo.png" ClipToBounds="False" IsEnabled="True" SnapsToDevicePixels="True" Stretch="Uniform" /></Paragraph>
+            	</Posh:RichTextConsole.ContextMenu>
+                    <FlowDocument>
+                        <Paragraph xml:space="preserve"> <Floater Margin="0,0,0,0" Padding="0,0,0,0">
+                			<Paragraph Background="#00FFFFFF"><Image Height="180" Margin="0,0,0,0" Source="pack://application:,,,/Artwork/PoshConsoleLogo.png" ClipToBounds="False" IsEnabled="True" SnapsToDevicePixels="True" Stretch="Uniform" /></Paragraph>
                 		</Floater>
 <Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
                 			<Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="./Fonts/#Pescadero"><Run FontSize="28" Typography.ContextualSwashes="1">Posh </Run><Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run><Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run></Paragraph>
@@ -206,8 +216,8 @@
                 			<Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="./Fonts/#Pescadero"><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run><LineBreak/><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole/</Run></Paragraph>
                 		</Floater>
                     </Paragraph>
-                </FlowDocument>
-            </Posh:ConsoleTextBox>
+                    </FlowDocument>
+            </Posh:RichTextConsole>
         	<StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
                        Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
                        Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0" 

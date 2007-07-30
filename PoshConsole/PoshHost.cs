@@ -57,9 +57,9 @@ namespace Huddled.PoshConsole
         private object instanceLock = new object();
 
         /// <summary>
-        /// A ConsoleTextBox for output
+        /// A RichTextConsole for output
         /// </summary>
-        private ConsoleTextBox buffer;
+        private RichTextConsole buffer;
 
         public bool IsClosing = false;
 
@@ -73,17 +73,21 @@ namespace Huddled.PoshConsole
 
         internal PoshOptions Options;
         internal List<string> StringHistory;
-        public PoshHost(ConsoleTextBox buffer)
+        public PoshHost(RichTextConsole buffer)
         {
             this.buffer = buffer;
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
             console = new Console();
+
+            console.WriteOutput += new Console.OutputDelegate(delegate(string output) { WriteOutput(myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, output, false); });
+            console.WriteError  += new Console.OutputDelegate(delegate(string output) { WriteOutput(ConsoleColor.Red, ConsoleColor.Black, output, false); });
+
             try
             {
                 myRawUI = new PoshRawUI(buffer);
                 myUI = new PoshUI(myRawUI);
-                // prebuild this
+                // precreate this
                 outDefault = new Command("Out-Default");
                 // for now, merge the errors with the rest of the output
                 outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
@@ -98,9 +102,9 @@ namespace Huddled.PoshConsole
             buffer.ConsoleBackground = myRawUI.BackgroundColor;
             buffer.ConsoleForeground = myRawUI.ForegroundColor;
 
-            buffer.TabComplete +=new ConsoleTextBox.TabCompleteHandler(buffer_TabComplete);
-            buffer.CommandEntered +=new ConsoleTextBox.CommandHandler(buffer_CommandEntered);
-            //buffer.GetHistory +=new ConsoleTextBox.HistoryHandler(buffer_GetHistory);
+            buffer.TabComplete +=new RichTextConsole.TabCompleteHandler(buffer_TabComplete);
+            buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
+            //buffer.GetHistory +=new RichTextConsole.HistoryHandler(buffer_GetHistory);
 
             // this.ShouldExit += new ExitHandler(WeShouldExit);
             myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
@@ -110,8 +114,8 @@ namespace Huddled.PoshConsole
             myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
 
             // Some delegates we think we can get away with making only once...
-            endOutput = new ConsoleTextBox.EndOutputDelegate(buffer.EndOutput);
-            prompt = new ConsoleTextBox.PromptDelegate(buffer.Prompt);
+            endOutput = new RichTextConsole.EndOutputDelegate(buffer.EndOutput);
+            prompt = new RichTextConsole.PromptDelegate(buffer.Prompt);
 
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
@@ -123,7 +127,7 @@ namespace Huddled.PoshConsole
             ExecuteStartupProfile();
         }
 
-        #region ConsoleTextBox Event Handlers
+        #region RichTextConsole Event Handlers
 
 
 
@@ -143,6 +147,7 @@ namespace Huddled.PoshConsole
             if (buffer.Dispatcher.CheckAccess())
             {
                 ExecuteShutdownProfile();
+                console.Dispose();
                 Application.Current.Shutdown(exitCode);
             }
             else
@@ -169,7 +174,7 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new ConsoleTextBox.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
+                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new RichTextConsole.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
             }
         }
 
@@ -216,7 +221,7 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                ConsoleTextBox.WriteOutputDelegate sod = new ConsoleTextBox.WriteOutputDelegate(buffer.WriteOutput);
+                RichTextConsole.WriteOutputDelegate sod = new RichTextConsole.WriteOutputDelegate(buffer.WriteOutput);
                 buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, sod, foreground, new object[] { background, text, lineBreak });
             }
         }
@@ -234,9 +239,13 @@ namespace Huddled.PoshConsole
             {
                 GotInput.Set();
             }
-            else
+            else if (native == 0)
             {
                 Execute(command);
+            }
+            else
+            {
+                console.WriteInput(command + "\n");
             }
         }
 
@@ -258,32 +267,10 @@ namespace Huddled.PoshConsole
         //}
 
         //Regex splitter = new Regex("[^ \"']+|\"[^\"]+\"[^ \"']*|'[^']+'[^ \"']*|[\"'][^\"']+$", RegexOptions.Compiled);
-        static Regex chunker = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$", RegexOptions.Compiled);
 
-        private List<string> buffer_TabComplete(string cmdline)
+        private List<string> buffer_TabComplete(string cmdline, string lastWord)
         {
             List<string> completions = new List<string>();
-            completions.Add(cmdline);
-
-            string lastWord = null;
-            string prefix = null;
-
-            MatchCollection words = chunker.Matches(cmdline);
-
-            if (words.Count >= 1)
-            {
-                System.Text.RegularExpressions.Match lw = words[words.Count - 1];
-                lastWord = lw.Value;
-                if (lastWord[0] == '"')
-                {
-                    lastWord = lastWord.Replace("\"", string.Empty);
-                }
-                else if (lastWord[0] == '\'')
-                {
-                    lastWord = lastWord.Replace("'", string.Empty);
-                }
-                prefix = cmdline.Substring(0, lw.Index);
-            }
 
             // Still need to do more Tab Completion
             // TODO: Make "PowerTab" obsolete for PoshConsole users.
@@ -298,7 +285,7 @@ namespace Huddled.PoshConsole
                 // TODO: TabComplete Cmdlets inside the pipeline
                 foreach (RunspaceConfigurationEntry cmdlet in myRunSpace.RunspaceConfiguration.Cmdlets)
                 {
-                    if (cmdlet.Name.StartsWith(lastWord))
+                    if (cmdlet.Name.StartsWith(lastWord, true, null))
                     {
                         completions.Add(cmdlet.Name);
                     }
@@ -314,7 +301,7 @@ namespace Huddled.PoshConsole
                             PSVariable var = opt.ImmediateBaseObject as PSVariable;
                             if (var != null)
                             {
-                                completions.Add( prefix + "$" + var.Name);
+                                completions.Add( "$" + var.Name);
                             }
                         }
                     }
@@ -325,15 +312,15 @@ namespace Huddled.PoshConsole
                         string completion = opt.ToString();
                         if (completion.Contains(" "))
                         {
-                            completions.Add(string.Format("{0}\"{1}\"", prefix, completion));
+                            completions.Add(string.Format("\"{0}\"", completion));
                         }
-                        else completions.Add(prefix + completion);
+                        else completions.Add(completion);
                     }
 
                     // Finally, call the TabExpansion string
                     foreach( PSObject opt in InvokeHelper("TabExpansion '" + cmdline + "' '" + lastWord + "'", null) )
                     {
-                        completions.Add(prefix + opt.ToString());
+                        completions.Add(opt.ToString());
                     }
                 }
                 catch (RuntimeException)
@@ -592,18 +579,24 @@ namespace Huddled.PoshConsole
                     currentPipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(Pipeline_StateChanged);
                 }
 
+                outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
+
                 // Create a pipeline for this execution. Place the result in the currentPipeline
                 // instance variable so that it is available to be stopped.
                 try
                 {
                     // currentPipeline.Commands.AddScript(cmd);
 
+                    //foreach (Command c in currentPipeline.Commands)
+                    //{
+                    //    c.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+                    //}
+
                     // Now add the default outputter to the end of the pipe and indicate
                     // that it should handle both output and errors from the previous
                     // commands. This will result in the output being written using the PSHost
                     // and PSHostUserInterface classes instead of returning objects to the hosting
                     // application.
-                    
                     currentPipeline.Commands.Add( outDefault );
 
                     currentPipeline.InvokeAsync();
@@ -647,12 +640,12 @@ namespace Huddled.PoshConsole
                 buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new voidDelegate(delegate { buffer.Cursor = Cursors.IBeam; }));
                 //if(currentPipeline.Commands[0].CommandText.Equals("prompt"))
                 //{
-                //    ConsoleTextBox.PromptDelegate np = new ConsoleTextBox.PromptDelegate(buffer.PostPrompt);
+                //    RichTextConsole.PromptDelegate np = new RichTextConsole.PromptDelegate(buffer.PostPrompt);
                 //    Dispatcher.BeginInvoke(DispatcherPriority.Render, np);
                 //}
                 //else
                 //{
-                //    ConsoleTextBox.PromptDelegate np = new ConsoleTextBox.PromptDelegate(Prompt);
+                //    RichTextConsole.PromptDelegate np = new RichTextConsole.PromptDelegate(Prompt);
                 //    Dispatcher.BeginInvoke(DispatcherPriority.Render, np);
                 //}
 
@@ -672,8 +665,8 @@ namespace Huddled.PoshConsole
 
         private const string PromptPadding = " ";
 
-        private readonly ConsoleTextBox.EndOutputDelegate endOutput;// = new ConsoleTextBox.EndOutputDelegate(buffer.EndOutput);
-        private readonly ConsoleTextBox.PromptDelegate prompt;// = new ConsoleTextBox.PromptDelegate(buffer.Prompt);
+        private readonly RichTextConsole.EndOutputDelegate endOutput;// = new RichTextConsole.EndOutputDelegate(buffer.EndOutput);
+        private readonly RichTextConsole.PromptDelegate prompt;// = new RichTextConsole.PromptDelegate(buffer.Prompt);
         /// <summary>
         /// Invoke's the user's PROMPT function to display a prompt.
         /// Called after each command completes
@@ -737,7 +730,7 @@ namespace Huddled.PoshConsole
 
 
 
-        #endregion ConsoleTextBox Event Handlers
+        #endregion RichTextConsole Event Handlers
 
         #region Settings
 
@@ -868,10 +861,11 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// This API is called before an external application process is started.
         /// </summary>
+        int native = 0;
         public override void NotifyBeginApplication()
         {
             savedTitle = myUI.RawUI.WindowTitle;
-            
+            native++;
             return;  // Do nothing...
             
         }
@@ -884,6 +878,7 @@ namespace Huddled.PoshConsole
         public override void NotifyEndApplication()
         {
             myUI.RawUI.WindowTitle = savedTitle;
+            native--;
             return; // Do nothing...
         }
 

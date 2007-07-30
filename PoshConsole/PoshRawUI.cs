@@ -38,7 +38,7 @@ namespace Huddled.PoshConsole
         public delegate Coordinates GetCoordinatesDelegate();
 
 
-        private ConsoleTextBox myConsole;
+        private RichTextConsole myConsole;
 
         // TODO: when we move the prompt into the output buffer, we should look at implementing a cursor...
         internal int _CursorSize = 10; // we hard-code this, 'cause we don't actually have a cursor, just a caret
@@ -59,7 +59,7 @@ namespace Huddled.PoshConsole
         /// <param name="windowTitleDelegate">The window title delegate.</param>
         /// <param name="windowSizeDelegate">The window size delegate.</param>
         /// <param name="windowPositionDelegate">The window position delegate.</param>
-        public PoshRawUI(ConsoleTextBox console )
+        public PoshRawUI(RichTextConsole console )
         {
             myConsole = console;
             myBackground = Properties.Settings.Default.ConsoleDefaultBackground;
@@ -397,18 +397,18 @@ namespace Huddled.PoshConsole
                 //(string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, GetWindowTitle, value);
                 if (!myConsole.Dispatcher.CheckAccess())
                 {
-                    return (string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetValueDelegate(myConsole.GetValue), ConsoleTextBox.TitleProperty);
+                    return (string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetValueDelegate(myConsole.GetValue), RichTextConsole.TitleProperty);
                 }
-                else return (string)myConsole.GetValue(ConsoleTextBox.TitleProperty);
+                else return (string)myConsole.GetValue(RichTextConsole.TitleProperty);
 
             }
             set
             {
                 if (!myConsole.Dispatcher.CheckAccess())
                 {
-                    myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetValueDelegate(myConsole.SetValue), ConsoleTextBox.TitleProperty, value);
+                    myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetValueDelegate(myConsole.SetValue), RichTextConsole.TitleProperty, value);
                 } 
-                else myConsole.SetValue(ConsoleTextBox.TitleProperty, value);
+                else myConsole.SetValue(RichTextConsole.TitleProperty, value);
             }
         }
     }

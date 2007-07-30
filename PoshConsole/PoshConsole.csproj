@@ -23,7 +23,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <PublishUrl>Publish\</PublishUrl>
     <StartupObject>PoshConsole.App</StartupObject>
-    <ApplicationIcon>PoshConsole.ico</ApplicationIcon>
+    <ApplicationIcon>Artwork\PoshConsole.ico</ApplicationIcon>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
@@ -72,6 +72,7 @@
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
     <Page Include="PoshConsole.xaml" />
+    <Page Include="themes\generic.xaml" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -117,16 +118,19 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="PoshConsole.ico" />
+    <Resource Include="Artwork\PoshConsole.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Fonts\Linds.ttf" />
     <Resource Include="Fonts\Pesca.ttf" />
     <Resource Include="Fonts\Pescab.ttf" />
-    <None Include="PoshConsoleBanner.png" />
+    <None Include="Artwork\PoshConsoleBanner.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="PoshConsoleLogo.png" />
+    <Resource Include="Artwork\PoshConsoleLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />

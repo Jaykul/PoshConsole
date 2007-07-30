@@ -46,7 +46,6 @@ namespace Huddled.PoshConsole
 
 		double characterWidth = 1.0;
 
-
         // Universal Delegates
         delegate void passDelegate<T>(T input);
         delegate RET returnDelegate<RET>();
@@ -117,7 +116,7 @@ namespace Huddled.PoshConsole
                 border.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
                 ResizeMode = ResizeMode.CanResize;
             }
-
+            
 		}
 
         void HandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
@@ -178,7 +177,7 @@ namespace Huddled.PoshConsole
 			int imWide = (int)(double.IsPositiveInfinity(buffer.MaxWidth) ? System.Windows.SystemParameters.MaximumWindowTrackWidth : buffer.MaxWidth);
 			double fontSize = (buffer.FontSize * characterWidth); // (72/96) convert from points to device independent pixels ... 
 
-			int linHeight = (int)(double.IsNaN(buffer.Document.LineHeight) ? fontSize : buffer.Document.LineHeight);
+			//int linHeight = (int)(double.IsNaN(buffer.Document.LineHeight) ? fontSize : buffer.Document.LineHeight);
 
 			//System.Drawing.Font f = new System.Drawing.Font(buffer.FontFamily, buffer.FontSize, buffer.FontStyle, System.Drawing.GraphicsUnit.Point);
 			//TextRenderer.MeasureText("W", f).Width
@@ -318,8 +317,8 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_SourceInitialized(object sender, EventArgs e)
 		{
-			// make the whole window glassy
-			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(2,20,10,1));
+			// make the whole window glassy with -1
+			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(1));
 			// hook mousedown and call DragMove() to make the whole window a drag handle
             MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
             progress.PreviewMouseLeftButtonDown += mbeh;
@@ -366,7 +365,7 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			buffer.Document.IsColumnWidthFlexible = false;
+			//buffer.Document.IsColumnWidthFlexible = false;
 
 			RecalculateSizes();
 		}

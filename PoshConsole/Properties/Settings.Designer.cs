@@ -502,5 +502,29 @@ namespace Huddled.PoshConsole.Properties {
                 this["StatusBar"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HistoryMenuFilterDupes {
+            get {
+                return ((bool)(this["HistoryMenuFilterDupes"]));
+            }
+            set {
+                this["HistoryMenuFilterDupes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int TabCompleteMenuThreshold {
+            get {
+                return ((int)(this["TabCompleteMenuThreshold"]));
+            }
+            set {
+                this["TabCompleteMenuThreshold"] = value;
+            }
+        }
     }
 }
