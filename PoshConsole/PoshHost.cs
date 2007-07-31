@@ -912,7 +912,7 @@ namespace Huddled.PoshConsole
         /// </summary>
         public override Version Version
         {
-            get { return new Version(1, 0, 0, 0); }
+            get { return new Version(1, 0, 2007, 7310); }
         }
 
 		 public override PSObject PrivateData

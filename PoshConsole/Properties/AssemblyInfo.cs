@@ -28,8 +28,7 @@ using System.Runtime.InteropServices;
 //in your source files, set the <UICulture> to en-US.  Then uncomment
 //the NeutralResourceLanguage attribute below.  Update the "en-US" in
 //the line below to match the UICulture setting in the project file.
-
-//[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
+[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.MainAssembly)]
 
 
 // Specifies the location in which theme dictionaries are stored for types in an assembly.
@@ -50,14 +49,7 @@ using System.Runtime.InteropServices;
     ResourceDictionaryLocation.SourceAssembly)]
 
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.*")]
-[assembly: NeutralResourcesLanguageAttribute("en-US")]
+// Version information
+[assembly: AssemblyVersion("1.0.2007.7310")]
+[assembly: AssemblyFileVersion("1.0.2007.7310")]
+[assembly: AssemblyInformationalVersion("1.0.0.0")]

@@ -114,7 +114,7 @@ namespace Huddled.PoshConsole
                 new ExecutedRoutedEventHandler(OnPaste),
                 new CanExecuteRoutedEventHandler(OnCanExecutePaste)));
 
-
+            // TODO: handle dragging & dropping text
         }
 
         /// <summary>
@@ -444,7 +444,6 @@ namespace Huddled.PoshConsole
                         ShowPopup(myHistory, true, Properties.Settings.Default.HistoryMenuFilterDupes);
 
                     } break;
-                #region stuff
                 case Key.Up:
                     {
                         if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
@@ -544,14 +543,14 @@ namespace Huddled.PoshConsole
                         {
                             if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                             {
-                                Selection.Select(CaretPosition, commandStart.GetInsertionPosition(LogicalDirection.Backward));
+                                Selection.Select(CaretPosition, commandStart.GetInsertionPosition(LogicalDirection.Forward));
                             }
                             else
                             {
                                 // TODO: if Control, goto top ... e.KeyboardDevice.Modifiers
                                 //CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
 
-                                CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Backward);//currentParagraph.ContentStart.GetPositionAtOffset(promptLength);
+                                CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Forward);//currentParagraph.ContentStart.GetPositionAtOffset(promptLength);
                             }
                             e.Handled = true;
                         }
@@ -587,25 +586,30 @@ namespace Huddled.PoshConsole
                         {
                             if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
                             {
-                                Selection.Select(commandStart, Selection.End);
+                                Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
                             }
                             if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
                             {
-                                Selection.Select(Selection.End, commandStart);
+                                Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
                             }
-                        }
-                        int offset = 0;
-                        if (currentParagraph.Inlines.Count > promptInlines)
-                        {
-                            offset = currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
+                            Selection.Text = string.Empty;
+                            e.Handled = true;
                         }
                         else
                         {
-                            offset = commandStart.GetOffsetToPosition(CaretPosition);
-                        }
-                        if (!(offset > 0 && CurrentCommand.Length > 0))
-                        {
-                            e.Handled = true;
+                            int offset = 0;
+                            if (currentParagraph.Inlines.Count > promptInlines)
+                            {
+                                offset = currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
+                            }
+                            else
+                            {
+                                offset = commandStart.GetInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition);
+                            }
+                            if (offset < 0 || (offset == 0 && e.Key == Key.Back) || CurrentCommand.Length <= 0)
+                            {
+                                e.Handled = true;
+                            }
                         }
                     } break;
                 // we're only handling this to avoid the default handler when you try to copy
@@ -645,7 +649,6 @@ namespace Huddled.PoshConsole
                         if (commandStart == null || CaretPosition.GetOffsetToPosition(commandStart) > 0)
                         {
                             CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
-
                         }
                         // if they type anything, they're not using the history buffer.
                         historyIndex = 0;
@@ -658,6 +661,26 @@ namespace Huddled.PoshConsole
             Trace.Unindent();
             Trace.TraceInformation("Exiting OnPreviewKeyDown:");
         }
+
+        protected override void OnPreviewTextInput(TextCompositionEventArgs e)
+        {
+            // if they're trying to input text, they will overwrite the selection
+            // lets make sure they don't overwrite the history buffer
+            if (!Selection.IsEmpty)
+            {
+                if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
+                {
+                    Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
+                }
+                if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
+                {
+                    Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
+                }
+            }
+            base.OnPreviewTextInput(e);
+        }
+
+
         static Regex chunker = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
 
         private string GetLastWord(string cmdline)
@@ -858,8 +881,7 @@ namespace Huddled.PoshConsole
         }
 
 
-        #endregion
-
+        
         //------------------------------------------------------
         //
         //  Private Methods
@@ -1047,7 +1069,7 @@ namespace Huddled.PoshConsole
 
             //currentParagraph.ContentStart.GetOffsetToPosition(currentParagraph.ContentEnd) + PromptPadding.Length;
             Run prmt = new Run(prompt);
-            prmt.Background = background;
+            if( !background.Equals( this.Background ) ) prmt.Background = background;
             prmt.Foreground = foreground;
             currentParagraph.Inlines.Add(prmt);
 
@@ -1060,8 +1082,8 @@ namespace Huddled.PoshConsole
 
         private void SetPrompt()
         {
-            Run command = new Run("", currentParagraph.ContentEnd); // , Document.ContentEnd
-            command.Background = Background;
+            Run command = new Run("", currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd
+            command.Background = Brushes.Transparent;
             command.Foreground = Foreground;
 
             ScrollToEnd();
