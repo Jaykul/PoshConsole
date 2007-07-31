@@ -318,7 +318,8 @@ namespace Huddled.PoshConsole
 		private void Window_SourceInitialized(object sender, EventArgs e)
 		{
 			// make the whole window glassy with -1
-			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(1));
+			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
+
 			// hook mousedown and call DragMove() to make the whole window a drag handle
             MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
             progress.PreviewMouseLeftButtonDown += mbeh;

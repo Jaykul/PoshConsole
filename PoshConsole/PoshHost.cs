@@ -49,7 +49,7 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// A Console window wrapper that hides the console
         /// </summary>
-        private NativeConsole console;
+        private NativeConsole console = null;
 
         /// <summary>
         /// Used to serialize access to instance data...
@@ -78,10 +78,6 @@ namespace Huddled.PoshConsole
             this.buffer = buffer;
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
-            console = new NativeConsole();
-
-            console.WriteOutput += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, output, false); });
-            console.WriteError  += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(ConsoleColor.Red, ConsoleColor.Black, output, false); });
 
             try
             {
@@ -127,6 +123,22 @@ namespace Huddled.PoshConsole
             ExecuteStartupProfile();
         }
 
+        private void MakeConsole()
+        {
+            if (console == null)
+            {
+                console = new NativeConsole();
+                console.WriteOutput += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, output, false); });
+                console.WriteError += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(ConsoleColor.Red, ConsoleColor.Black, output, false); });
+            }
+        }
+
+        private void KillConsole()
+        {
+            if( console != null ) console.Dispose();
+            console = null;
+        }
+
         #region RichTextConsole Event Handlers
 
 
@@ -147,7 +159,6 @@ namespace Huddled.PoshConsole
             if (buffer.Dispatcher.CheckAccess())
             {
                 ExecuteShutdownProfile();
-                console.Dispose();
                 Application.Current.Shutdown(exitCode);
             }
             else
@@ -865,8 +876,9 @@ namespace Huddled.PoshConsole
         public override void NotifyBeginApplication()
         {
             savedTitle = myUI.RawUI.WindowTitle;
+
             native++;
-            return;  // Do nothing...            
+            MakeConsole();
         }
 
         private string savedTitle = String.Empty;
@@ -877,8 +889,9 @@ namespace Huddled.PoshConsole
         public override void NotifyEndApplication()
         {
             myUI.RawUI.WindowTitle = savedTitle;
+            
             native--;
-            return; // Do nothing...
+            if (native == 0) KillConsole();
         }
 
 

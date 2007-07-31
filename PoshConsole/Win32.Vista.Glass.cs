@@ -55,8 +55,6 @@ namespace Win32.Vista
                     throw new InvalidOperationException("The Window must be shown before extending glass.");
 
                 // Set the background to transparent from both the WPF and Win32 perspectives
-                SolidColorBrush background = new SolidColorBrush(Colors.Red);
-                background.Opacity = 0.5;
                 window.Background = Brushes.Transparent;
                 HwndSource.FromHwnd(hwnd).CompositionTarget.BackgroundColor = Colors.Transparent;
 
