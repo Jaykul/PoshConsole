@@ -212,8 +212,8 @@ namespace Huddled.PoshConsole
 
 
         #region OutputMethods
-        public delegate void OutputDelegate(ConsoleColor foreground, ConsoleColor background, string text);
-        public delegate void PromptDelegate(ConsoleColor background, ConsoleColor foreground, string prompt);
+        public delegate void OutputDelegate(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text);
+        public delegate void PromptDelegate(Nullable<ConsoleColor> background, Nullable<ConsoleColor> foreground, string prompt);
         public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
         public delegate string InputDelegate();
 
@@ -231,12 +231,13 @@ namespace Huddled.PoshConsole
 
         public override void Write(string value)
         {
-            Write(myRawUi.ForegroundColor, myRawUi.BackgroundColor, value);
+            if (null == Output) { System.Diagnostics.Debug.Write(value); }
+            else { Output(null, null, value); }
         }
 
         public override void WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
-            if (null == Output) { System.Diagnostics.Debug.WriteLine(value, foregroundColor.ToString() + "-on-" + backgroundColor.ToString()); }
+            if (null == OutputLine) { System.Diagnostics.Debug.WriteLine(value, foregroundColor.ToString() + "-on-" + backgroundColor.ToString()); }
             else { OutputLine(foregroundColor, backgroundColor, value); }
         }
 
@@ -247,7 +248,8 @@ namespace Huddled.PoshConsole
 
         public override void WriteLine(string value)
         {
-            this.WriteLine(myRawUi.ForegroundColor, myRawUi.BackgroundColor, value);
+            if (null == OutputLine) { System.Diagnostics.Debug.WriteLine(value); }
+            else { OutputLine(null, null, value); }
         }
 
         public override void WriteErrorLine(string value)

@@ -175,7 +175,7 @@ namespace Huddled.PoshConsole
         /// <param name="foreground">The foreground.</param>
         /// <param name="background">The background.</param>
         /// <param name="text">The text.</param>
-        void WritePrompt(ConsoleColor foreground, ConsoleColor background, string text)
+        void WritePrompt(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
         {
             // TODO: Colors
             // Oh, my! .CheckAccess() is there, but intellisense-invisible!
@@ -195,7 +195,7 @@ namespace Huddled.PoshConsole
         /// <param name="foreground">The foreground color.</param>
         /// <param name="background">The background color.</param>
         /// <param name="text">The text.</param>
-        void OnOutput(ConsoleColor foreground, ConsoleColor background, string text)
+        void OnOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
         {
             WriteOutput(foreground, background, text, false);
         }
@@ -205,7 +205,7 @@ namespace Huddled.PoshConsole
         /// <param name="foreground">The foreground color.</param>
         /// <param name="background">The background color.</param>
         /// <param name="text">The text.</param>
-        void OnOutputLine(ConsoleColor foreground, ConsoleColor background, string text)
+        void OnOutputLine(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
         {
             WriteOutput(foreground, background, text, true);
         }
@@ -222,7 +222,7 @@ namespace Huddled.PoshConsole
         /// <param name="text">The text.</param>
         /// <param name="lineBreak">if set to <c>true</c> [line break].</param>
         /// <param name="prompt">if set to <c>true</c> [prompt].</param>
-        void WriteOutput(ConsoleColor foreground, ConsoleColor background, string text, bool lineBreak)
+        void WriteOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text, bool lineBreak)
         {
             // TODO: Colors
             // Oh, my! .CheckAccess() is there, but intellisense-invisible!
