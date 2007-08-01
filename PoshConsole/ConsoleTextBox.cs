@@ -1161,182 +1161,224 @@ namespace Huddled.PoshConsole
             BeginChange();
             string[] ansis = text.Split(new string[] { "\x1B[" }, StringSplitOptions.None);
 
-            if (ansis.Length == 0)
+            if (ansis.Length == 1)
             {
                 Run insert = new Run(text, currentParagraph.ContentEnd);
                 insert.Background = (background == null) ? Brushes.Transparent : BrushFromConsoleColor(background);
                 insert.Foreground = (foreground == null) ? this.Foreground : BrushFromConsoleColor(foreground);
             }
-            else // process ANSI escape sequences... ISO 6429
+            else 
             {
-                Brush bg = Brushes.Transparent, fg = Foreground;
+                Brush bg = (background == null) ? Brushes.Transparent : BrushFromConsoleColor(background);
+                Brush fg = (foreground == null) ? this.Foreground : BrushFromConsoleColor(foreground);
+
+                Boolean first = true;
                 foreach (string ansi in ansis)
                 {
-                    if (ansi.Length > 0)
+                    if (first && ansi.Length > 0)
+                    {
+                        Run insert = new Run(ansi, currentParagraph.ContentEnd);
+                        insert.Background = bg;
+                        insert.Foreground = fg;
+                    } 
+                    else if (ansi.Length > 0)
                     {
                         // bool bg = false;
-                        int split = ansi.IndexOf('m');
+                        int m1 = ansi.IndexOf('m');
+                        int m2 = ansi.IndexOf(']');
+                        int split = -1;
+                        if( m1 > 0 && (m2 < 0 || m1 < m2) ) {
+                            split = m1;
+                        } else if( m2 > 0 ) {
+                            split = m2;
+                        }
+                        bool dark = true, back = false;
                         Run insert = new Run(ansi.Substring(split + 1), currentParagraph.ContentEnd);
+                        insert.Foreground = fg;
+                        insert.Background = bg;
                         if (split > 0)
                         {
                             foreach (string code in ansi.Substring(0, split).Split(';'))
                             {
-                                switch (code)
+                                switch (code.ToUpper())
                                 {
-                                    case "Reset": goto case "0";
-                                    case "Clear": goto case "0";
-                                    case "0":
-                                        insert.Background = bg =Brushes.Transparent;
+                                    case "0":     goto case "RESET";// RESET
+                                    case "CLEAR": goto case "RESET";
+                                    case "RESET":
+                                        insert.Background = bg = Brushes.Transparent;
                                         insert.Foreground = Foreground;
-                                        insert.FontStyle = FontStyles.Normal;
+                                        insert.FontStyle  = FontStyles.Normal;
                                         insert.FontWeight = FontWeights.Normal;
-                                        // insert.TextDecorations = new TextDecorationCollection();
+                                        insert.TextDecorations.Clear();
                                         break;
                                     case "1":
-                                        insert.FontWeight = FontWeights.Bold;
+                                        dark = false;
                                         break;
                                     case "2":
-                                        insert.FontWeight = FontWeights.Thin;
+                                        dark = true;
                                         break;
-                                    case "3":
-                                        insert.FontStyle = FontStyles.Italic;
-                                        break;
-                                    case "4":
+                                    case "4": goto case "UNDERLINE";
+                                    case "UNDERLINE":
                                         insert.TextDecorations.Add(TextDecorations.Underline);
                                         break;
-                                    case "5": // blink
-                                        insert.TextDecorations.Add(TextDecorations.OverLine);
+                                    case "5": // blink 
+                                        goto case "ITALIC";
+                                    case "ITALIC":
+                                        insert.FontStyle = FontStyles.Italic;
                                         break;
                                     //case "6": // blink faster
-                                    //case "7": // inverse
-                                    case "8":
-                                        insert.Foreground = ConsoleBrushes.Transparent;
+                                    case "7": // inverse
+                                        goto case "BOLD";
+                                    case "BOLD":
+                                        insert.FontWeight = FontWeights.Bold;
                                         break;
+                                    case "8": // hidden (uhm, no)
+                                        goto case "THIN";
+                                    case "THIN":
+                                        insert.FontWeight = FontWeights.Thin;
+                                        // insert.Foreground = ConsoleBrushes.Transparent;
+                                        break;
+                                    
+                                    #region ANSI COLOR SEQUENCES 30-37 and 40-47
+
+
                                     case "30":
-                                        insert.Foreground = ConsoleBrushes.Black;
-                                        break;
-                                    case "90":
-                                        insert.Foreground = ConsoleBrushes.DarkGray;
-                                        break;
-                                    case "31":
-                                        insert.Foreground = ConsoleBrushes.DarkRed;
-                                        break;
-                                    case "91":
-                                        insert.Foreground = ConsoleBrushes.Red;
-                                        break;
-                                    case "32":
-                                        insert.Foreground = ConsoleBrushes.DarkGreen;
-                                        break;
-                                    case "92":
-                                        insert.Foreground = ConsoleBrushes.Green;
-                                        break;
-                                    case "33":
-                                        insert.Foreground = ConsoleBrushes.DarkYellow;
-                                        break;
-                                    case "93":
-                                        insert.Foreground = ConsoleBrushes.Yellow;
-                                        break;
-                                    case "34":
-                                        insert.Foreground = ConsoleBrushes.DarkBlue;
-                                        break;
-                                    case "94":
-                                        insert.Foreground = ConsoleBrushes.Blue;
-                                        break;
-                                    case "35":
-                                        insert.Foreground = ConsoleBrushes.DarkMagenta;
-                                        break;
-                                    case "95":
-                                        insert.Foreground = ConsoleBrushes.Magenta;
-                                        break;
-                                    case "36":
-                                        insert.Foreground = ConsoleBrushes.DarkCyan;
-                                        break;
-                                    case "96":
-                                        insert.Foreground = ConsoleBrushes.Cyan;
-                                        break;
-                                    case "37":
-                                        insert.Foreground = ConsoleBrushes.Gray;
-                                        break;
-                                    case "97":
-                                        insert.Foreground = ConsoleBrushes.White;
+                                        insert.Foreground = (dark) ? ConsoleBrushes.Black : ConsoleBrushes.DarkGray;
                                         break;
                                     case "40":
-                                        insert.Background = bg =ConsoleBrushes.Black;
+                                        insert.Background = (dark) ? ConsoleBrushes.Black : ConsoleBrushes.DarkGray;
                                         break;
-                                    case "100":
-                                        insert.Background = bg =ConsoleBrushes.DarkGray;
+
+                                    case "31":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkRed : ConsoleBrushes.Red;
                                         break;
                                     case "41":
-                                        insert.Background = bg =ConsoleBrushes.DarkRed;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkRed : ConsoleBrushes.Red;
                                         break;
-                                    case "101":
-                                        insert.Background = bg =ConsoleBrushes.Red;
+
+                                    case "32":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkGreen : ConsoleBrushes.Green;
                                         break;
                                     case "42":
-                                        insert.Background = bg =ConsoleBrushes.DarkGreen;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkGreen : ConsoleBrushes.Green;
                                         break;
-                                    case "102":
-                                        insert.Background = bg =ConsoleBrushes.Green;
+
+                                    case "33":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkYellow : ConsoleBrushes.Yellow;
                                         break;
                                     case "43":
-                                        insert.Background = bg =ConsoleBrushes.DarkYellow;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkYellow : ConsoleBrushes.Yellow;
                                         break;
-                                    case "103":
-                                        insert.Background = bg =ConsoleBrushes.Yellow;
+
+                                    case "34":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkBlue : ConsoleBrushes.Blue;
                                         break;
                                     case "44":
-                                        insert.Background = bg =ConsoleBrushes.DarkBlue;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkBlue : ConsoleBrushes.Blue;
                                         break;
-                                    case "104":
-                                        insert.Background = bg =ConsoleBrushes.Blue;
+
+                                    case "35":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkMagenta : ConsoleBrushes.Magenta;
                                         break;
                                     case "45":
-                                        insert.Background = bg =ConsoleBrushes.DarkMagenta;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkMagenta : ConsoleBrushes.Magenta;
                                         break;
-                                    case "105":
-                                        insert.Background = bg =ConsoleBrushes.Magenta;
+
+                                    case "36":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkCyan : ConsoleBrushes.Cyan;
                                         break;
                                     case "46":
-                                        insert.Background = bg =ConsoleBrushes.DarkCyan;
+                                        insert.Background = (dark) ? ConsoleBrushes.DarkCyan : ConsoleBrushes.Cyan;
                                         break;
-                                    case "106":
-                                        insert.Background = bg =ConsoleBrushes.Cyan;
+
+                                    case "37":
+                                        insert.Foreground = (dark) ? ConsoleBrushes.White : ConsoleBrushes.Gray;
                                         break;
                                     case "47":
-                                        insert.Background = bg =ConsoleBrushes.Gray;
+                                        insert.Background = (dark) ? ConsoleBrushes.White : ConsoleBrushes.Gray;
                                         break;
-                                    case "107":
-                                        insert.Background = bg =ConsoleBrushes.White;
-                                        break;
-                                    //default:
-                                    //    {
-                                    //        // Justin Rogers had an idea to allow ConsoleColor names instead of magic numbers:
-                                    //        // http://weblogs.asp.net/justin_rogers/archive/2004/04/30/123736.aspx
-                                    //        // But I'm really not sure that's a good idea.  It would probably be quite a bit slower...
-                                    //        ///////////////////////////////////////////////////////////////////////////////////////////
-                                    //        if (bg)
-                                    //        {
-                                    //            bg = true;
-                                    //            try
-                                    //            {
-                                    //                insert.Foreground = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code, true));
-                                    //            }
-                                    //            catch { }
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            try
-                                    //            {
-                                    //                insert.Background = bg =BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code, true));
-                                    //            }
-                                    //            catch { }
-                                    //        }
-                                    //    }
-                                    //    break;
+
+                                    
+                                    #endregion ANSI COLOR SEQUENCES 30-37 and 40-47
+
+                                    #region ConsoleColor Enumeration values
+                                    case "TRANSPARENT":
+                                        {
+                                            if (back)
+                                            {
+                                                insert.Background = ConsoleBrushes.Transparent;
+                                            }
+                                            else
+                                            {
+                                                insert.Foreground = ConsoleBrushes.Transparent;
+                                            }
+                                            back = true;
+                                        } break;
+                                    #endregion ConsoleColor Enumeration values
+
+                                    default:
+                                        if (code[0] == '#')
+                                        {
+                                            #region parse hex color codes
+                                            try
+                                            {
+                                                byte a, r, g, b;
+                                                // if there's an alpha value...
+                                                if (code.Length == 9)
+                                                {
+                                                    a = Byte.Parse(code.Substring(1, 2));
+                                                    r = Byte.Parse(code.Substring(3, 2));
+                                                    g = Byte.Parse(code.Substring(5, 2));
+                                                    b = Byte.Parse(code.Substring(7, 2));
+                                                }
+                                                else if (code.Length == 7)
+                                                {
+                                                    r = Byte.Parse(code.Substring(1, 2));
+                                                    g = Byte.Parse(code.Substring(3, 2));
+                                                    b = Byte.Parse(code.Substring(5, 2));
+                                                    a = Byte.MaxValue;
+                                                }
+                                                else break;
+
+                                                if (back)
+                                                {
+                                                    insert.Background = new SolidColorBrush(Color.FromArgb(a, r, g, b));
+                                                }
+                                                else
+                                                {
+                                                    insert.Foreground = new SolidColorBrush(Color.FromArgb(a, r, g, b));
+                                                }
+
+                                            }
+                                            catch { } // just ignore the sequence?
+                                            finally { back = true; }
+                                            #endregion parse hex color codes
+                                        } else {
+                                            #region parse ConsoleColor enum values
+                                            try
+                                            {
+                                                if (back)
+                                                {
+                                                    insert.Background = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                }
+                                                else
+                                                {
+                                                    insert.Foreground = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                }
+                                            }
+                                            catch { } // just ignore the sequence?
+                                            finally { back = true; }
+                                            #endregion parse ConsoleColor enum values
+                                        } break;
+
+
                                 }
                             }
+                            bg = insert.Background;
+                            fg = insert.Foreground;
                         }
                     }
+                    first = false;
                 }
             }
 
