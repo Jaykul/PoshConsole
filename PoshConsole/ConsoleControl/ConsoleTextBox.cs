@@ -12,9 +12,14 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Management.Automation;
+using System.Threading;
 
 namespace Huddled.PoshConsole
 {
+    public delegate object Invoke();
+    public delegate void BeginInvoke();
+
+
     /// <summary>
     /// A derivative of RichTextBox ...
     /// Allow input only at the bottom, in plain text ... 
@@ -102,6 +107,73 @@ namespace Huddled.PoshConsole
         {
             base.OnInitialized(e);
             this.myHistory = new List<string>();
+        }
+
+
+        /// <summary>
+        /// Get and set the background color of text to be written.
+        /// This maps pretty directly onto the corresponding .NET Console property.
+        /// </summary>
+        public ConsoleColor BackgroundColor
+        {
+            get
+            {
+                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)
+                    delegate() { return GetValue(BackgroundColorProperty); });
+            }
+            set {
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, (BeginInvoke)
+                    delegate() { SetValue(BackgroundColorProperty, value); });
+            }
+        }
+
+        public static readonly DependencyProperty BackgroundColorProperty =
+            DependencyProperty.Register("BackgroundColor", typeof(ConsoleColor), typeof(RichTextConsole),
+            new FrameworkPropertyMetadata(ConsoleColor.Black, FrameworkPropertyMetadataOptions.None,
+            new PropertyChangedCallback(BackgroundColorPropertyChanged)));
+
+        private static void BackgroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+        {
+            // put code here to handle the property changed for BackgroundColor
+            RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
+            if (RichTextConsoleObj != null)
+            {
+                RichTextConsoleObj.Background = BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            }
+        }
+
+
+        /// <summary>
+        /// Get and set the Foreground color of text to be written.
+        /// This maps pretty directly onto the corresponding .NET Console property.
+        /// </summary>
+        public ConsoleColor ForegroundColor
+        {
+            get
+            {
+                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)
+                    delegate() { return GetValue(ForegroundColorProperty); });
+            }
+            set
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, (BeginInvoke)
+                    delegate() { SetValue(ForegroundColorProperty, value); });
+            }
+        }
+
+        public static readonly DependencyProperty ForegroundColorProperty =
+            DependencyProperty.Register("ForegroundColor", typeof(ConsoleColor), typeof(RichTextConsole),
+            new FrameworkPropertyMetadata(ConsoleColor.White, FrameworkPropertyMetadataOptions.None,
+            new PropertyChangedCallback(ForegroundColorPropertyChanged)));
+
+        private static void ForegroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+        {
+            // put code here to handle the property changed for ForegroundColor
+            RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
+            if (RichTextConsoleObj != null)
+            {
+                RichTextConsoleObj.Foreground = BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            }
         }
 
 
@@ -1061,36 +1133,19 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt.</param>
         public void Prompt(string prompt)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Send, new PromptDelegate(Prompt), prompt);
+                return;
+            }
+
             TrimCurrentParagraph();
             Write(prompt);
 
             SetPrompt();
-            // toggle undo to prevent "undo"ing past this point.
-            IsUndoEnabled = false;
-            IsUndoEnabled = true;
             promptInlines = currentParagraph.Inlines.Count;
 
         }
-
-        /// <summary>
-        /// Prompts with specified colors.
-        /// </summary>
-        /// <param name="background">The background.</param>
-        /// <param name="foreground">The foreground.</param>
-        /// <param name="prompt">The prompt text.</param>
-        public void Prompt(ConsoleColor foreground, ConsoleColor background, string prompt)
-        {
-            TrimCurrentParagraph();
-            Write(foreground, background, prompt);
-
-            SetPrompt();
-            // toggle undo to prevent "undo"ing past this point.
-            IsUndoEnabled = false;
-            IsUndoEnabled = true;
-            promptInlines = currentParagraph.Inlines.Count;
-        }
-
-
 
         private void SetPrompt()
         {
@@ -1100,6 +1155,10 @@ namespace Huddled.PoshConsole
             command.Foreground = Foreground;
 
             ScrollToEnd();
+            // toggle undo to prevent "undo"ing past this point.
+            IsUndoEnabled = false;
+            IsUndoEnabled = true;
+
             CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
         }
 
@@ -1112,6 +1171,11 @@ namespace Huddled.PoshConsole
         /// </summary>
         public void EndOutput()
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Send, new EndOutputDelegate(EndOutput));
+                return;
+            }
             promptInlines = 0; // there are no promt inlines we need to save
 
             if (currentParagraph != null)
@@ -1181,7 +1245,7 @@ namespace Huddled.PoshConsole
         #endregion
         public void WriteLine(string text)
         {
-            Write(Foreground, Brushes.Transparent, text + "\n");
+            Write(null, null, text + "\n");
             //currentParagraph.ContentEnd.InsertLineBreak();
         }
         public void WriteLine(ConsoleColor foreground, ConsoleColor background, string text)
@@ -1191,7 +1255,7 @@ namespace Huddled.PoshConsole
         }
         public void Write(string text)
         {
-            Write(Foreground, Brushes.Transparent, text);
+            Write(null, null, text);
         }
         public void Write(ConsoleColor foreground, ConsoleColor background, string text)
         {
@@ -1199,8 +1263,8 @@ namespace Huddled.PoshConsole
         }
 
         #endregion
-
-        public delegate void WriteOutputDelegate(ConsoleColor foreground,ConsoleColor background, string text);
+        
+        public delegate void WriteOutputDelegate(Brush foreground, Brush background, string text);
         public void Write(Brush foreground, Brush background, string text)
         {
             if(!Dispatcher.CheckAccess())
@@ -1209,6 +1273,9 @@ namespace Huddled.PoshConsole
                 return;
             }
 
+            // handle null values - so that other Write* methods don't have to deal with Dispatcher issues
+            if (foreground == null) foreground = Foreground;
+            if (background == null) background = Brushes.Transparent;
 
             if (currentParagraph == null)
             {
@@ -1229,8 +1296,9 @@ namespace Huddled.PoshConsole
             }
             else 
             {
-                Brush bg = (background == null) ? Brushes.Transparent : (background);
-                Brush fg = (foreground == null) ? this.Foreground : (foreground);
+                // we want ansi excaped color changes to be "sticky"
+                Brush bg = background;
+                Brush fg = foreground;
 
                 Boolean first = true;
                 foreach (string ansi in ansis)
@@ -1441,7 +1509,6 @@ namespace Huddled.PoshConsole
             }
 
             EndChange();
-
             SetPrompt();
         }
 
@@ -1822,7 +1889,8 @@ namespace Huddled.PoshConsole
             {
                 int x, y = 0, lines = -1;
                 TextPointer origin = GetPositionFromPoint(new Point(0, 0), true).GetInsertionPosition(LogicalDirection.Forward);
-                TextPointer c = origin.GetLineStartPosition(0).GetNextInsertionPosition(LogicalDirection.Forward);
+                //TextPointer c = origin.GetLineStartPosition(0).GetNextInsertionPosition(LogicalDirection.Forward);
+                TextPointer c = origin.GetLineStartPosition(0).GetInsertionPosition(LogicalDirection.Forward);
                 x = c.GetOffsetToPosition(origin);
                 origin = origin.GetLineStartPosition(1);
 

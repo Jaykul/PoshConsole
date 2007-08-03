@@ -25,7 +25,7 @@ namespace Huddled.PoshConsole
         void SendProgressUpdate(long sourceId, ProgressRecord record);
 
         void EndOutput();
-        void Prompt(ConsoleColor foreground, ConsoleColor background, string text );
+        void Prompt(string text );
         void Write(ConsoleColor foreground, ConsoleColor background, string text);
         void WriteLine(ConsoleColor foreground, ConsoleColor background, string text);
         void Write(string text);

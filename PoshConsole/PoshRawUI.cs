@@ -26,7 +26,7 @@ namespace Huddled.PoshConsole
     class PoshRawUI : PSHostRawUserInterface
     {
         // SET delegates
-        public delegate void SetSizeDelegate(Size size);
+        public delegate void SetSizeDelegate(System.Management.Automation.Host.Size size);
         public delegate void SetStringDelegate(String text);
         public delegate void SetCoordinatesDelegate(Coordinates coords);
         public delegate void SetIntDelegate(int val);
@@ -34,7 +34,7 @@ namespace Huddled.PoshConsole
 
         // GET delegates
         public delegate BufferCell[,] GetBufferDelegate(Rectangle source);
-        public delegate Size GetSizeDelegate();
+        public delegate System.Management.Automation.Host.Size GetSizeDelegate();
         public delegate Coordinates GetCoordinatesDelegate();
 
 
@@ -42,15 +42,8 @@ namespace Huddled.PoshConsole
 
         // TODO: when we move the prompt into the output buffer, we should look at implementing a cursor...
         internal int _CursorSize = 10; // we hard-code this, 'cause we don't actually have a cursor, just a caret
-//        internal System.Management.Automation.Host.Size _BufferSize = new System.Management.Automation.Host.Size();
-//        internal System.Management.Automation.Host.Size _WindowSize = new System.Management.Automation.Host.Size();
         internal System.Management.Automation.Host.Size _MaxWindowSize = new System.Management.Automation.Host.Size();
         internal System.Management.Automation.Host.Size _MaxPhysicalWindowSize = new System.Management.Automation.Host.Size();
-//        internal System.Management.Automation.Host.Coordinates _WindowPosition = new Coordinates();
-//        internal System.Management.Automation.Host.Coordinates _CursorPosition = new Coordinates();
-
-        private ConsoleColor myBackground;
-        private ConsoleColor myForeground;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PoshRawUI"/> class.
@@ -62,78 +55,55 @@ namespace Huddled.PoshConsole
         public PoshRawUI(RichTextConsole console )
         {
             myConsole = console;
-            myBackground = Properties.Settings.Default.ConsoleDefaultBackground;
-            myForeground = Properties.Settings.Default.ConsoleDefaultForeground;
-        }
-
-        /// <summary>
-        /// Get and set the background color of text to be written.
-        /// This maps pretty directly onto the corresponding .NET Console
-        /// property.
-        /// </summary>
-        public override ConsoleColor BackgroundColor
-        {
-            get { return myBackground; }
-            set { SetBackgroundColor( value); }
         }
 
 
-        /// <summary>
-        /// Get and set the foreground color of text to be written.
-        /// This maps closely onto the corresponding .NET Console property.
-        /// </summary>
-        public override ConsoleColor ForegroundColor
-        {
-            get { return myForeground; }
-            set { SetForegroundColor(value); }
-        }
-
-        /// <summary>
-        /// Sets the color of the foreground.
-        /// </summary>
-        /// <param name="color">The color.</param>
-        private void SetForegroundColor(ConsoleColor color)
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                myForeground = color;
-                myConsole.ConsoleForeground = color;
-            }
-            else
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                    new SetConsoleColorDelegate(SetForegroundColor), color);
-            }
-        }
-        /// <summary>
-        /// Sets the color of the background.
-        /// </summary>
-        /// <param name="color">The color.</param>
-        private void SetBackgroundColor(ConsoleColor color)
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                myBackground = color;
-                myConsole.ConsoleBackground = color;
-            }
-            else
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                    new SetConsoleColorDelegate(SetBackgroundColor), color);
-            }
-        }
+        ///// <summary>
+        ///// Sets the color of the foreground.
+        ///// </summary>
+        ///// <param name="color">The color.</param>
+        //private void SetForegroundColor(ConsoleColor color)
+        //{
+        //    if (myConsole.Dispatcher.CheckAccess())
+        //    {
+        //        myForeground = color;
+        //        myConsole.ConsoleForeground = color;
+        //    }
+        //    else
+        //    {
+        //        myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+        //            new SetConsoleColorDelegate(SetForegroundColor), color);
+        //    }
+        //}
+        ///// <summary>
+        ///// Sets the color of the background.
+        ///// </summary>
+        ///// <param name="color">The color.</param>
+        //private void SetBackgroundColor(ConsoleColor color)
+        //{
+        //    if (myConsole.Dispatcher.CheckAccess())
+        //    {
+        //        myBackground = color;
+        //        myConsole.ConsoleBackground = color;
+        //    }
+        //    else
+        //    {
+        //        myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+        //            new SetConsoleColorDelegate(SetBackgroundColor), color);
+        //    }
+        //}
 
 
         /// <summary>
         /// Return the host buffer size adapted from the .NET Console buffer size.
         /// </summary>
-        public override Size BufferSize
+        public override System.Management.Automation.Host.Size BufferSize
         {
             get { return GetBufferSize(); }
             set { SetBufferSize(value); }
         }
 
-        private Size GetBufferSize()
+        private System.Management.Automation.Host.Size GetBufferSize()
         {
             if (myConsole.Dispatcher.CheckAccess())
             {
@@ -145,7 +115,7 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private void SetBufferSize(Size bufferSize)
+        private void SetBufferSize(System.Management.Automation.Host.Size bufferSize)
         {
             if (myConsole.Dispatcher.CheckAccess())
             {
@@ -254,7 +224,7 @@ namespace Huddled.PoshConsole
         /// Return the MaxPhysicalWindowSize size adapted from the .NET Console
         /// LargestWindowWidth and LargestWindowHeight.
         /// </summary>
-        public override Size MaxPhysicalWindowSize
+        public override System.Management.Automation.Host.Size MaxPhysicalWindowSize
         {
             get { return _MaxPhysicalWindowSize; }
         }
@@ -263,7 +233,7 @@ namespace Huddled.PoshConsole
         /// Return the MaxWindowSize size adapted from the .NET Console
         /// LargestWindowWidth and LargestWindowHeight.
         /// </summary>
-        public override Size MaxWindowSize
+        public override System.Management.Automation.Host.Size MaxWindowSize
         {
             get { return _MaxWindowSize; }
         }
@@ -360,13 +330,13 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// Return the window size adapted from the corresponding .NET Console calls.
         /// </summary>
-        public override Size WindowSize
+        public override System.Management.Automation.Host.Size WindowSize
         {
             get { return GetWindowSize(); }
             set { SetWindowSize(value); }
         }
 
-        private void SetWindowSize(Size value)
+        private void SetWindowSize(System.Management.Automation.Host.Size value)
         {
             if (!myConsole.Dispatcher.CheckAccess())
             {
@@ -376,7 +346,7 @@ namespace Huddled.PoshConsole
                 myConsole.WindowSize = value;
         }
 
-        private Size GetWindowSize()
+        private System.Management.Automation.Host.Size GetWindowSize()
         {
             if (!myConsole.Dispatcher.CheckAccess())
             {
@@ -409,6 +379,30 @@ namespace Huddled.PoshConsole
                     myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetValueDelegate(myConsole.SetValue), RichTextConsole.TitleProperty, value);
                 } 
                 else myConsole.SetValue(RichTextConsole.TitleProperty, value);
+            }
+        }
+
+        public override ConsoleColor BackgroundColor
+        {
+            get
+            {
+                return myConsole.BackgroundColor;
+            }
+            set
+            {
+                myConsole.BackgroundColor = value;
+            }
+        }
+
+        public override ConsoleColor ForegroundColor
+        {
+            get
+            {
+                return myConsole.ForegroundColor;
+            }
+            set
+            {
+                myConsole.ForegroundColor = value;
             }
         }
     }

@@ -57,6 +57,8 @@ namespace Huddled.PoshConsole
 		/// </summary>
 		public PoshConsole()
 		{
+            Cursor = Cursors.AppStarting;
+
 			// Create the host and runspace instances for this interpreter. Note that
 			// this application doesn't support console files so only the default snapins
 			// will be available.
@@ -69,41 +71,13 @@ namespace Huddled.PoshConsole
 
             buffer.InputHandler = new InputHandler();
 
-            try
-            {
-                myHost = new PoshHost(buffer);
-            }
-            catch
-            {
-                MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed?", "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
-                Application.Current.Shutdown(1);
-            }
-
-            Binding statusBinding = new Binding("StatusText");
-            statusBinding.Source = myHost.Options;
-            // StatusBarItems:: Title, Separator, Admin, Separator, Status
-            StatusBarItem el = status.Items[status.Items.Count - 1] as StatusBarItem;
-            if (el != null)
-            {
-                el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
-            }
 
             // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
             buffer.GotProgressUpdate += new WriteProgressDelegate(OnProgressUpdate);
 
-            if (Win32.Application.IsUserAnAdmin())
-            {
-                // StatusBarItems:: Title, Separator, Admin, Separator, Status
-                el = status.Items[2] as StatusBarItem;
-                if( el != null ) {
-                    el.Content = "Elevated!";
-                    el.Foreground = new SolidColorBrush(Color.FromRgb((byte)204, (byte)119, (byte)17));
-                    el.ToolTip = "PoshConsole is running as Administrator";
-                    el.Cursor = this.Cursor;
-                }
-            }
+
 
             // problems with data binding 
             WindowStyle = Properties.Settings.Default.WindowStyle;
@@ -175,27 +149,21 @@ namespace Huddled.PoshConsole
 		/// </summary>
 		private void RecalculateSizes()
 		{
-			int imHigh = (int)(double.IsPositiveInfinity(buffer.MaxHeight) ? System.Windows.SystemParameters.MaximumWindowTrackHeight : buffer.MaxHeight);
-			int imWide = (int)(double.IsPositiveInfinity(buffer.MaxWidth) ? System.Windows.SystemParameters.MaximumWindowTrackWidth : buffer.MaxWidth);
-			double fontSize = (buffer.FontSize * characterWidth); // (72/96) convert from points to device independent pixels ... 
+            // no point in doing this work if we're not going to use it.
+            if (myHost != null)
+            {
+                int imHigh = (int)(double.IsPositiveInfinity(buffer.MaxHeight) ? System.Windows.SystemParameters.MaximumWindowTrackHeight : buffer.MaxHeight);
+                int imWide = (int)(double.IsPositiveInfinity(buffer.MaxWidth) ? System.Windows.SystemParameters.MaximumWindowTrackWidth : buffer.MaxWidth);
+                double fontSize = (buffer.FontSize * characterWidth); // (72/96) convert from points to device independent pixels ... 
 
-			//int linHeight = (int)(double.IsNaN(buffer.Document.LineHeight) ? fontSize : buffer.Document.LineHeight);
+                ((PoshRawUI)myHost.UI.RawUI)._MaxWindowSize = buffer.MaxWindowSize;
 
-			//System.Drawing.Font f = new System.Drawing.Font(buffer.FontFamily, buffer.FontSize, buffer.FontStyle, System.Drawing.GraphicsUnit.Point);
-			//TextRenderer.MeasureText("W", f).Width
-
-			//myRawUI._BufferSize = buffer.BufferSize;
-
-			//myRawUI._WindowSize = buffer.WindowSize;
-            ((PoshRawUI)myHost.UI.RawUI)._MaxWindowSize = buffer.MaxWindowSize;
-
-			// TODO: What's the difference between MaxWindowSize and MaxPhysicalWindowSize?
-            ((PoshRawUI)myHost.UI.RawUI)._MaxPhysicalWindowSize = buffer.MaxPhysicalWindowSize;
-
-			//myRawUI._CursorPosition = buffer.CursorPosition;
-
-			//myRawUI._WindowPosition = new Coordinates((int)this.Left, (int)this.Top);
-
+                // What's the difference between MaxWindowSize and MaxPhysicalWindowSize?
+                // It has to do with the way the normal console maximizes only vertically because they have a fixed number of columns
+                // MaxWindowSize in the normal console is the max size you can actually resize the window to
+                // MaxPhisicalWindowSize is basically the screen size divided by character size.
+                ((PoshRawUI)myHost.UI.RawUI)._MaxPhysicalWindowSize = buffer.MaxPhysicalWindowSize;
+            }
 		}
 
 		private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -319,6 +287,7 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_SourceInitialized(object sender, EventArgs e)
 		{
+            Cursor = Cursors.AppStarting;
 			// make the whole window glassy with -1
 			Win32.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
 
@@ -369,8 +338,40 @@ namespace Huddled.PoshConsole
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			//buffer.Document.IsColumnWidthFlexible = false;
+            try
+            {
+                myHost = new PoshHost(buffer);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" + ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
+                Application.Current.Shutdown(1);
+            }
+
+            Binding statusBinding = new Binding("StatusText");
+            statusBinding.Source = myHost.Options;
+            // StatusBarItems:: Title, Separator, Admin, Separator, Status
+            StatusBarItem el = status.Items[status.Items.Count - 1] as StatusBarItem;
+            if (el != null)
+            {
+                el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
+            }
+
+            if (Win32.Application.IsUserAnAdmin())
+            {
+                // StatusBarItems:: Title, Separator, Admin, Separator, Status
+                el = status.Items[2] as StatusBarItem;
+                if (el != null)
+                {
+                    el.Content = "Elevated!";
+                    el.Foreground = new SolidColorBrush(Color.FromRgb((byte)204, (byte)119, (byte)17));
+                    el.ToolTip = "PoshConsole is running as Administrator";
+                    el.Cursor = this.Cursor;
+                }
+            }
 
 			RecalculateSizes();
+            Cursor = Cursors.IBeam;
 		}
 
         bool IsHiding = false;
@@ -421,7 +422,14 @@ namespace Huddled.PoshConsole
                     Show();
                 }
             }
-            buffer.Focus();
+            if (Properties.Settings.Default.Animate)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(delegate { buffer.Focus(); }));
+            }
+            else
+            {
+                buffer.Focus();
+            }
         }
 
         /// <summary>
@@ -575,19 +583,11 @@ namespace Huddled.PoshConsole
 			{
 				if(!IsActive)
 				{
-					Activate();
-					if(Properties.Settings.Default.Animate)
-					{
-						Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(delegate { buffer.Focus(); }));
-					}
+					Activate(); // Focus();
 				}
 				else
 				{
-					Win32.Application.ActivateNextWindow();
-                    if (Properties.Settings.Default.Animate)
-                    {
-                        HideWindow();
-                    }
+                    Win32.Application.ActivateNextWindow(Win32.Application.GetWindowHandle(this));
 				}
 			}
 		}

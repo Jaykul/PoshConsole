@@ -14,7 +14,7 @@ namespace Huddled.PoshConsole
 
         public InputHandler()
         {
-            // add a do-nothing delegate so we don't have to constantly test for it
+            // add a do-nothing delegate so we don't have to test for it
             GotUserInput += new InputEventHandler(delegate(object o, string cmd) { });
         }
 

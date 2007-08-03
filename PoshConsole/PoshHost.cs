@@ -66,7 +66,7 @@ namespace Huddled.PoshConsole
         // Universal Delegates
         delegate void voidDelegate();
 
-        private IInput inputHandler = null; 
+        //private IInput inputHandler = null; 
         internal PoshOptions Options;
         internal List<string> StringHistory;
         public PoshHost(RichTextConsole buffer)
@@ -78,9 +78,8 @@ namespace Huddled.PoshConsole
            
             try
             {
-                inputHandler = new InputHandler();
                 myRawUI = new PoshRawUI(buffer);
-                myUI = new PoshUI(myRawUI, buffer, inputHandler);
+                myUI = new PoshUI(myRawUI, buffer, buffer.InputHandler);
 
                 // precreate this
                 outDefault = new Command("Out-Default");
@@ -98,7 +97,7 @@ namespace Huddled.PoshConsole
             buffer.ConsoleForeground = myRawUI.ForegroundColor;
 
             buffer.TabComplete +=new RichTextConsole.TabCompleteHandler(buffer_TabComplete);
-            inputHandler.GotUserInput += new InputEventHandler(OnGotUserInput);
+            buffer.InputHandler.GotUserInput += new InputEventHandler(OnGotUserInput);
             //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
 
             //buffer.GetHistory +=new RichTextConsole.HistoryHandler(buffer_GetHistory);
@@ -116,6 +115,7 @@ namespace Huddled.PoshConsole
             myRunSpace = RunspaceFactory.CreateRunspace(this);
 
             myRunSpace.Open();
+            MakeConsole();
 
             // Finally, STARTUP!
             ExecuteStartupProfile();
@@ -174,6 +174,7 @@ namespace Huddled.PoshConsole
             //if (buffer.Dispatcher.CheckAccess())
             //{
                 ExecuteShutdownProfile();
+                KillConsole();
                 Application.Current.Shutdown(exitCode);
             //}
             //else
@@ -329,7 +330,16 @@ namespace Huddled.PoshConsole
                 lock (instanceLock)
                 {
                     if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
-                        currentPipeline.Stop();
+                    {
+                        if (native > 0)
+                        {
+                            console.WriteInput(new string(new char[] { (char)3, '\n' }));
+                        }
+                        else
+                        {
+                            currentPipeline.Stop();
+                        }
+                    }
                     //else
                     //    ApplicationCommands.Copy.Execute(null, buffer);
                 }
@@ -340,9 +350,6 @@ namespace Huddled.PoshConsole
         /// </summary>
         internal void ExecuteStartupProfile()
         {
-            //this.Cursor = Cursors.AppStarting;
-            buffer.Cursor = Cursors.AppStarting;
-
             //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
             //  This profile applies to all users and all shells.
             //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile.ps1
@@ -383,9 +390,6 @@ namespace Huddled.PoshConsole
             else
             {
                 Prompt();
-                // we have to reset the cursors if we don't execute a command
-                //this.Cursor = Cursors.SizeAll;
-                buffer.Cursor = Cursors.IBeam;
             }
         }
 
@@ -394,9 +398,6 @@ namespace Huddled.PoshConsole
         /// </summary>
         internal void ExecuteShutdownProfile()
         {
-            //this.Cursor = Cursors.AppStarting;
-            buffer.Cursor = Cursors.AppStarting;
-
             //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
             //  This profile applies to all users and all shells.
             //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile_exit.ps1
@@ -437,9 +438,6 @@ namespace Huddled.PoshConsole
             else
             {
                 Prompt();
-                // we have to reset the cursors if we don't execute a profile script in here
-                //this.Cursor = Cursors.SizeAll;
-                buffer.Cursor = Cursors.IBeam;
             }
         }
 
@@ -807,7 +805,7 @@ namespace Huddled.PoshConsole
             savedTitle = myUI.RawUI.WindowTitle;
 
             native++;
-            MakeConsole();
+            //MakeConsole();
         }
 
         private string savedTitle = String.Empty;
@@ -820,7 +818,7 @@ namespace Huddled.PoshConsole
             myUI.RawUI.WindowTitle = savedTitle;
             
             native--;
-            if (native == 0) KillConsole();
+            //if (native == 0) KillConsole();
         }
 
 

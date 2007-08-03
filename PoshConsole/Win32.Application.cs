@@ -88,14 +88,24 @@ namespace Win32
             Max = 11
         }
 
+        public static IntPtr GetWindowHandle(System.Windows.Window window)
+        {
+            return new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
+        }
+
+        //public static IntPtr GetOwnerHandle(System.Windows.Window window)
+        //{
+        //    return new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Owner;
+        //}
+
 		/// <summary>
 		/// Gets the next window.
 		/// </summary>
 		/// <returns></returns>
-		public static IntPtr GetNextWindow()
+		public static IntPtr GetNextWindow( IntPtr windowHandle )
 		{
-            IntPtr handle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
-            IntPtr next = GetWindow(handle, GetWindowCommand.Next);
+            //IntPtr handle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
+            IntPtr next = GetWindow(windowHandle, GetWindowCommand.Next);
 
             // and then make sure we have a visible window
             while (!IsWindowVisible(next))
@@ -109,9 +119,10 @@ namespace Win32
 		/// Activates the next window.
 		/// </summary>
 		/// <returns></returns>
-		public static bool ActivateNextWindow()
+        public static bool ActivateNextWindow(IntPtr windowHandle)
 		{
-            IntPtr next = GetNextWindow();
+
+            IntPtr next = GetNextWindow(windowHandle);
             ShowWindow(next,ShowWindowCommand.Show);
             return SetForegroundWindow(next);
             
