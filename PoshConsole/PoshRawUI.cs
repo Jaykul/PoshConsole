@@ -235,7 +235,7 @@ namespace Huddled.PoshConsole
                 return (BufferCell[,]) myConsole.Dispatcher.Invoke(DispatcherPriority.Render, new GetBufferDelegate(GetBufferContents), rectangle);
             }
 
-            return myConsole.GetRectangle(rectangle);
+            return myConsole.GetBufferContents(rectangle);
 
         }
 

@@ -32,11 +32,26 @@ namespace Huddled.PoshConsole
     /// </summary>
     class PoshUI : PSHostUserInterface
     {
+        private PoshRawUI myRawUi = null;
+        private IConsoleControl myConsole = null;
+        private IInput myInput = null;
 
-        public PoshUI(PoshRawUI rawUI)
+        public PoshUI(PoshRawUI rawUI, IConsoleControl console, IInput handler)
         {
             myRawUi = rawUI;
+            myConsole = console;
+            myInput = handler;
         }
+
+        public override PSHostRawUserInterface RawUI
+        {
+            get
+            {
+                return myRawUi;
+            }
+        }
+
+
         ///// <summary>
         ///// Indicate to the host application that exit has
         ///// been requested. Pass the exit code that the host
@@ -60,10 +75,10 @@ namespace Huddled.PoshConsole
             foreach (FieldDescription fd in descriptions)
             {
                 string[] label = GetHotkeyAndLabel(fd.Label);
-                if( !String.IsNullOrEmpty( fd.HelpMessage ) )
-                    Write( fd.HelpMessage);
-                if( null != WritePrompt )
-                    WritePrompt(ConsoleColor.Blue, ConsoleColor.Black, String.Format("\n{0}> ", label[1]));
+                
+                if( !String.IsNullOrEmpty( fd.HelpMessage ) ) Write( fd.HelpMessage);
+
+                WriteLine(ConsoleColor.Blue, ConsoleColor.Black, String.Format("\n{0}: ", label[1]));
 
                 string userData = ReadLine();
                 if (userData == null)
@@ -78,8 +93,7 @@ namespace Huddled.PoshConsole
                 Collection<ChoiceDescription> choices, int defaultChoice)
         {
             // Write the caption and message strings in Blue.
-            WriteLine(ConsoleColor.Blue, ConsoleColor.Black,
-                      caption + "\n" + message + "\n");
+            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + "\n");
 
             // Convert the choice collection into something that's a little easier to work with
             // See the BuildHotkeysAndPlainLabels method for details.
@@ -171,19 +185,10 @@ namespace Huddled.PoshConsole
             return hotkeysAndPlainLabels;
         }
 
-        private PoshRawUI myRawUi = null;
-        public override PSHostRawUserInterface RawUI
-        {
-            get {
-                return myRawUi; 
-            }
-        }
-
 
         public override string ReadLine()
         {
-            if (null == Input) { return null; }
-            else { return Input(); }
+            return myInput.Read() + "\n";
         }
 
         public override System.Security.SecureString ReadLineAsSecureString()
@@ -212,68 +217,49 @@ namespace Huddled.PoshConsole
 
 
         #region OutputMethods
-        public delegate void OutputDelegate(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text);
-        public delegate void PromptDelegate(Nullable<ConsoleColor> background, Nullable<ConsoleColor> foreground, string prompt);
-        public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
-        public delegate string InputDelegate();
-
-        public event InputDelegate Input;
-        public event OutputDelegate Output;
-        public event OutputDelegate OutputLine;
-        public event PromptDelegate WritePrompt;
-        public event WriteProgressDelegate ProgressUpdate;
-
         public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
-            if (null == Output) { System.Diagnostics.Debug.WriteLine(value, foregroundColor.ToString() + "-on-" + backgroundColor.ToString()); }
-            else { Output(foregroundColor, backgroundColor, value); }
+            myConsole.Write(foregroundColor, backgroundColor, value);
         }
 
         public override void Write(string value)
         {
-            if (null == Output) { System.Diagnostics.Debug.Write(value); }
-            else { Output(null, null, value); }
+            myConsole.Write(value);
         }
 
         public override void WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
-            if (null == OutputLine) { System.Diagnostics.Debug.WriteLine(value, foregroundColor.ToString() + "-on-" + backgroundColor.ToString()); }
-            else { OutputLine(foregroundColor, backgroundColor, value); }
+            myConsole.WriteLine(foregroundColor, backgroundColor, value);
         }
 
         public override void WriteLine()
         {
-            this.WriteLine(String.Empty);
+            myConsole.WriteLine(string.Empty);
         }
 
         public override void WriteLine(string value)
         {
-            if (null == OutputLine) { System.Diagnostics.Debug.WriteLine(value); }
-            else { OutputLine(null, null, value); }
+            myConsole.WriteLine(value);
         }
 
         public override void WriteErrorLine(string value)
         {
-            this.WriteLine(ConsoleColor.Red, ConsoleColor.Black,
-                String.Format("ERROR: {0}", value));
+            myConsole.WriteErrorLine(value);
         }
 
         public override void WriteDebugLine(string value)
         {
-            this.WriteLine(ConsoleColor.DarkYellow, ConsoleColor.Black,
-                 String.Format("DEBUG: {0}", value));
+            myConsole.WriteDebugLine(value);
         }
 
         public override void WriteVerboseLine(string value)
         {
-            this.WriteLine(ConsoleColor.Green, ConsoleColor.Black,
-                 String.Format("VERBOSE: {0}", value));
+             myConsole.WriteVerboseLine(value);
         }
 
         public override void WriteWarningLine(string value)
         {
-            this.WriteLine(ConsoleColor.Yellow, ConsoleColor.Black,
-                 String.Format("WARNING: {0}", value));
+            myConsole.WriteWarningLine(value);
         }
 
 
@@ -286,10 +272,7 @@ namespace Huddled.PoshConsole
         /// <param name="record">See base class</param>
         public override void WriteProgress(long sourceId, ProgressRecord record)
         {
-            if (ProgressUpdate != null)
-            {
-                ProgressUpdate(sourceId, record);
-            }
+            myConsole.SendProgressUpdate(sourceId, record);
         }
 
         #endregion

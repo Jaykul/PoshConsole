@@ -18,7 +18,6 @@ using System.Windows.Input;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Threading;
 using System.IO;
 
 namespace Huddled.PoshConsole
@@ -66,11 +65,8 @@ namespace Huddled.PoshConsole
 
         // Universal Delegates
         delegate void voidDelegate();
-        public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
 
-        public event WriteProgressDelegate ProgressUpdate;
-
-
+        private IInput inputHandler = null; 
         internal PoshOptions Options;
         internal List<string> StringHistory;
         public PoshHost(RichTextConsole buffer)
@@ -79,10 +75,13 @@ namespace Huddled.PoshConsole
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
 
+           
             try
             {
+                inputHandler = new InputHandler();
                 myRawUI = new PoshRawUI(buffer);
-                myUI = new PoshUI(myRawUI);
+                myUI = new PoshUI(myRawUI, buffer, inputHandler);
+
                 // precreate this
                 outDefault = new Command("Out-Default");
                 // for now, merge the errors with the rest of the output
@@ -99,20 +98,19 @@ namespace Huddled.PoshConsole
             buffer.ConsoleForeground = myRawUI.ForegroundColor;
 
             buffer.TabComplete +=new RichTextConsole.TabCompleteHandler(buffer_TabComplete);
-            buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
+            inputHandler.GotUserInput += new InputEventHandler(OnGotUserInput);
+            //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
+
             //buffer.GetHistory +=new RichTextConsole.HistoryHandler(buffer_GetHistory);
 
             // this.ShouldExit += new ExitHandler(WeShouldExit);
-            myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
-            myUI.Input += new PoshUI.InputDelegate(GetInput);
-            myUI.Output += new PoshUI.OutputDelegate(OnOutput);
-            myUI.OutputLine += new PoshUI.OutputDelegate(OnOutputLine);
-            myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
+            //myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
+            //myUI.Input += new PoshUI.InputDelegate(GetInput);
+            //myUI.Output += new PoshUI.OutputDelegate(OnOutput);
+            //myUI.OutputLine += new PoshUI.OutputDelegate(OnOutputLine);
+            //myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
 
             // Some delegates we think we can get away with making only once...
-            endOutput = new RichTextConsole.EndOutputDelegate(buffer.EndOutput);
-            prompt = new RichTextConsole.PromptDelegate(buffer.Prompt);
-
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
             myRunSpace = RunspaceFactory.CreateRunspace(this);
@@ -123,13 +121,30 @@ namespace Huddled.PoshConsole
             ExecuteStartupProfile();
         }
 
+        /// <summary>
+        /// Handler for the IInput.GotUserInput event.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="commandLine">The command line.</param>
+        void OnGotUserInput(object source, string commandLine)
+        {
+            if (native == 0)
+            {
+                Execute(commandLine);
+            }
+            else
+            {
+                console.WriteInput(commandLine + "\n");
+            } 
+        }
+
         private void MakeConsole()
         {
             if (console == null)
             {
                 console = new NativeConsole();
-                console.WriteOutput += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, output, false); });
-                console.WriteError += new NativeConsole.OutputDelegate(delegate(string output) { WriteOutput(ConsoleColor.Red, ConsoleColor.Black, output, false); });
+                console.WriteOutput += new NativeConsole.OutputDelegate(buffer.WriteLine);
+                console.WriteError += new NativeConsole.OutputDelegate(buffer.WriteErrorLine);
             }
         }
 
@@ -156,109 +171,63 @@ namespace Huddled.PoshConsole
         /// <param name="exitCode"></param>
         public override void SetShouldExit(int exitCode)
         {
-            if (buffer.Dispatcher.CheckAccess())
-            {
+            //if (buffer.Dispatcher.CheckAccess())
+            //{
                 ExecuteShutdownProfile();
                 Application.Current.Shutdown(exitCode);
-            }
-            else
-            {
-                this.IsClosing = true;
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Send, new ExitDelegate(SetShouldExit), exitCode);
-            }
+            //}
+            //else
+            //{
+            //    this.IsClosing = true;
+            //    buffer.Dispatcher.BeginInvoke(DispatcherPriority.Send, new ExitDelegate(SetShouldExit), exitCode);
+            //}
         }
 
 
-        /// <summary>
-        /// Writes the prompt.
-        /// </summary>
-        /// <param name="foreground">The foreground.</param>
-        /// <param name="background">The background.</param>
-        /// <param name="text">The text.</param>
-        void WritePrompt(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        {
-            // TODO: Colors
-            // Oh, my! .CheckAccess() is there, but intellisense-invisible!
-            if (buffer.Dispatcher.CheckAccess())
-            {
-                buffer.Prompt(text);
-            }
-            else
-            {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new RichTextConsole.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
-            }
-        }
+        ///// <summary>
+        ///// Writes the prompt.
+        ///// </summary>
+        ///// <param name="foreground">The foreground.</param>
+        ///// <param name="background">The background.</param>
+        ///// <param name="text">The text.</param>
+        //void WritePrompt(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
+        //{
+        //    // TODO: Colors
+        //    // Oh, my! .CheckAccess() is there, but intellisense-invisible!
+        //    if (buffer.Dispatcher.CheckAccess())
+        //    {
+        //        buffer.Prompt(text);
+        //    }
+        //    else
+        //    {
+        //        buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new RichTextConsole.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
+        //    }
+        //}
 
-        /// <summary>
-        /// Write text to the console buffer
-        /// </summary>
-        /// <param name="foreground">The foreground color.</param>
-        /// <param name="background">The background color.</param>
-        /// <param name="text">The text.</param>
-        void OnOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        {
-            WriteOutput(foreground, background, text, false);
-        }
-        /// <summary>
-        /// Write a line of text to the console buffer
-        /// </summary>
-        /// <param name="foreground">The foreground color.</param>
-        /// <param name="background">The background color.</param>
-        /// <param name="text">The text.</param>
-        void OnOutputLine(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        {
-            WriteOutput(foreground, background, text, true);
-        }
-
-        /// <summary>
-        /// A Delegate for invoking WriteOutput
-        /// </summary>
-        private delegate void WriteOutputDelegate(ConsoleColor foreground, ConsoleColor background, string text, bool lineBreak);
-        /// <summary>
-        /// Writes text to the console buffer in a thread-safe manner.
-        /// </summary>
-        /// <param name="foreground">The foreground color.</param>
-        /// <param name="background">The background color.</param>
-        /// <param name="text">The text.</param>
-        /// <param name="lineBreak">if set to <c>true</c> [line break].</param>
-        /// <param name="prompt">if set to <c>true</c> [prompt].</param>
-        void WriteOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text, bool lineBreak)
-        {
-            // TODO: Colors
-            // Oh, my! .CheckAccess() is there, but intellisense-invisible!
-            if (buffer.Dispatcher.CheckAccess())
-            {
-                buffer.WriteOutput(foreground, background, text, lineBreak);
-            }
-            else
-            {
-                RichTextConsole.WriteOutputDelegate sod = new RichTextConsole.WriteOutputDelegate(buffer.WriteOutput);
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, sod, foreground, new object[] { background, text, lineBreak });
-            }
-        }
+        ///// <summary>
+        ///// Write text to the console buffer
+        ///// </summary>
+        ///// <param name="foreground">The foreground color.</param>
+        ///// <param name="background">The background color.</param>
+        ///// <param name="text">The text.</param>
+        //void OnOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
+        //{
+        //    buffer.Write(foreground, background, text);
+        //}
+        ///// <summary>
+        ///// Write a line of text to the console buffer
+        ///// </summary>
+        ///// <param name="foreground">The foreground color.</param>
+        ///// <param name="background">The background color.</param>
+        ///// <param name="text">The text.</param>
+        //void OnOutputLine(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
+        //{
+        //    buffer.WriteLine(foreground, background, text);
+        //}
 
 
         #region
-        /// <summary>
-        /// Handles the CommandEntered event of the Console buffer
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void buffer_CommandEntered(string command)
-        {
-            lastInputString = command;
-            if (waitingForInput)
-            {
-                GotInput.Set();
-            }
-            else if (native == 0)
-            {
-                Execute(command);
-            }
-            else
-            {
-                console.WriteInput(command + "\n");
-            }
-        }
+
 
         //private string buffer_GetHistory(ref int historyIndex)
         //{
@@ -479,24 +448,6 @@ namespace Huddled.PoshConsole
 
         #region
 
-        string lastInputString = null;
-        AutoResetEvent GotInput = new AutoResetEvent(false);
-        public bool waitingForInput = false;
-        /// <summary>
-        /// Provides a way for scripts to request user input ...
-        /// </summary>
-        /// <returns></returns>
-        string GetInput()
-        {
-            string result = null;
-
-            waitingForInput = true;
-            GotInput.WaitOne();
-            waitingForInput = false;
-
-            result = lastInputString;
-            return result;
-        }
 
 
 
@@ -632,7 +583,7 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                WriteOutput(ConsoleColor.Red, ConsoleColor.Black, "Timeout - Console Busy, To Cancel Running Pipeline press Esc", true);
+                buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
                 buffer.CurrentCommand = cmd;
             }
         }
@@ -648,18 +599,6 @@ namespace Huddled.PoshConsole
         {
             if (e.PipelineStateInfo.State != PipelineState.Running && e.PipelineStateInfo.State != PipelineState.Stopping)
             {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new voidDelegate(delegate { buffer.Cursor = Cursors.IBeam; }));
-                //if(currentPipeline.Commands[0].CommandText.Equals("prompt"))
-                //{
-                //    RichTextConsole.PromptDelegate np = new RichTextConsole.PromptDelegate(buffer.PostPrompt);
-                //    Dispatcher.BeginInvoke(DispatcherPriority.Render, np);
-                //}
-                //else
-                //{
-                //    RichTextConsole.PromptDelegate np = new RichTextConsole.PromptDelegate(Prompt);
-                //    Dispatcher.BeginInvoke(DispatcherPriority.Render, np);
-                //}
-
                 // Dispose of the pipeline line and set it to null
                 // locked because currentPipeline may be accessed by the ctrl-C handler, etc
                 lock (instanceLock)
@@ -667,17 +606,14 @@ namespace Huddled.PoshConsole
                     currentPipeline.Dispose();
                     currentPipeline = null;
                 }
+                // let the next command through
                 ready.Set();
+                // run the prompt method
                 if (!this.IsClosing) Prompt();
-
             }
         }
-
-
         private const string PromptPadding = " ";
 
-        private readonly RichTextConsole.EndOutputDelegate endOutput;// = new RichTextConsole.EndOutputDelegate(buffer.EndOutput);
-        private readonly RichTextConsole.PromptDelegate prompt;// = new RichTextConsole.PromptDelegate(buffer.Prompt);
         /// <summary>
         /// Invoke's the user's PROMPT function to display a prompt.
         /// Called after each command completes
@@ -690,7 +626,7 @@ namespace Huddled.PoshConsole
                 //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
                 //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
                 //// NOTE: manually use the dispatcher, otherwise it will print before the output of the command
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, endOutput);
+                buffer.EndOutput();
 
                 Collection<PSObject> output = InvokeHelper("prompt", null);
 
@@ -711,7 +647,7 @@ namespace Huddled.PoshConsole
             }
             finally
             {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, prompt, sb.ToString());
+                buffer.Prompt(sb.ToString());
             }
         }
 
@@ -745,15 +681,8 @@ namespace Huddled.PoshConsole
 
         #region Settings
 
-        private delegate void SettingsChangedDelegate(object sender, System.ComponentModel.PropertyChangedEventArgs e);
         void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (!buffer.Dispatcher.CheckAccess())
-            {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SettingsChangedDelegate(SettingsPropertyChanged), sender, new object[] { e });
-                return;
-            }
-
             switch (e.PropertyName)
             {
                 case "ConsoleBlack": goto case "ConsoleColors";
@@ -954,7 +883,7 @@ namespace Huddled.PoshConsole
                  {
                      if (!Dispatcher.CheckAccess())
                      {
-                         return (string)Dispatcher.Invoke(DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
+                         return (string)Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
                      }
                      else
                      {
@@ -965,7 +894,7 @@ namespace Huddled.PoshConsole
                  {
                      if (!Dispatcher.CheckAccess())
                      {
-                         Dispatcher.BeginInvoke(DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
+                         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
                      }
                      else
                      {

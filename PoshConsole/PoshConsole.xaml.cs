@@ -67,6 +67,8 @@ namespace Huddled.PoshConsole
 			hideOpacityAnimations.From = showOpacityAnimation.To = Opacity;
 			hideHeightAnimations.From = showHeightAnimation.To = this.Height;
 
+            buffer.InputHandler = new InputHandler();
+
             try
             {
                 myHost = new PoshHost(buffer);
@@ -89,7 +91,7 @@ namespace Huddled.PoshConsole
             // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
-            myHost.ProgressUpdate += new PoshHost.WriteProgressDelegate(OnProgressUpdate);
+            buffer.GotProgressUpdate += new WriteProgressDelegate(OnProgressUpdate);
 
             if (Win32.Application.IsUserAnAdmin())
             {
@@ -147,7 +149,7 @@ namespace Huddled.PoshConsole
         {
             if (!buffer.Dispatcher.CheckAccess())
             {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PoshUI.WriteProgressDelegate(OnProgressUpdate), sourceId, record);
+                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new WriteProgressDelegate(OnProgressUpdate), sourceId, record);
             }
             else
             {
@@ -272,7 +274,7 @@ namespace Huddled.PoshConsole
                     } break;
                 case "WindowStyle":
                     {
-                        buffer.WriteOutput(ConsoleColor.Red, ConsoleColor.Black, "Window Style change requires a restart to take effect", true);
+                        buffer.WriteWarningLine("Window Style change requires a restart to take effect");
                         //this.WindowStyle = Properties.Settings.Default.WindowStyle;
                         //this.Hide();
                         //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
@@ -613,8 +615,7 @@ namespace Huddled.PoshConsole
                 {
                     // if( w32.Message == "The operation was canceled by the user" )
                     // if( w32.NativeErrorCode == 1223 ) {
-                    buffer.WriteOutput(ConsoleColor.Red,ConsoleColor.Black, 
-                            "Error Starting new instance:" + w32.Message, true );
+                    buffer.WriteErrorLine("Error Starting new instance:" + w32.Message );
                     // myHost.Prompt();
                 }
             }

@@ -63,7 +63,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
-    <Compile Include="ConsoleTextBox.cs" />
+    <Compile Include="ConsoleControl\ConsoleTextBox.cs" />
     <Compile Include="ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
     </Compile>
@@ -83,6 +83,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleControl\IConsoleControl.cs" />
+    <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
+    <Compile Include="ConsoleControl\IInputHandler.cs" />
+    <Compile Include="InputHandler.cs" />
     <Compile Include="NativeConsole.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="HotKeyManager.cs">
