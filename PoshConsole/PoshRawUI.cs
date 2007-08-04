@@ -25,18 +25,6 @@ namespace Huddled.PoshConsole
     /// </summary>
     class PoshRawUI : PSHostRawUserInterface
     {
-        // SET delegates
-        public delegate void SetSizeDelegate(System.Management.Automation.Host.Size size);
-        public delegate void SetStringDelegate(String text);
-        public delegate void SetCoordinatesDelegate(Coordinates coords);
-        public delegate void SetIntDelegate(int val);
-        public delegate void SetConsoleColorDelegate(ConsoleColor color);
-
-        // GET delegates
-        public delegate BufferCell[,] GetBufferDelegate(Rectangle source);
-        public delegate System.Management.Automation.Host.Size GetSizeDelegate();
-        public delegate Coordinates GetCoordinatesDelegate();
-
 
         private RichTextConsole myConsole;
 
@@ -57,109 +45,24 @@ namespace Huddled.PoshConsole
             myConsole = console;
         }
 
-
-        ///// <summary>
-        ///// Sets the color of the foreground.
-        ///// </summary>
-        ///// <param name="color">The color.</param>
-        //private void SetForegroundColor(ConsoleColor color)
-        //{
-        //    if (myConsole.Dispatcher.CheckAccess())
-        //    {
-        //        myForeground = color;
-        //        myConsole.ConsoleForeground = color;
-        //    }
-        //    else
-        //    {
-        //        myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-        //            new SetConsoleColorDelegate(SetForegroundColor), color);
-        //    }
-        //}
-        ///// <summary>
-        ///// Sets the color of the background.
-        ///// </summary>
-        ///// <param name="color">The color.</param>
-        //private void SetBackgroundColor(ConsoleColor color)
-        //{
-        //    if (myConsole.Dispatcher.CheckAccess())
-        //    {
-        //        myBackground = color;
-        //        myConsole.ConsoleBackground = color;
-        //    }
-        //    else
-        //    {
-        //        myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-        //            new SetConsoleColorDelegate(SetBackgroundColor), color);
-        //    }
-        //}
-
-
         /// <summary>
         /// Return the host buffer size adapted from the .NET Console buffer size.
         /// </summary>
         public override System.Management.Automation.Host.Size BufferSize
         {
-            get { return GetBufferSize(); }
-            set { SetBufferSize(value); }
+            get { return (Size)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return myConsole.BufferSize; }); }
+            set { myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.BufferSize = value; }); }
         }
-
-        private System.Management.Automation.Host.Size GetBufferSize()
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                return myConsole.BufferSize;
-            }
-            else
-            {
-                return (Size)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetSizeDelegate(GetBufferSize));
-            }
-        }
-
-        private void SetBufferSize(System.Management.Automation.Host.Size bufferSize)
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.BufferSize = bufferSize;
-            }
-            else
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetSizeDelegate(SetBufferSize), bufferSize);
-            }
-        }
-
 
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
         public override Coordinates CursorPosition
         {
-            get { return GetCursorPosition(); }
-            set { SetCursorPosition(value); }
+            get { return (Coordinates)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return myConsole.CursorPosition; }); }
+            set { myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.CursorPosition = value; }); }
         }
 
-        private Coordinates GetCursorPosition()
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                return myConsole.CursorPosition;
-            }
-            else
-            {
-                return (Coordinates)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetCoordinatesDelegate(GetCursorPosition));
-            }
-        }
-
-        private void SetCursorPosition(Coordinates cursorPosition)
-        {
-            if (myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.CursorPosition = cursorPosition;
-            }
-            else
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetCoordinatesDelegate(SetCursorPosition), cursorPosition);
-            }
-        }
 
         /// <summary>
         /// Return the cursor size taken directly from the .NET Console cursor size.
@@ -200,13 +103,7 @@ namespace Huddled.PoshConsole
         /// <returns>Returns nothing - call fails.</returns>
         public override BufferCell[,] GetBufferContents(Rectangle rectangle)
         {
-            if(!myConsole.Dispatcher.CheckAccess())
-            {
-                return (BufferCell[,]) myConsole.Dispatcher.Invoke(DispatcherPriority.Render, new GetBufferDelegate(GetBufferContents), rectangle);
-            }
-
-            return myConsole.GetBufferContents(rectangle);
-
+            return (BufferCell[,])myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return myConsole.GetBufferContents(rectangle); }); 
         }
 
         /// <summary>
@@ -270,16 +167,9 @@ namespace Huddled.PoshConsole
         /// </summary>
         /// <param name="origin">Unused</param>
         /// <param name="contents">Unused</param>
-        private delegate void SetBufferDelegate(Coordinates origin, BufferCell[,] contents);
         public override void SetBufferContents(Coordinates origin, BufferCell[,] contents)
         {
-            // throw new NotImplementedException("The SetBufferContents() methods are not implemented by MyRawUserInterface.");
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetBufferDelegate(SetBufferContents), origin, new object[] { contents });
-            }
-            else
-                myConsole.SetBufferContents(origin, contents);
+            myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate {myConsole.SetBufferContents(origin, contents); }); 
         }
 
         /// <summary>
@@ -287,33 +177,9 @@ namespace Huddled.PoshConsole
         /// </summary>
         /// <param name="rectangle">Unused</param>
         /// <param name="fill">Unused</param>
-        private delegate void FillBufferDelegate(Rectangle rectangle, BufferCell fill);
         public override void SetBufferContents(Rectangle rectangle, BufferCell fill)
         {
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new FillBufferDelegate(SetBufferContents), rectangle, new object[] { fill });
-            } else {
-                myConsole.SetBufferContents(rectangle, fill);
-            }
-        }
-
-        private Coordinates GetWindowPosition()
-        {
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                return (Coordinates)myConsole.Dispatcher.Invoke(DispatcherPriority.Render, new GetCoordinatesDelegate(GetWindowPosition));
-            }
-            return myConsole.WindowPosition;
-        }
-
-        private void SetWindowPosition( Coordinates coords )
-        {
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.Dispatcher.Invoke(DispatcherPriority.Render, new SetCoordinatesDelegate(SetWindowPosition), coords);
-            } else
-                myConsole.WindowPosition = coords;
+            myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.SetBufferContents(rectangle, fill); }); 
         }
 
         /// <summary>
@@ -321,9 +187,8 @@ namespace Huddled.PoshConsole
         /// </summary>
         public override Coordinates WindowPosition
         {
-
-            get { return GetWindowPosition(); }
-            set { SetWindowPosition(value); }
+            get { return (Coordinates)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return myConsole.WindowPosition; }); }
+            set { myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.WindowPosition = value; }); }
         }
 
 
@@ -332,78 +197,29 @@ namespace Huddled.PoshConsole
         /// </summary>
         public override System.Management.Automation.Host.Size WindowSize
         {
-            get { return GetWindowSize(); }
-            set { SetWindowSize(value); }
+            get { return (Size)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return myConsole.WindowSize; }); }
+            set { myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.WindowSize = value; }); }
         }
 
-        private void SetWindowSize(System.Management.Automation.Host.Size value)
-        {
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetSizeDelegate( SetWindowSize ), value);
-            }
-            else
-                myConsole.WindowSize = value;
-        }
-
-        private System.Management.Automation.Host.Size GetWindowSize()
-        {
-            if (!myConsole.Dispatcher.CheckAccess())
-            {
-                return (Size)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetSizeDelegate(GetWindowSize));
-            }
-            else
-                return myConsole.WindowSize;
-        }
-
-        private delegate void SetValueDelegate(System.Windows.DependencyProperty property, object value);
-        private delegate object GetValueDelegate(System.Windows.DependencyProperty property);
         /// <summary>
         /// Mapped to the Console.Title property.
         /// </summary>
         public override string WindowTitle
         {
-            get { 
-                //(string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, GetWindowTitle, value);
-                if (!myConsole.Dispatcher.CheckAccess())
-                {
-                    return (string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, new GetValueDelegate(myConsole.GetValue), RichTextConsole.TitleProperty);
-                }
-                else return (string)myConsole.GetValue(RichTextConsole.TitleProperty);
-
-            }
-            set
-            {
-                if (!myConsole.Dispatcher.CheckAccess())
-                {
-                    myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SetValueDelegate(myConsole.SetValue), RichTextConsole.TitleProperty, value);
-                } 
-                else myConsole.SetValue(RichTextConsole.TitleProperty, value);
-            }
+            get { return (string)myConsole.Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return (string)myConsole.GetValue(RichTextConsole.TitleProperty); }); }
+            set { myConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { myConsole.SetValue(RichTextConsole.TitleProperty, value); }); }
         }
 
         public override ConsoleColor BackgroundColor
         {
-            get
-            {
-                return myConsole.BackgroundColor;
-            }
-            set
-            {
-                myConsole.BackgroundColor = value;
-            }
+            get { return myConsole.BackgroundColor;  }
+            set { myConsole.BackgroundColor = value; }
         }
 
         public override ConsoleColor ForegroundColor
         {
-            get
-            {
-                return myConsole.ForegroundColor;
-            }
-            set
-            {
-                myConsole.ForegroundColor = value;
-            }
+            get { return myConsole.ForegroundColor;  }
+            set { myConsole.ForegroundColor = value; }
         }
     }
 }

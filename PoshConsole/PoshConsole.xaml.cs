@@ -587,6 +587,10 @@ namespace Huddled.PoshConsole
 				}
 				else
 				{
+                    // if they used the hotkey while the window has focus, they want it to hide...
+                    // but we only need to do that HERE if AutoHide is false 
+                    // if AutoHide is true, it hides during the Deactivate handler
+                    if (Properties.Settings.Default.AutoHide == false) HideWindow();
                     Win32.Application.ActivateNextWindow(Win32.Application.GetWindowHandle(this));
 				}
 			}

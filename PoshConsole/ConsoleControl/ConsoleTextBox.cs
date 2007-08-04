@@ -66,6 +66,7 @@ namespace Huddled.PoshConsole
             NullOutCommands();
 
             RegisterClipboardCommands();
+           
         }
 
         /// <summary>
@@ -77,7 +78,6 @@ namespace Huddled.PoshConsole
             // an do-nothing handler to avoid checking for null
             GotProgressUpdate += new WriteProgressDelegate(delegate(long l, ProgressRecord p) { });
 
-            
             DataObject.AddPastingHandler(this, OnDataObjectPasting);
             intellisense.SelectionMode = SelectionMode.Single;
             intellisense.SelectionChanged += new SelectionChangedEventHandler(intellisense_SelectionChanged);
@@ -103,6 +103,11 @@ namespace Huddled.PoshConsole
         }
 
 
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized"></see> event. 
+        /// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized"></see> is set to true internally.
+        /// </summary>
+        /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"></see> that contains the event data.</param>
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
@@ -313,14 +318,20 @@ namespace Huddled.PoshConsole
 
             if (Clipboard.ContainsText())
             {
+                string txt = Clipboard.GetText(TextDataFormat.UnicodeText);
                 // TODO: check if focus is in the "command" line already, if so, insert text at cursor
                 if (box.CaretInCommand)
                 {
-                    box.CaretPosition.InsertTextInRun(Clipboard.GetText(TextDataFormat.UnicodeText));
+                    // get a pointer with forward gravity so it will stick to the end of the paste. I don't know why you have to use the Offset instead of insertion...
+                    TextPointer insert = box.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);// GetInsertionPosition(LogicalDirection.Forward);
+                    // now insert the text and make sure the caret is where it belongs.
+                    insert.InsertTextInRun(txt);
+                    box.CaretPosition = insert;
                 }
                 else
                 {
-                    box.Document.ContentEnd.InsertTextInRun(Clipboard.GetText(TextDataFormat.UnicodeText));
+                    box.Document.ContentEnd.InsertTextInRun(txt);
+                    box.CaretPosition = box.Document.ContentEnd;
                 }
             }
             box.ScrollToEnd();
@@ -489,44 +500,8 @@ namespace Huddled.PoshConsole
                     {
                         if (inPrompt)
                         {
-                            tabbingCount += ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1;
-                            if (tabbing == null)
-                            {
-                                tabbing = CurrentCommand;
-                                if (!string.IsNullOrEmpty(tabbing))
-                                {
-                                    lastWord = GetLastWord(tabbing);
-                                    Cursor = Cursors.Wait;
-                                    completions = TabComplete(tabbing, lastWord);
-                                    Cursor = Cursors.IBeam;
-                                } // make sure it's never an empty string.
-                                else tabbing = null;
-                            }
-                            if (tabbing != null)
-                            {
-                                if (tabbingCount < 0 || tabbingCount >= completions.Count)
-                                {
-                                    tabbingCount = 0;
-                                }
-                                // show the menu if:
-                                // TabCompleteMenuThreshold > 0 and there are more items than the threshold
-                                // OR they tabbed twice really fast
-                                if (    (Properties.Settings.Default.TabCompleteMenuThreshold > 0 
-                                        && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
-                                    || ((DateTime.Now - tabTime) < TimeSpan.FromSeconds(1)))
-                                {
-                                    string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
-                                    popupClosing = new EventHandler(TabComplete_Closed);
-                                    popup.Closed += popupClosing;
-                                    ShowPopup(completions, false, false);
-                                }
-                                else if(tabbingCount < completions.Count)
-                                {
-                                    CurrentCommand = tabbing.Substring(0, tabbing.Length - lastWord.Length) + completions[tabbingCount];
-                                }
-                            }
+                            OnTabComplete(((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? 1 : -1);
                         }
-                        tabTime = DateTime.Now;
                         e.Handled = true;
                     } break;
                 case Key.F7:
@@ -534,62 +509,20 @@ namespace Huddled.PoshConsole
                         popupClosing = new EventHandler(History_Closed);
                         popup.Closed += popupClosing;
                         ShowPopup(myHistory, true, Properties.Settings.Default.HistoryMenuFilterDupes);
-
                     } break;
                 case Key.Up:
                     {
                         if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
                         {
-                            historyIndex++;
-                            if (null != GetHistory)
-                            {
-                                CurrentCommand = GetHistory(ref historyIndex);
-                            }
-                            else
-                            {
-                                if (historyIndex == -1)
-                                {
-                                    historyIndex = StringHistory.Count;
-                                }
-                                if (historyIndex > 0 && historyIndex <= StringHistory.Count)
-                                {
-                                    CurrentCommand = StringHistory[StringHistory.Count - historyIndex];
-                                }
-                                else
-                                {
-                                    historyIndex = 0;
-                                    CurrentCommand = string.Empty;
-                                }
-                            }
+                            OnNavigateHistory(+1);
                             e.Handled = true;
                         }
                     } break;
                 case Key.Down:
                     {
-                        if (inPrompt)
+                        if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
                         {
-                            historyIndex--;
-                            if (null != GetHistory)
-                            {
-                                CurrentCommand = GetHistory(ref historyIndex);
-                            }
-                            else
-                            {
-                                if (historyIndex == -1)
-                                {
-                                    historyIndex = StringHistory.Count;
-                                }
-                                if (historyIndex > 0 && historyIndex <= StringHistory.Count)
-                                {
-                                    CurrentCommand = StringHistory[StringHistory.Count - historyIndex];
-                                }
-                                else
-                                {
-                                    historyIndex = 0;
-                                    CurrentCommand = string.Empty;
-                                }
-                            }
-                            e.Handled = true;
+                            OnNavigateHistory(-1);
                             e.Handled = true;
                         }
                     } break;
@@ -750,6 +683,81 @@ namespace Huddled.PoshConsole
             base.OnPreviewKeyDown(e);
             Trace.Unindent();
             Trace.TraceInformation("Exiting OnPreviewKeyDown:");
+        }
+
+        /// <summary>
+        /// Called when [navigate history].
+        /// </summary>
+        /// <param name="count">The count.</param>
+        private void OnNavigateHistory(int count)
+        {
+            historyIndex += count;
+
+            if (null != GetHistory)
+            {
+                CurrentCommand = GetHistory(ref historyIndex);
+            }
+            else
+            {
+                if (historyIndex == -1)
+                {
+                    historyIndex = StringHistory.Count;
+                }
+                if (historyIndex > 0 && historyIndex <= StringHistory.Count)
+                {
+                    CurrentCommand = StringHistory[StringHistory.Count - historyIndex];
+                }
+                else
+                {
+                    historyIndex = 0;
+                    CurrentCommand = string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when [tab complete].
+        /// </summary>
+        /// <param name="shift">if set to <c>true</c> [shift].</param>
+        private void OnTabComplete(int count)
+        {
+            tabbingCount += count;
+            if (tabbing == null)
+            {
+                tabbing = CurrentCommand;
+                if (!string.IsNullOrEmpty(tabbing))
+                {
+                    lastWord = GetLastWord(tabbing);
+                    Cursor = Cursors.Wait;
+                    completions = TabComplete(tabbing, lastWord);
+                    Cursor = Cursors.IBeam;
+                } // make sure it's never an empty string.
+                else tabbing = null;
+            }
+            if (tabbing != null)
+            {
+                if (tabbingCount < 0 || tabbingCount >= completions.Count)
+                {
+                    tabbingCount = 0;
+                }
+                // show the menu if:
+                // TabCompleteMenuThreshold > 0 and there are more items than the threshold
+                // OR they tabbed twice really fast
+                if ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
+                        && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
+                    || ((DateTime.Now - tabTime) < TimeSpan.FromSeconds(1)))
+                {
+                    string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
+                    popupClosing = new EventHandler(TabComplete_Closed);
+                    popup.Closed += popupClosing;
+                    ShowPopup(completions, false, false);
+                }
+                else if (tabbingCount < completions.Count)
+                {
+                    CurrentCommand = tabbing.Substring(0, tabbing.Length - lastWord.Length) + completions[tabbingCount];
+                }
+            }
+            tabTime = DateTime.Now;
         }
 
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
@@ -1140,26 +1148,28 @@ namespace Huddled.PoshConsole
             }
 
             TrimCurrentParagraph();
-            Write(prompt);
-
-            SetPrompt();
-            promptInlines = currentParagraph.Inlines.Count;
-
+            Write( prompt);
+            // SetPrompt();
+            
         }
 
         private void SetPrompt()
         {
             // this is the run that the user will type their command into...
-            Run command = new Run("", currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd
-            command.Background = Brushes.Transparent;
+            Run command = new Run("", currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward)); // , Document.ContentEnd
+            // it's VITAL that this Run "look" different than the previous one
+            // otherwise if you backspace the last character it merges into the previous output
+            command.Background = Background; 
             command.Foreground = Foreground;
 
+            promptInlines = currentParagraph.Inlines.Count;
             ScrollToEnd();
             // toggle undo to prevent "undo"ing past this point.
             IsUndoEnabled = false;
             IsUndoEnabled = true;
 
-            CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+            commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+            CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Forward);
         }
 
         Paragraph currentParagraph = null;
@@ -1510,7 +1520,7 @@ namespace Huddled.PoshConsole
 
             EndChange();
             SetPrompt();
-        }
+        }                                   
 
         #region ConsoleBrushes
 

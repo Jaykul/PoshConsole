@@ -728,7 +728,10 @@ namespace Huddled.PoshConsole
                     } break;
                 case "ScrollBarVisibility":
                     {
-                        buffer.VerticalScrollBarVisibility = Properties.Settings.Default.ScrollBarVisibility;
+                        buffer.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate
+                        {
+                            buffer.VerticalScrollBarVisibility = Properties.Settings.Default.ScrollBarVisibility;
+                        });
                     } break;
                 default:
                     break;
