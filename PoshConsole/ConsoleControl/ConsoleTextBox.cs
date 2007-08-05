@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Management.Automation;
 using System.Threading;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Huddled.PoshConsole
 {
@@ -28,33 +30,62 @@ namespace Huddled.PoshConsole
     /// Ultimately intended for use as a PowerShell console
     /// </remarks>
     /// </summary>
-    public class RichTextConsole : RichTextBox, IConsoleControlBuffered
+    public class RichTextConsole : RichTextBox, IPSConsoleControl, IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
     {
         // events and such ...
-        public delegate List<string> TabCompleteHandler(string commandLine, string lastWord);
         public event TabCompleteHandler TabComplete;
-
-        public delegate string HistoryHandler(ref int index);
         public event HistoryHandler GetHistory;
-
-        // TODO: This needs to go away!
-        public event WriteProgressDelegate GotProgressUpdate;
-        public void SendProgressUpdate(long sourceId, ProgressRecord record)
-        {
-            GotProgressUpdate(sourceId, record);
-        }
-        //public delegate void WriteProgressDelegate(long sourceId, ProgressRecord record);
-        //public event WriteProgressDelegate ProgressUpdate;
+        public event CommandHandler ProcessCommand;
 
         ListBox intellisense = new ListBox();
         Popup popup = new Popup();
         EventHandler popupClosing = null;
 
-        private IInput inputHandler = null;
-        public IInput InputHandler
+
+        private AutoResetEvent GotInput = new AutoResetEvent(false);
+        public event InputEventHandler GotUserInput;
+        private string lastInputString = null;
+        public bool waitingForInput = false;
+
+
+        /// <summary>
+        /// Handles the CommandEntered event of the Console buffer
+        /// </summary>
+        /// <param name="command">The command.</param>
+        public void OnCommand(string command)
         {
-            get { return inputHandler; }
-            set { inputHandler = value; }
+            if (waitingForInput)
+            {
+                if (command.EndsWith("\n"))
+                {
+                    lastInputString = command;
+                }
+                else
+                {
+                    lastInputString = command + "\n";
+                }
+                GotInput.Set();
+            }
+            else 
+            {
+                ProcessCommand(command);
+            }
+        }
+
+        /// <summary>
+        /// Provides a way for scripts to request user input ...
+        /// </summary>
+        /// <returns></returns>
+        public string ReadLine()
+        {
+            string result = null;
+
+            waitingForInput = true;
+            GotInput.WaitOne();
+            waitingForInput = false;
+
+            result = lastInputString;
+            return result;
         }
 	
 
@@ -75,8 +106,8 @@ namespace Huddled.PoshConsole
         public RichTextConsole()
             : base()
         {
-            // an do-nothing handler to avoid checking for null
-            GotProgressUpdate += new WriteProgressDelegate(delegate(long l, ProgressRecord p) { });
+            // add a do-nothing delegate so we don't have to test for it
+            ProcessCommand += new CommandHandler(delegate(string cmd) { });
 
             DataObject.AddPastingHandler(this, OnDataObjectPasting);
             intellisense.SelectionMode = SelectionMode.Single;
@@ -546,8 +577,9 @@ namespace Huddled.PoshConsole
                         //string cmd = EndOfPrompt.GetTextInRun(LogicalDirection.Forward);
                         currentParagraph.ContentEnd.InsertLineBreak();
                         myHistory.Add(cmd);
-                        inputHandler.Write(cmd);
-                        e.Handled = true;
+                        OnCommand(cmd);
+                        // let the {ENTER} through...
+                        // e.Handled = true;
                     } break;
                 case Key.Left:
                     {
@@ -635,16 +667,16 @@ namespace Huddled.PoshConsole
                             }
                         }
                     } break;
-                // we're only handling this to avoid the default handler when you try to copy
-                // since that would de-select the text
-                case Key.X: goto case Key.C;
-                case Key.C:
-                    {
-                        if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
-                        {
-                            goto default;
-                        }
-                    } break;
+                //// we're only handling this to avoid the default handler when you try to copy
+                //// since that would de-select the text
+                //case Key.X: goto case Key.C;
+                //case Key.C:
+                //    {
+                //        if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+                //        {
+                //            goto default;
+                //        }
+                //    } break;
 
                 // here's a few keys we want the base control to handle:
                 case Key.Right: break;
@@ -701,11 +733,11 @@ namespace Huddled.PoshConsole
             {
                 if (historyIndex == -1)
                 {
-                    historyIndex = StringHistory.Count;
+                    historyIndex = myHistory.Count;
                 }
-                if (historyIndex > 0 && historyIndex <= StringHistory.Count)
+                if (historyIndex > 0 && historyIndex <= myHistory.Count)
                 {
-                    CurrentCommand = StringHistory[StringHistory.Count - historyIndex];
+                    CurrentCommand = myHistory[myHistory.Count - historyIndex];
                 }
                 else
                 {
@@ -1101,7 +1133,7 @@ namespace Huddled.PoshConsole
         #region Private Members
 
         private List<string> myHistory;
-        public List<string> StringHistory
+        public List<string> CommandHistory
         {
             get { return myHistory; }
             set { myHistory = value; }
@@ -1880,12 +1912,12 @@ namespace Huddled.PoshConsole
         //    }
         //}
 
-        public static DependencyProperty TitleProperty = DependencyProperty.RegisterAttached("Title", typeof(string), typeof(RichTextConsole));
+        public static DependencyProperty WindowTitleProperty = DependencyProperty.RegisterAttached("Title", typeof(string), typeof(RichTextConsole));
 
-        public string Title
+        public string WindowTitle
         {
-            get { return (string)GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
+            get { return (string)GetValue(WindowTitleProperty); }
+            set { SetValue(WindowTitleProperty, value); }
         }
 
 
@@ -2286,25 +2318,210 @@ namespace Huddled.PoshConsole
         }
 
 
-        public delegate void SetScrollBarVisibilityDelegate(ScrollBarVisibility visibility);
-        /// <summary>
-        /// Sets the scroll bar visibility.
-        /// </summary>
-        /// <param name="visibility">The visibility.</param>
-        public void SetScrollBarVisibility( ScrollBarVisibility visibility)
-        {
-            if (!Dispatcher.CheckAccess())
-            {
-                Dispatcher.Invoke(DispatcherPriority.Background, new SetScrollBarVisibilityDelegate(SetScrollBarVisibility), visibility);
-            }
-            this.VerticalScrollBarVisibility = visibility;
-        }
-
-
         public void ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
+
+        #region IPSRawConsole Members
+
+
+        public int CursorSize
+        {
+            get
+            {
+                // TODO: we should look at implementing a nice cursor...
+                return 25; 
+            }
+            set
+            {
+                /* It's meaningless to set our cursor */
+            }
+        }
+
+        public void FlushInputBuffer()
+        {
+            ; // ToDo: as far as I can tell, we don't really have an input buffer
+        }
+
+        #endregion
+
+
+
+
+        public Dictionary<string, PSObject> Prompt( string caption, string message, Collection<FieldDescription> descriptions)
+        {
+
+            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + " ");
+
+            Dictionary<string, PSObject> results = new Dictionary<string, PSObject>();
+            foreach (FieldDescription fd in descriptions)
+            {
+                string[] label = GetHotkeyAndLabel(fd.Label);
+
+                if (!String.IsNullOrEmpty(fd.HelpMessage)) Write(fd.HelpMessage);
+
+                WriteLine(ConsoleColor.Blue, ConsoleColor.Black, String.Format("\n{0}: ", label[1]));
+
+                string userData = ReadLine();
+                if (userData == null)
+                    return null;
+                results[fd.Name] = PSObject.AsPSObject(userData);
+            }
+            return results;
+        }
+
+        public int PromptForChoice( string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
+        {
+            // Write the caption and message strings in Blue.
+            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + "\n");
+
+            // Convert the choice collection into something that's a little easier to work with
+            // See the BuildHotkeysAndPlainLabels method for details.
+            Dictionary<string, PSObject> results = new Dictionary<string, PSObject>();
+            string[,] promptData = BuildHotkeysAndPlainLabels(choices);
+
+            // Format the overall choice prompt string to display...
+            StringBuilder sb = new StringBuilder();
+            for (int element = 0; element < choices.Count; element++)
+            {
+                sb.Append(String.Format("|{0}> {1} ", promptData[0, element], promptData[1, element]));
+            }
+            sb.Append(String.Format("[Default is ({0}]", promptData[0, defaultChoice]));
+
+            // Loop reading prompts until a match is made, the default is
+            // chosen or the loop is interrupted with ctrl-C.
+            while (true)
+            {
+                WriteLine(ConsoleColor.Cyan, ConsoleColor.Black, sb.ToString());
+                string data = ReadLine().Trim().ToUpper();
+
+                // If the choice string was empty, use the default selection.
+                if (data.Length == 0)
+                    return defaultChoice;
+
+                // See if the selection matched and return the
+                // corresponding index if it did...
+                for (int i = 0; i < choices.Count; i++)
+                {
+                    if (promptData[0, i] == data)
+                        return i;
+                }
+                WriteErrorLine("Invalid choice: " + data);
+            }
+        }
+
+        /// <summary>
+        /// Parse a string containing a hotkey character.
+        /// 
+        /// Take a string of the form: 
+        /// "Yes to &amp;all"
+        /// And return a two-dimensional array split out as
+        ///    "A", "Yes to all".
+        /// </summary>
+        /// <param name="input">The string to process</param>
+        /// <returns>
+        /// A two dimensional array containing the parsed components.
+        /// </returns>
+        private static string[] GetHotkeyAndLabel(string input)
+        {
+            string[] result = new string[] { String.Empty, String.Empty };
+            string[] fragments = input.Split('&');
+            if (fragments.Length == 2)
+            {
+                if (fragments[1].Length > 0)
+                    result[0] = fragments[1][0].ToString().ToUpper();
+                result[1] = (fragments[0] + fragments[1]).Trim();
+            }
+            else
+            {
+                result[1] = input;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// This is a private worker function that splits out the
+        /// accelerator keys from the menu and builds a two dimentional 
+        /// array with the first access containing the
+        /// accelerator and the second containing the label string
+        /// with &amp; removed.
+        /// </summary>
+        /// <param name="choices">The choice collection to process</param>
+        /// <returns>
+        /// A two dimensional array containing the accelerator characters
+        /// and the cleaned-up labels</returns>
+        private static string[,] BuildHotkeysAndPlainLabels( Collection<ChoiceDescription> choices)
+        {
+            // Allocate the result array
+            string[,] hotkeysAndPlainLabels = new string[2, choices.Count];
+
+            for (int i = 0; i < choices.Count; ++i)
+            {
+                string[] hotkeyAndLabel = GetHotkeyAndLabel(choices[i].Label);
+                hotkeysAndPlainLabels[0, i] = hotkeyAndLabel[0];
+                hotkeysAndPlainLabels[1, i] = hotkeyAndLabel[1];
+            }
+            return hotkeysAndPlainLabels;
+        }
+
+
+        public System.Security.SecureString ReadLineAsSecureString()
+        {
+            throw new NotImplementedException("SecureStrings are not yet implemented by PoshConsole");
+        }
+
+        public PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
+        {
+            throw new NotImplementedException("Credentials are not yet implemented by PoshConsole");
+        }
+
+        public PSCredential PromptForCredential(
+                string caption, string message, string userName,
+                string targetName, PSCredentialTypes allowedCredentialTypes,
+                PSCredentialUIOptions options)
+        {
+            throw new NotImplementedException("Credentials are not yet implemented by PoshConsole");
+        }
+
+        #region IPSConsole Members
+
+
+        public IPSRawConsole RawUI
+        {
+            get { return this; }
+        }
+
+        #endregion
+
+        #region IPSConsoleControl Members
+
+
+        public new ConsoleScrollBarVisibility VerticalScrollBarVisibility
+        {
+            get
+            {
+                return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return base.VerticalScrollBarVisibility; });
+            }
+            set
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { base.VerticalScrollBarVisibility = (ScrollBarVisibility)value; });
+            }
+        }
+
+        public new ConsoleScrollBarVisibility HorizontalScrollBarVisibility
+        {
+            get
+            {
+                return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return base.HorizontalScrollBarVisibility; });
+            }
+            set
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value; });
+            }
+        }
+
+        #endregion
     }
 }

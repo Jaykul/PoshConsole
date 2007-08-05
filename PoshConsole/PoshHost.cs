@@ -58,7 +58,7 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// A RichTextConsole for output
         /// </summary>
-        private RichTextConsole buffer;
+        private IPSConsoleControl buffer;
 
         public bool IsClosing = false;
 
@@ -69,17 +69,19 @@ namespace Huddled.PoshConsole
         //private IInput inputHandler = null; 
         internal PoshOptions Options;
         internal List<string> StringHistory;
-        public PoshHost(RichTextConsole buffer)
+        public PoshHost(IPSUI PsUi)
         {
-            this.buffer = buffer;
+            this.buffer = PsUi.Console;
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
 
            
             try
             {
-                myRawUI = new PoshRawUI(buffer);
-                myUI = new PoshUI(myRawUI, buffer, buffer.InputHandler);
+                // we have to be careful here, because this is an interface member ...
+                // but in the current implementation, buffer.RawUI returns buffer
+                myRawUI = new PoshRawUI(buffer.RawUI);
+                myUI = new PoshUI(myRawUI, PsUi);
 
                 // precreate this
                 outDefault = new Command("Out-Default");
@@ -87,17 +89,17 @@ namespace Huddled.PoshConsole
                 outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
                 outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed?", "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
-                Application.Current.Shutdown(1);
+                MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" + ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
+                throw;
             }
 
             buffer.ConsoleBackground = myRawUI.BackgroundColor;
             buffer.ConsoleForeground = myRawUI.ForegroundColor;
 
-            buffer.TabComplete +=new RichTextConsole.TabCompleteHandler(buffer_TabComplete);
-            buffer.InputHandler.GotUserInput += new InputEventHandler(OnGotUserInput);
+            buffer.TabComplete +=new TabCompleteHandler(buffer_TabComplete);
+            buffer.ProcessCommand += new CommandHandler(OnGotUserInput);
             //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
 
             //buffer.GetHistory +=new RichTextConsole.HistoryHandler(buffer_GetHistory);
@@ -124,9 +126,8 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// Handler for the IInput.GotUserInput event.
         /// </summary>
-        /// <param name="source">The source.</param>
         /// <param name="commandLine">The command line.</param>
-        void OnGotUserInput(object source, string commandLine)
+        void OnGotUserInput(string commandLine)
         {
             if (native == 0)
             {
@@ -156,13 +157,6 @@ namespace Huddled.PoshConsole
 
         #region RichTextConsole Event Handlers
 
-
-
-        /// <summary>
-        /// A Delegate for calling WeShouldExit
-        /// </summary>
-        private delegate void ExitDelegate(int exitCode);
-
         /// <summary>
         /// Indicate to the host application that exit has
         /// been requested. Pass the exit code that the host
@@ -171,83 +165,12 @@ namespace Huddled.PoshConsole
         /// <param name="exitCode"></param>
         public override void SetShouldExit(int exitCode)
         {
-            //if (buffer.Dispatcher.CheckAccess())
-            //{
-                ExecuteShutdownProfile();
-                KillConsole();
-                Application.Current.Shutdown(exitCode);
-            //}
-            //else
-            //{
-            //    this.IsClosing = true;
-            //    buffer.Dispatcher.BeginInvoke(DispatcherPriority.Send, new ExitDelegate(SetShouldExit), exitCode);
-            //}
+            buffer.WriteVerboseLine("Shutting Down.");
+            ExecuteShutdownProfile();
+            KillConsole();
+            // Application.Current.Shutdown(exitCode);
         }
 
-
-        ///// <summary>
-        ///// Writes the prompt.
-        ///// </summary>
-        ///// <param name="foreground">The foreground.</param>
-        ///// <param name="background">The background.</param>
-        ///// <param name="text">The text.</param>
-        //void WritePrompt(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        //{
-        //    // TODO: Colors
-        //    // Oh, my! .CheckAccess() is there, but intellisense-invisible!
-        //    if (buffer.Dispatcher.CheckAccess())
-        //    {
-        //        buffer.Prompt(text);
-        //    }
-        //    else
-        //    {
-        //        buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render, new RichTextConsole.ColoredPromptDelegate(buffer.Prompt), foreground, background, text);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Write text to the console buffer
-        ///// </summary>
-        ///// <param name="foreground">The foreground color.</param>
-        ///// <param name="background">The background color.</param>
-        ///// <param name="text">The text.</param>
-        //void OnOutput(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        //{
-        //    buffer.Write(foreground, background, text);
-        //}
-        ///// <summary>
-        ///// Write a line of text to the console buffer
-        ///// </summary>
-        ///// <param name="foreground">The foreground color.</param>
-        ///// <param name="background">The background color.</param>
-        ///// <param name="text">The text.</param>
-        //void OnOutputLine(Nullable<ConsoleColor> foreground, Nullable<ConsoleColor> background, string text)
-        //{
-        //    buffer.WriteLine(foreground, background, text);
-        //}
-
-
-        #region
-
-
-        //private string buffer_GetHistory(ref int historyIndex)
-        //{
-        //    if (historyIndex == -1)
-        //    {
-        //        historyIndex = StringHistory.Count;
-        //    }
-        //    if (historyIndex > 0 && historyIndex <= StringHistory.Count)
-        //    {
-        //        return StringHistory[StringHistory.Count - historyIndex];
-        //    }
-        //    else
-        //    {
-        //        historyIndex = 0;
-        //        return string.Empty;
-        //    }
-        //}
-
-        //Regex splitter = new Regex("[^ \"']+|\"[^\"]+\"[^ \"']*|'[^']+'[^ \"']*|[\"'][^\"']+$", RegexOptions.Compiled);
 
         private List<string> buffer_TabComplete(string cmdline, string lastWord)
         {
@@ -582,7 +505,6 @@ namespace Huddled.PoshConsole
             else
             {
                 buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
-                buffer.CurrentCommand = cmd;
             }
         }
 
@@ -671,10 +593,6 @@ namespace Huddled.PoshConsole
             }
         }
 
-        #endregion
-
-
-
         #endregion RichTextConsole Event Handlers
 
         #region Settings
@@ -728,10 +646,7 @@ namespace Huddled.PoshConsole
                     } break;
                 case "ScrollBarVisibility":
                     {
-                        buffer.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate
-                        {
-                            buffer.VerticalScrollBarVisibility = Properties.Settings.Default.ScrollBarVisibility;
-                        });
+                        buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
                     } break;
                 default:
                     break;
@@ -923,7 +838,7 @@ namespace Huddled.PoshConsole
              public List<string> History {
                  get
                  {
-                     return MyHost.buffer.StringHistory;
+                     return MyHost.buffer.CommandHistory;
                  }
              }
          }

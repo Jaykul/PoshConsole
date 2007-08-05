@@ -26,7 +26,7 @@ namespace Huddled.PoshConsole
 	/// <summary>
 	/// Implementation of a WPF host for PowerShell
 	/// </summary>
-	public partial class PoshConsole : System.Windows.Window
+	public partial class PoshConsole : System.Windows.Window, IPSUI
 	{
 
 		/// <summary>
@@ -50,7 +50,17 @@ namespace Huddled.PoshConsole
         delegate void passDelegate<T>(T input);
         delegate RET returnDelegate<RET>();
         delegate RET passReturnDelegate<T,RET>(T input);
-        
+
+        public static DependencyProperty ConsoleProperty = DependencyProperty.Register("Console", typeof(IPSConsoleControl), typeof(PoshConsole));
+
+        public IPSConsoleControl Console
+        {
+            get { return ((IPSConsoleControl)base.GetValue(ConsoleProperty)); }
+            set { base.SetValue(ConsoleProperty, value); }
+        }
+
+
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PoshConsole"/> class.
@@ -69,15 +79,8 @@ namespace Huddled.PoshConsole
 			hideOpacityAnimations.From = showOpacityAnimation.To = Opacity;
 			hideHeightAnimations.From = showHeightAnimation.To = this.Height;
 
-            buffer.InputHandler = new InputHandler();
-
-
             // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
-
-            buffer.GotProgressUpdate += new WriteProgressDelegate(OnProgressUpdate);
-
-
 
             // problems with data binding 
             WindowStyle = Properties.Settings.Default.WindowStyle;
@@ -95,16 +98,19 @@ namespace Huddled.PoshConsole
             
 		}
 
+        public void SetShouldExit(int exitCode)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (BeginInvoke)delegate { Application.Current.Shutdown(exitCode); });
+        }
+
         void HandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
         {
             buffer.FontSize += 1;
-            RecalculateSizes();
         }
 
         void HandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
         {
             buffer.FontSize -= 1;
-            RecalculateSizes();
         }
 
         void HandleSetZoom(object sender, ExecutedRoutedEventArgs e)
@@ -117,66 +123,17 @@ namespace Huddled.PoshConsole
             }else if (e.Parameter is string && double.TryParse(e.Parameter.ToString(), out zoom)) {
                 buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
             }
-            RecalculateSizes();
         }
-        void OnProgressUpdate(long sourceId, ProgressRecord record)
-        {
-            if (!buffer.Dispatcher.CheckAccess())
-            {
-                buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new WriteProgressDelegate(OnProgressUpdate), sourceId, record);
-            }
-            else
-            {
-                if (record.RecordType == ProgressRecordType.Completed)
-                {
-                    progress.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    progress.Visibility = Visibility.Visible;
-
-                    progress.Activity = record.Activity;
-                    progress.Status = record.StatusDescription;
-                    progress.Operation = record.CurrentOperation;
-                    progress.PercentComplete = record.PercentComplete;
-                    progress.TimeRemaining = TimeSpan.FromSeconds(record.SecondsRemaining);
-                }
-            }
-        }
-		/// <summary>
-		/// Recalculates various sizes that PSRawUI needs
-		/// <remarks>This should be called any time the font or window size change</remarks>
-		/// </summary>
-		private void RecalculateSizes()
-		{
-            // no point in doing this work if we're not going to use it.
-            if (myHost != null)
-            {
-                int imHigh = (int)(double.IsPositiveInfinity(buffer.MaxHeight) ? System.Windows.SystemParameters.MaximumWindowTrackHeight : buffer.MaxHeight);
-                int imWide = (int)(double.IsPositiveInfinity(buffer.MaxWidth) ? System.Windows.SystemParameters.MaximumWindowTrackWidth : buffer.MaxWidth);
-                double fontSize = (buffer.FontSize * characterWidth); // (72/96) convert from points to device independent pixels ... 
-
-                ((PoshRawUI)myHost.UI.RawUI)._MaxWindowSize = buffer.MaxWindowSize;
-
-                // What's the difference between MaxWindowSize and MaxPhysicalWindowSize?
-                // It has to do with the way the normal console maximizes only vertically because they have a fixed number of columns
-                // MaxWindowSize in the normal console is the max size you can actually resize the window to
-                // MaxPhisicalWindowSize is basically the screen size divided by character size.
-                ((PoshRawUI)myHost.UI.RawUI)._MaxPhysicalWindowSize = buffer.MaxPhysicalWindowSize;
-            }
-		}
-
-		private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
-		{
-			RecalculateSizes();
-		}
+        //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
+        //    RecalculateSizes();
+        //}
 
 		private void buffer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
 		{
 			if((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
 			{
 				buffer.FontSize += (e.Delta > 0) ? 1 : -1;
-				RecalculateSizes();
 				e.Handled = true;
 			}
 		}
@@ -340,7 +297,7 @@ namespace Huddled.PoshConsole
 			//buffer.Document.IsColumnWidthFlexible = false;
             try
             {
-                myHost = new PoshHost(buffer);
+                myHost = new PoshHost((IPSUI)this);
             }
             catch (Exception ex)
             {
@@ -369,8 +326,6 @@ namespace Huddled.PoshConsole
                     el.Cursor = this.Cursor;
                 }
             }
-
-			RecalculateSizes();
             Cursor = Cursors.IBeam;
 		}
 
@@ -514,11 +469,8 @@ namespace Huddled.PoshConsole
 
 				border.CornerRadius = radi;
 			}
-
-
 			Properties.Settings.Default.WindowLeft = Left;
 			Properties.Settings.Default.WindowTop = Top;
-			RecalculateSizes();
 		}
 
 
@@ -565,7 +517,6 @@ namespace Huddled.PoshConsole
 			{
 				Properties.Settings.Default.WindowHeight = h;
 				Properties.Settings.Default.WindowWidth = (double)this.GetAnimationBaseValue(WidthProperty);
-				RecalculateSizes();
 			}
 		}
 
@@ -624,5 +575,49 @@ namespace Huddled.PoshConsole
                 }
             }
         }
+
+        #region IPSUI Members
+
+        public void WriteProgress(long sourceId, ProgressRecord record)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { WriteProgress(sourceId, record); });
+            }
+            else
+            {
+                if (record.RecordType == ProgressRecordType.Completed)
+                {
+                    progress.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    progress.Visibility = Visibility.Visible;
+
+                    progress.Activity = record.Activity;
+                    progress.Status = record.StatusDescription;
+                    progress.Operation = record.CurrentOperation;
+                    progress.PercentComplete = record.PercentComplete;
+                    progress.TimeRemaining = TimeSpan.FromSeconds(record.SecondsRemaining);
+                }
+            }
+        }
+
+        public PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+
+        public PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+
+        public System.Security.SecureString ReadLineAsSecureString()
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+
+        #endregion
     }
 }

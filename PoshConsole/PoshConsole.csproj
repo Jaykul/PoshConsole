@@ -85,8 +85,6 @@
   <ItemGroup>
     <Compile Include="ConsoleControl\IConsoleControl.cs" />
     <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
-    <Compile Include="ConsoleControl\IInputHandler.cs" />
-    <Compile Include="InputHandler.cs" />
     <Compile Include="NativeConsole.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="HotKeyManager.cs">

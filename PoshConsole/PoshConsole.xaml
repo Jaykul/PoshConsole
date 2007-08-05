@@ -186,11 +186,8 @@
                                  AcceptsTab="True" 
                                  IsUndoEnabled="False"
                                  Background="#FF000000" Foreground="#FFFFFFFF"
-
-                                 SizeChanged="buffer_SizeChanged"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
-
-                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" Title="PoshConsole" >
+                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole" >
 
                 <Posh:RichTextConsole.Resources>
                     <Style TargetType="{x:Type Paragraph}">
