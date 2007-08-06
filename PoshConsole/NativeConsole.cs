@@ -111,8 +111,8 @@ namespace Huddled.PoshConsole
     public class NativeConsole : IDisposable
     {
         public delegate void OutputDelegate(string text);
-        public event OutputDelegate WriteOutput;
-        public event OutputDelegate WriteError;
+        public event OutputDelegate WriteOutputLine;
+        public event OutputDelegate WriteErrorLine;
         private EventWaitHandle EndOutput = new ManualResetEvent(false);
         private EventWaitHandle EndError = new ManualResetEvent(false);
 
@@ -243,9 +243,9 @@ namespace Huddled.PoshConsole
             {
                 while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
                 {
-                    if (WriteOutput != null)
+                    if (WriteOutputLine != null)
                     {
-                        WriteOutput(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                        WriteOutputLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
                     }
                 }
             }
@@ -269,9 +269,9 @@ namespace Huddled.PoshConsole
             {
                 while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
                 {
-                    if (WriteError != null)
+                    if (WriteErrorLine != null)
                     {
-                        WriteError(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                        WriteErrorLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
                     }
                 }
             }

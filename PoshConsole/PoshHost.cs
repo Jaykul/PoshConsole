@@ -59,6 +59,7 @@ namespace Huddled.PoshConsole
         /// A RichTextConsole for output
         /// </summary>
         private IPSConsoleControl buffer;
+        private IPSUI PsUi;
 
         public bool IsClosing = false;
 
@@ -74,7 +75,7 @@ namespace Huddled.PoshConsole
             this.buffer = PsUi.Console;
             StringHistory = new List<string>();
             Options = new PoshOptions(this);
-
+            this.PsUi = PsUi;
            
             try
             {
@@ -95,9 +96,6 @@ namespace Huddled.PoshConsole
                 throw;
             }
 
-            buffer.ConsoleBackground = myRawUI.BackgroundColor;
-            buffer.ConsoleForeground = myRawUI.ForegroundColor;
-
             buffer.TabComplete +=new TabCompleteHandler(buffer_TabComplete);
             buffer.ProcessCommand += new CommandHandler(OnGotUserInput);
             //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
@@ -113,6 +111,8 @@ namespace Huddled.PoshConsole
 
             // Some delegates we think we can get away with making only once...
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
+            // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
+            // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
             myRunSpace = RunspaceFactory.CreateRunspace(this);
 
@@ -122,6 +122,7 @@ namespace Huddled.PoshConsole
             // Finally, STARTUP!
             ExecuteStartupProfile();
         }
+
 
         /// <summary>
         /// Handler for the IInput.GotUserInput event.
@@ -135,7 +136,10 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                console.WriteInput(commandLine + "\n");
+                if (commandLine[commandLine.Length - 1].Equals('\n'))
+                {
+                    console.WriteInput(commandLine);
+                } else console.WriteInput(commandLine + '\n');
             } 
         }
 
@@ -144,8 +148,8 @@ namespace Huddled.PoshConsole
             if (console == null)
             {
                 console = new NativeConsole();
-                console.WriteOutput += new NativeConsole.OutputDelegate(buffer.WriteLine);
-                console.WriteError += new NativeConsole.OutputDelegate(buffer.WriteErrorLine);
+                console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
+                console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
             }
         }
 
@@ -165,10 +169,14 @@ namespace Huddled.PoshConsole
         /// <param name="exitCode"></param>
         public override void SetShouldExit(int exitCode)
         {
-            buffer.WriteVerboseLine("Shutting Down.");
+            IsClosing = true; 
+            buffer.WriteVerboseLine("Running Exit Scripts...");
             ExecuteShutdownProfile();
+            buffer.WriteVerboseLine("Shutting Down.");
             KillConsole();
+
             // Application.Current.Shutdown(exitCode);
+            PsUi.SetShouldExit(exitCode);
         }
 
 
@@ -236,11 +244,6 @@ namespace Huddled.PoshConsole
         }
         #endregion
 
-
-
-
-
-
         /// <summary>
         /// Method used to handle control-C's from the user. It calls the
         /// pipeline Stop() method to stop execution. If any exceptions occur,
@@ -250,22 +253,22 @@ namespace Huddled.PoshConsole
         /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
         public void StopPipeline()
         {
-                lock (instanceLock)
+            lock (instanceLock)
+            {
+                if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
                 {
-                    if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
+                    if (native > 0)
                     {
-                        if (native > 0)
-                        {
-                            console.WriteInput(new string(new char[] { (char)3, '\n' }));
-                        }
-                        else
-                        {
-                            currentPipeline.Stop();
-                        }
+                        console.WriteInput("\n" + (char)26);
                     }
-                    //else
-                    //    ApplicationCommands.Copy.Execute(null, buffer);
+                    else
+                    {
+                        currentPipeline.StopAsync();
+                    }
                 }
+                //else
+                //    ApplicationCommands.Copy.Execute(null, buffer);
+            }
         }
 
         /// <summary>
@@ -517,19 +520,48 @@ namespace Huddled.PoshConsole
         /// <param name="e">The <see cref="System.Management.Automation.Runspaces.PipelineStateEventArgs"/> instance containing the event data.</param>
         void Pipeline_StateChanged(object sender, PipelineStateEventArgs e)
         {
-            if (e.PipelineStateInfo.State != PipelineState.Running && e.PipelineStateInfo.State != PipelineState.Stopping)
+            switch (e.PipelineStateInfo.State)
             {
-                // Dispose of the pipeline line and set it to null
-                // locked because currentPipeline may be accessed by the ctrl-C handler, etc
-                lock (instanceLock)
-                {
-                    currentPipeline.Dispose();
-                    currentPipeline = null;
-                }
-                // let the next command through
-                ready.Set();
-                // run the prompt method
-                if (!this.IsClosing) Prompt();
+                case PipelineState.Failed:
+                    buffer.CommandFinished(CommandResults.Failed);
+                    break;
+                case PipelineState.NotStarted:
+                    break;
+                case PipelineState.Running:
+                    break;
+                case PipelineState.Stopped:
+                    buffer.CommandFinished(CommandResults.Stopped);
+                    // Dispose of the pipeline line and set it to null
+                    // locked because currentPipeline may be accessed by the ctrl-C handler, etc
+                    lock (instanceLock)
+                    {
+                        currentPipeline.Dispose();
+                        currentPipeline = null;
+                    }
+                    // let the next command through
+                    ready.Set();
+                    // run the prompt method
+                    if (!this.IsClosing) Prompt();
+                    break;
+                case PipelineState.Completed:
+                    buffer.CommandFinished(CommandResults.Completed);
+                    // Dispose of the pipeline line and set it to null
+                    // locked because currentPipeline may be accessed by the ctrl-C handler, etc
+                    lock (instanceLock)
+                    {
+                        currentPipeline.Dispose();
+                        currentPipeline = null;
+                    }
+                    // let the next command through
+                    ready.Set();
+                    // run the prompt method
+                    if (!this.IsClosing) Prompt();
+                    break;
+                case PipelineState.Stopping:
+                    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
+                    break;
+                default:
+                    break;
             }
         }
         private const string PromptPadding = " ";
@@ -543,11 +575,6 @@ namespace Huddled.PoshConsole
             StringBuilder sb = new StringBuilder();
             try
             {
-                //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
-                //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
-                //// NOTE: manually use the dispatcher, otherwise it will print before the output of the command
-                buffer.EndOutput();
-
                 Collection<PSObject> output = InvokeHelper("prompt", null);
 
                 foreach (PSObject thing in output)
@@ -597,52 +624,18 @@ namespace Huddled.PoshConsole
 
         #region Settings
 
+        void SettingsSettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
+        {
+            //e.SettingClass
+        }
+
         void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "ConsoleBlack": goto case "ConsoleColors";
-                case "ConsoleBlue": goto case "ConsoleColors";
-                case "ConsoleCyan": goto case "ConsoleColors";
-                case "ConsoleDarkBlue": goto case "ConsoleColors";
-                case "ConsoleDarkCyan": goto case "ConsoleColors";
-                case "ConsoleDarkGray": goto case "ConsoleColors";
-                case "ConsoleDarkGreen": goto case "ConsoleColors";
-                case "ConsoleDarkMagenta": goto case "ConsoleColors";
-                case "ConsoleDarkRed": goto case "ConsoleColors";
-                case "ConsoleDarkYellow": goto case "ConsoleColors";
-                case "ConsoleGray": goto case "ConsoleColors";
-                case "ConsoleGreen": goto case "ConsoleColors";
-                case "ConsoleMagenta": goto case "ConsoleColors";
-                case "ConsoleRed": goto case "ConsoleColors";
-                case "ConsoleWhite": goto case "ConsoleColors";
-                case "ConsoleYellow": goto case "ConsoleColors";
-                case "ConsoleColors":
-                    {
-                        // These are read for each color change.
-                        // but if the one that was changed is the default background or foreground color ...
-                        if (myRawUI.BackgroundColor == (ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName.Substring(7)))
-                        {
-                            // this will cause the color to update, even if it's the same color ...
-                            myRawUI.BackgroundColor = myRawUI.BackgroundColor;
-                        }
-                        if (myRawUI.ForegroundColor == (ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName.Substring(7)))
-                        {
-                            myRawUI.ForegroundColor = myRawUI.ForegroundColor;
-                        }
-
-                    } break;
                 case "CopyOnMouseSelect":
                     {
                         // do nothing, this setting is checked each time you select
-                    } break;
-                case "ConsoleDefaultForeground":
-                    {
-                        myRawUI.ForegroundColor = Properties.Settings.Default.ConsoleDefaultForeground;
-                    } break;
-                case "ConsoleDefaultBackground":
-                    {
-                        myRawUI.BackgroundColor = Properties.Settings.Default.ConsoleDefaultBackground;
                     } break;
                 case "ScrollBarVisibility":
                     {
@@ -776,17 +769,14 @@ namespace Huddled.PoshConsole
                  MyHost = myHost;
              }
 
-			 public Properties.Settings Settings
-			 {
-				 get
-				 {
-					 return Huddled.PoshConsole.Properties.Settings.Default;
-				 }
-				 //set
-				 //{
-				 //   Huddled.PoshConsole.Properties.Settings.Default = value;
-				 //}
-			 }
+             public Properties.Settings Settings
+             {
+                 get { return Properties.Settings.Default; }
+             }
+             public Properties.Colors Colors
+             {
+                 get { return Properties.Colors.Default; }
+             }
 
              private delegate string GetStringDelegate();
              private delegate void  SetStringDelegate( /* string value */ );

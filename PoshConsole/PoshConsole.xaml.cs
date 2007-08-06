@@ -44,8 +44,6 @@ namespace Huddled.PoshConsole
 		/// </summary>
 		Hotkey FocusKey;
 
-		double characterWidth = 1.0;
-
         // Universal Delegates
         delegate void passDelegate<T>(T input);
         delegate RET returnDelegate<RET>();
@@ -74,6 +72,8 @@ namespace Huddled.PoshConsole
 			// will be available.
 
 			InitializeComponent();
+
+            this.Console = buffer;
 
 			// before we start animating, set the animation endpoints to the current values.
 			hideOpacityAnimations.From = showOpacityAnimation.To = Opacity;
@@ -199,7 +199,7 @@ namespace Huddled.PoshConsole
                     } break;
                 case "WindowStyle":
                     {
-                        buffer.WriteWarningLine("Window Style change requires a restart to take effect");
+                        ((IPSConsole)buffer).WriteWarningLine("Window Style change requires a restart to take effect");
                         //this.WindowStyle = Properties.Settings.Default.WindowStyle;
                         //this.Hide();
                         //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
@@ -483,6 +483,7 @@ namespace Huddled.PoshConsole
             myHost.SetShouldExit(0);
 
 			Properties.Settings.Default.Save();
+            Properties.Colors.Default.Save();
 		}
 
 
@@ -570,7 +571,7 @@ namespace Huddled.PoshConsole
                 {
                     // if( w32.Message == "The operation was canceled by the user" )
                     // if( w32.NativeErrorCode == 1223 ) {
-                    buffer.WriteErrorLine("Error Starting new instance:" + w32.Message );
+                    ((IPSConsole)buffer).WriteErrorLine("Error Starting new instance:" + w32.Message);
                     // myHost.Prompt();
                 }
             }

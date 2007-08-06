@@ -83,6 +83,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsoleControl.cs" />
+    <Compile Include="Properties\Colors.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Colors.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ConsoleControl\ConsoleTextBox.IPSRawConsole.cs" />
     <Compile Include="ConsoleControl\IConsoleControl.cs" />
     <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
     <Compile Include="NativeConsole.cs" />
@@ -127,6 +135,10 @@
     <Resource Include="Fonts\Pesca.ttf" />
     <Resource Include="Fonts\Pescab.ttf" />
     <None Include="Artwork\PoshConsoleBanner.png" />
+    <None Include="Properties\Colors.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Colors.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Artwork\PoshConsoleLogo.png" />

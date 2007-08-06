@@ -20,6 +20,7 @@ namespace Huddled.PoshConsole
 {
     public delegate object Invoke();
     public delegate void BeginInvoke();
+    public delegate void WriteOutputDelegate(Brush foreground, Brush background, string text);
 
 
     /// <summary>
@@ -30,64 +31,16 @@ namespace Huddled.PoshConsole
     /// Ultimately intended for use as a PowerShell console
     /// </remarks>
     /// </summary>
-    public class RichTextConsole : RichTextBox, IPSConsoleControl, IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
+    public partial class RichTextConsole : RichTextBox, IPSConsoleControl, IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
     {
         // events and such ...
-        public event TabCompleteHandler TabComplete;
-        public event HistoryHandler GetHistory;
-        public event CommandHandler ProcessCommand;
+
 
         ListBox intellisense = new ListBox();
         Popup popup = new Popup();
         EventHandler popupClosing = null;
 
 
-        private AutoResetEvent GotInput = new AutoResetEvent(false);
-        public event InputEventHandler GotUserInput;
-        private string lastInputString = null;
-        public bool waitingForInput = false;
-
-
-        /// <summary>
-        /// Handles the CommandEntered event of the Console buffer
-        /// </summary>
-        /// <param name="command">The command.</param>
-        public void OnCommand(string command)
-        {
-            if (waitingForInput)
-            {
-                if (command.EndsWith("\n"))
-                {
-                    lastInputString = command;
-                }
-                else
-                {
-                    lastInputString = command + "\n";
-                }
-                GotInput.Set();
-            }
-            else 
-            {
-                ProcessCommand(command);
-            }
-        }
-
-        /// <summary>
-        /// Provides a way for scripts to request user input ...
-        /// </summary>
-        /// <returns></returns>
-        public string ReadLine()
-        {
-            string result = null;
-
-            waitingForInput = true;
-            GotInput.WaitOne();
-            waitingForInput = false;
-
-            result = lastInputString;
-            return result;
-        }
-	
 
         /// <summary>
         /// Static initialization of the <see cref="RichTextConsole"/> class.
@@ -115,6 +68,8 @@ namespace Huddled.PoshConsole
             intellisense.PreviewMouseDown += new MouseButtonEventHandler(popup_MouseDown);
             intellisense.IsTextSearchEnabled = true;
 
+            Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
+
             // Add the popup to the logical branch of the console so keystrokes can be
             // processed from the popup by the console for the tab-complete scenario.
             // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
@@ -132,6 +87,7 @@ namespace Huddled.PoshConsole
             popup.StaysOpen = false;
 
         }
+
 
 
         /// <summary>
@@ -154,12 +110,10 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)
-                    delegate() { return GetValue(BackgroundColorProperty); });
+                return (ConsoleColor)GetValue(BackgroundColorProperty);
             }
             set {
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, (BeginInvoke)
-                    delegate() { SetValue(BackgroundColorProperty, value); });
+                SetValue(BackgroundColorProperty, value);
             }
         }
 
@@ -187,13 +141,11 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)
-                    delegate() { return GetValue(ForegroundColorProperty); });
+                return (ConsoleColor)GetValue(ForegroundColorProperty);
             }
             set
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, (BeginInvoke)
-                    delegate() { SetValue(ForegroundColorProperty, value); });
+                SetValue(ForegroundColorProperty, value);
             }
         }
 
@@ -579,7 +531,7 @@ namespace Huddled.PoshConsole
                         myHistory.Add(cmd);
                         OnCommand(cmd);
                         // let the {ENTER} through...
-                        // e.Handled = true;
+                        e.Handled = true;
                     } break;
                 case Key.Left:
                     {
@@ -999,7 +951,11 @@ namespace Huddled.PoshConsole
                         e.Handled = false;
                         popup.IsOpen = false;
                     } break;
-                case Key.Tab: goto case Key.Enter;
+                case Key.Tab:
+                    {
+                        intellisense.SelectedIndex += 1;
+                        e.Handled = true;
+                    } break;
                 case Key.Enter:
                     {
                         e.Handled = true;
@@ -1173,29 +1129,21 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt.</param>
         public void Prompt(string prompt)
         {
-            if (!Dispatcher.CheckAccess())
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Send, new PromptDelegate(Prompt), prompt);
-                return;
-            }
-
-            TrimCurrentParagraph();
-            Write( prompt);
-            // SetPrompt();
-            
+            ((IPSConsole)this).Write(prompt);
         }
 
         private void SetPrompt()
         {
+            BeginChange();
             // this is the run that the user will type their command into...
             Run command = new Run("", currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward)); // , Document.ContentEnd
             // it's VITAL that this Run "look" different than the previous one
             // otherwise if you backspace the last character it merges into the previous output
             command.Background = Background; 
             command.Foreground = Foreground;
-
+            EndChange();
             promptInlines = currentParagraph.Inlines.Count;
-            ScrollToEnd();
+
             // toggle undo to prevent "undo"ing past this point.
             IsUndoEnabled = false;
             IsUndoEnabled = true;
@@ -1206,116 +1154,10 @@ namespace Huddled.PoshConsole
 
         Paragraph currentParagraph = null;
 
-        /// <summary>
-        /// Right before a prompt we want to insert a new paragraph...
-        /// But we want to trim any whitespace off the end of the output first 
-        /// because the paragraph mark makes plenty of whitespace
-        /// </summary>
-        public void EndOutput()
-        {
-            if (!Dispatcher.CheckAccess())
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Send, new EndOutputDelegate(EndOutput));
-                return;
-            }
-            promptInlines = 0; // there are no promt inlines we need to save
-
-            if (currentParagraph != null)
-            {
-                TrimCurrentParagraph();
-                if (currentParagraph.Margin.Bottom == 0 && currentParagraph.Margin.Top == 0)
-                {
-                    currentParagraph.ContentEnd.InsertLineBreak();
-                }
-            }
-            Document.ContentEnd.InsertParagraphBreak();
-            currentParagraph = (Paragraph)Document.Blocks.LastBlock;
-        }
-
-        /// <summary>
-        /// Trims whitespace from the current paragraph.
-        /// </summary>
-        public void TrimCurrentParagraph()
-        {
-            BeginChange();
-            // if the paragraph has content
-            if (currentParagraph.Inlines.Count > promptInlines)
-            {
-                // trim from the end until we run out of inlines or hit some non-whitespace
-                Inline ln = currentParagraph.Inlines.LastInline;
-                while (ln != null)
-                {
-                    Run run = ln as Run;
-                    if (run != null)
-                    {
-                        run.Text = run.Text.TrimEnd();
-                        // if there's text in this run, stop trimming!!!
-                        if (run.Text.Length > 0) break;
-                    }
-                    // if( run == null || run.Text.Length == 0 )
-                    Inline tmp = ln;
-                    ln = ln.PreviousInline;
-                    currentParagraph.Inlines.Remove(tmp);
-                }
-            }
-            EndChange();
-        }
-
-        #region ConsoleControlBase
-        #region ERROR OUTPUT
-        // ToDo: we really should consider using some alternative output method for these other output types...
-        // Possibly an alternative panel that pops up and can be closed?
-        public void WriteErrorLine(string value)
-        {
-            this.WriteLine(ConsoleColor.Red, ConsoleColor.Black, String.Format("ERROR: {0}", value));
-        }
-
-        public void WriteDebugLine(string value)
-        {
-            this.WriteLine(ConsoleColor.DarkYellow, ConsoleColor.Black, String.Format("DEBUG: {0}", value));
-        }
-
-        public void WriteVerboseLine(string value)
-        {
-            this.WriteLine(ConsoleColor.Green, ConsoleColor.Black, String.Format("VERBOSE: {0}", value));
-        }
-
-        public void WriteWarningLine(string value)
-        {
-            this.WriteLine(ConsoleColor.Yellow, ConsoleColor.Black, String.Format("WARNING: {0}", value));
-        }
-        #endregion
-        public void WriteLine(string text)
-        {
-            Write(null, null, text + "\n");
-            //currentParagraph.ContentEnd.InsertLineBreak();
-        }
-        public void WriteLine(ConsoleColor foreground, ConsoleColor background, string text)
-        {
-            Write(BrushFromConsoleColor(foreground), BrushFromConsoleColor(background), text + "\n");
-            //currentParagraph.ContentEnd.InsertLineBreak();
-        }
-        public void Write(string text)
-        {
-            Write(null, null, text);
-        }
-        public void Write(ConsoleColor foreground, ConsoleColor background, string text)
-        {
-            Write(BrushFromConsoleColor(foreground), BrushFromConsoleColor(background), text);
-        }
-
-        #endregion
-        
-        public delegate void WriteOutputDelegate(Brush foreground, Brush background, string text);
+       
         public void Write(Brush foreground, Brush background, string text)
         {
-            if(!Dispatcher.CheckAccess())
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Send, new WriteOutputDelegate(Write), foreground, background, text);
-                return;
-            }
-
-            // handle null values - so that other Write* methods don't have to deal with Dispatcher issues
+            // handle null values - so that other Write* methods don't have to deal with Dispatchers just to look up a color
             if (foreground == null) foreground = Foreground;
             if (background == null) background = Brushes.Transparent;
 
@@ -1551,56 +1393,179 @@ namespace Huddled.PoshConsole
             }
 
             EndChange();
+            ScrollToEnd();
             SetPrompt();
         }                                   
 
         #region ConsoleBrushes
 
-        public ConsoleColor ConsoleBackground
+        void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            get
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
             {
-                return ConsoleColorFromBrush(Background);
-            }
-            set
-            {
-                Background = BrushFromConsoleColor(value);
-            }
+                switch (e.PropertyName)
+                {
+                    case "Black":
+                        ConsoleBrushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
+                        goto case "ConsoleColors";
+                    case "Blue":
+                        ConsoleBrushes.Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
+                        goto case "ConsoleColors";
+                    case "Cyan":
+                        ConsoleBrushes.Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
+                        goto case "ConsoleColors";
+                    case "DarkBlue":
+                        ConsoleBrushes.DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
+                        goto case "ConsoleColors";
+                    case "DarkCyan":
+                        ConsoleBrushes.DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
+                        goto case "ConsoleColors";
+                    case "DarkGray":
+                        ConsoleBrushes.DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
+                        goto case "ConsoleColors";
+                    case "DarkGreen":
+                        ConsoleBrushes.DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
+                        goto case "ConsoleColors";
+                    case "DarkMagenta":
+                        ConsoleBrushes.DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
+                        goto case "ConsoleColors";
+                    case "DarkRed":
+                        ConsoleBrushes.DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
+                        goto case "ConsoleColors";
+                    case "DarkYellow":
+                        ConsoleBrushes.DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
+                        goto case "ConsoleColors";
+                    case "Gray":
+                        ConsoleBrushes.Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
+                        goto case "ConsoleColors";
+                    case "Green":
+                        ConsoleBrushes.Green = new SolidColorBrush(Properties.Colors.Default.Green);
+                        goto case "ConsoleColors";
+                    case "Magenta":
+                        ConsoleBrushes.Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
+                        goto case "ConsoleColors";
+                    case "Red":
+                        ConsoleBrushes.Red = new SolidColorBrush(Properties.Colors.Default.Red);
+                        goto case "ConsoleColors";
+                    case "White":
+                        ConsoleBrushes.White = new SolidColorBrush(Properties.Colors.Default.White);
+                        goto case "ConsoleColors";
+                    case "Yellow":
+                        ConsoleBrushes.Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+                        goto case "ConsoleColors";
+
+                    case "ConsoleColors":
+                        {
+                            // These are read for each color change.
+                            // If the color that was changed is *already* the default background or foreground color ...
+                            // Then we need to update the brush!
+                            if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).ForegroundColor).Equals(e.PropertyName))
+                            {
+                                Foreground = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                            }
+                            if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).BackgroundColor).Equals(e.PropertyName))
+                            {
+                                Background = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                            }
+
+                        } break;
+                    case "DefaultForeground":
+                        {
+                            ((IPSRawConsole)this).ForegroundColor = Properties.Colors.Default.DefaultForeground;
+                        } break;
+                    case "DefaultBackground":
+                        {
+                            ((IPSRawConsole)this).BackgroundColor = Properties.Colors.Default.DefaultBackground;
+                        } break;
+                    case "DebugBackground":
+                        {
+                            ConsoleBrushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+                        } break;
+                    case "DebugForeground":
+                        {
+                            ConsoleBrushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+                        } break;
+                    case "ErrorBackground":
+                        {
+                            ConsoleBrushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+                        } break;
+                    case "ErrorForeground":
+                        {
+                            ConsoleBrushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+                        } break;
+                    case "VerboseBackground":
+                        {
+                            ConsoleBrushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+                        } break;
+                    case "VerboseForeground":
+                        {
+                            ConsoleBrushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+                        } break;
+                    case "WarningBackground":
+                        {
+                            ConsoleBrushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+                        } break;
+                    case "WarningForeground":
+                        {
+                            ConsoleBrushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+                        } break;
+                    case "NativeOutputForeground":
+                        {
+                            ConsoleBrushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+                        } break;
+                    case "NativeOutputBackground":
+                        {
+                            ConsoleBrushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+                        } break;
+                    case "NativeErrorForeground":
+                        {
+                            ConsoleBrushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+                        } break;
+                    case "NativeErrorBackground":
+                        {
+                            ConsoleBrushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+                        } break;
+
+                }
+                Properties.Colors.Default.Save();
+            });
         }
-
-        public ConsoleColor ConsoleForeground
-        {
-            get
-            {
-                return ConsoleColorFromBrush(Foreground);
-            }
-            set
-            {
-                Foreground = BrushFromConsoleColor(value);
-            }
-        }
-
-
 
         public struct ConsoleBrushes
         {
-            public static SolidColorBrush Black = new SolidColorBrush(Properties.Settings.Default.ConsoleBlack);
-            public static SolidColorBrush Blue = new SolidColorBrush(Properties.Settings.Default.ConsoleBlue);
-            public static SolidColorBrush Cyan = new SolidColorBrush(Properties.Settings.Default.ConsoleCyan);
-            public static SolidColorBrush DarkBlue = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkBlue);
-            public static SolidColorBrush DarkCyan = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkCyan);
-            public static SolidColorBrush DarkGray = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkGray);
-            public static SolidColorBrush DarkGreen = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkGreen);
-            public static SolidColorBrush DarkMagenta = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkMagenta);
-            public static SolidColorBrush DarkRed = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkRed);
-            public static SolidColorBrush DarkYellow = new SolidColorBrush(Properties.Settings.Default.ConsoleDarkYellow);
-            public static SolidColorBrush Gray = new SolidColorBrush(Properties.Settings.Default.ConsoleGray);
-            public static SolidColorBrush Green = new SolidColorBrush(Properties.Settings.Default.ConsoleGreen);
-            public static SolidColorBrush Magenta = new SolidColorBrush(Properties.Settings.Default.ConsoleMagenta);
-            public static SolidColorBrush Red = new SolidColorBrush(Properties.Settings.Default.ConsoleRed);
-            public static SolidColorBrush White = new SolidColorBrush(Properties.Settings.Default.ConsoleWhite);
-            public static SolidColorBrush Yellow = new SolidColorBrush(Properties.Settings.Default.ConsoleYellow);
-            public static SolidColorBrush Transparent = Brushes.Transparent;
+            public static Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
+            public static Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
+            public static Brush Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
+            public static Brush DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
+            public static Brush DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
+            public static Brush DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
+            public static Brush DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
+            public static Brush DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
+            public static Brush DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
+            public static Brush DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
+            public static Brush Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
+            public static Brush Green = new SolidColorBrush(Properties.Colors.Default.Green);
+            public static Brush Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
+            public static Brush Red = new SolidColorBrush(Properties.Colors.Default.Red);
+            public static Brush White = new SolidColorBrush(Properties.Colors.Default.White);
+            public static Brush Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+            
+            public static Brush Transparent = Brushes.Transparent;
+
+            public static Brush DefaultBackground = BrushFromConsoleColor(Properties.Colors.Default.DefaultBackground);
+            public static Brush DefaultForeground = BrushFromConsoleColor(Properties.Colors.Default.DefaultForeground);
+            public static Brush DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+            public static Brush DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+            public static Brush ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+            public static Brush ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+            public static Brush VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+            public static Brush VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+            public static Brush WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+            public static Brush WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+            public static Brush NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+            public static Brush NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+            public static Brush NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+            public static Brush NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
         }
 
         public static Brush BrushFromConsoleColor(Nullable<ConsoleColor> color)
@@ -2348,125 +2313,6 @@ namespace Huddled.PoshConsole
         #endregion
 
 
-
-
-        public Dictionary<string, PSObject> Prompt( string caption, string message, Collection<FieldDescription> descriptions)
-        {
-
-            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + " ");
-
-            Dictionary<string, PSObject> results = new Dictionary<string, PSObject>();
-            foreach (FieldDescription fd in descriptions)
-            {
-                string[] label = GetHotkeyAndLabel(fd.Label);
-
-                if (!String.IsNullOrEmpty(fd.HelpMessage)) Write(fd.HelpMessage);
-
-                WriteLine(ConsoleColor.Blue, ConsoleColor.Black, String.Format("\n{0}: ", label[1]));
-
-                string userData = ReadLine();
-                if (userData == null)
-                    return null;
-                results[fd.Name] = PSObject.AsPSObject(userData);
-            }
-            return results;
-        }
-
-        public int PromptForChoice( string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
-        {
-            // Write the caption and message strings in Blue.
-            WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + "\n");
-
-            // Convert the choice collection into something that's a little easier to work with
-            // See the BuildHotkeysAndPlainLabels method for details.
-            Dictionary<string, PSObject> results = new Dictionary<string, PSObject>();
-            string[,] promptData = BuildHotkeysAndPlainLabels(choices);
-
-            // Format the overall choice prompt string to display...
-            StringBuilder sb = new StringBuilder();
-            for (int element = 0; element < choices.Count; element++)
-            {
-                sb.Append(String.Format("|{0}> {1} ", promptData[0, element], promptData[1, element]));
-            }
-            sb.Append(String.Format("[Default is ({0}]", promptData[0, defaultChoice]));
-
-            // Loop reading prompts until a match is made, the default is
-            // chosen or the loop is interrupted with ctrl-C.
-            while (true)
-            {
-                WriteLine(ConsoleColor.Cyan, ConsoleColor.Black, sb.ToString());
-                string data = ReadLine().Trim().ToUpper();
-
-                // If the choice string was empty, use the default selection.
-                if (data.Length == 0)
-                    return defaultChoice;
-
-                // See if the selection matched and return the
-                // corresponding index if it did...
-                for (int i = 0; i < choices.Count; i++)
-                {
-                    if (promptData[0, i] == data)
-                        return i;
-                }
-                WriteErrorLine("Invalid choice: " + data);
-            }
-        }
-
-        /// <summary>
-        /// Parse a string containing a hotkey character.
-        /// 
-        /// Take a string of the form: 
-        /// "Yes to &amp;all"
-        /// And return a two-dimensional array split out as
-        ///    "A", "Yes to all".
-        /// </summary>
-        /// <param name="input">The string to process</param>
-        /// <returns>
-        /// A two dimensional array containing the parsed components.
-        /// </returns>
-        private static string[] GetHotkeyAndLabel(string input)
-        {
-            string[] result = new string[] { String.Empty, String.Empty };
-            string[] fragments = input.Split('&');
-            if (fragments.Length == 2)
-            {
-                if (fragments[1].Length > 0)
-                    result[0] = fragments[1][0].ToString().ToUpper();
-                result[1] = (fragments[0] + fragments[1]).Trim();
-            }
-            else
-            {
-                result[1] = input;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// This is a private worker function that splits out the
-        /// accelerator keys from the menu and builds a two dimentional 
-        /// array with the first access containing the
-        /// accelerator and the second containing the label string
-        /// with &amp; removed.
-        /// </summary>
-        /// <param name="choices">The choice collection to process</param>
-        /// <returns>
-        /// A two dimensional array containing the accelerator characters
-        /// and the cleaned-up labels</returns>
-        private static string[,] BuildHotkeysAndPlainLabels( Collection<ChoiceDescription> choices)
-        {
-            // Allocate the result array
-            string[,] hotkeysAndPlainLabels = new string[2, choices.Count];
-
-            for (int i = 0; i < choices.Count; ++i)
-            {
-                string[] hotkeyAndLabel = GetHotkeyAndLabel(choices[i].Label);
-                hotkeysAndPlainLabels[0, i] = hotkeyAndLabel[0];
-                hotkeysAndPlainLabels[1, i] = hotkeyAndLabel[1];
-            }
-            return hotkeysAndPlainLabels;
-        }
-
-
         public System.Security.SecureString ReadLineAsSecureString()
         {
             throw new NotImplementedException("SecureStrings are not yet implemented by PoshConsole");
@@ -2485,43 +2331,7 @@ namespace Huddled.PoshConsole
             throw new NotImplementedException("Credentials are not yet implemented by PoshConsole");
         }
 
-        #region IPSConsole Members
 
 
-        public IPSRawConsole RawUI
-        {
-            get { return this; }
-        }
-
-        #endregion
-
-        #region IPSConsoleControl Members
-
-
-        public new ConsoleScrollBarVisibility VerticalScrollBarVisibility
-        {
-            get
-            {
-                return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return base.VerticalScrollBarVisibility; });
-            }
-            set
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { base.VerticalScrollBarVisibility = (ScrollBarVisibility)value; });
-            }
-        }
-
-        public new ConsoleScrollBarVisibility HorizontalScrollBarVisibility
-        {
-            get
-            {
-                return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate { return base.HorizontalScrollBarVisibility; });
-            }
-            set
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value; });
-            }
-        }
-
-        #endregion
     }
 }

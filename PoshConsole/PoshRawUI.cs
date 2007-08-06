@@ -26,7 +26,6 @@ namespace Huddled.PoshConsole
     class PoshRawUI : PSHostRawUserInterface
     {
         private IPSRawConsole myConsole;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PoshRawUI"/> class.
         /// </summary>

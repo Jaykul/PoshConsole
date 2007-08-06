@@ -90,6 +90,9 @@ namespace Huddled.PoshConsole
         void WriteErrorLine(string value);
         void WriteVerboseLine(string message);
         void WriteWarningLine(string message);
+        // I added these so I could offer to color 'native' interactions differently
+        void WriteNativeLine(string message);
+        void WriteNativeErrorLine(string message);
     }
 
 
@@ -97,6 +100,9 @@ namespace Huddled.PoshConsole
     public delegate string HistoryHandler(ref int index);
     public delegate void CommandHandler(string commandLine);
     
+    public enum CommandResults {
+        Stopped, Failed, Completed
+    }
 
     public interface IPSConsoleControl: IPSConsole
     {
@@ -104,13 +110,11 @@ namespace Huddled.PoshConsole
         event HistoryHandler GetHistory;
         event CommandHandler ProcessCommand;
 
-        void EndOutput();
+        void CommandFinished( CommandResults results );
         void Prompt(string text );
 
         string CurrentCommand { get; set; }
         List<string> CommandHistory { get; }
-        ConsoleColor ConsoleForeground { get; set; }
-        ConsoleColor ConsoleBackground { get; set; }
 
         ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
         ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
