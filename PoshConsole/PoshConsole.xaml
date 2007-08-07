@@ -16,7 +16,7 @@
     BorderThickness="0"
     Visibility="Visible"
 	Background="Transparent"
-    ResizeMode="CanResizeWithGrip"    
+    ResizeMode="CanResizeWithGrip"
 
     SnapsToDevicePixels="True"
     SourceInitialized="Window_SourceInitialized"
@@ -37,10 +37,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ResizeGrip}">
                         <Grid SnapsToDevicePixels="True" Background="Transparent">
-                            <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom" 
+                            <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
                                   Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                            <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}" 
-                                  HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom" 
+                            <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
+                                  HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
                                   Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
                         </Grid>
                     </ControlTemplate>
@@ -147,29 +147,29 @@
         <CommandBinding Command="ApplicationCommands.Stop" Executed="HandleControlC" CanExecute="CanHandleControlC"/>
         <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
         <CommandBinding Command="NavigationCommands.Zoom" Executed="HandleSetZoom" />
-		<CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="HandleIncreaseZoom" />
-		<CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
-	</Window.CommandBindings>
-	<Window.InputBindings>
+        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="HandleIncreaseZoom" />
+        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         <!-- 
         <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> 
         -->
-		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
 
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
-		<KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
 
 
     </Window.InputBindings>
@@ -183,7 +183,7 @@
             <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
             <Posh:RichTextConsole Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 AcceptsTab="True" 
+                                 AcceptsTab="True"
                                  IsUndoEnabled="False"
                                  Background="#FF000000" Foreground="#FFFFFFFF"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
@@ -194,38 +194,82 @@
                         <Setter Property="Margin" Value="0"/>
                     </Style>
                 </Posh:RichTextConsole.Resources>
-				<Posh:RichTextConsole.FontSize>
-					<Binding Path="FontSize" Mode="Default" Source="{StaticResource SettingsDS}"/>
-				</Posh:RichTextConsole.FontSize>
-				<Posh:RichTextConsole.FontFamily>
-					<Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
-				</Posh:RichTextConsole.FontFamily>
+                <Posh:RichTextConsole.FontSize>
+                    <Binding Path="FontSize" Mode="Default" Source="{StaticResource SettingsDS}"/>
+                </Posh:RichTextConsole.FontSize>
+                <Posh:RichTextConsole.FontFamily>
+                    <Binding Path="FontFamily" Mode="Default" Source="{StaticResource SettingsDS}"/>
+                </Posh:RichTextConsole.FontFamily>
                 <Posh:RichTextConsole.ContextMenu>
-            		<ContextMenu/>
-            	</Posh:RichTextConsole.ContextMenu>
-                    <FlowDocument>
-                        <Paragraph xml:space="preserve"> <Floater Margin="0,0,0,0" Padding="0,0,0,0">
-                			<Paragraph Background="#00FFFFFF"><Image Height="180" Margin="0,0,0,0" Source="pack://application:,,,/Artwork/PoshConsoleLogo.png" ClipToBounds="False" IsEnabled="True" SnapsToDevicePixels="True" Stretch="Uniform" /></Paragraph>
-                		</Floater>
-<Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
-                			<Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="./Fonts/#Pescadero"><Run FontSize="28" Typography.ContextualSwashes="1">Posh </Run><Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run><Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run></Paragraph>
-                			<Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="./Fonts/#Pescadero"><Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run><LineBreak/><Run FontSize="20" Typography.ContextualSwashes="1">brought to you by </Run><Run FontFamily="./Fonts/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run><Run FontFamily="./Fonts/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run><Run FontFamily="./Fonts/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run></Paragraph>
-                			<Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="./Fonts/#Pescadero"><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run><LineBreak/><Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole/</Run></Paragraph>
-                		</Floater>
+                    <ContextMenu/>
+                </Posh:RichTextConsole.ContextMenu>
+                <FlowDocument>
+                    <Paragraph Padding="0,15,0,0">
+                        <Floater Width="Auto" Margin="0,0,0,0" Padding="0,0,0,0">
+                            <Paragraph >
+                                <Canvas Width="180" Height="180">
+                                    <Rectangle StrokeLineJoin="Miter" StrokeMiterLimit="20" StrokeStartLineCap="Flat" RadiusX="10" RadiusY="10" Width="180" Height="180">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                                                <GradientStop Color="#FF4283C4" Offset="0"/>
+                                                <GradientStop Color="#FF51A8FF" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                        <Rectangle.Stroke>
+                                            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                                                <GradientStop Color="#FF4283C4" Offset="0"/>
+                                                <GradientStop Color="#FF51A8FF" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Stroke>
+                                    </Rectangle>
+                                    <TextBlock TextAlignment="Center" Width="180"
+                                            FontFamily="./Fonts/#QUAKE" FontSize="145" Foreground="#FF3275B9">
+                                        <TextBlock.BitmapEffect>
+                                            <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
+                                        </TextBlock.BitmapEffect>Q
+                                    </TextBlock>
+                                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10"
+                                            FontFamily="./Fonts/#QUAKE" FontSize="56" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
+                                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10"
+                                            FontFamily="Consolas" FontSize="20" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
+                                </Canvas>
+                            </Paragraph>
+                        </Floater>
+                        <Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
+                            <Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="./Fonts/#Pescadero">
+                                <Run FontSize="28" Typography.ContextualSwashes="1">Posh</Run>
+                                <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run>
+                                <Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run>
+                            </Paragraph>
+                            <Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="./Fonts/#Pescadero">
+                                <Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run>
+                                <LineBreak/>
+                                <Run FontSize="20" Typography.ContextualSwashes="1">brought to you by </Run>
+                                <Run FontFamily="./Fonts/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run>
+                                <Run FontFamily="./Fonts/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run>
+                                <Run FontFamily="./Fonts/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run>
+                            </Paragraph>
+                            <Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="./Fonts/#Pescadero">
+                                <Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run>
+                                <LineBreak/>
+                                <Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole</Run>
+                            </Paragraph>
+                        </Floater>
                     </Paragraph>
-                    </FlowDocument>
+                </FlowDocument>
+
             </Posh:RichTextConsole>
-        	<StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
+            <StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
                        Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
-                       Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0" 
+                       Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0"
                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderBrush="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" >
-        		<!--<StatusBar.BitmapEffect>
+                <!--<StatusBar.BitmapEffect>
         			<BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		</StatusBar.BitmapEffect>-->
                 <StatusBarItem x:Name="title" Padding="4,0,4,0" DockPanel.Dock="Left" Content="{Binding Path=Title, ElementName=buffer, Mode=Default}" >
-                	<StatusBarItem.BitmapEffect>
-                		<DropShadowBitmapEffect/>
-                	</StatusBarItem.BitmapEffect>
+                    <StatusBarItem.BitmapEffect>
+                        <DropShadowBitmapEffect/>
+                    </StatusBarItem.BitmapEffect>
                 </StatusBarItem>
 
                 <Separator DockPanel.Dock="Left" />
