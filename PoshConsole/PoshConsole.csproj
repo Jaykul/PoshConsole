@@ -135,6 +135,7 @@
     <Resource Include="Fonts\Pesca.ttf" />
     <Resource Include="Fonts\Pescab.ttf" />
     <None Include="Artwork\PoshConsoleBanner.png" />
+    <Resource Include="Fonts\Quake__.ttf" />
     <None Include="Properties\Colors.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Colors.Designer.cs</LastGenOutput>
