@@ -83,7 +83,7 @@ namespace Huddled.PoshConsole
         void IPSConsoleControl.CommandFinished(CommandResults results)
         {
             //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate {
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate {
                 if (results != CommandResults.Completed)
                 {
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);

@@ -310,5 +310,17 @@ namespace Huddled.PoshConsole.Properties {
                 this["TabCompleteMenuThreshold"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        public int TabCompleteDoubleTapMilliseconds {
+            get {
+                return ((int)(this["TabCompleteDoubleTapMilliseconds"]));
+            }
+            set {
+                this["TabCompleteDoubleTapMilliseconds"] = value;
+            }
+        }
     }
 }

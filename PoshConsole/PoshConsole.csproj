@@ -83,6 +83,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleControl\ConsoleTextBox.ConsoleBrushList.cs" />
     <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsole.cs" />
     <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsoleControl.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
@@ -136,6 +137,10 @@
     <Resource Include="Fonts\Pescab.ttf" />
     <None Include="Artwork\PoshConsoleBanner.png" />
     <Resource Include="Fonts\Quake__.ttf" />
+    <Resource Include="Fonts\VeraMoBd.ttf" />
+    <Resource Include="Fonts\VeraMoBI.ttf" />
+    <Resource Include="Fonts\VeraMoIt.ttf" />
+    <Resource Include="Fonts\VeraMono.ttf" />
     <None Include="Properties\Colors.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Colors.Designer.cs</LastGenOutput>

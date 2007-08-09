@@ -216,14 +216,14 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(BrushFromConsoleColor(foregroundColor), BrushFromConsoleColor(backgroundColor), message);
+                this.Write(ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message);
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
                     new WriteOutputDelegate(this.Write), 
-                    BrushFromConsoleColor(foregroundColor), 
-                    BrushFromConsoleColor(backgroundColor), message);
+                    ConsoleBrushes.BrushFromConsoleColor(foregroundColor), 
+                    ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message);
             }
         }
 
@@ -244,12 +244,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(BrushFromConsoleColor(foregroundColor), BrushFromConsoleColor(backgroundColor), message + "\n");
+                this.Write(ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), BrushFromConsoleColor(foregroundColor), BrushFromConsoleColor(backgroundColor), message + "\n");
+                    new WriteOutputDelegate(this.Write), ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
             }
         }
 

@@ -22,7 +22,6 @@ namespace Huddled.PoshConsole
     public delegate void BeginInvoke();
     public delegate void WriteOutputDelegate(Brush foreground, Brush background, string text);
 
-
     /// <summary>
     /// A derivative of RichTextBox ...
     /// Allow input only at the bottom, in plain text ... 
@@ -35,7 +34,7 @@ namespace Huddled.PoshConsole
     {
         // events and such ...
 
-
+        static ConsoleBrushList ConsoleBrushes = new ConsoleBrushList();
         ListBox intellisense = new ListBox();
         Popup popup = new Popup();
         EventHandler popupClosing = null;
@@ -59,6 +58,8 @@ namespace Huddled.PoshConsole
         public RichTextConsole()
             : base()
         {
+            this.myHistory = new List<string>();
+
             // add a do-nothing delegate so we don't have to test for it
             ProcessCommand += new CommandHandler(delegate(string cmd) { });
 
@@ -90,16 +91,15 @@ namespace Huddled.PoshConsole
 
 
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized"></see> event. 
-        /// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized"></see> is set to true internally.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"></see> that contains the event data.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            this.myHistory = new List<string>();
-        }
+        ///// <summary>
+        ///// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized"></see> event. 
+        ///// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized"></see> is set to true internally.
+        ///// </summary>
+        ///// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"></see> that contains the event data.</param>
+        //protected override void OnInitialized(EventArgs e)
+        //{
+        //    base.OnInitialized(e);
+        //}
 
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Huddled.PoshConsole
             RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
             if (RichTextConsoleObj != null)
             {
-                RichTextConsoleObj.Background = BrushFromConsoleColor((ConsoleColor)e.NewValue);
+                RichTextConsoleObj.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Huddled.PoshConsole
             RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
             if (RichTextConsoleObj != null)
             {
-                RichTextConsoleObj.Foreground = BrushFromConsoleColor((ConsoleColor)e.NewValue);
+                RichTextConsoleObj.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
             }
         }
 
@@ -440,9 +440,9 @@ namespace Huddled.PoshConsole
 
         private DateTime tabTime = DateTime.Now;
         private string lastWord, tabbing = null;
-        private int tabbingCount = 0;
+        private int tabbingCount = -1;
         private List<string> completions = null;
-        private int historyIndex = 0;
+        private int historyIndex = -1;
         /// <summary>
         /// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
         /// </summary>
@@ -483,7 +483,7 @@ namespace Huddled.PoshConsole
                     {
                         if (inPrompt)
                         {
-                            OnTabComplete(((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? 1 : -1);
+                            OnTabComplete(((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1);
                         }
                         e.Handled = true;
                     } break;
@@ -512,7 +512,7 @@ namespace Huddled.PoshConsole
 
                 case Key.Escape:
                     {
-                        historyIndex = 0;
+                        historyIndex = -1;
                         CurrentCommand = "";
                     } break;
                 case Key.Return:
@@ -650,7 +650,7 @@ namespace Huddled.PoshConsole
                 default:
                     {
                         tabbing = null;
-                        tabbingCount = 0;
+                        tabbingCount = -1;
 
                         //System.Diagnostics.Debug.WriteLine(CaretPosition.GetOffsetToPosition(EndOfOutput));
                         if (commandStart == null || CaretPosition.GetOffsetToPosition(commandStart) > 0)
@@ -658,7 +658,7 @@ namespace Huddled.PoshConsole
                             CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
                         }
                         // if they type anything, they're not using the history buffer.
-                        historyIndex = 0;
+                        historyIndex = -1;
                         // if they type anything, they're no longer using the autocopy
                         autoCopy = false;
                     } break;
@@ -729,7 +729,7 @@ namespace Huddled.PoshConsole
                 // OR they tabbed twice really fast
                 if ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
                         && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
-                    || ((DateTime.Now - tabTime) < TimeSpan.FromSeconds(1)))
+                    || (((TimeSpan)(DateTime.Now - tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds))
                 {
                     string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
                     popupClosing = new EventHandler(TabComplete_Closed);
@@ -1155,11 +1155,12 @@ namespace Huddled.PoshConsole
         Paragraph currentParagraph = null;
 
        
-        public void Write(Brush foreground, Brush background, string text)
+        private void Write(Brush foreground, Brush background, string text)
         {
+            BeginChange();
             // handle null values - so that other Write* methods don't have to deal with Dispatchers just to look up a color
             if (foreground == null) foreground = Foreground;
-            if (background == null) background = Brushes.Transparent;
+            if (background == null) background = Background;//Brushes.Transparent;
 
             if (currentParagraph == null)
             {
@@ -1167,9 +1168,8 @@ namespace Huddled.PoshConsole
                 Document.Blocks.Add(currentParagraph);
             }
 
-            TextPointer currentPos = CaretPosition;
+            //TextPointer currentPos = CaretPosition;
 
-            BeginChange();
             string[] ansis = text.Split(new string[] { "\x1B[" }, StringSplitOptions.None);
 
             if (ansis.Length == 1)
@@ -1177,8 +1177,11 @@ namespace Huddled.PoshConsole
                 Run insert = new Run(text, currentParagraph.ContentEnd);
                 insert.Background = background;
                 insert.Foreground = foreground;
+
+
             }
-            else 
+            #region Escape Sequences
+            else
             {
                 // we want ansi excaped color changes to be "sticky"
                 Brush bg = background;
@@ -1192,16 +1195,19 @@ namespace Huddled.PoshConsole
                         Run insert = new Run(ansi, currentParagraph.ContentEnd);
                         insert.Background = bg;
                         insert.Foreground = fg;
-                    } 
+                    }
                     else if (ansi.Length > 0)
                     {
                         // bool bg = false;
                         int m1 = ansi.IndexOf('m');
                         int m2 = ansi.IndexOf(']');
                         int split = -1;
-                        if( m1 > 0 && (m2 < 0 || m1 < m2) ) {
+                        if (m1 > 0 && (m2 < 0 || m1 < m2))
+                        {
                             split = m1;
-                        } else if( m2 > 0 ) {
+                        }
+                        else if (m2 > 0)
+                        {
                             split = m2;
                         }
                         bool dark = true, back = false;
@@ -1214,12 +1220,12 @@ namespace Huddled.PoshConsole
                             {
                                 switch (code.ToUpper())
                                 {
-                                    case "0":     goto case "RESET";// RESET
+                                    case "0": goto case "RESET";// RESET
                                     case "CLEAR": goto case "RESET";
                                     case "RESET":
                                         insert.Background = bg = Brushes.Transparent;
                                         insert.Foreground = Foreground;
-                                        insert.FontStyle  = FontStyles.Normal;
+                                        insert.FontStyle = FontStyles.Normal;
                                         insert.FontWeight = FontWeights.Normal;
                                         insert.TextDecorations.Clear();
                                         break;
@@ -1250,7 +1256,7 @@ namespace Huddled.PoshConsole
                                         insert.FontWeight = FontWeights.Thin;
                                         // insert.Foreground = ConsoleBrushes.Transparent;
                                         break;
-                                    
+
                                     #region ANSI COLOR SEQUENCES 30-37 and 40-47
 
 
@@ -1310,7 +1316,7 @@ namespace Huddled.PoshConsole
                                         insert.Background = (dark) ? ConsoleBrushes.White : ConsoleBrushes.Gray;
                                         break;
 
-                                    
+
                                     #endregion ANSI COLOR SEQUENCES 30-37 and 40-47
 
                                     #region ConsoleColor Enumeration values
@@ -1365,17 +1371,19 @@ namespace Huddled.PoshConsole
                                             catch { } // just ignore the sequence?
                                             finally { back = true; }
                                             #endregion parse hex color codes
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             #region parse ConsoleColor enum values
                                             try
                                             {
                                                 if (back)
                                                 {
-                                                    insert.Background = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                    insert.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
                                                 }
                                                 else
                                                 {
-                                                    insert.Foreground = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                    insert.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
                                                 }
                                             }
                                             catch { } // just ignore the sequence?
@@ -1391,262 +1399,13 @@ namespace Huddled.PoshConsole
                     first = false;
                 }
             }
+            #endregion Escape Sequences
 
-            EndChange();
             ScrollToEnd();
+            EndChange();
             SetPrompt();
         }                                   
 
-        #region ConsoleBrushes
-
-        void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
-            {
-                switch (e.PropertyName)
-                {
-                    case "Black":
-                        ConsoleBrushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
-                        goto case "ConsoleColors";
-                    case "Blue":
-                        ConsoleBrushes.Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
-                        goto case "ConsoleColors";
-                    case "Cyan":
-                        ConsoleBrushes.Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
-                        goto case "ConsoleColors";
-                    case "DarkBlue":
-                        ConsoleBrushes.DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
-                        goto case "ConsoleColors";
-                    case "DarkCyan":
-                        ConsoleBrushes.DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
-                        goto case "ConsoleColors";
-                    case "DarkGray":
-                        ConsoleBrushes.DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
-                        goto case "ConsoleColors";
-                    case "DarkGreen":
-                        ConsoleBrushes.DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
-                        goto case "ConsoleColors";
-                    case "DarkMagenta":
-                        ConsoleBrushes.DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
-                        goto case "ConsoleColors";
-                    case "DarkRed":
-                        ConsoleBrushes.DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
-                        goto case "ConsoleColors";
-                    case "DarkYellow":
-                        ConsoleBrushes.DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
-                        goto case "ConsoleColors";
-                    case "Gray":
-                        ConsoleBrushes.Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
-                        goto case "ConsoleColors";
-                    case "Green":
-                        ConsoleBrushes.Green = new SolidColorBrush(Properties.Colors.Default.Green);
-                        goto case "ConsoleColors";
-                    case "Magenta":
-                        ConsoleBrushes.Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
-                        goto case "ConsoleColors";
-                    case "Red":
-                        ConsoleBrushes.Red = new SolidColorBrush(Properties.Colors.Default.Red);
-                        goto case "ConsoleColors";
-                    case "White":
-                        ConsoleBrushes.White = new SolidColorBrush(Properties.Colors.Default.White);
-                        goto case "ConsoleColors";
-                    case "Yellow":
-                        ConsoleBrushes.Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
-                        goto case "ConsoleColors";
-
-                    case "ConsoleColors":
-                        {
-                            // These are read for each color change.
-                            // If the color that was changed is *already* the default background or foreground color ...
-                            // Then we need to update the brush!
-                            if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).ForegroundColor).Equals(e.PropertyName))
-                            {
-                                Foreground = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
-                            }
-                            if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).BackgroundColor).Equals(e.PropertyName))
-                            {
-                                Background = BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
-                            }
-
-                        } break;
-                    case "DefaultForeground":
-                        {
-                            ((IPSRawConsole)this).ForegroundColor = Properties.Colors.Default.DefaultForeground;
-                        } break;
-                    case "DefaultBackground":
-                        {
-                            ((IPSRawConsole)this).BackgroundColor = Properties.Colors.Default.DefaultBackground;
-                        } break;
-                    case "DebugBackground":
-                        {
-                            ConsoleBrushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
-                        } break;
-                    case "DebugForeground":
-                        {
-                            ConsoleBrushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
-                        } break;
-                    case "ErrorBackground":
-                        {
-                            ConsoleBrushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
-                        } break;
-                    case "ErrorForeground":
-                        {
-                            ConsoleBrushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
-                        } break;
-                    case "VerboseBackground":
-                        {
-                            ConsoleBrushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
-                        } break;
-                    case "VerboseForeground":
-                        {
-                            ConsoleBrushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
-                        } break;
-                    case "WarningBackground":
-                        {
-                            ConsoleBrushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
-                        } break;
-                    case "WarningForeground":
-                        {
-                            ConsoleBrushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
-                        } break;
-                    case "NativeOutputForeground":
-                        {
-                            ConsoleBrushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
-                        } break;
-                    case "NativeOutputBackground":
-                        {
-                            ConsoleBrushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
-                        } break;
-                    case "NativeErrorForeground":
-                        {
-                            ConsoleBrushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
-                        } break;
-                    case "NativeErrorBackground":
-                        {
-                            ConsoleBrushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
-                        } break;
-
-                }
-                Properties.Colors.Default.Save();
-            });
-        }
-
-        public struct ConsoleBrushes
-        {
-            public static Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
-            public static Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
-            public static Brush Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
-            public static Brush DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
-            public static Brush DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
-            public static Brush DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
-            public static Brush DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
-            public static Brush DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
-            public static Brush DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
-            public static Brush DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
-            public static Brush Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
-            public static Brush Green = new SolidColorBrush(Properties.Colors.Default.Green);
-            public static Brush Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
-            public static Brush Red = new SolidColorBrush(Properties.Colors.Default.Red);
-            public static Brush White = new SolidColorBrush(Properties.Colors.Default.White);
-            public static Brush Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
-            
-            public static Brush Transparent = Brushes.Transparent;
-
-            public static Brush DefaultBackground = BrushFromConsoleColor(Properties.Colors.Default.DefaultBackground);
-            public static Brush DefaultForeground = BrushFromConsoleColor(Properties.Colors.Default.DefaultForeground);
-            public static Brush DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
-            public static Brush DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
-            public static Brush ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
-            public static Brush ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
-            public static Brush VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
-            public static Brush VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
-            public static Brush WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
-            public static Brush WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
-            public static Brush NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
-            public static Brush NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
-            public static Brush NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
-            public static Brush NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
-        }
-
-        public static Brush BrushFromConsoleColor(Nullable<ConsoleColor> color)
-        {
-            switch (color)
-            {
-                case ConsoleColor.Black:
-                    return ConsoleBrushes.Black;
-                case ConsoleColor.Blue:
-                    return ConsoleBrushes.Blue;
-                case ConsoleColor.Cyan:
-                    return ConsoleBrushes.Cyan;
-                case ConsoleColor.DarkBlue:
-                    return ConsoleBrushes.DarkBlue;
-                case ConsoleColor.DarkCyan:
-                    return ConsoleBrushes.DarkCyan;
-                case ConsoleColor.DarkGray:
-                    return ConsoleBrushes.DarkGray;
-                case ConsoleColor.DarkGreen:
-                    return ConsoleBrushes.DarkGreen;
-                case ConsoleColor.DarkMagenta:
-                    return ConsoleBrushes.DarkMagenta;
-                case ConsoleColor.DarkRed:
-                    return ConsoleBrushes.DarkRed;
-                case ConsoleColor.DarkYellow:
-                    return ConsoleBrushes.DarkYellow;
-                case ConsoleColor.Gray:
-                    return ConsoleBrushes.Gray;
-                case ConsoleColor.Green:
-                    return ConsoleBrushes.Green;
-                case ConsoleColor.Magenta:
-                    return ConsoleBrushes.Magenta;
-                case ConsoleColor.Red:
-                    return ConsoleBrushes.Red;
-                case ConsoleColor.White:
-                    return ConsoleBrushes.White;
-                case ConsoleColor.Yellow:
-                    return ConsoleBrushes.Yellow;
-                default: // for NULL values
-                    return ConsoleBrushes.Transparent;
-            }
-        }
-
-        public static ConsoleColor ConsoleColorFromBrush(Brush color)
-        {
-            if (color == ConsoleBrushes.Black)
-                return ConsoleColor.Black;
-            else if (color == ConsoleBrushes.Blue)
-                return ConsoleColor.Blue;
-            else if (color == ConsoleBrushes.Cyan)
-                return ConsoleColor.Cyan;
-            else if (color == ConsoleBrushes.DarkBlue)
-                return ConsoleColor.DarkBlue;
-            else if (color == ConsoleBrushes.DarkCyan)
-                return ConsoleColor.DarkCyan;
-            else if (color == ConsoleBrushes.DarkGray)
-                return ConsoleColor.DarkGray;
-            else if (color == ConsoleBrushes.DarkGreen)
-                return ConsoleColor.DarkGreen;
-            else if (color == ConsoleBrushes.DarkMagenta)
-                return ConsoleColor.DarkMagenta;
-            else if (color == ConsoleBrushes.DarkRed)
-                return ConsoleColor.DarkRed;
-            else if (color == ConsoleBrushes.DarkYellow)
-                return ConsoleColor.DarkYellow;
-            else if (color == ConsoleBrushes.Gray)
-                return ConsoleColor.Gray;
-            else if (color == ConsoleBrushes.Green)
-                return ConsoleColor.Green;
-            else if (color == ConsoleBrushes.Magenta)
-                return ConsoleColor.Magenta;
-            else if (color == ConsoleBrushes.Red)
-                return ConsoleColor.Red;
-            else if (color == ConsoleBrushes.White)
-                return ConsoleColor.White;
-            else if (color == ConsoleBrushes.Yellow)
-                return ConsoleColor.Yellow;
-            else
-                return ConsoleColor.White;
-        }
-        #endregion
 
         /// <summary>
         /// Implements the CLS command the way most command-lines do:
@@ -1693,10 +1452,10 @@ namespace Huddled.PoshConsole
         }
 
         #region ConsoleSizeCalculations
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            base.OnRenderSizeChanged(sizeInfo);
-        }
+        //protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        //{
+        //    base.OnRenderSizeChanged(sizeInfo);
+        //}
 
         /// <summary>
         /// Gets or sets the name of the specified font.
@@ -1941,8 +1700,8 @@ namespace Huddled.PoshConsole
 
                 return new BufferCell(
                         (range.IsEmpty || range.Text[0] == '\n') ? ' ' : range.Text[0],
-                        ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.ForegroundProperty)),
-                        ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.BackgroundProperty)),
+                        ConsoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.ForegroundProperty)),
+                        ConsoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.BackgroundProperty)),
                         BufferCellType.Complete);
             }
             catch
@@ -1985,8 +1744,8 @@ namespace Huddled.PoshConsole
                     {
                         r = position.GetAdjacentElement(LogicalDirection.Backward) as Run;
                         if (null != r
-                            && r.Background == BrushFromConsoleColor(cell.BackgroundColor)
-                            && r.Foreground == BrushFromConsoleColor(cell.ForegroundColor)
+                            && r.Background == ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor)
+                            && r.Foreground == ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor)
                         )
                         {
                             if (r.Text.Length > 0)
@@ -2003,8 +1762,8 @@ namespace Huddled.PoshConsole
                             r = new Run(cell.Character.ToString(), position);
                         }
                     }
-                    r.Background = BrushFromConsoleColor(cell.BackgroundColor);
-                    r.Foreground = BrushFromConsoleColor(cell.ForegroundColor);
+                    r.Background = ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor);
+                    r.Foreground = ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor);
                     //position = r.ElementStart;
                 }
 
@@ -2013,8 +1772,8 @@ namespace Huddled.PoshConsole
             {
 
                 range.Text = cell.Character.ToString();
-                range.ApplyPropertyValue(TextElement.BackgroundProperty, BrushFromConsoleColor(cell.BackgroundColor));
-                range.ApplyPropertyValue(TextElement.ForegroundProperty, BrushFromConsoleColor(cell.ForegroundColor));
+                range.ApplyPropertyValue(TextElement.BackgroundProperty, ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor));
+                range.ApplyPropertyValue(TextElement.ForegroundProperty, ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor));
             }
         }
 
@@ -2023,7 +1782,7 @@ namespace Huddled.PoshConsole
             TextPointer origin, lineStart, cell;
             int lines = 0, x = 0, y = 0, width = rectangle.Right - rectangle.Left, height = rectangle.Bottom - rectangle.Top;
             BufferCell[,] buffer = new BufferCell[rectangle.Bottom - rectangle.Top, rectangle.Right - rectangle.Left];
-            BufferCell blank = new BufferCell(' ', ConsoleColorFromBrush(Foreground), ConsoleColorFromBrush(Background), BufferCellType.Complete);
+            BufferCell blank = new BufferCell(' ', ConsoleBrushes.ConsoleColorFromBrush(Foreground), ConsoleBrushes.ConsoleColorFromBrush(Background), BufferCellType.Complete);
 
             lineStart = CaretPosition.DocumentStart.GetInsertionPosition(LogicalDirection.Forward).GetLineStartPosition(rectangle.Top, out lines).GetInsertionPosition(LogicalDirection.Forward);
             if (lines < rectangle.Top)
@@ -2154,8 +1913,8 @@ namespace Huddled.PoshConsole
 
                     // insert new text
                     Run r = new Run(fillString, cell);
-                    r.Background = BrushFromConsoleColor(fill.BackgroundColor);
-                    r.Foreground = BrushFromConsoleColor(fill.ForegroundColor);
+                    r.Background = ConsoleBrushes.BrushFromConsoleColor(fill.BackgroundColor);
+                    r.Foreground = ConsoleBrushes.BrushFromConsoleColor(fill.ForegroundColor);
 
                     // try advancing one line ...
                     cell = lineStart.GetPositionAtOffset(rectangle.Left - 1);
@@ -2239,8 +1998,8 @@ namespace Huddled.PoshConsole
                 for (x = 0; x < width; ++x)
                 {
                     bc = contents[y, x];
-                    back = BrushFromConsoleColor(bc.BackgroundColor);
-                    fore = BrushFromConsoleColor(bc.ForegroundColor);
+                    back = ConsoleBrushes.BrushFromConsoleColor(bc.BackgroundColor);
+                    fore = ConsoleBrushes.BrushFromConsoleColor(bc.ForegroundColor);
 
                     if (r.Background != back || r.Foreground != fore)
                     {

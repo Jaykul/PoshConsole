@@ -74,5 +74,8 @@
     <Setting Name="TabCompleteMenuThreshold" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
+    <Setting Name="TabCompleteDoubleTapMilliseconds" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">250</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

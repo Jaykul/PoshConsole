@@ -48,8 +48,11 @@
             </Setter>
         </Style>
         <Style x:Key="{x:Type TextBoxBase}" BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
+            <!-- It turns out that setting this Background is the main way to change the cursor color too!
+            http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-            <!--<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>-->
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+            -->
 
             <Setter Property="Padding" Value="1"/>
             <Setter Property="AllowDrop" Value="true"/>
@@ -70,7 +73,8 @@
                                                   BorderBrush="{TemplateBinding BorderBrush}"
                                                   RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
                                                   RenderMouseOver="{TemplateBinding IsMouseOver}">
-                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost" Padding="0,0,0,0" />
+                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                           x:Name="PART_ContentHost" Padding="0,0,0,0" />
                             <!--<StackPanel Name="ConsoleTextBox">
                                 <Popup Name="IntelliPopup">
                                     <ListBox Name="IntelliList" />
@@ -151,10 +155,11 @@
         <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="HandleDecreaseZoom" />
     </Window.CommandBindings>
     <Window.InputBindings>
-        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         <!-- 
-        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" /> 
+        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
+        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+
         <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
         <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
         <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
@@ -187,7 +192,9 @@
                                  IsUndoEnabled="False"
                                  Background="#FF000000" Foreground="#FFFFFFFF"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
-                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole" >
+                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole"
+                                 VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}" 
+                                 >
 
                 <Posh:RichTextConsole.Resources>
                     <Style TargetType="{x:Type Paragraph}">
@@ -204,8 +211,8 @@
                     <ContextMenu/>
                 </Posh:RichTextConsole.ContextMenu>
                 <FlowDocument>
-                    <Paragraph Padding="0,15,0,0">
-                        <Floater Width="Auto" Margin="0,0,0,0" Padding="0,0,0,0">
+                    <Paragraph Padding="0,15,0,0" >
+                        <Floater Width="Auto" Margin="0,0,10,10" Padding="0,0,0,0">
                             <Paragraph >
                                 <Canvas Width="180" Height="180">
                                     <Rectangle StrokeLineJoin="Miter" StrokeMiterLimit="20" StrokeStartLineCap="Flat" RadiusX="10" RadiusY="10" Width="180" Height="180">
@@ -226,16 +233,15 @@
                                             FontFamily="./Fonts/#QUAKE" FontSize="145" Foreground="#FF3275B9">
                                         <TextBlock.BitmapEffect>
                                             <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
-                                        </TextBlock.BitmapEffect>Q
-                                    </TextBlock>
+                                        </TextBlock.BitmapEffect>Q</TextBlock>
                                     <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10"
                                             FontFamily="./Fonts/#QUAKE" FontSize="56" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
                                     <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10"
-                                            FontFamily="Consolas" FontSize="20" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
+                                            FontFamily="./Fonts/#Bitstream Vera Sans Mono" FontSize="19" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
                                 </Canvas>
                             </Paragraph>
                         </Floater>
-                        <Floater Width="Auto" Margin="0,0,20,0" Padding="0,0,0,0">
+                        <Floater Width="Auto" Margin="0,0,20,15" Padding="0,0,0,0">
                             <Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="./Fonts/#Pescadero">
                                 <Run FontSize="28" Typography.ContextualSwashes="1">Posh</Run>
                                 <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run>
