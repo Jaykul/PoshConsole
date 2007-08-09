@@ -132,25 +132,19 @@
     <Resource Include="Artwork\PoshConsole.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Fonts\Linds.ttf" />
-    <Resource Include="Fonts\Pesca.ttf" />
-    <Resource Include="Fonts\Pescab.ttf" />
-    <None Include="Artwork\PoshConsoleBanner.png" />
-    <Resource Include="Fonts\Quake__.ttf" />
-    <Resource Include="Fonts\VeraMoBd.ttf" />
-    <Resource Include="Fonts\VeraMoBI.ttf" />
-    <Resource Include="Fonts\VeraMoIt.ttf" />
-    <Resource Include="Fonts\VeraMono.ttf" />
     <None Include="Properties\Colors.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Colors.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Artwork\PoshConsoleLogo.png" />
+    <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Artwork\PoshConsoleWindow.ico" />
+    <ProjectReference Include="..\Fonts\Fonts.csproj">
+      <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
+      <Name>Fonts</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />

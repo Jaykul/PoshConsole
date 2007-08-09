@@ -70,6 +70,7 @@ namespace Huddled.PoshConsole
             intellisense.IsTextSearchEnabled = true;
 
             Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
+            Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
             // Add the popup to the logical branch of the console so keystrokes can be
             // processed from the popup by the console for the tab-complete scenario.
@@ -87,6 +88,27 @@ namespace Huddled.PoshConsole
             popup.Closed += new EventHandler(popup_Closed);
             popup.StaysOpen = false;
 
+        }
+
+        /// <summary>
+        /// Handle the Settings PropertyChange event for fonts
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
+        void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
+            {
+                switch (e.PropertyName)
+                {
+                    case "FontFamily":
+                        FontFamily = Properties.Settings.Default.FontFamily;
+                        break;
+                    case "FontSize":
+                        FontSize = Properties.Settings.Default.FontSize;
+                        break;
+                }
+            });
         }
 
 
