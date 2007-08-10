@@ -115,12 +115,20 @@ namespace Huddled.PoshConsole
             // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
             myRunSpace = RunspaceFactory.CreateRunspace(this);
-
-            myRunSpace.Open();
+            myRunSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
+            myRunSpace.OpenAsync();
             MakeConsole();
 
-            // Finally, STARTUP!
-            ExecuteStartupProfile();
+            //// Finally, STARTUP!
+            //ExecuteStartupProfile();
+        }
+
+        void myRunSpace_StateChanged(object sender, RunspaceStateEventArgs e)
+        {
+            if (e.RunspaceStateInfo.State == RunspaceState.Opened)
+            {
+                ExecuteStartupProfile();
+            }
         }
 
 

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole", "PoshConsole\PoshConsole.csproj", "{44C927E3-2C76-4CA4-9677-28DA10E3FA83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fonts", "Fonts\Fonts.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\FontLibrary.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -14,9 +14,9 @@ Global
 		SccProjectUniqueName1 = PoshConsole\\PoshConsole.csproj
 		SccProjectName1 = PoshConsole
 		SccLocalPath1 = PoshConsole
-		SccProjectUniqueName2 = Fonts\\Fonts.csproj
-		SccProjectName2 = Fonts
-		SccLocalPath2 = Fonts
+		SccProjectUniqueName2 = FontLibrary\\FontLibrary.csproj
+		SccProjectName2 = FontLibrary
+		SccLocalPath2 = FontLibrary
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

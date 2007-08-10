@@ -736,16 +736,22 @@ namespace Huddled.PoshConsole
                     lastWord = GetLastWord(tabbing);
                     Cursor = Cursors.Wait;
                     completions = TabComplete(tabbing, lastWord);
+                    
                     Cursor = Cursors.IBeam;
                 } // make sure it's never an empty string.
                 else tabbing = null;
             }
             if (tabbing != null)
             {
-                if (tabbingCount < 0 || tabbingCount >= completions.Count)
+                if (tabbingCount >= completions.Count)
                 {
                     tabbingCount = 0;
                 }
+                else if (tabbingCount < 0)
+                {
+                    tabbingCount = completions.Count - 1;
+                }
+
                 // show the menu if:
                 // TabCompleteMenuThreshold > 0 and there are more items than the threshold
                 // OR they tabbed twice really fast
@@ -756,6 +762,7 @@ namespace Huddled.PoshConsole
                     string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
                     popupClosing = new EventHandler(TabComplete_Closed);
                     popup.Closed += popupClosing;
+                    completions.Sort(); // TODO: Sort this intelligently...
                     ShowPopup(completions, false, false);
                 }
                 else if (tabbingCount < completions.Count)
@@ -813,6 +820,7 @@ namespace Huddled.PoshConsole
 
             if (number)
             {
+                intellisense.Items.Filter = null;
                 for (int i = items.Count - 1; i >= 0; i--)
                 {
                     if (!FilterDupes || !intellisense.Items.Contains(items[i]))
@@ -826,7 +834,7 @@ namespace Huddled.PoshConsole
             }
             else
             {
-
+                intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
                 for (int i = items.Count - 1; i >= 0; i--)
                 {
                     if (!FilterDupes || !intellisense.Items.Contains(items[i]))
@@ -886,6 +894,7 @@ namespace Huddled.PoshConsole
             }
             this.Focus();
             popup.Closed -= popupClosing;
+            post = string.Empty;
         }
 
         /// <summary>
@@ -901,19 +910,38 @@ namespace Huddled.PoshConsole
             // System.ConsoleKey System.Windows.Forms.Keys System.Windows.Input.Key
             //System.Windows.Input.KeyInterop.VirtualKeyFromKey(
 
+            string cmd = CurrentCommand;
             if (intellisense.SelectedValue != null)
             {
-                string cmd = CurrentCommand;
                 Trace.TraceInformation("CurrentCommand: {0}", cmd);
                 CurrentCommand = cmd.Substring(0, cmd.Length - GetLastWord(cmd).Length) + intellisense.SelectedValue.ToString() + post;
             }
+            else
+            {
+                CurrentCommand = tabbing;
+            }
             this.Focus();
+            // reset as we exit
             popup.Closed -= popupClosing;
+            post = string.Empty;
+            tabbing = null;
             Trace.Unindent();
             Trace.TraceInformation("Exiting TabComplete_Closed");
         }
 
-        static Regex tabseparator = new Regex(@"[.;,\\ |/[\]()""']", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+        /// <summary>
+        /// Types the ahead filter.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        private bool TypeAheadFilter(object item)
+        {
+            return (item as string).ToLower().StartsWith(lastWord.ToLower());
+        }
+
+
+        static Regex tabseparator = new Regex(@"[.;,=\\ |/[\]()""']", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         static Regex number = new Regex(@"[0-9]", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         string post = string.Empty;
         /// <summary>
@@ -925,24 +953,34 @@ namespace Huddled.PoshConsole
         /// <param name="e">The <see cref="System.Windows.Input.TextCompositionEventArgs"/> instance containing the event data.</param>
         void popup_TextInput(object sender, TextCompositionEventArgs e)
         {
-            if( tabseparator.IsMatch(e.Text) ) {
+            if (tabseparator.IsMatch(e.Text))
+            {
                 post = e.Text;
                 popup.IsOpen = false;
             }
-
-            if (number.IsMatch(e.Text))
+            else if (number.IsMatch(e.Text))
             {
-                if (intelliNum >= 0)
-                {
+                if (intelliNum >= 0) {
                     intelliNum *= 10;
-                }
-                else intelliNum = 0;
+                } else intelliNum = 0;
 
                 intelliNum += int.Parse(e.Text);
                 if (intelliNum > 0 && intelliNum < intellisense.Items.Count - 1)
                 {
                     intellisense.SelectedIndex = intelliNum;
                 }
+            }
+            else if(tabbing != null )
+            {
+                if (e.Text.EndsWith("n")) { Debug.WriteLine(string.Format("{0}::{2}::{1}", lastWord, tabbing, e.Text)); }
+                // intellisense.Items.Filter
+                tabbing += e.Text;
+                lastWord += e.Text;
+                intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
+                intellisense.SelectedIndex = 0;
+                if (intellisense.Items.Count <= 1) popup.IsOpen = false;
+                //intellisense.Items.Refresh();
+                // intellisense.Items.Count  //tabbingCount
             }
         }
 
@@ -951,9 +989,9 @@ namespace Huddled.PoshConsole
         {
             Trace.TraceInformation("Entering popup_PreviewKeyDown:");
             Trace.Indent();
-            Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
-            Trace.WriteLine("Key:    {0}" + e.Key);
-            Trace.WriteLine("Source: {0}" + e.Source);
+            //Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
+            //Trace.WriteLine("Key:    {0}" + e.Key);
+            //Trace.WriteLine("Source: {0}" + e.Source);
 
             post = string.Empty;
 
@@ -965,7 +1003,14 @@ namespace Huddled.PoshConsole
                         e.Handled = true;
                         popup.IsOpen = false;
                     } break;
-                case Key.Back: goto case Key.Escape;
+                case Key.Back:
+                    {
+                        tabbing = tabbing.Substring(0, tabbing.Length - 1);
+                        lastWord = lastWord.Substring(0, lastWord.Length - 1);
+                        intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
+                        intellisense.SelectedIndex = 0;
+                        e.Handled = true;
+                    } break;
                 case Key.Delete: goto case Key.Escape;
                 case Key.Escape:
                     {
@@ -976,6 +1021,7 @@ namespace Huddled.PoshConsole
                 case Key.Tab:
                     {
                         intellisense.SelectedIndex += 1;
+                        if (intellisense.SelectedIndex >= intellisense.Items.Count) popup.IsOpen = false;
                         e.Handled = true;
                     } break;
                 case Key.Enter:

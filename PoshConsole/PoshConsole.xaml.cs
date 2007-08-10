@@ -128,6 +128,11 @@ namespace Huddled.PoshConsole
         //{
         //    RecalculateSizes();
         //}
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            buffer.Focus();
+            base.OnGotFocus(e);
+        }
 
 		private void buffer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
 		{
@@ -274,7 +279,7 @@ namespace Huddled.PoshConsole
 			{
 				hkManager.Register(FocusKey);
 			}
-
+            Focus();
 		}
 
 		void DragHandler(object sender, MouseButtonEventArgs e)
