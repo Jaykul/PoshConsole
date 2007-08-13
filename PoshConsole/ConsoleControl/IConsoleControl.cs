@@ -96,8 +96,7 @@ namespace Huddled.PoshConsole
     }
 
 
-    public delegate List<string> TabCompleteHandler(string commandLine, string lastWord);
-    public delegate string HistoryHandler(ref int index);
+    //public delegate string HistoryHandler(ref int index);
     public delegate void CommandHandler(string commandLine);
     
     public enum CommandResults {
@@ -106,15 +105,15 @@ namespace Huddled.PoshConsole
 
     public interface IPSConsoleControl: IPSConsole
     {
-        event TabCompleteHandler TabComplete;
-        event HistoryHandler GetHistory;
         event CommandHandler ProcessCommand;
 
         void CommandFinished( CommandResults results );
         void Prompt(string text );
 
         string CurrentCommand { get; set; }
-        List<string> CommandHistory { get; }
+        
+        CommandHistory History  { get; }
+        TabExpansion   Expander { get; set; }
 
         ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
         ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }

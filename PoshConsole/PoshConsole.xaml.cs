@@ -58,8 +58,6 @@ namespace Huddled.PoshConsole
         }
 
 
-
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PoshConsole"/> class.
 		/// </summary>

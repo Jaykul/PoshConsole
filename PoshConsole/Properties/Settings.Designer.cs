@@ -240,8 +240,7 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Consolas, Bitstream Vera Sans Mono, Lucida Console, Courier New, Global Monospace" +
-            "")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Consolas, Lucida Console")]
         public global::System.Windows.Media.FontFamily FontFamily {
             get {
                 return ((global::System.Windows.Media.FontFamily)(this["FontFamily"]));

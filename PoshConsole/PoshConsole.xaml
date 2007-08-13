@@ -73,7 +73,7 @@
                                                   BorderBrush="{TemplateBinding BorderBrush}"
                                                   RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
                                                   RenderMouseOver="{TemplateBinding IsMouseOver}">
-                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                            x:Name="PART_ContentHost" Padding="0,0,0,0" />
                             <!--<StackPanel Name="ConsoleTextBox">
                                 <Popup Name="IntelliPopup">
@@ -83,7 +83,9 @@
                         </aero:ListBoxChrome>
                         <!--<ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Background" Value="Transparent"/>--><!--{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>--><!--
+                                <Setter Property="Background" Value="Transparent"/>-->
+                        <!--{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>-->
+                        <!--
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>-->
@@ -193,7 +195,7 @@
                                  Background="#FF000000" Foreground="#FFFFFFFF"
                                  PreviewMouseWheel="buffer_PreviewMouseWheel"
                                  Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole"
-                                 VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}" 
+                                 VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}"
                                  FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"
 								 >
 
@@ -205,8 +207,8 @@
                 <Posh:RichTextConsole.FontSize>
                     <Binding Path="FontSize" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
                 </Posh:RichTextConsole.FontSize>
-				<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-				<!--<Posh:RichTextConsole.FontFamily>
+                <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+                <!--<Posh:RichTextConsole.FontFamily>
                     <Binding Path="FontFamily" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
                 </Posh:RichTextConsole.FontFamily>-->
                 <Posh:RichTextConsole.ContextMenu>
@@ -235,7 +237,8 @@
                                             FontFamily="/FontLibrary;Component/#QUAKE" FontSize="145" Foreground="#FF3275B9">
                                         <TextBlock.BitmapEffect>
                                             <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
-                                        </TextBlock.BitmapEffect>Q</TextBlock>
+                                        </TextBlock.BitmapEffect>Q
+                                    </TextBlock>
                                     <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10"
                                             FontFamily="/FontLibrary;Component/#QUAKE" FontSize="56" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
                                     <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10"

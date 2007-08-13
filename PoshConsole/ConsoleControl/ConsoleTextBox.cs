@@ -15,6 +15,7 @@ using System.Management.Automation;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Globalization;
 
 namespace Huddled.PoshConsole
 {
@@ -34,12 +35,24 @@ namespace Huddled.PoshConsole
     {
         // events and such ...
 
-        static ConsoleBrushList ConsoleBrushes = new ConsoleBrushList();
-        ListBox intellisense = new ListBox();
-        Popup popup = new Popup();
-        EventHandler popupClosing = null;
+        static ConsoleBrushList _consoleBrushes = new ConsoleBrushList();
 
 
+        private TabExpansion _expansion;
+        private CommandHistory _cmdHistory;
+        private PopupMenu _popup;
+
+        public CommandHistory History
+        {
+            get { return _cmdHistory; }
+            set { _cmdHistory = value; }
+        }
+
+        public TabExpansion Expander
+        {
+            get { return _expansion; }
+            set { _expansion = value; }
+        }
 
         /// <summary>
         /// Static initialization of the <see cref="RichTextConsole"/> class.
@@ -58,36 +71,26 @@ namespace Huddled.PoshConsole
         public RichTextConsole()
             : base()
         {
-            this.myHistory = new List<string>();
+            //this.myHistory = new List<string>();
+            _expansion = new TabExpansion();
+            _cmdHistory = new CommandHistory();
 
             // add a do-nothing delegate so we don't have to test for it
             ProcessCommand += new CommandHandler(delegate(string cmd) { });
 
             DataObject.AddPastingHandler(this, OnDataObjectPasting);
-            intellisense.SelectionMode = SelectionMode.Single;
-            intellisense.SelectionChanged += new SelectionChangedEventHandler(intellisense_SelectionChanged);
-            intellisense.PreviewMouseDown += new MouseButtonEventHandler(popup_MouseDown);
-            intellisense.IsTextSearchEnabled = true;
+
+            // Set the FontFamily from the settings by hand ... kinda weird, but it seems to work.
+            FontFamily = new FontFamily(new Uri("pack://application:,,,/PoshConsole;component/poshconsole.xaml"), Properties.Settings.Default.FontFamily.Source + ",/FontLibrary;Component/#Bitstream Vera Sans Mono, Global Monospace");
 
             Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
+            _popup = new PopupMenu(this);
             // Add the popup to the logical branch of the console so keystrokes can be
             // processed from the popup by the console for the tab-complete scenario.
             // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
-            this.AddLogicalChild(popup);
-
-            popup.Child = intellisense;
-            popup.PlacementTarget = this;
-            intellisense.PreviewTextInput += new TextCompositionEventHandler(popup_TextInput);
-            popup.PreviewKeyDown += new KeyEventHandler(popup_PreviewKeyDown);
-            //popup.KeyDown += new KeyEventHandler(popup_KeyDown);
-            //Popup.KeyDownEvent.AddOwner(GetType());
-            //popup.PreviewKeyDown += new KeyEventHandler(OnPreviewKeyDown);
-            //this.AddToEventRoute(new EventRoute(KeyDownEvent), new RoutedEventArgs(KeyDownEvent, popup));
-            popup.Closed += new EventHandler(popup_Closed);
-            popup.StaysOpen = false;
-
+            AddLogicalChild(_popup);
         }
 
         /// <summary>
@@ -97,18 +100,21 @@ namespace Huddled.PoshConsole
         /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
         void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
+            switch (e.PropertyName)
             {
-                switch (e.PropertyName)
-                {
-                    case "FontFamily":
-                        FontFamily = Properties.Settings.Default.FontFamily;
-                        break;
-                    case "FontSize":
+                case "FontFamily":
+                    Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
+                    {
+                        FontFamily = new FontFamily(new Uri("pack://application:,,,/PoshConsole;component/poshconsole.xaml"), Properties.Settings.Default.FontFamily.Source + ",/FontLibrary;Component/#Bitstream Vera Sans Mono,Global Monospace");
+                    });
+                    break;
+                case "FontSize":
+                    Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
+                    {
                         FontSize = Properties.Settings.Default.FontSize;
-                        break;
-                }
-            });
+                    });
+                    break;
+            }
         }
 
 
@@ -150,7 +156,7 @@ namespace Huddled.PoshConsole
             RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
             if (RichTextConsoleObj != null)
             {
-                RichTextConsoleObj.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+                RichTextConsoleObj.Background = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
             }
         }
 
@@ -182,7 +188,7 @@ namespace Huddled.PoshConsole
             RichTextConsole RichTextConsoleObj = depObj as RichTextConsole;
             if (RichTextConsoleObj != null)
             {
-                RichTextConsoleObj.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+                RichTextConsoleObj.Foreground = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
             }
         }
 
@@ -232,35 +238,23 @@ namespace Huddled.PoshConsole
                     new CanExecuteRoutedEventHandler(OnCanIgnoreCommand)));
             }
         }
-        // TextPointers that track the range covering content where words are added.
-        private TextPointer selectionStart;
-        private TextPointer selectionEnd;
 
         /// <summary>
-        /// Called when pasting.
+        /// Clears the undo buffer by toggling it on and off.
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.DataObjectPastingEventArgs"/> instance containing the event data.</param>
-        private void OnDataObjectPasting(object sender, DataObjectPastingEventArgs e)
+        private void ClearUndoBuffer()
         {
-            //this.wordsAddedFlag = true;
-            this.selectionStart = this.Selection.Start;
-            this.selectionEnd = this.Selection.IsEmpty ?
-                this.Selection.End.GetPositionAtOffset(0, LogicalDirection.Forward) :
-                this.Selection.End;
-            e.FormatToApply = "UnicodeText";
-            //e.FormatToApply
+            IsUndoEnabled = false;
+            IsUndoEnabled = true;
         }
 
-
-
-        //------------------------------------------------------
+         //------------------------------------------------------
         //
         //  Event Handlers
         //
         //------------------------------------------------------
 
-        #region Event Handlers
+        //#region Event Handlers
 
         /// <summary>
         /// Called to check if we can "execute" a command we're ignoring.
@@ -283,149 +277,11 @@ namespace Huddled.PoshConsole
             e.Handled = true; // Actively ignore it, to make sure the base class doesn't handle it.
         }
 
-        /// <summary>
-        /// Called on ApplicationCommands.Copy
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnCopy(object sender, ExecutedRoutedEventArgs e)
-        {
-            ((RichTextConsole)sender).Copy();
-            e.Handled = true;
-        }
-
-        /// <summary>
-        /// Called on ApplicationCommands.Cut
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnCut(object sender, ExecutedRoutedEventArgs e)
-        {
-            // Clipboard.SetText(((RichTextConsole)sender).Selection.Text);
-            // ((RichTextConsole)sender).Selection.Text = String.Empty;
-
-            // TODO: allow cut when on the "command" line, otherwise copy
-            ((RichTextConsole)sender).Copy();
-            e.Handled = true;
-        }
-
-        /// <summary>
-        /// Called on ApplicationCommands.Paste
-        /// <remarks>
-        /// Pasting is only allowed at the END of the content
-        /// </remarks>
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnPaste(object sender, ExecutedRoutedEventArgs e)
-        {
-            RichTextConsole box = (RichTextConsole)sender;
-
-            if (Clipboard.ContainsText())
-            {
-                string txt = Clipboard.GetText(TextDataFormat.UnicodeText);
-                // TODO: check if focus is in the "command" line already, if so, insert text at cursor
-                if (box.CaretInCommand)
-                {
-                    // get a pointer with forward gravity so it will stick to the end of the paste. I don't know why you have to use the Offset instead of insertion...
-                    TextPointer insert = box.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);// GetInsertionPosition(LogicalDirection.Forward);
-                    // now insert the text and make sure the caret is where it belongs.
-                    insert.InsertTextInRun(txt);
-                    box.CaretPosition = insert;
-                }
-                else
-                {
-                    box.Document.ContentEnd.InsertTextInRun(txt);
-                    box.CaretPosition = box.Document.ContentEnd;
-                }
-            }
-            box.ScrollToEnd();
-            e.Handled = true;
-        }
-
-
-        /// <summary>
-        /// Called when [can execute copy].
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="args">The <see cref="System.Windows.Input.CanExecuteRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnCanExecuteCopy(object target, CanExecuteRoutedEventArgs args)
-        {
-            RichTextConsole box = (RichTextConsole)target;
-            args.CanExecute = box.IsEnabled; // && !box.Selection.IsEmpty;
-        }
-
-
-        /// <summary>
-        /// Called when [can execute cut].
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="args">The <see cref="System.Windows.Input.CanExecuteRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnCanExecuteCut(object target, CanExecuteRoutedEventArgs args)
-        {
-            RichTextConsole box = (RichTextConsole)target;
-            args.CanExecute = box.IsEnabled && !box.IsReadOnly && !box.Selection.IsEmpty;
-        }
-
-
-        /// <summary>
-        /// Called when [can execute paste].
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="args">The <see cref="System.Windows.Input.CanExecuteRoutedEventArgs"/> instance containing the event data.</param>
-        private static void OnCanExecutePaste(object target, CanExecuteRoutedEventArgs args)
-        {
-            RichTextConsole box = (RichTextConsole)target;
-            args.CanExecute = box.IsEnabled && !box.IsReadOnly && Clipboard.ContainsText();
-        }
-
-
-        /// <summary>
-        /// Invoked whenever an unhandled <see cref="E:System.Windows.UIElement.GotFocus"></see> event reaches this element in its route.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"></see> that contains the event data.</param>
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            // when we first get focus, force the focus to the end...
-            CaretPosition = Document.ContentEnd;
-            base.OnGotFocus(e);
-        }
-
-        /// <summary>
-        /// Invoked when an unhandled <see cref="E:System.Windows.UIElement.PreviewMouseLeftButtonUp"></see> routed event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.Input.MouseButtonEventArgs"></see> that contains the event data. The event data reports that the left mouse button was released.</param>
-        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
-            {
-                Clipboard.SetText(Selection.Text);
-                // CaretPosition = Document.ContentEnd;
-            }
-            base.OnPreviewMouseLeftButtonUp(e);
-        }
-
-
-        /// <summary>
-        /// Invoked when an unhandled <see cref="E:System.Windows.UIElement.MouseRightButtonUp"></see> routed event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.Input.MouseButtonEventArgs"></see> that contains the event data. The event data reports that the right mouse button was released.</param>
-        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
-        {
-            if (!CaretInCommand)
-            {
-                CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
-            }
-            ApplicationCommands.Paste.Execute(null, this);
-            //this.Paste();
-            e.Handled = true;
-        }
-
         private bool CaretInCommand
         {
             get
             {
-                return commandStart.GetOffsetToPosition(CaretPosition) >= 0;
+                return _commandStart.GetOffsetToPosition(CaretPosition) >= 0;
             }
         }
 
@@ -433,7 +289,7 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                Run cmd = currentParagraph.Inlines.LastInline as Run;
+                Run cmd = _currentParagraph.Inlines.LastInline as Run;
 
                 if (cmd != null)
                 {
@@ -444,7 +300,7 @@ namespace Huddled.PoshConsole
             }
             set
             {
-                Run cmd = currentParagraph.Inlines.LastInline as Run;
+                Run cmd = _currentParagraph.Inlines.LastInline as Run;
                 if (cmd != null)
                 {
                     cmd.Text = value;
@@ -460,582 +316,237 @@ namespace Huddled.PoshConsole
 
 
 
-        private DateTime tabTime = DateTime.Now;
-        private string lastWord, tabbing = null;
-        private int tabbingCount = -1;
-        private List<string> completions = null;
-        private int historyIndex = -1;
-        /// <summary>
-        /// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            Trace.TraceInformation("Entering OnPreviewKeyDown:");
-            Trace.Indent();
-            Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
-            Trace.WriteLine("Key:    {0}" + e.Key);
-            Trace.WriteLine("Source: {0}" + e.Source);
-            if (null == commandStart)
-            {
-                base.OnPreviewKeyDown(e);
-                Trace.Unindent();
-                Trace.TraceInformation("Exiting OnPreviewKeyDown:");
-                return;
-            }
-            if (e.Source == intellisense)
-            {
-                base.OnPreviewKeyDown(e);
-                Trace.Unindent();
-                Trace.TraceInformation("Exiting OnPreviewKeyDown:");
-                return;
-            }
+        //
+        //private string lastWord, tabbing = null;
+        //private int tabbingCount = -1;
+        //private List<string> completions = null;
+        //private int historyIndex = -1;
+        ///// <summary>
+        ///// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+        ///// </summary>
+        ///// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
+        //protected override void OnPreviewKeyDown(KeyEventArgs e)
+        //{
+        //    Trace.TraceInformation("Entering OnPreviewKeyDown:");
+        //    Trace.Indent();
+        //    Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
+        //    Trace.WriteLine("Key:    {0}" + e.Key);
+        //    Trace.WriteLine("Source: {0}" + e.Source);
+        //    if (null == commandStart)
+        //    {
+        //        base.OnPreviewKeyDown(e);
+        //        Trace.Unindent();
+        //        Trace.TraceInformation("Exiting OnPreviewKeyDown:");
+        //        return;
+        //    }
+        //    if (e.Source == intellisense)
+        //    {
+        //        base.OnPreviewKeyDown(e);
+        //        Trace.Unindent();
+        //        Trace.TraceInformation("Exiting OnPreviewKeyDown:");
+        //        return;
+        //    }
 
-            if (currentParagraph.Inlines.Count < promptInlines)
-            {
-                SetPrompt();
-                promptInlines = currentParagraph.Inlines.Count;
-            }
+        //    if (currentParagraph.Inlines.Count < promptInlines)
+        //    {
+        //        SetPrompt();
+        //        promptInlines = currentParagraph.Inlines.Count;
+        //    }
 
-            bool inPrompt = CaretInCommand;
-            // happens when starting up with a slow profile script
-            switch (e.Key)
-            {
-                case Key.Tab:
-                    {
-                        if (inPrompt)
-                        {
-                            OnTabComplete(((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1);
-                        }
-                        e.Handled = true;
-                    } break;
-                case Key.F7:
-                    {
-                        popupClosing = new EventHandler(History_Closed);
-                        popup.Closed += popupClosing;
-                        ShowPopup(myHistory, true, Properties.Settings.Default.HistoryMenuFilterDupes);
-                    } break;
-                case Key.Up:
-                    {
-                        if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
-                        {
-                            OnNavigateHistory(+1);
-                            e.Handled = true;
-                        }
-                    } break;
-                case Key.Down:
-                    {
-                        if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
-                        {
-                            OnNavigateHistory(-1);
-                            e.Handled = true;
-                        }
-                    } break;
+        //    bool inPrompt = CaretInCommand;
+        //    // happens when starting up with a slow profile script
+        //    switch (e.Key)
+        //    {
+        //        case Key.Tab:
+        //            {
+        //                if (inPrompt)
+        //                {
+        //                    OnTabComplete(((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ? -1 : 1);
+        //                }
+        //                e.Handled = true;
+        //            } break;
+        //        case Key.F7:
+        //            {
+        //                popupClosing = new EventHandler(History_Closed);
+        //                popup.Closed += popupClosing;
+        //                ShowPopup(myHistory, true, Properties.Settings.Default.HistoryMenuFilterDupes);
+        //            } break;
+        //        case Key.Up:
+        //            {
+        //                if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
+        //                {
+        //                    OnNavigateHistory(+1);
+        //                    e.Handled = true;
+        //                }
+        //            } break;
+        //        case Key.Down:
+        //            {
+        //                if (inPrompt && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control))
+        //                {
+        //                    OnNavigateHistory(-1);
+        //                    e.Handled = true;
+        //                }
+        //            } break;
 
-                case Key.Escape:
-                    {
-                        historyIndex = -1;
-                        CurrentCommand = "";
-                    } break;
-                case Key.Return:
-                    {
-                        IsUndoEnabled = false;
-                        IsUndoEnabled = true;
+        //        case Key.Escape:
+        //            {
+        //                historyIndex = -1;
+        //                CurrentCommand = "";
+        //            } break;
+        //        case Key.Return:
+        //            {
+        //                IsUndoEnabled = false;
+        //                IsUndoEnabled = true;
                         
-                        // keep them in the same (relative) place in the history buffer.
-                        if( historyIndex != 0 ) historyIndex++; 
+        //                // keep them in the same (relative) place in the history buffer.
+        //                if( historyIndex != 0 ) historyIndex++; 
 
-                        // the "EndOfOutput" marker gets stuck just before the last character of the prompt...
-                        string cmd = CurrentCommand;
-                        //TextRange tr = new TextRange(currentParagraph.ContentStart.GetPositionAtOffset(promptLength), currentParagraph.ContentEnd);
-                        //string cmd = EndOfPrompt.GetTextInRun(LogicalDirection.Forward);
-                        currentParagraph.ContentEnd.InsertLineBreak();
-                        myHistory.Add(cmd);
-                        OnCommand(cmd);
-                        // let the {ENTER} through...
-                        e.Handled = true;
-                    } break;
-                case Key.Left:
-                    {
-                        // cancel the "left" if we're at the left edge of the prompt
-                        if (commandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
-                            commandStart.GetOffsetToPosition(CaretPosition.GetNextInsertionPosition(LogicalDirection.Backward)) < 0)
-                        {
-                            e.Handled = true;
-                        }
-                    } break;
+        //                // the "EndOfOutput" marker gets stuck just before the last character of the prompt...
+        //                string cmd = CurrentCommand;
+        //                //TextRange tr = new TextRange(currentParagraph.ContentStart.GetPositionAtOffset(promptLength), currentParagraph.ContentEnd);
+        //                //string cmd = EndOfPrompt.GetTextInRun(LogicalDirection.Forward);
+        //                currentParagraph.ContentEnd.InsertLineBreak();
+        //                myHistory.Add(cmd);
+        //                OnCommand(cmd);
+        //                // let the {ENTER} through...
+        //                e.Handled = true;
+        //            } break;
+        //        case Key.Left:
+        //            {
+        //                // cancel the "left" if we're at the left edge of the prompt
+        //                if (commandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
+        //                    commandStart.GetOffsetToPosition(CaretPosition.GetNextInsertionPosition(LogicalDirection.Backward)) < 0)
+        //                {
+        //                    e.Handled = true;
+        //                }
+        //            } break;
 
-                case Key.Home:
-                    {
-                        // if we're in the command string ... handle it ourselves 
-                        if (inPrompt)
-                        {
-                            if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
-                            {
-                                Selection.Select(CaretPosition, commandStart.GetInsertionPosition(LogicalDirection.Forward));
-                            }
-                            else
-                            {
-                                // TODO: if Control, goto top ... e.KeyboardDevice.Modifiers
-                                //CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+        //        case Key.Home:
+        //            {
+        //                // if we're in the command string ... handle it ourselves 
+        //                if (inPrompt)
+        //                {
+        //                    if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        //                    {
+        //                        Selection.Select(CaretPosition, commandStart.GetInsertionPosition(LogicalDirection.Forward));
+        //                    }
+        //                    else
+        //                    {
+        //                        // TODO: if Control, goto top ... e.KeyboardDevice.Modifiers
+        //                        //CaretPosition = commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
 
-                                CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Forward);//currentParagraph.ContentStart.GetPositionAtOffset(promptLength);
-                            }
-                            e.Handled = true;
-                        }
-                    } break;
-                case Key.End:
-                    {
-                        // shift + ctrl
-                        if (((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
-                            && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
-                        {
-                            Selection.Select(Selection.Start, CaretPosition.DocumentEnd);
-                        }
-                        else if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                        {
-                            CaretPosition = CaretPosition.DocumentEnd;
-                        }
-                        else if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
-                        {
-                            Selection.Select(Selection.Start, (CaretPosition.GetLineStartPosition(1) ?? CaretPosition.DocumentEnd).GetInsertionPosition(LogicalDirection.Backward));
-                        }
-                        else
-                        {
-                            CaretPosition = (CaretPosition.GetLineStartPosition(1) ?? CaretPosition.DocumentEnd).GetNextInsertionPosition(LogicalDirection.Backward);
-                        }
+        //                        CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Forward);//currentParagraph.ContentStart.GetPositionAtOffset(promptLength);
+        //                    }
+        //                    e.Handled = true;
+        //                }
+        //            } break;
+        //        case Key.End:
+        //            {
+        //                // shift + ctrl
+        //                if (((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        //                    && ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
+        //                {
+        //                    Selection.Select(Selection.Start, CaretPosition.DocumentEnd);
+        //                }
+        //                else if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        //                {
+        //                    CaretPosition = CaretPosition.DocumentEnd;
+        //                }
+        //                else if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        //                {
+        //                    Selection.Select(Selection.Start, (CaretPosition.GetLineStartPosition(1) ?? CaretPosition.DocumentEnd).GetInsertionPosition(LogicalDirection.Backward));
+        //                }
+        //                else
+        //                {
+        //                    CaretPosition = (CaretPosition.GetLineStartPosition(1) ?? CaretPosition.DocumentEnd).GetNextInsertionPosition(LogicalDirection.Backward);
+        //                }
 
-                        e.Handled = true;
-                    } break;
-                case Key.Back:
-                    goto case Key.Delete;
-                case Key.Delete:
-                    {
-                        if (!Selection.IsEmpty)
-                        {
-                            if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
-                            {
-                                Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
-                            }
-                            if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
-                            {
-                                Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
-                            }
-                            Selection.Text = string.Empty;
-                            e.Handled = true;
-                        }
-                        else
-                        {
-                            int offset = 0;
-                            if (currentParagraph.Inlines.Count > promptInlines)
-                            {
-                                offset = currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
-                            }
-                            else
-                            {
-                                offset = commandStart.GetInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition);
-                            }
-                            if (offset < 0 || (offset == 0 && e.Key == Key.Back) || CurrentCommand.Length <= 0)
-                            {
-                                e.Handled = true;
-                            }
-                        }
-                    } break;
-                //// we're only handling this to avoid the default handler when you try to copy
-                //// since that would de-select the text
-                //case Key.X: goto case Key.C;
-                //case Key.C:
-                //    {
-                //        if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
-                //        {
-                //            goto default;
-                //        }
-                //    } break;
+        //                e.Handled = true;
+        //            } break;
+        //        case Key.Back:
+        //            goto case Key.Delete;
+        //        case Key.Delete:
+        //            {
+        //                if (!Selection.IsEmpty)
+        //                {
+        //                    if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
+        //                    {
+        //                        Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
+        //                    }
+        //                    if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
+        //                    {
+        //                        Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
+        //                    }
+        //                    Selection.Text = string.Empty;
+        //                    e.Handled = true;
+        //                }
+        //                else
+        //                {
+        //                    int offset = 0;
+        //                    if (currentParagraph.Inlines.Count > promptInlines)
+        //                    {
+        //                        offset = currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
+        //                    }
+        //                    else
+        //                    {
+        //                        offset = commandStart.GetInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition);
+        //                    }
+        //                    if (offset < 0 || (offset == 0 && e.Key == Key.Back) || CurrentCommand.Length <= 0)
+        //                    {
+        //                        e.Handled = true;
+        //                    }
+        //                }
+        //            } break;
+        //        //// we're only handling this to avoid the default handler when you try to copy
+        //        //// since that would de-select the text
+        //        //case Key.X: goto case Key.C;
+        //        //case Key.C:
+        //        //    {
+        //        //        if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+        //        //        {
+        //        //            goto default;
+        //        //        }
+        //        //    } break;
 
-                // here's a few keys we want the base control to handle:
-                case Key.Right: break;
-                case Key.RightAlt: break;
-                case Key.LeftAlt: break;
-                case Key.RightCtrl: break;
-                case Key.LeftCtrl: break;
-                case Key.RightShift: break;
-                case Key.LeftShift: break;
-                case Key.RWin: break;
-                case Key.LWin: break;
-                case Key.CapsLock: break;
-                case Key.Insert: break;
-                case Key.NumLock: break;
-                case Key.PageUp: break;
-                case Key.PageDown: break;
+        //        // here's a few keys we want the base control to handle:
+        //        case Key.Right: break;
+        //        case Key.RightAlt: break;
+        //        case Key.LeftAlt: break;
+        //        case Key.RightCtrl: break;
+        //        case Key.LeftCtrl: break;
+        //        case Key.RightShift: break;
+        //        case Key.LeftShift: break;
+        //        case Key.RWin: break;
+        //        case Key.LWin: break;
+        //        case Key.CapsLock: break;
+        //        case Key.Insert: break;
+        //        case Key.NumLock: break;
+        //        case Key.PageUp: break;
+        //        case Key.PageDown: break;
 
-                // if a key isn't in the list above, then make sure we're in the prompt before we let it through
-                default:
-                    {
-                        tabbing = null;
-                        tabbingCount = -1;
+        //        // if a key isn't in the list above, then make sure we're in the prompt before we let it through
+        //        default:
+        //            {
+        //                tabbing = null;
+        //                tabbingCount = -1;
 
-                        //System.Diagnostics.Debug.WriteLine(CaretPosition.GetOffsetToPosition(EndOfOutput));
-                        if (commandStart == null || CaretPosition.GetOffsetToPosition(commandStart) > 0)
-                        {
-                            CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
-                        }
-                        // if they type anything, they're not using the history buffer.
-                        historyIndex = -1;
-                        // if they type anything, they're no longer using the autocopy
-                        autoCopy = false;
-                    } break;
-                #endregion
-            }
-            base.OnPreviewKeyDown(e);
-            Trace.Unindent();
-            Trace.TraceInformation("Exiting OnPreviewKeyDown:");
-        }
+        //                //System.Diagnostics.Debug.WriteLine(CaretPosition.GetOffsetToPosition(EndOfOutput));
+        //                if (commandStart == null || CaretPosition.GetOffsetToPosition(commandStart) > 0)
+        //                {
+        //                    CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
+        //                }
+        //                // if they type anything, they're not using the history buffer.
+        //                historyIndex = -1;
+        //                // if they type anything, they're no longer using the autocopy
+        //                autoCopy = false;
+        //            } break;
+        //        #endregion
+        //    }
+        //    base.OnPreviewKeyDown(e);
+        //    Trace.Unindent();
+        //    Trace.TraceInformation("Exiting OnPreviewKeyDown:");
+        //}
 
-        /// <summary>
-        /// Called when [navigate history].
-        /// </summary>
-        /// <param name="count">The count.</param>
-        private void OnNavigateHistory(int count)
-        {
-            historyIndex += count;
-
-            if (null != GetHistory)
-            {
-                CurrentCommand = GetHistory(ref historyIndex);
-            }
-            else
-            {
-                if (historyIndex == -1)
-                {
-                    historyIndex = myHistory.Count;
-                }
-                if (historyIndex > 0 && historyIndex <= myHistory.Count)
-                {
-                    CurrentCommand = myHistory[myHistory.Count - historyIndex];
-                }
-                else
-                {
-                    historyIndex = 0;
-                    CurrentCommand = string.Empty;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Called when [tab complete].
-        /// </summary>
-        /// <param name="shift">if set to <c>true</c> [shift].</param>
-        private void OnTabComplete(int count)
-        {
-            tabbingCount += count;
-            if (tabbing == null)
-            {
-                tabbing = CurrentCommand;
-                if (!string.IsNullOrEmpty(tabbing))
-                {
-                    lastWord = GetLastWord(tabbing);
-                    Cursor = Cursors.Wait;
-                    completions = TabComplete(tabbing, lastWord);
-                    
-                    Cursor = Cursors.IBeam;
-                } // make sure it's never an empty string.
-                else tabbing = null;
-            }
-            if (tabbing != null)
-            {
-                if (tabbingCount >= completions.Count)
-                {
-                    tabbingCount = 0;
-                }
-                else if (tabbingCount < 0)
-                {
-                    tabbingCount = completions.Count - 1;
-                }
-
-                // show the menu if:
-                // TabCompleteMenuThreshold > 0 and there are more items than the threshold
-                // OR they tabbed twice really fast
-                if ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
-                        && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
-                    || (((TimeSpan)(DateTime.Now - tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds))
-                {
-                    string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
-                    popupClosing = new EventHandler(TabComplete_Closed);
-                    popup.Closed += popupClosing;
-                    completions.Sort(); // TODO: Sort this intelligently...
-                    ShowPopup(completions, false, false);
-                }
-                else if (tabbingCount < completions.Count)
-                {
-                    CurrentCommand = tabbing.Substring(0, tabbing.Length - lastWord.Length) + completions[tabbingCount];
-                }
-            }
-            tabTime = DateTime.Now;
-        }
-
-        protected override void OnPreviewTextInput(TextCompositionEventArgs e)
-        {
-            // if they're trying to input text, they will overwrite the selection
-            // lets make sure they don't overwrite the history buffer
-            if (!Selection.IsEmpty)
-            {
-                if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
-                {
-                    Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
-                }
-                if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
-                {
-                    Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
-                }
-            }
-            base.OnPreviewTextInput(e);
-        }
-
-
-        static Regex chunker = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
-
-        private string GetLastWord(string cmdline)
-        {
-            string lastWord = null;
-            MatchCollection words = chunker.Matches(cmdline);
-            if (words.Count >= 1)
-            {
-                Match lw = words[words.Count - 1];
-                lastWord = lw.Value;
-                if (lastWord[0] == '"')
-                {
-                    lastWord = lastWord.Replace("\"", string.Empty);
-                }
-                else if (lastWord[0] == '\'')
-                {
-                    lastWord = lastWord.Replace("'", string.Empty);
-                }
-            }
-            return lastWord;
-        }
-
-        private void ShowPopup(List<string> items, bool number, bool FilterDupes)
-        {
-            intellisense.Items.Clear();
-
-            if (number)
-            {
-                intellisense.Items.Filter = null;
-                for (int i = items.Count - 1; i >= 0; i--)
-                {
-                    if (!FilterDupes || !intellisense.Items.Contains(items[i]))
-                    {
-                        ListBoxItem item = new ListBoxItem();
-                        TextSearch.SetText(item, items[i]); // A name must start with a letter or the underscore character (_), and must contain only letters, digits, or underscores
-                        item.Content = string.Format("{0,2} {1}", i, items[i]);
-                        intellisense.Items.Insert(0, item);
-                    }
-                }
-            }
-            else
-            {
-                intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
-                for (int i = items.Count - 1; i >= 0; i--)
-                {
-                    if (!FilterDupes || !intellisense.Items.Contains(items[i]))
-                    {
-                        intellisense.Items.Insert(0, items[i]);
-                    }
-                }
-            }
-            intellisense.Visibility = Visibility.Visible;
-            // if it's numbered, default to the last item
-            intellisense.SelectedIndex = number ? items.Count - 1 : 0;
-            intellisense.ScrollIntoView(intellisense.SelectedItem);
-
-            popup.PlacementRectangle = new Rect(CursorPosition.X, CursorPosition.Y, this.ActualWidth - CursorPosition.X, this.ActualHeight - CursorPosition.Y);
-            popup.Placement = PlacementMode.RelativePoint;
-
-            popup.IsOpen = true;   // show the popup
-            intellisense.Focus();  // focus the keyboard on the popup
-        }
-
-        #region Handle Clicks on the Intellisense popup.
-        bool popupClicked = false;
-        void intellisense_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // if they clicked, then when the selection changes we close.
-            if (popupClicked) popup.IsOpen = false;
-            popupClicked = false;
-        }
-
-        void popup_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            popupClicked = true;
-        }
-        #endregion
-
-        /// <summary>
-        /// Handles the Closed event of the popup control.
-        /// Always reset the intellisense typed number...
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        void popup_Closed(object sender, EventArgs e)
-        {
-            intelliNum = -1;
-        }
-
-        /// <summary>
-        /// Handles the Closed event of the History popup menu.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        void History_Closed(object sender, EventArgs ea)
-        {
-            if (intellisense.SelectedValue != null)
-            {
-                CurrentCommand = TextSearch.GetText((ListBoxItem)intellisense.SelectedValue);
-            }
-            this.Focus();
-            popup.Closed -= popupClosing;
-            post = string.Empty;
-        }
-
-        /// <summary>
-        /// Handles the Closed event of the TabComplete popup menu.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        void TabComplete_Closed(object sender, EventArgs ea)
-        {
-            Trace.TraceInformation("Entering TabComplete_Closed");
-            Trace.Indent();
-            // WHY oh WHY are there three enums with different values for all the keys, when the Windows API clearly should be the gold standard?
-            // System.ConsoleKey System.Windows.Forms.Keys System.Windows.Input.Key
-            //System.Windows.Input.KeyInterop.VirtualKeyFromKey(
-
-            string cmd = CurrentCommand;
-            if (intellisense.SelectedValue != null)
-            {
-                Trace.TraceInformation("CurrentCommand: {0}", cmd);
-                CurrentCommand = cmd.Substring(0, cmd.Length - GetLastWord(cmd).Length) + intellisense.SelectedValue.ToString() + post;
-            }
-            else
-            {
-                CurrentCommand = tabbing;
-            }
-            this.Focus();
-            // reset as we exit
-            popup.Closed -= popupClosing;
-            post = string.Empty;
-            tabbing = null;
-            Trace.Unindent();
-            Trace.TraceInformation("Exiting TabComplete_Closed");
-        }
-
-
-        /// <summary>
-        /// Types the ahead filter.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        private bool TypeAheadFilter(object item)
-        {
-            return (item as string).ToLower().StartsWith(lastWord.ToLower());
-        }
-
-
-        static Regex tabseparator = new Regex(@"[.;,=\\ |/[\]()""']", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-        static Regex number = new Regex(@"[0-9]", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-        string post = string.Empty;
-        /// <summary>
-        /// Handles the TextInput event of the popup control 
-        /// 1) to save the key if it's one we consider to toggle the tab-complete
-        /// 2) to handle typing numbers for the history menu
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.TextCompositionEventArgs"/> instance containing the event data.</param>
-        void popup_TextInput(object sender, TextCompositionEventArgs e)
-        {
-            if (tabseparator.IsMatch(e.Text))
-            {
-                post = e.Text;
-                popup.IsOpen = false;
-            }
-            else if (number.IsMatch(e.Text))
-            {
-                if (intelliNum >= 0) {
-                    intelliNum *= 10;
-                } else intelliNum = 0;
-
-                intelliNum += int.Parse(e.Text);
-                if (intelliNum > 0 && intelliNum < intellisense.Items.Count - 1)
-                {
-                    intellisense.SelectedIndex = intelliNum;
-                }
-            }
-            else if(tabbing != null )
-            {
-                if (e.Text.EndsWith("n")) { Debug.WriteLine(string.Format("{0}::{2}::{1}", lastWord, tabbing, e.Text)); }
-                // intellisense.Items.Filter
-                tabbing += e.Text;
-                lastWord += e.Text;
-                intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
-                intellisense.SelectedIndex = 0;
-                if (intellisense.Items.Count <= 1) popup.IsOpen = false;
-                //intellisense.Items.Refresh();
-                // intellisense.Items.Count  //tabbingCount
-            }
-        }
-
-        int intelliNum = -1;
-        void popup_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            Trace.TraceInformation("Entering popup_PreviewKeyDown:");
-            Trace.Indent();
-            //Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
-            //Trace.WriteLine("Key:    {0}" + e.Key);
-            //Trace.WriteLine("Source: {0}" + e.Source);
-
-            post = string.Empty;
-
-            switch (e.Key)
-            {
-                case Key.Space:
-                    {
-                        post = " ";
-                        e.Handled = true;
-                        popup.IsOpen = false;
-                    } break;
-                case Key.Back:
-                    {
-                        tabbing = tabbing.Substring(0, tabbing.Length - 1);
-                        lastWord = lastWord.Substring(0, lastWord.Length - 1);
-                        intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
-                        intellisense.SelectedIndex = 0;
-                        e.Handled = true;
-                    } break;
-                case Key.Delete: goto case Key.Escape;
-                case Key.Escape:
-                    {
-                        intellisense.SelectedIndex = -1;
-                        e.Handled = false;
-                        popup.IsOpen = false;
-                    } break;
-                case Key.Tab:
-                    {
-                        intellisense.SelectedIndex += 1;
-                        if (intellisense.SelectedIndex >= intellisense.Items.Count) popup.IsOpen = false;
-                        e.Handled = true;
-                    } break;
-                case Key.Enter:
-                    {
-                        e.Handled = true;
-                        popup.IsOpen = false;
-                    } break;
-            }
-            Trace.Unindent();
-            Trace.TraceInformation("Exiting popup_PreviewKeyDown");
-        }
-
-
-        
         //------------------------------------------------------
         //
         //  Private Methods
@@ -1156,12 +667,12 @@ namespace Huddled.PoshConsole
 
         #region Private Members
 
-        private List<string> myHistory;
-        public List<string> CommandHistory
-        {
-            get { return myHistory; }
-            set { myHistory = value; }
-        }
+        //private List<string> myHistory;
+        //public List<string> CommandHistory
+        //{
+        //    get { return myHistory; }
+        //    set { myHistory = value; }
+        //}
 
 
         // Static list of editing formatting commands. In the ctor we disable all these commands.
@@ -1184,8 +695,8 @@ namespace Huddled.PoshConsole
 
         #endregion Private Members
 
-        int promptInlines = 0;
-        TextPointer commandStart = null;
+        int _promptInlines = 0;
+        TextPointer _commandStart = null;
 
 
         public delegate void EndOutputDelegate();
@@ -1204,23 +715,23 @@ namespace Huddled.PoshConsole
         {
             BeginChange();
             // this is the run that the user will type their command into...
-            Run command = new Run("", currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward)); // , Document.ContentEnd
+            Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward)); // , Document.ContentEnd
             // it's VITAL that this Run "look" different than the previous one
             // otherwise if you backspace the last character it merges into the previous output
             command.Background = Background; 
             command.Foreground = Foreground;
             EndChange();
-            promptInlines = currentParagraph.Inlines.Count;
+            _promptInlines = _currentParagraph.Inlines.Count;
 
             // toggle undo to prevent "undo"ing past this point.
             IsUndoEnabled = false;
             IsUndoEnabled = true;
 
-            commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
-            CaretPosition = commandStart.GetInsertionPosition(LogicalDirection.Forward);
+            _commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+            CaretPosition = _commandStart.GetInsertionPosition(LogicalDirection.Forward);
         }
 
-        Paragraph currentParagraph = null;
+        Paragraph _currentParagraph = null;
 
        
         private void Write(Brush foreground, Brush background, string text)
@@ -1230,10 +741,10 @@ namespace Huddled.PoshConsole
             if (foreground == null) foreground = Foreground;
             if (background == null) background = Background;//Brushes.Transparent;
 
-            if (currentParagraph == null)
+            if (_currentParagraph == null)
             {
-                currentParagraph = new Paragraph();
-                Document.Blocks.Add(currentParagraph);
+                _currentParagraph = new Paragraph();
+                Document.Blocks.Add(_currentParagraph);
             }
 
             //TextPointer currentPos = CaretPosition;
@@ -1242,7 +753,7 @@ namespace Huddled.PoshConsole
 
             if (ansis.Length == 1)
             {
-                Run insert = new Run(text, currentParagraph.ContentEnd);
+                Run insert = new Run(text, _currentParagraph.ContentEnd);
                 insert.Background = background;
                 insert.Foreground = foreground;
 
@@ -1260,7 +771,7 @@ namespace Huddled.PoshConsole
                 {
                     if (first && ansi.Length > 0)
                     {
-                        Run insert = new Run(ansi, currentParagraph.ContentEnd);
+                        Run insert = new Run(ansi, _currentParagraph.ContentEnd);
                         insert.Background = bg;
                         insert.Foreground = fg;
                     }
@@ -1279,7 +790,7 @@ namespace Huddled.PoshConsole
                             split = m2;
                         }
                         bool dark = true, back = false;
-                        Run insert = new Run(ansi.Substring(split + 1), currentParagraph.ContentEnd);
+                        Run insert = new Run(ansi.Substring(split + 1), _currentParagraph.ContentEnd);
                         insert.Foreground = fg;
                         insert.Background = bg;
                         if (split > 0)
@@ -1329,59 +840,59 @@ namespace Huddled.PoshConsole
 
 
                                     case "30":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.Black : ConsoleBrushes.DarkGray;
+                                        insert.Foreground = (dark) ? _consoleBrushes.Black : _consoleBrushes.DarkGray;
                                         break;
                                     case "40":
-                                        insert.Background = (dark) ? ConsoleBrushes.Black : ConsoleBrushes.DarkGray;
+                                        insert.Background = (dark) ? _consoleBrushes.Black : _consoleBrushes.DarkGray;
                                         break;
 
                                     case "31":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkRed : ConsoleBrushes.Red;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkRed : _consoleBrushes.Red;
                                         break;
                                     case "41":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkRed : ConsoleBrushes.Red;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkRed : _consoleBrushes.Red;
                                         break;
 
                                     case "32":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkGreen : ConsoleBrushes.Green;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkGreen : _consoleBrushes.Green;
                                         break;
                                     case "42":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkGreen : ConsoleBrushes.Green;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkGreen : _consoleBrushes.Green;
                                         break;
 
                                     case "33":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkYellow : ConsoleBrushes.Yellow;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkYellow : _consoleBrushes.Yellow;
                                         break;
                                     case "43":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkYellow : ConsoleBrushes.Yellow;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkYellow : _consoleBrushes.Yellow;
                                         break;
 
                                     case "34":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkBlue : ConsoleBrushes.Blue;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkBlue : _consoleBrushes.Blue;
                                         break;
                                     case "44":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkBlue : ConsoleBrushes.Blue;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkBlue : _consoleBrushes.Blue;
                                         break;
 
                                     case "35":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkMagenta : ConsoleBrushes.Magenta;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkMagenta : _consoleBrushes.Magenta;
                                         break;
                                     case "45":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkMagenta : ConsoleBrushes.Magenta;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkMagenta : _consoleBrushes.Magenta;
                                         break;
 
                                     case "36":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.DarkCyan : ConsoleBrushes.Cyan;
+                                        insert.Foreground = (dark) ? _consoleBrushes.DarkCyan : _consoleBrushes.Cyan;
                                         break;
                                     case "46":
-                                        insert.Background = (dark) ? ConsoleBrushes.DarkCyan : ConsoleBrushes.Cyan;
+                                        insert.Background = (dark) ? _consoleBrushes.DarkCyan : _consoleBrushes.Cyan;
                                         break;
 
                                     case "37":
-                                        insert.Foreground = (dark) ? ConsoleBrushes.White : ConsoleBrushes.Gray;
+                                        insert.Foreground = (dark) ? _consoleBrushes.White : _consoleBrushes.Gray;
                                         break;
                                     case "47":
-                                        insert.Background = (dark) ? ConsoleBrushes.White : ConsoleBrushes.Gray;
+                                        insert.Background = (dark) ? _consoleBrushes.White : _consoleBrushes.Gray;
                                         break;
 
 
@@ -1392,11 +903,11 @@ namespace Huddled.PoshConsole
                                         {
                                             if (back)
                                             {
-                                                insert.Background = ConsoleBrushes.Transparent;
+                                                insert.Background = _consoleBrushes.Transparent;
                                             }
                                             else
                                             {
-                                                insert.Foreground = ConsoleBrushes.Transparent;
+                                                insert.Foreground = _consoleBrushes.Transparent;
                                             }
                                             back = true;
                                         } break;
@@ -1412,16 +923,16 @@ namespace Huddled.PoshConsole
                                                 // if there's an alpha value...
                                                 if (code.Length == 9)
                                                 {
-                                                    a = Byte.Parse(code.Substring(1, 2));
-                                                    r = Byte.Parse(code.Substring(3, 2));
-                                                    g = Byte.Parse(code.Substring(5, 2));
-                                                    b = Byte.Parse(code.Substring(7, 2));
+                                                    a = Byte.Parse(code.Substring(1, 2), NumberStyles.HexNumber);
+                                                    r = Byte.Parse(code.Substring(3, 2), NumberStyles.HexNumber);
+                                                    g = Byte.Parse(code.Substring(5, 2), NumberStyles.HexNumber);
+                                                    b = Byte.Parse(code.Substring(7, 2), NumberStyles.HexNumber);
                                                 }
                                                 else if (code.Length == 7)
                                                 {
-                                                    r = Byte.Parse(code.Substring(1, 2));
-                                                    g = Byte.Parse(code.Substring(3, 2));
-                                                    b = Byte.Parse(code.Substring(5, 2));
+                                                    r = Byte.Parse(code.Substring(1, 2), NumberStyles.HexNumber);
+                                                    g = Byte.Parse(code.Substring(3, 2), NumberStyles.HexNumber);
+                                                    b = Byte.Parse(code.Substring(5, 2), NumberStyles.HexNumber);
                                                     a = Byte.MaxValue;
                                                 }
                                                 else break;
@@ -1447,11 +958,11 @@ namespace Huddled.PoshConsole
                                             {
                                                 if (back)
                                                 {
-                                                    insert.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                    insert.Background = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
                                                 }
                                                 else
                                                 {
-                                                    insert.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
+                                                    insert.Foreground = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), code));
                                                 }
                                             }
                                             catch { } // just ignore the sequence?
@@ -1488,7 +999,7 @@ namespace Huddled.PoshConsole
         }
 
 
-        private bool autoCopy = false;
+        private bool _autoCopy = false;
         /// <summary>
         /// Copies the current selection of the text editing control to the <see cref="T:System.Windows.Clipboard"></see>.
         /// <remarks>
@@ -1499,11 +1010,11 @@ namespace Huddled.PoshConsole
         /// </summary>
         new public void Copy()
         {
-            if (autoCopy || Selection.IsEmpty)
+            if (_autoCopy || Selection.IsEmpty)
             {
-                if (!autoCopy)
+                if (!_autoCopy)
                 {
-                    autoCopy = true;
+                    _autoCopy = true;
                     EditingCommands.SelectUpByParagraph.Execute(null, this);
                     CaretPosition = Selection.Start;
                 }
@@ -1562,11 +1073,11 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private double characterWidth = 0.5498046875; // Default to the size for Consolas
+        private double _characterWidth = 0.5498046875; // Default to the size for Consolas
 
         public double CharacterWidthRatio
         {
-            get { return characterWidth; }
+            get { return _characterWidth; }
         }
 
         /// <summary>
@@ -1579,13 +1090,13 @@ namespace Huddled.PoshConsole
             {
                 return new System.Management.Automation.Host.Size(
                     (int)((((ExtentWidth > 0) ? ExtentWidth : RenderSize.Width) - (Padding.Left + Padding.Right))
-                        / (FontSize * characterWidth)) - 1,
+                        / (FontSize * _characterWidth)) - 1,
                     (int)((((ExtentHeight > 0) ? ExtentHeight : RenderSize.Height) - (Padding.Top + Padding.Bottom))
                         / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
             }
             set
             {
-                this.Width = value.Width * FontSize * characterWidth;
+                this.Width = value.Width * FontSize * _characterWidth;
                 // our buffer is infinite-ish
                 //this.Height = value.Y * Document.LineHeight;
             }
@@ -1601,14 +1112,14 @@ namespace Huddled.PoshConsole
             {
                 return new System.Management.Automation.Host.Size(
                   (int)((((ViewportWidth > 0) ? ViewportWidth : RenderSize.Width) - (Padding.Left + Padding.Right))
-                        / (FontSize * characterWidth)) - 1,
+                        / (FontSize * _characterWidth)) - 1,
                   (int)(((ViewportHeight > 0) ? ViewportHeight : RenderSize.Height)
                         / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
 
             }
             set
             {
-                this.Width = value.Width * FontSize * characterWidth;
+                this.Width = value.Width * FontSize * _characterWidth;
                 this.Height = value.Height * Document.LineHeight;
             }
         }
@@ -1623,7 +1134,7 @@ namespace Huddled.PoshConsole
             {
                 return new System.Management.Automation.Host.Size(
                     (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)
-                            / (FontSize * characterWidth)) - 1,
+                            / (FontSize * _characterWidth)) - 1,
                     (int)(System.Windows.SystemParameters.PrimaryScreenHeight - (Padding.Top + Padding.Bottom)
                             / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
 
@@ -1641,7 +1152,7 @@ namespace Huddled.PoshConsole
             //set { myMaxPhysicalWindowSize = value; }
         }
 
-        private System.Management.Automation.Host.Coordinates myCursorPosition;
+        private System.Management.Automation.Host.Coordinates _cursorPosition;
 
         /// <summary>
         /// Gets or sets the cursor position.
@@ -1652,13 +1163,13 @@ namespace Huddled.PoshConsole
             get
             {
                 Rect caret = CaretPosition.GetInsertionPosition(LogicalDirection.Forward).GetCharacterRect(LogicalDirection.Backward);
-                myCursorPosition.X = (int)caret.Left;
-                myCursorPosition.Y = (int)caret.Top;
-                return myCursorPosition;
+                _cursorPosition.X = (int)caret.Left;
+                _cursorPosition.Y = (int)caret.Top;
+                return _cursorPosition;
             }
             set
             {
-                CaretPosition = GetPositionFromPoint(new Point(value.X * FontSize * characterWidth, value.Y * Document.LineHeight), true);
+                CaretPosition = GetPositionFromPoint(new Point(value.X * FontSize * _characterWidth, value.Y * Document.LineHeight), true);
             }
         }
 
@@ -1682,7 +1193,7 @@ namespace Huddled.PoshConsole
                         // if this is really a fixed width font, then the widths should be equal:
                         // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']]
                         // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'i']]
-                        characterWidth = glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']];
+                        _characterWidth = glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']];
                         break;
                     }
                 }
@@ -1755,7 +1266,7 @@ namespace Huddled.PoshConsole
                 //}
 
                 ScrollToVerticalOffset(value.Y * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
-                ScrollToHorizontalOffset(value.X * FontSize * characterWidth);
+                ScrollToHorizontalOffset(value.X * FontSize * _characterWidth);
             }
         }
 
@@ -1768,8 +1279,8 @@ namespace Huddled.PoshConsole
 
                 return new BufferCell(
                         (range.IsEmpty || range.Text[0] == '\n') ? ' ' : range.Text[0],
-                        ConsoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.ForegroundProperty)),
-                        ConsoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.BackgroundProperty)),
+                        _consoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.ForegroundProperty)),
+                        _consoleBrushes.ConsoleColorFromBrush((Brush)range.GetPropertyValue(TextElement.BackgroundProperty)),
                         BufferCellType.Complete);
             }
             catch
@@ -1812,8 +1323,8 @@ namespace Huddled.PoshConsole
                     {
                         r = position.GetAdjacentElement(LogicalDirection.Backward) as Run;
                         if (null != r
-                            && r.Background == ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor)
-                            && r.Foreground == ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor)
+                            && r.Background == _consoleBrushes.BrushFromConsoleColor(cell.BackgroundColor)
+                            && r.Foreground == _consoleBrushes.BrushFromConsoleColor(cell.ForegroundColor)
                         )
                         {
                             if (r.Text.Length > 0)
@@ -1830,8 +1341,8 @@ namespace Huddled.PoshConsole
                             r = new Run(cell.Character.ToString(), position);
                         }
                     }
-                    r.Background = ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor);
-                    r.Foreground = ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor);
+                    r.Background = _consoleBrushes.BrushFromConsoleColor(cell.BackgroundColor);
+                    r.Foreground = _consoleBrushes.BrushFromConsoleColor(cell.ForegroundColor);
                     //position = r.ElementStart;
                 }
 
@@ -1840,8 +1351,8 @@ namespace Huddled.PoshConsole
             {
 
                 range.Text = cell.Character.ToString();
-                range.ApplyPropertyValue(TextElement.BackgroundProperty, ConsoleBrushes.BrushFromConsoleColor(cell.BackgroundColor));
-                range.ApplyPropertyValue(TextElement.ForegroundProperty, ConsoleBrushes.BrushFromConsoleColor(cell.ForegroundColor));
+                range.ApplyPropertyValue(TextElement.BackgroundProperty, _consoleBrushes.BrushFromConsoleColor(cell.BackgroundColor));
+                range.ApplyPropertyValue(TextElement.ForegroundProperty, _consoleBrushes.BrushFromConsoleColor(cell.ForegroundColor));
             }
         }
 
@@ -1850,7 +1361,7 @@ namespace Huddled.PoshConsole
             TextPointer origin, lineStart, cell;
             int lines = 0, x = 0, y = 0, width = rectangle.Right - rectangle.Left, height = rectangle.Bottom - rectangle.Top;
             BufferCell[,] buffer = new BufferCell[rectangle.Bottom - rectangle.Top, rectangle.Right - rectangle.Left];
-            BufferCell blank = new BufferCell(' ', ConsoleBrushes.ConsoleColorFromBrush(Foreground), ConsoleBrushes.ConsoleColorFromBrush(Background), BufferCellType.Complete);
+            BufferCell blank = new BufferCell(' ', _consoleBrushes.ConsoleColorFromBrush(Foreground), _consoleBrushes.ConsoleColorFromBrush(Background), BufferCellType.Complete);
 
             lineStart = CaretPosition.DocumentStart.GetInsertionPosition(LogicalDirection.Forward).GetLineStartPosition(rectangle.Top, out lines).GetInsertionPosition(LogicalDirection.Forward);
             if (lines < rectangle.Top)
@@ -1981,8 +1492,8 @@ namespace Huddled.PoshConsole
 
                     // insert new text
                     Run r = new Run(fillString, cell);
-                    r.Background = ConsoleBrushes.BrushFromConsoleColor(fill.BackgroundColor);
-                    r.Foreground = ConsoleBrushes.BrushFromConsoleColor(fill.ForegroundColor);
+                    r.Background = _consoleBrushes.BrushFromConsoleColor(fill.BackgroundColor);
+                    r.Foreground = _consoleBrushes.BrushFromConsoleColor(fill.ForegroundColor);
 
                     // try advancing one line ...
                     cell = lineStart.GetPositionAtOffset(rectangle.Left - 1);
@@ -2066,8 +1577,8 @@ namespace Huddled.PoshConsole
                 for (x = 0; x < width; ++x)
                 {
                     bc = contents[y, x];
-                    back = ConsoleBrushes.BrushFromConsoleColor(bc.BackgroundColor);
-                    fore = ConsoleBrushes.BrushFromConsoleColor(bc.ForegroundColor);
+                    back = _consoleBrushes.BrushFromConsoleColor(bc.BackgroundColor);
+                    fore = _consoleBrushes.BrushFromConsoleColor(bc.ForegroundColor);
 
                     if (r.Background != back || r.Foreground != fore)
                     {

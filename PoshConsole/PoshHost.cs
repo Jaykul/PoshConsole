@@ -13,7 +13,6 @@ using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.Threading;
 using System.Collections.ObjectModel;
@@ -27,7 +26,7 @@ namespace Huddled.PoshConsole
     /// applications. Not all members are implemented. Those that are 
     /// not implemented throw a NotImplementedException exception.
     /// </summary>
-    class PoshHost : PSHost
+    public class PoshHost : PSHost
     {
         /// <summary>
         /// The PSHostUserInterface implementation
@@ -69,12 +68,12 @@ namespace Huddled.PoshConsole
 
         //private IInput inputHandler = null; 
         internal PoshOptions Options;
-        internal List<string> StringHistory;
+        //internal List<string> StringHistory;
         public PoshHost(IPSUI PsUi)
         {
             this.buffer = PsUi.Console;
-            StringHistory = new List<string>();
-            Options = new PoshOptions(this);
+            //StringHistory = new List<string>();
+            Options = new PoshOptions(this, buffer);
             this.PsUi = PsUi;
            
             try
@@ -96,7 +95,7 @@ namespace Huddled.PoshConsole
                 throw;
             }
 
-            buffer.TabComplete +=new TabCompleteHandler(buffer_TabComplete);
+            buffer.Expander.TabComplete += new TabExpansionLister(buffer_TabComplete);
             buffer.ProcessCommand += new CommandHandler(OnGotUserInput);
             //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
 
@@ -188,9 +187,13 @@ namespace Huddled.PoshConsole
         }
 
 
-        private List<string> buffer_TabComplete(string cmdline, string lastWord)
+
+
+
+        private List<string> buffer_TabComplete(string cmdline)
         {
             List<string> completions = new List<string>();
+            string lastWord = Utilities.GetLastWord(cmdline);
 
             // Still need to do more Tab Completion
             // TODO: Make "PowerTab" obsolete for PoshConsole users.
@@ -768,77 +771,5 @@ namespace Huddled.PoshConsole
                  return PSObject.AsPSObject( Options );
 			 }
 		 }
-
-		 public class PoshOptions : DependencyObject {
-
-             PoshHost MyHost;
-             public PoshOptions(PoshHost myHost)
-             {
-                 MyHost = myHost;
-             }
-
-             public Properties.Settings Settings
-             {
-                 get { return Properties.Settings.Default; }
-             }
-             public Properties.Colors Colors
-             {
-                 get { return Properties.Colors.Default; }
-             }
-
-             private delegate string GetStringDelegate();
-             private delegate void  SetStringDelegate( /* string value */ );
-
-             public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
-
-             public string StatusText
-             {
-                 get
-                 {
-                     if (!Dispatcher.CheckAccess())
-                     {
-                         return (string)Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
-                     }
-                     else
-                     {
-                         return (string)base.GetValue(StatusTextProperty);
-                     }
-                 }
-                 set 
-                 {
-                     if (!Dispatcher.CheckAccess())
-                     {
-                         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
-                     }
-                     else
-                     {
-                         base.SetValue(StatusTextProperty, value);
-                     }
-                 }
-             }
-	
-
-             public double FullPrimaryScreenWidth
-             {
-                 get
-                 {
-                     return System.Windows.SystemParameters.FullPrimaryScreenWidth;
-                 }
-             }
-             public double FullPrimaryScreenHeight
-             {
-                 get
-                 {
-                     return System.Windows.SystemParameters.FullPrimaryScreenHeight;
-                 }
-             }
-
-             public List<string> History {
-                 get
-                 {
-                     return MyHost.buffer.CommandHistory;
-                 }
-             }
-         }
     }
 }

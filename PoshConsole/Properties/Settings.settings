@@ -57,7 +57,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="FontFamily" Type="System.Windows.Media.FontFamily" Scope="User">
-      <Value Profile="(Default)">Consolas, Bitstream Vera Sans Mono, Lucida Console, Courier New, Global Monospace</Value>
+      <Value Profile="(Default)">Consolas, Lucida Console</Value>
     </Setting>
     <Setting Name="FontSize" Type="System.Double" Scope="User">
       <Value Profile="(Default)">12</Value>

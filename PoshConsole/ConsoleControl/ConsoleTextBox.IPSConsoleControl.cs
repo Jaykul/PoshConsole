@@ -25,8 +25,8 @@ namespace Huddled.PoshConsole
     /// </summary>
     public partial class RichTextConsole : IPSConsoleControl  //, IPSConsole, IConsoleControlBuffered
     {
-        public event TabCompleteHandler TabComplete;
-        public event HistoryHandler GetHistory;
+        //public event TabCompleteHandler TabComplete;
+        //public event HistoryHandler GetHistory;
         public event CommandHandler ProcessCommand;
         #region IPSConsoleControl Members
         ////event TabCompleteHandler IPSConsoleControl.TabComplete
@@ -88,15 +88,15 @@ namespace Huddled.PoshConsole
                 {
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }
-                promptInlines = 0; // there are no prompt inlines we need to save
+                _promptInlines = 0; // there are no prompt inlines we need to save
                 BeginChange();
-                if (currentParagraph != null)
+                if (_currentParagraph != null)
                 {
                     // if the paragraph has content
-                    if (currentParagraph.Inlines.Count > promptInlines)
+                    if (_currentParagraph.Inlines.Count > _promptInlines)
                     {
                         // trim from the end until we run out of inlines or hit some non-whitespace
-                        Inline ln = currentParagraph.Inlines.LastInline;
+                        Inline ln = _currentParagraph.Inlines.LastInline;
                         while (ln != null)
                         {
                             Run run = ln as Run;
@@ -109,18 +109,18 @@ namespace Huddled.PoshConsole
                             // if( run == null || run.Text.Length == 0 )
                             Inline tmp = ln;
                             ln = ln.PreviousInline;
-                            currentParagraph.Inlines.Remove(tmp);
+                            _currentParagraph.Inlines.Remove(tmp);
                         }
                     }
-                    if (currentParagraph.Margin.Bottom == 0 && currentParagraph.Margin.Top == 0)
+                    if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
                     {
-                        currentParagraph.ContentEnd.InsertLineBreak();
+                        _currentParagraph.ContentEnd.InsertLineBreak();
                     }
                 }
                 //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
                 //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
                 Document.ContentEnd.InsertParagraphBreak();
-                currentParagraph = (Paragraph)Document.Blocks.LastBlock;
+                _currentParagraph = (Paragraph)Document.Blocks.LastBlock;
                 EndChange();
             });
         }

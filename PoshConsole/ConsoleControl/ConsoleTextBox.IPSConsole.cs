@@ -151,9 +151,9 @@ namespace Huddled.PoshConsole
 
         #region ReadLine 
 
-        private AutoResetEvent GotInput = new AutoResetEvent(false);
-        private string lastInputString = null;
-        public bool waitingForInput = false;
+        private AutoResetEvent _gotInput = new AutoResetEvent(false);
+        private string _lastInputString = null;
+        public bool _waitingForInput = false;
 
 
         /// <summary>
@@ -162,17 +162,17 @@ namespace Huddled.PoshConsole
         /// <param name="command">The command.</param>
         private void OnCommand(string command)
         {
-            if (waitingForInput)
+            if (_waitingForInput)
             {
                 //if (command.EndsWith("\n"))
                 //{
-                lastInputString = command;
+                _lastInputString = command;
                 //}
                 //else
                 //{
                 //    lastInputString = command + "\n";
                 //}
-                GotInput.Set();
+                _gotInput.Set();
             }
             else
             {
@@ -189,11 +189,11 @@ namespace Huddled.PoshConsole
         {
             string result = null;
 
-            waitingForInput = true;
-            GotInput.WaitOne();
-            waitingForInput = false;
+            _waitingForInput = true;
+            _gotInput.WaitOne();
+            _waitingForInput = false;
 
-            result = lastInputString;
+            result = _lastInputString;
             return result;
         }
         #endregion ReadLine
@@ -216,14 +216,14 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message);
+                this.Write(_consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message);
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
                     new WriteOutputDelegate(this.Write), 
-                    ConsoleBrushes.BrushFromConsoleColor(foregroundColor), 
-                    ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message);
+                    _consoleBrushes.BrushFromConsoleColor(foregroundColor), 
+                    _consoleBrushes.BrushFromConsoleColor(backgroundColor), message);
             }
         }
 
@@ -244,12 +244,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
+                this.Write(_consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.BrushFromConsoleColor(foregroundColor), ConsoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n");
             }
         }
 
@@ -257,12 +257,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.DebugForeground, ConsoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
+                this.Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.DebugForeground, ConsoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
             }
         }
 
@@ -270,12 +270,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, message + "\n");
+                this.Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n");
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, message + "\n");
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n");
             }
         }
 
@@ -283,12 +283,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
+                this.Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
             }
         }
 
@@ -296,12 +296,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.WarningForeground, ConsoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
+                this.Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.WarningForeground, ConsoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
             }
         }
 
@@ -309,12 +309,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message + "\n");
+                this.Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message + "\n");
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
             }
         }
 
@@ -322,12 +322,12 @@ namespace Huddled.PoshConsole
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message + "\n");
+                this.Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message + "\n");
+                    new WriteOutputDelegate(this.Write), _consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
             }
         }
 
