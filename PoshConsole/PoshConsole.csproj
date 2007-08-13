@@ -63,7 +63,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.cs" />
     <Compile Include="ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
     </Compile>
@@ -83,21 +83,21 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleControl\ConsoleTextBox.CommandHandlers.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.ConsoleBrushList.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.EventHandlers.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.History.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsole.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.IPSConsoleControl.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.CommandHandlers.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.ConsoleBrushList.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.EventHandlers.cs" />
+    <Compile Include="ConsoleControl\History.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsoleControl.cs" />
     <Compile Include="Controls\PopupMenu.cs" />
-    <Compile Include="ConsoleControl\ConsoleTextBox.TabExpansion.cs" />
+    <Compile Include="ConsoleControl\TabExpansion.cs" />
     <Compile Include="PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Colors.settings</DependentUpon>
     </Compile>
-    <Compile Include="ConsoleControl\ConsoleTextBox.IPSRawConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSRawConsole.cs" />
     <Compile Include="ConsoleControl\IConsoleControl.cs" />
     <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
     <Compile Include="NativeConsole.cs" />

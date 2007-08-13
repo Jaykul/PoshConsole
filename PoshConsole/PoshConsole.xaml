@@ -93,7 +93,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type Posh:RichTextConsole}">
+        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type Posh:ConsoleRichTextBox}">
             <Style.Resources>
                 <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
                     <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -188,7 +188,7 @@
                 <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
             </Grid.RowDefinitions>
             <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
-            <Posh:RichTextConsole Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+            <Posh:ConsoleRichTextBox Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  AcceptsTab="True"
                                  IsUndoEnabled="False"
@@ -199,21 +199,21 @@
                                  FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"
 								 >
 
-                <Posh:RichTextConsole.Resources>
+                <Posh:ConsoleRichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
                     </Style>
-                </Posh:RichTextConsole.Resources>
-                <Posh:RichTextConsole.FontSize>
+                </Posh:ConsoleRichTextBox.Resources>
+                <Posh:ConsoleRichTextBox.FontSize>
                     <Binding Path="FontSize" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-                </Posh:RichTextConsole.FontSize>
+                </Posh:ConsoleRichTextBox.FontSize>
                 <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                <!--<Posh:RichTextConsole.FontFamily>
+                <!--<Posh:ConsoleRichTextBox.FontFamily>
                     <Binding Path="FontFamily" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-                </Posh:RichTextConsole.FontFamily>-->
-                <Posh:RichTextConsole.ContextMenu>
+                </Posh:ConsoleRichTextBox.FontFamily>-->
+                <Posh:ConsoleRichTextBox.ContextMenu>
                     <ContextMenu/>
-                </Posh:RichTextConsole.ContextMenu>
+                </Posh:ConsoleRichTextBox.ContextMenu>
                 <FlowDocument>
                     <Paragraph Padding="0,15,0,0" >
                         <Floater Width="Auto" Margin="0,0,10,10" Padding="0,0,0,0">
@@ -269,7 +269,7 @@
                     </Paragraph>
                 </FlowDocument>
 
-            </Posh:RichTextConsole>
+            </Posh:ConsoleRichTextBox>
             <StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
                        Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
                        Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0"

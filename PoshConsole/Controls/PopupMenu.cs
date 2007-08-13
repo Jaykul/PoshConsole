@@ -14,7 +14,6 @@ namespace Huddled.PoshConsole
     public class PopupMenu : System.Windows.Controls.Primitives.Popup
     {
         ListBox _intellisense = new ListBox();
-        EventHandler _popupClosing = null;
         IPSConsoleControl _console;
         
         private string _lastWord, _tabbing = null;

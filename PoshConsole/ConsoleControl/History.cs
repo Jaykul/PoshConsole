@@ -16,7 +16,7 @@ namespace Huddled.PoshConsole
         private Int32 _index;
         private String _currentCommand;
 
-        public CommandHistory(/*RichTextConsole control*/)
+        public CommandHistory(/*ConsoleRichTextBox control*/)
         {
             _history = new List<String>();
             //_control = control;

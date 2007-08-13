@@ -55,7 +55,7 @@ namespace Huddled.PoshConsole
         private object instanceLock = new object();
 
         /// <summary>
-        /// A RichTextConsole for output
+        /// A ConsoleRichTextBox for output
         /// </summary>
         private IPSConsoleControl buffer;
         private IPSUI PsUi;
@@ -97,9 +97,9 @@ namespace Huddled.PoshConsole
 
             buffer.Expander.TabComplete += new TabExpansionLister(buffer_TabComplete);
             buffer.ProcessCommand += new CommandHandler(OnGotUserInput);
-            //buffer.CommandEntered +=new RichTextConsole.CommandHandler(buffer_CommandEntered);
+            //buffer.CommandEntered +=new ConsoleRichTextBox.CommandHandler(buffer_CommandEntered);
 
-            //buffer.GetHistory +=new RichTextConsole.HistoryHandler(buffer_GetHistory);
+            //buffer.GetHistory +=new ConsoleRichTextBox.HistoryHandler(buffer_GetHistory);
 
             // this.ShouldExit += new ExitHandler(WeShouldExit);
             //myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
@@ -166,7 +166,7 @@ namespace Huddled.PoshConsole
             console = null;
         }
 
-        #region RichTextConsole Event Handlers
+        #region ConsoleRichTextBox Event Handlers
 
         /// <summary>
         /// Indicate to the host application that exit has
@@ -631,7 +631,7 @@ namespace Huddled.PoshConsole
             }
         }
 
-        #endregion RichTextConsole Event Handlers
+        #endregion ConsoleRichTextBox Event Handlers
 
         #region Settings
 
