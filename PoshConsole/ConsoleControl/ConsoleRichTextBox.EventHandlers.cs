@@ -223,17 +223,7 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                int offset = 0;
-
-                if (_currentParagraph.Inlines.Count > _promptInlines)
-                {
-                    offset = _currentParagraph.Inlines.LastInline.ElementStart.GetOffsetToPosition(CaretPosition);
-                }
-                else
-                {
-                    offset = _commandStart.GetOffsetToPosition(CaretPosition);
-                }
-
+                int offset = _commandStart.GetInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition);
                 e.Handled = (offset < 0 || (offset == 0 && e.Key == Key.Back) || (CurrentCommand.Length <= 0));
             }
         }

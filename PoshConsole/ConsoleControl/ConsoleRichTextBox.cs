@@ -708,7 +708,7 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt.</param>
         public void Prompt(string prompt)
         {
-            ((IPSConsole)this).Write(prompt);
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new WriteOutputDelegate(Write), _consoleBrushes.Transparent, _consoleBrushes.DefaultBackground, prompt);
         }
 
         private void SetPrompt()
