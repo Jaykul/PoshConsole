@@ -217,60 +217,7 @@
                 <Posh:ConsoleRichTextBox.ContextMenu>
                     <ContextMenu/>
                 </Posh:ConsoleRichTextBox.ContextMenu>
-                <FlowDocument>
-                    <Paragraph Padding="0,15,0,0" >
-                        <Floater Width="Auto" Margin="0,0,10,10" Padding="0,0,0,0">
-                            <Paragraph >
-                                <Canvas Width="180" Height="180">
-                                    <Rectangle StrokeLineJoin="Miter" StrokeMiterLimit="20" StrokeStartLineCap="Flat" RadiusX="10" RadiusY="10" Width="180" Height="180">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
-                                                <GradientStop Color="#FF4283C4" Offset="0"/>
-                                                <GradientStop Color="#FF51A8FF" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                        <Rectangle.Stroke>
-                                            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
-                                                <GradientStop Color="#FF4283C4" Offset="0"/>
-                                                <GradientStop Color="#FF51A8FF" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Stroke>
-                                    </Rectangle>
-                                    <TextBlock TextAlignment="Center" Width="180"
-                                            FontFamily="/FontLibrary;Component/#QUAKE" FontSize="145" Foreground="#FF3275B9">
-                                        <TextBlock.BitmapEffect>
-                                            <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
-                                        </TextBlock.BitmapEffect>Q
-                                    </TextBlock>
-                                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10"
-                                            FontFamily="/FontLibrary;Component/#QUAKE" FontSize="56" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
-                                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10"
-                                            FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono" FontSize="19" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
-                                </Canvas>
-                            </Paragraph>
-                        </Floater>
-                        <Floater Width="Auto" Margin="0,0,20,15" Padding="0,0,0,0">
-                            <Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="/FontLibrary;Component/#Pescadero">
-                                <Run FontSize="28" Typography.ContextualSwashes="1">Posh</Run>
-                                <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run>
-                                <Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run>
-                            </Paragraph>
-                            <Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="/FontLibrary;Component/#Pescadero">
-                                <Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run>
-                                <LineBreak/>
-                                <Run FontSize="20" Typography.ContextualSwashes="1">brought to you by </Run>
-                                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run>
-                                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run>
-                                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run>
-                            </Paragraph>
-                            <Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="/FontLibrary;Component/#Pescadero">
-                                <Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://HuddledMasses.org</Run>
-                                <LineBreak/>
-                                <Run FontSize="18" Foreground="#FF178EC8" Typography.ContextualSwashes="1">http://CodeProject.com/PoshConsole</Run>
-                            </Paragraph>
-                        </Floater>
-                    </Paragraph>
-                </FlowDocument>
+                <FlowDocument/>
 
             </Posh:ConsoleRichTextBox>
             <StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"

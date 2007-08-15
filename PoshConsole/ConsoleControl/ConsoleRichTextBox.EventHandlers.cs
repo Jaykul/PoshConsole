@@ -4,20 +4,67 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Windows.Markup;
 
 namespace Huddled.PoshConsole
 {
     partial class ConsoleRichTextBox
     {
+
+        /// <summary>
+        /// Reloads the content of the Bar.
+        /// </summary>
+        /// <returns><c>true</c> if we succeed in loading from the SourceFile; <c>false</c> otherwise.</returns>
+        public Block LoadBanner(string SourceFile)
+        {
+            if (!System.IO.File.Exists(SourceFile))
+            {
+                return new Paragraph();
+            }
+            
+            try
+            {
+                FlowDocument bar = (FlowDocument)XamlReader.Load(new System.IO.FileStream(SourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));//, context);
+                return bar.Blocks.FirstBlock;
+            }
+            catch (Exception ex)
+            {
+                // ToDo: Offer some help about how to fix this.
+                // ToDo: Show (at least one level of) InnerException if it's not null
+                string message;
+                if (null != ex.InnerException)
+                {
+                    message = ex.Message + "\n\nRoot Cause:\n" + ex.InnerException.Message;
+                }
+                else
+                {
+                    message = ex.Message;
+                }
+
+                MessageBox.Show(string.Format("Syntax error loading {0}\n{1}\n\nStack Trace:\n{2}", SourceFile, message, ex.StackTrace), "Error Loading XAML GeoBar", MessageBoxButton.OK);
+                System.Diagnostics.Trace.TraceError("Syntax error loading {0}\n{1}", SourceFile, ex.Message);
+                System.Diagnostics.Trace.TraceInformation(ex.StackTrace);
+                return new Paragraph();
+            }
+        }
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
 
-            // TODO: LOAD the startup banner only when it's set (instead of removing it after)
-            //if (Properties.Settings.Default.Default.StartupBanner)
-            //{
-            //    Document = (FlowDocument)FindResource(DefaultDocumentKey);
-            //}
+            // LOAD the startup banner only when it's set (instead of removing it after)
+            if (Properties.Settings.Default.StartupBanner)
+            {
+                try
+                {
+                    Document.Blocks.Add(LoadBanner("StartupBanner.xaml"));
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{1}", ex.Message);
+                    Document.Blocks.Clear();
+                }
+            }
         }
 
         protected override void OnQueryContinueDrag(QueryContinueDragEventArgs e)

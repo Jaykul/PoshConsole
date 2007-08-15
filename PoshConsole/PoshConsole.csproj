@@ -75,6 +75,9 @@
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
     <Page Include="PoshConsole.xaml" />
+    <None Include="StartupBanner.xaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Page Include="themes\generic.xaml" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
