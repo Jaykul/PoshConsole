@@ -1,5 +1,4 @@
-﻿using Huddled.Hotkeys;
-namespace Huddled.PoshConsole.Properties {
+﻿namespace Huddled.PoshConsole.Properties {
     
     
     // This class allows you to handle specific events on the settings class:

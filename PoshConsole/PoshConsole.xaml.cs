@@ -12,7 +12,6 @@ using System.Windows.Shapes;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
-using Huddled.Hotkeys;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
@@ -33,11 +32,6 @@ namespace Huddled.PoshConsole
 		/// The PSHost implementation for this interpreter.
 		/// </summary>
 		private PoshHost myHost;
-
-		/// <summary>
-		/// A global hotkey manager
-		/// </summary>
-		WPFHotkeyManager hkManager;
 
 		/// <summary>
 		/// A hotkey used to bring our window into focus
@@ -228,13 +222,15 @@ namespace Huddled.PoshConsole
                     } break;
                 case "FocusKey":
                     {
-                        if (FocusKey != null && FocusKey.Id != 0) hkManager.Unregister(FocusKey);
+                        HotkeyService.SetFocusHotkey(this, Properties.Settings.Default.FocusKey);
 
-                        if (Properties.Settings.Default.FocusKey != null)
-                        {
-                            FocusKey = Properties.Settings.Default.FocusKey;
-                            hkManager.Register(FocusKey);
-                        }
+                        //if (FocusKey != null && FocusKey.Id != 0) hkManager.Unregister(FocusKey);
+
+                        //if (Properties.Settings.Default.FocusKey != null)
+                        //{
+                        //    FocusKey = Properties.Settings.Default.FocusKey;
+                        //    hkManager.Register(FocusKey);
+                        //}
                     } break;
                 default: break;
             }
@@ -257,26 +253,25 @@ namespace Huddled.PoshConsole
             border.PreviewMouseLeftButtonDown += mbeh;
             buffer.PreviewMouseLeftButtonDown += mbeh;
 
-            hkManager = new WPFHotkeyManager(this);
-            hkManager.HotkeyPressed += new WPFHotkeyManager.HotkeyPressedEvent(Hotkey_Pressed);
+            // hkManager = new WPFHotkeyManager(this);
+            // hkManager.HotkeyPressed += new WPFHotkeyManager.HotkeyPressedEvent(Hotkey_Pressed);
+            // FocusKey = Properties.Settings.Default.FocusKey;
 
-            FocusKey = Properties.Settings.Default.FocusKey;
-
-			if(FocusKey == null)
-			{
-				Properties.Settings.Default.FocusKey = new Hotkey(Modifiers.Win, Keys.Oemtilde);
-			}
+            //if(FocusKey == null)
+            //{
+            //    Properties.Settings.Default.FocusKey = new Hotkey(Modifiers.Win, Keys.Oemtilde);
+            //}
 
             if (!Properties.Settings.Default.StartupBanner)
             {
                 buffer.ClearScreen();
             }
 
-			// this shouldn't be needed, because we hooked the settings.change event earlier
-			if(FocusKey == null || FocusKey.Id == 0)
-			{
-				hkManager.Register(FocusKey);
-			}
+            //// this shouldn't be needed, because we hooked the settings.change event earlier
+            //if(FocusKey == null || FocusKey.Id == 0)
+            //{
+            //    hkManager.Register(FocusKey);
+            //}
             Focus();
 		}
 
@@ -317,7 +312,7 @@ namespace Huddled.PoshConsole
                 el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
             }
 
-            if (Win32.Application.IsUserAnAdmin())
+            if (NativeMethods.IsUserAnAdmin())
             {
                 // StatusBarItems:: Title, Separator, Admin, Separator, Status
                 el = status.Items[2] as StatusBarItem;
@@ -546,14 +541,14 @@ namespace Huddled.PoshConsole
                     // but we only need to do that HERE if AutoHide is false 
                     // if AutoHide is true, it hides during the Deactivate handler
                     if (Properties.Settings.Default.AutoHide == false) HideWindow();
-                    Win32.Application.ActivateNextWindow(Win32.Application.GetWindowHandle(this));
+                    NativeMethods.ActivateNextWindow(NativeMethods.GetWindowHandle(this));
 				}
 			}
 		}
 
         private void admin_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (!Win32.Application.IsUserAnAdmin())
+            if (!NativeMethods.IsUserAnAdmin())
             {
                 Process current = Process.GetCurrentProcess();
 

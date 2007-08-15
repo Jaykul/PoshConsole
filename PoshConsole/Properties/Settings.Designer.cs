@@ -37,17 +37,6 @@ namespace Huddled.PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::Huddled.Hotkeys.Hotkey FocusKey {
-            get {
-                return ((global::Huddled.Hotkeys.Hotkey)(this["FocusKey"]));
-            }
-            set {
-                this["FocusKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("SingleBorderWindow")]
         public global::System.Windows.WindowStyle WindowStyle {
             get {
@@ -319,6 +308,18 @@ namespace Huddled.PoshConsole.Properties {
             }
             set {
                 this["TabCompleteDoubleTapMilliseconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Windows+OemTilde")]
+        public global::Huddled.PoshConsole.Hotkey FocusKey {
+            get {
+                return ((global::Huddled.PoshConsole.Hotkey)(this["FocusKey"]));
+            }
+            set {
+                this["FocusKey"] = value;
             }
         }
     }

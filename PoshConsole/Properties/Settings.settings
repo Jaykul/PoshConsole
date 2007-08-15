@@ -5,9 +5,6 @@
     <Setting Name="CopyOnMouseSelect" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="FocusKey" Type="Huddled.Hotkeys.Hotkey" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
       <Value Profile="(Default)">SingleBorderWindow</Value>
     </Setting>
@@ -76,6 +73,9 @@
     </Setting>
     <Setting Name="TabCompleteDoubleTapMilliseconds" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
+    </Setting>
+    <Setting Name="FocusKey" Type="Huddled.PoshConsole.Hotkey" Scope="User">
+      <Value Profile="(Default)">Windows+OemTilde</Value>
     </Setting>
   </Settings>
 </SettingsFile>

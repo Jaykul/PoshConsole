@@ -756,8 +756,6 @@ namespace Huddled.PoshConsole
                 Run insert = new Run(text, _currentParagraph.ContentEnd);
                 insert.Background = background;
                 insert.Foreground = foreground;
-
-
             }
             #region Escape Sequences
             else

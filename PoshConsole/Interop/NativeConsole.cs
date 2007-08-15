@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Huddled.PoshConsole
 {
-    internal class NativeMethods {
+    public partial class NativeMethods {
         [DllImport("kernel32")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool AllocConsole();

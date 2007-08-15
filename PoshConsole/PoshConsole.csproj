@@ -44,6 +44,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Reference Include="PoshConsole, Version=1.0.2007.8090, Culture=neutral, processorArchitecture=MSIL">
+      <ExecutableExtension>.exe</ExecutableExtension>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -91,6 +94,12 @@
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsoleControl.cs" />
     <Compile Include="Controls\PopupMenu.cs" />
     <Compile Include="ConsoleControl\TabExpansion.cs" />
+    <Compile Include="Converters.cs" />
+    <Compile Include="Interop\Hotkeys\Hotkey.cs" />
+    <Compile Include="Interop\Hotkeys\HotkeyConverter.cs" />
+    <Compile Include="Interop\Hotkeys\HotkeyService.cs" />
+    <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
+    <Compile Include="Interop\WindowSwitcher.cs" />
     <Compile Include="PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -100,9 +109,8 @@
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSRawConsole.cs" />
     <Compile Include="ConsoleControl\IConsoleControl.cs" />
     <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
-    <Compile Include="NativeConsole.cs" />
-    <Compile Include="Converters.cs" />
-    <Compile Include="HotKeyManager.cs">
+    <Compile Include="Interop\NativeConsole.cs" />
+    <Compile Include="Interop\Hotkeys\HotKeyManager.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PoshHost.cs" />
@@ -131,7 +139,7 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="Win32.Application.cs" />
+    <Compile Include="Interop\NativeMethods.cs" />
     <Compile Include="Win32.Vista.Glass.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
