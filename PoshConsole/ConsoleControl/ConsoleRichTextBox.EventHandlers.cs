@@ -15,17 +15,23 @@ namespace Huddled.PoshConsole
         /// Reloads the content of the Bar.
         /// </summary>
         /// <returns><c>true</c> if we succeed in loading from the SourceFile; <c>false</c> otherwise.</returns>
-        public Block LoadBanner(string SourceFile)
+        public List<Block> LoadBanner(string SourceFile)
         {
+            List<Block> blocks = new List<Block>();
             if (!System.IO.File.Exists(SourceFile))
             {
-                return new Paragraph();
+                return blocks;
             }
             
             try
             {
-                FlowDocument bar = (FlowDocument)XamlReader.Load(new System.IO.FileStream(SourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));//, context);
-                return bar.Blocks.FirstBlock;
+                FlowDocument banner = (FlowDocument)XamlReader.Load(new System.IO.FileStream(SourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));//, context);
+                foreach (Block b in banner.Blocks)
+                {
+                    blocks.Add(b);
+                }
+                banner.Blocks.Clear();
+                return blocks;
             }
             catch (Exception ex)
             {
@@ -44,28 +50,51 @@ namespace Huddled.PoshConsole
                 MessageBox.Show(string.Format("Syntax error loading {0}\n{1}\n\nStack Trace:\n{2}", SourceFile, message, ex.StackTrace), "Error Loading XAML GeoBar", MessageBoxButton.OK);
                 System.Diagnostics.Trace.TraceError("Syntax error loading {0}\n{1}", SourceFile, ex.Message);
                 System.Diagnostics.Trace.TraceInformation(ex.StackTrace);
-                return new Paragraph();
+                blocks.Clear();
+                return blocks;
             }
         }
-
-        protected override void OnInitialized(EventArgs e)
+        public override void EndInit()
         {
-            base.OnInitialized(e);
-
+            base.EndInit();
             // LOAD the startup banner only when it's set (instead of removing it after)
             if (Properties.Settings.Default.StartupBanner)
             {
                 try
                 {
-                    Document.Blocks.Add(LoadBanner("StartupBanner.xaml"));
+                    // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+                    Document.Blocks.AddRange(LoadBanner("StartupBanner.xaml"));
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{1}", ex.Message);
+                    System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                     Document.Blocks.Clear();
+                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8150");
                 }
+                ClearUndoBuffer();
             }
         }
+
+        //protected override void OnInitialized(EventArgs e)
+        //{
+        //    base.OnInitialized(e);
+
+        //    // LOAD the startup banner only when it's set (instead of removing it after)
+        //    if (Properties.Settings.Default.StartupBanner)
+        //    {
+        //        try
+        //        {
+        //            Write(Foreground, _consoleBrushes.Transparent, "PoshConsole\nVersion 1.0.2007.8150");
+        //            // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+        //            Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, LoadBanner("StartupBanner.xaml"));
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{1}", ex.Message);
+        //            Document.Blocks.Clear();
+        //        }
+        //    }
+        //}
 
         protected override void OnQueryContinueDrag(QueryContinueDragEventArgs e)
         {
@@ -139,11 +168,11 @@ namespace Huddled.PoshConsole
                 return;
             }
 
-            if (_currentParagraph.Inlines.Count < _promptInlines)
-            {
-                SetPrompt();
-                _promptInlines = _currentParagraph.Inlines.Count;
-            }
+            //if (_currentParagraph.Inlines.Count < _promptInlines)
+            //{
+            //    SetPrompt();
+            //    _promptInlines = _currentParagraph.Inlines.Count;
+            //}
 
             bool inCommand = CaretInCommand;
 
@@ -313,7 +342,7 @@ namespace Huddled.PoshConsole
             _currentParagraph.ContentEnd.InsertLineBreak();
 
             _cmdHistory.Reset();
-            _cmdHistory.AddEntry(cmd);
+            _cmdHistory.Add(cmd);
             OnCommand(cmd);
 
             e.Handled = true;
@@ -332,7 +361,7 @@ namespace Huddled.PoshConsole
             {
                 if (Utilities.IsModifierOn(e, ModifierKeys.Shift))
                 {
-                    Selection.Select(CaretPosition, _commandStart.GetInsertionPosition(LogicalDirection.Forward));
+                    Selection.Select(CaretPosition, _commandStart.GetNextInsertionPosition(LogicalDirection.Forward));
                 }
 
                 else if (Utilities.IsModifierOn(e, ModifierKeys.Control))
@@ -342,7 +371,7 @@ namespace Huddled.PoshConsole
 
                 else
                 {
-                    CaretPosition = _commandStart.GetInsertionPosition(LogicalDirection.Forward);
+                    CaretPosition = _commandStart.GetNextInsertionPosition(LogicalDirection.Forward);
                 }
 
                 e.Handled = true;
@@ -352,8 +381,8 @@ namespace Huddled.PoshConsole
         private void OnLeftPressed(KeyEventArgs e)
         {
             // cancel the "left" if we're at the left edge of the prompt
-            if (_commandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
-                _commandStart.GetOffsetToPosition(CaretPosition.GetNextInsertionPosition(LogicalDirection.Backward)) < 0)
+            if (_commandStart.GetNextInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition) >= 0 &&
+                _commandStart.GetNextInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) < 0)
             {
                 e.Handled = true;
             }
@@ -454,14 +483,14 @@ namespace Huddled.PoshConsole
 
         private void RestrictSelectionToInputArea()
         {
-            TextPointer inputAreaIP = _commandStart.GetInsertionPosition(LogicalDirection.Forward);
+            TextPointer inputAreaIP = _commandStart.GetNextInsertionPosition(LogicalDirection.Forward);
 
-            if (Selection.Start.GetOffsetToPosition(_commandStart) >= 0)
+            if (Selection.Start.GetOffsetToPosition(inputAreaIP) >= 0)
             {
                 Selection.Select(inputAreaIP, Selection.End);
             }
 
-            if (Selection.End.GetOffsetToPosition(_commandStart) >= 0)
+            if (Selection.End.GetOffsetToPosition(inputAreaIP) >= 0)
             {
                 Selection.Select(Selection.Start, inputAreaIP);
             }

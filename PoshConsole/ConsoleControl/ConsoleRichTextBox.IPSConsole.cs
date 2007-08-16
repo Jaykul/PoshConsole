@@ -266,6 +266,14 @@ namespace Huddled.PoshConsole
             }
         }
 
+
+        void IPSConsole.WriteErrorRecord(ErrorRecord errorRecord)
+        {
+            ((IPSConsole)this).WriteErrorLine(errorRecord.ToString());
+            ((IPSConsole)this).WriteErrorLine(errorRecord.InvocationInfo.PositionMessage);
+        }
+
+
         void IPSConsole.WriteErrorLine(string message)
         {
             if (Dispatcher.CheckAccess())
@@ -310,11 +318,15 @@ namespace Huddled.PoshConsole
             if (Dispatcher.CheckAccess())
             {
                 this.Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
+                SetPrompt();
             }
             else
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), _consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
+                {
+                    Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
+                    SetPrompt();
+                }); 
             }
         }
 
@@ -323,11 +335,15 @@ namespace Huddled.PoshConsole
             if (Dispatcher.CheckAccess())
             {
                 this.Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
+                SetPrompt();
             }
             else
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    new WriteOutputDelegate(this.Write), _consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
+                {
+                    Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
+                    SetPrompt();
+                });
             }
         }
 

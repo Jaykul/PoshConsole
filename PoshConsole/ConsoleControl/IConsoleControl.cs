@@ -87,6 +87,8 @@ namespace Huddled.PoshConsole
         void WriteLine(string value);
         void WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value);
         void WriteDebugLine(string message);
+
+        void WriteErrorRecord(ErrorRecord errorRecord);
         void WriteErrorLine(string value);
         void WriteVerboseLine(string message);
         void WriteWarningLine(string message);

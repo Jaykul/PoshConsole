@@ -44,9 +44,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="PoshConsole, Version=1.0.2007.8090, Culture=neutral, processorArchitecture=MSIL">
-      <ExecutableExtension>.exe</ExecutableExtension>
-    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -103,6 +100,7 @@
     <Compile Include="Interop\Hotkeys\HotkeyService.cs" />
     <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
     <Compile Include="Interop\WindowSwitcher.cs" />
+    <Compile Include="PoshHost.InvokeHelper.cs" />
     <Compile Include="PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
       <AutoGen>True</AutoGen>

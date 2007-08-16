@@ -117,6 +117,12 @@ namespace Huddled.PoshConsole
             }
         }
 
+        public bool IsDocumentEnabled
+        {
+            get { return Document.IsEnabled; }
+            set { Document.IsEnabled = value; }
+        }
+	
 
 
         ///// <summary>
@@ -281,7 +287,8 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                return _commandStart.GetOffsetToPosition(CaretPosition) >= 0;
+                //return _commandStart.GetOffsetToPosition(CaretPosition) >= 0;
+                return _commandStart.GetOffsetToPosition(CaretPosition) >= 1;
             }
         }
 
@@ -289,7 +296,8 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                Run cmd = _currentParagraph.Inlines.LastInline as Run;
+                TextRange cmd = new TextRange(_commandStart.GetNextInsertionPosition(LogicalDirection.Forward), CaretPosition);
+                // Run cmd = _currentParagraph.Inlines.LastInline as Run;
 
                 if (cmd != null)
                 {
@@ -300,7 +308,8 @@ namespace Huddled.PoshConsole
             }
             set
             {
-                Run cmd = _currentParagraph.Inlines.LastInline as Run;
+                //Run cmd = _currentParagraph.Inlines.LastInline as Run;
+                TextRange cmd = new TextRange(_commandStart.GetNextInsertionPosition(LogicalDirection.Forward), CaretPosition);
                 if (cmd != null)
                 {
                     cmd.Text = value;
@@ -698,7 +707,6 @@ namespace Huddled.PoshConsole
         int _promptInlines = 0;
         TextPointer _commandStart = null;
 
-
         public delegate void EndOutputDelegate();
         public delegate void PromptDelegate(string prompt);
         public delegate void ColoredPromptDelegate(ConsoleColor foreground, ConsoleColor background, string prompt);
@@ -708,27 +716,33 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt.</param>
         public void Prompt(string prompt)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, new WriteOutputDelegate(Write), _consoleBrushes.Transparent, _consoleBrushes.DefaultBackground, prompt);
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
+            {
+                Write(_consoleBrushes.DefaultForeground, _consoleBrushes.Transparent, prompt);
+                ////TextRange prmpt = new TextRange( _currentParagraph.ContentStart, _currentParagraph.ContentEnd );
+                //_commandStart = _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+                SetPrompt();
+            });
         }
 
         private void SetPrompt()
         {
             BeginChange();
+            _commandStart = _currentParagraph.ContentEnd.GetPositionAtOffset(-1).GetNextInsertionPosition(LogicalDirection.Backward);
             // this is the run that the user will type their command into...
-            Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward)); // , Document.ContentEnd
-            // it's VITAL that this Run "look" different than the previous one
-            // otherwise if you backspace the last character it merges into the previous output
-            command.Background = Background; 
-            command.Foreground = Foreground;
+            Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd
+            //// it's VITAL that this Run "look" different than the previous one
+            //// otherwise if you backspace the last character it merges into the previous output
+            //command.Background = Background; 
+            //command.Foreground = Foreground;
             EndChange();
-            _promptInlines = _currentParagraph.Inlines.Count;
+            //_promptInlines = _currentParagraph.Inlines.Count;
 
             // toggle undo to prevent "undo"ing past this point.
             IsUndoEnabled = false;
             IsUndoEnabled = true;
 
-            _commandStart = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
-            CaretPosition = _commandStart.GetInsertionPosition(LogicalDirection.Forward);
+            CaretPosition = Document.ContentEnd;
         }
 
         Paragraph _currentParagraph = null;
@@ -980,7 +994,6 @@ namespace Huddled.PoshConsole
 
             ScrollToEnd();
             EndChange();
-            SetPrompt();
         }                                   
 
 

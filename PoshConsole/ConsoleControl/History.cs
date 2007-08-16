@@ -23,7 +23,7 @@ namespace Huddled.PoshConsole
             _index = -1;
         }
 
-        public void AddEntry(string command)
+        public void Add(string command)
         {
             if (!string.IsNullOrEmpty(command))
             {

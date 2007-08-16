@@ -1,6 +1,6 @@
 <FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-    <Paragraph>
-        <Floater Width="Auto" Margin="0,0,10,10" Padding="0,0,0,0">
+    <Paragraph ClearFloaters="Both" Padding="5">
+        <Floater Width="Auto" Margin="0,0,0,0" Padding="0,0,0,0">
             <Paragraph >
                 <Canvas Width="180" Height="180">
                     <Rectangle StrokeLineJoin="Miter" StrokeMiterLimit="20" StrokeStartLineCap="Flat" RadiusX="10" RadiusY="10" Width="180" Height="180">
@@ -66,8 +66,8 @@
                     </Hyperlink.ToolTip>
                     <Run Typography.ContextualSwashes="1">http://CodePlex.com/PoshConsole/</Run>
                 </Hyperlink>
-                <LineBreak/>
             </Paragraph>
         </Floater>
     </Paragraph>
+	<Paragraph ClearFloaters="Both" />
 </FlowDocument>

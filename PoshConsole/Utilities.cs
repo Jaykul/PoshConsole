@@ -67,5 +67,76 @@ namespace Huddled.PoshConsole
                 throw new InvalidEnumArgumentException(argumentName, Convert.ToInt32(value), typeof(TEnum));
             }
         }
+
+        public static void ForEach<T>(IEnumerable<T> input, Action<T> action)
+        {
+            if (input != null)
+            {
+                foreach (T item in input)
+                {
+                    action(item);
+                }
+            }
+        }
+
+        public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>(IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
+        {
+            if (input != null)
+            {
+                foreach (TInput item in input)
+                {
+                    yield return converter(item);
+                }
+            }
+        }
+
+        public static T First<T>(System.Collections.ObjectModel.Collection<T> collection)
+        {
+            return (T)collection[0];
+        }
     }
+
+    internal static class PipelineHelper
+    {
+        public static bool IsDone(System.Management.Automation.Runspaces.PipelineStateInfo psi)
+        {
+            return
+                psi.State == System.Management.Automation.Runspaces.PipelineState.Completed ||
+                psi.State == System.Management.Automation.Runspaces.PipelineState.Stopped ||
+                psi.State == System.Management.Automation.Runspaces.PipelineState.Failed;
+        }
+
+        public static bool IsFailed(System.Management.Automation.Runspaces.PipelineStateInfo info)
+        {
+            return info.State == System.Management.Automation.Runspaces.PipelineState.Failed;
+        }
+    }
+
+
+    internal static class RectHelper
+    {
+        public static int Width(System.Management.Automation.Host.Rectangle rect)
+        {
+            return rect.Right - rect.Left;
+        }
+
+        public static int Height(System.Management.Automation.Host.Rectangle rect)
+        {
+            return rect.Bottom - rect.Top;
+        }
+    }
+
+    internal static class ThicknessHelper
+    {
+        public static double Width(System.Windows.Thickness t)
+        {
+            return t.Left + t.Right;
+        }
+
+        public static double Height(System.Windows.Thickness t)
+        {
+            return t.Top + t.Bottom;
+        }
+    }
+
 }

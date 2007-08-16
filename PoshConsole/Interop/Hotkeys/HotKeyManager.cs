@@ -158,7 +158,6 @@ namespace Huddled.PoshConsole
                 {
                     RegisterHotkey(key);
                 }
-
                 _keysPending.Clear();
             }
 

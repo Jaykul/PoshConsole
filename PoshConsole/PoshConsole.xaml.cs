@@ -33,11 +33,6 @@ namespace Huddled.PoshConsole
 		/// </summary>
 		private PoshHost myHost;
 
-		/// <summary>
-		/// A hotkey used to bring our window into focus
-		/// </summary>
-		Hotkey FocusKey;
-
         // Universal Delegates
         delegate void passDelegate<T>(T input);
         delegate RET returnDelegate<RET>();
@@ -522,29 +517,29 @@ namespace Huddled.PoshConsole
 
 		private delegate void VoidVoidDelegate();
 
-		/// <summary>
-		/// Handles the HotkeyPressed event from the Hotkey Manager
-		/// </summary>
-		/// <param name="window">The window.</param>
-		/// <param name="hotkey">The hotkey.</param>
-		void Hotkey_Pressed(Window window, Hotkey hotkey)
-		{
-			if(hotkey.Equals(FocusKey))
-			{
-				if(!IsActive)
-				{
-					Activate(); // Focus();
-				}
-				else
-				{
-                    // if they used the hotkey while the window has focus, they want it to hide...
-                    // but we only need to do that HERE if AutoHide is false 
-                    // if AutoHide is true, it hides during the Deactivate handler
-                    if (Properties.Settings.Default.AutoHide == false) HideWindow();
-                    NativeMethods.ActivateNextWindow(NativeMethods.GetWindowHandle(this));
-				}
-			}
-		}
+        ///// <summary>
+        ///// Handles the HotkeyPressed event from the Hotkey Manager
+        ///// </summary>
+        ///// <param name="window">The window.</param>
+        ///// <param name="hotkey">The hotkey.</param>
+        //void Hotkey_Pressed(Window window, Hotkey hotkey)
+        //{
+        //    if(hotkey.Equals(FocusKey))
+        //    {
+        //        if(!IsActive)
+        //        {
+        //            Activate(); // Focus();
+        //        }
+        //        else
+        //        {
+        //            // if they used the hotkey while the window has focus, they want it to hide...
+        //            // but we only need to do that HERE if AutoHide is false 
+        //            // if AutoHide is true, it hides during the Deactivate handler
+        //            if (Properties.Settings.Default.AutoHide == false) HideWindow();
+        //            NativeMethods.ActivateNextWindow(NativeMethods.GetWindowHandle(this));
+        //        }
+        //    }
+        //}
 
         private void admin_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {

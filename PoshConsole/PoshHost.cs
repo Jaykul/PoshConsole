@@ -26,7 +26,7 @@ namespace Huddled.PoshConsole
     /// applications. Not all members are implemented. Those that are 
     /// not implemented throw a NotImplementedException exception.
     /// </summary>
-    public class PoshHost : PSHost
+    public partial class PoshHost : PSHost
     {
         /// <summary>
         /// The PSHostUserInterface implementation
@@ -193,6 +193,7 @@ namespace Huddled.PoshConsole
         private List<string> buffer_TabComplete(string cmdline)
         {
             List<string> completions = new List<string>();
+            Collection<PSObject> set;
             string lastWord = Utilities.GetLastWord(cmdline);
 
             // Still need to do more Tab Completion
@@ -219,31 +220,42 @@ namespace Huddled.PoshConsole
                 {
                     if (lastWord[0] == '$')
                     {
-                        foreach( PSObject opt in InvokeHelper("get-variable " + lastWord.Substring(1) + "*", null) ) 
+                        set = InvokePipeline("get-variable " + lastWord.Substring(1) + "*");
+                        if (set != null)
                         {
-                            PSVariable var = opt.ImmediateBaseObject as PSVariable;
-                            if (var != null)
+                            foreach(PSObject opt in set)
                             {
-                                completions.Add( "$" + var.Name);
+                                PSVariable var = opt.ImmediateBaseObject as PSVariable;
+                                if (var != null)
+                                {
+                                    completions.Add("$" + var.Name);
+                                }
                             }
                         }
                     }
 
-
-                    foreach( PSObject opt in InvokeHelper("resolve-path \"" + lastWord + "*\"", null) )
+                    set = InvokePipeline("resolve-path \"" + lastWord + "*\"");
+                    if (set != null)
                     {
-                        string completion = opt.ToString();
-                        if (completion.Contains(" "))
+                        foreach (PSObject opt in set)
                         {
-                            completions.Add(string.Format("\"{0}\"", completion));
+                            string completion = opt.ToString();
+                            if (completion.Contains(" "))
+                            {
+                                completions.Add(string.Format("\"{0}\"", completion));
+                            }
+                            else completions.Add(completion);
                         }
-                        else completions.Add(completion);
                     }
 
                     // Finally, call the TabExpansion string
-                    foreach( PSObject opt in InvokeHelper("TabExpansion '" + cmdline + "' '" + lastWord + "'", null) )
+                    set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
+                    if (set != null)
                     {
-                        completions.Add(opt.ToString());
+                        foreach (PSObject opt in set)
+                        {
+                            completions.Add(opt.ToString());
+                        }
                     }
                 }
                 catch (RuntimeException)
@@ -262,23 +274,34 @@ namespace Huddled.PoshConsole
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
+        //public void StopPipeline()
+        //{
+        //    lock (instanceLock)
+        //    {
+        //        if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
+        //        {
+        //            if (native > 0)
+        //            {
+        //                console.WriteInput("\n" + (char)26);
+        //            }
+        //            else
+        //            {
+        //                currentPipeline.StopAsync();
+        //            }
+        //        }
+        //        //else
+        //        //    ApplicationCommands.Copy.Execute(null, buffer);
+        //    }
+        //}
+
+
         public void StopPipeline()
         {
-            lock (instanceLock)
+            Pipeline pipe = currentPipeline;
+
+            if (pipe != null && pipe.PipelineStateInfo.State == PipelineState.Running)
             {
-                if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
-                {
-                    if (native > 0)
-                    {
-                        console.WriteInput("\n" + (char)26);
-                    }
-                    else
-                    {
-                        currentPipeline.StopAsync();
-                    }
-                }
-                //else
-                //    ApplicationCommands.Copy.Execute(null, buffer);
+                pipe.StopAsync();
             }
         }
 
@@ -312,23 +335,26 @@ namespace Huddled.PoshConsole
             }
             if (cmd.Length > 0)
             {
-                try
-                {
-                    ExecuteHelper(cmd.ToString(), null, false);
-                }
-                catch (RuntimeException rte)
-                {
-                    // An exception occurred that we want to display ...
-                    // We have to run another pipeline, and pass in the error record.
-                    // The runtime will bind the input to the $input variable
-                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                }
+                ExecutePipeline(new Command(cmd.ToString(), true, false), (PipelineOutputHandler)delegate(PipelineExecutionResult result) { ExecutePromptFunction(); });
+
+                //try
+                //{
+                //    ExecutePipelineOutDefault(cmd.ToString(), null, false);
+                //}
+                //catch (RuntimeException rte)
+                //{
+                //    // An exception occurred that we want to display ...
+                //    // We have to run another pipeline, and pass in the error record.
+                //    // The runtime will bind the input to the $input variable
+                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+                //}
             }
             else
             {
-                Prompt();
+                ExecutePromptFunction();
             }
         }
+
 
         /// <summary>
         /// Executes the shutdown profile(s).
@@ -360,23 +386,124 @@ namespace Huddled.PoshConsole
             }
             if (cmd.Length > 0)
             {
-                try
-                {
-                    ExecuteHelper(cmd.ToString(), null, false);
-                }
-                catch (RuntimeException rte)
-                {
-                    // An exception occurred that we want to display ...
-                    // We have to run another pipeline, and pass in the error record.
-                    // The runtime will bind the input to the $input variable
-                    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                }
+                ExecutePipeline(new Command(cmd.ToString(), true, true), null);
+                //try
+                //{
+                //    ExecuteHelper(cmd.ToString(), null, false);
+                //}
+                //catch (RuntimeException rte)
+                //{
+                //    // An exception occurred that we want to display ...
+                //    // We have to run another pipeline, and pass in the error record.
+                //    // The runtime will bind the input to the $input variable
+                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+                //}
             }
             else
             {
-                Prompt();
+                ExecutePromptFunction();
             }
         }
+
+
+        /// <summary>
+        /// Basic script execution routine - any runtime exceptions are
+        /// caught and passed back into the runtime to display.
+        /// </summary>
+        /// <param name="cmd">The command to execute</param>
+
+        private void Execute(string cmd)
+        {
+            ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler) delegate(PipelineExecutionResult result) 
+            {
+                if (result.Failure != null)
+                {
+                    WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                }
+
+                if (!IsClosing)
+                {
+                    ExecutePromptFunction();
+                }
+            });
+        }
+
+        private void WriteErrorRecord(ErrorRecord record)
+        {
+            buffer.WriteErrorRecord(record);
+        }
+
+        //void Execute(string cmd)
+        //{
+        //    try
+        //    {
+        //        // execute the command with no input...
+        //        ExecuteHelper(cmd, null, true);
+        //    }
+        //    catch (RuntimeException rte)
+        //    {
+        //        // TODO: handle the "incomplete" commands by displaying an additional prompt?
+        //        // An exception occurred that we want to display ...
+        //        // We have to run another pipeline, and pass in the error record.
+        //        // The runtime will bind the input to the $input variable
+        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+        //    }
+        //}
+
+
+        ///// <summary>
+        ///// Invoke's the user's PROMPT function to display a prompt.
+        ///// Called after each command completes
+        ///// </summary>
+        //internal void Prompt()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    try
+        //    {
+        //        Collection<PSObject> output = InvokePipeline("prompt");
+
+        //        foreach (PSObject thing in output)
+        //        {
+        //            sb.Append(thing.ToString());
+        //        }
+        //        //sb.Append(PromptPadding);
+        //    }
+        //    catch (RuntimeException rte)
+        //    {
+        //        // An exception occurred that we want to display ...
+        //        // We have to run another pipeline, and pass in the error record.
+        //        // The runtime will bind the input to the $input variable
+        //        ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
+        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+        //        sb.Append("\n> ");
+        //    }
+        //    finally
+        //    {
+        //        buffer.Prompt(sb.ToString());
+        //    }
+        //}
+
+
+        private void ExecutePromptFunction()
+        {
+            //buffer.EndOutput();
+
+            ExecutePipeline(new Command("Prompt"), (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
+            {
+                StringBuilder str = new StringBuilder();
+
+                foreach (PSObject obj in result.Output)
+                {
+                    str.Append(obj);
+                }
+
+                buffer.Prompt(str.ToString());
+            });
+        }
+
+
+
+
 
         protected int MaxBufferLength = 500;
 
@@ -386,141 +513,140 @@ namespace Huddled.PoshConsole
 
 
 
-        /// <summary>
-        /// A helper method which builds and executes a pipeline that returns it's output.
-        /// </summary>
-        /// <param name="cmd">The script to run</param>
-        /// <param name="input">Any input arguments to pass to the script.</param>
-        public Collection<PSObject> InvokeHelper(string cmd, object input)
-        {
-            Collection<PSObject> output = new Collection<PSObject>();
-            if (ready.WaitOne(10000, true))
-            {
-                // Ignore empty command lines.
-                if (String.IsNullOrEmpty(cmd))
-                    return null;
+        ///// <summary>
+        ///// A helper method which builds and executes a pipeline that returns it's output.
+        ///// </summary>
+        ///// <param name="cmd">The script to run</param>
+        ///// <param name="input">Any input arguments to pass to the script.</param>
+        //public Collection<PSObject> InvokeHelper(string cmd, object input)
+        //{
+        //    Collection<PSObject> output = new Collection<PSObject>();
+        //    if (_ready.WaitOne(10000, true))
+        //    {
+        //        // Ignore empty command lines.
+        //        if (String.IsNullOrEmpty(cmd))
+        //            return null;
 
-                // Create the pipeline object and make it available
-                // to the ctrl-C handle through the currentPipeline instance
-                // variable.
-                lock (instanceLock)
-                {
-                    ready.Reset();
-                    currentPipeline = myRunSpace.CreatePipeline(cmd, false);
-                }
+        //        // Create the pipeline object and make it available
+        //        // to the ctrl-C handle through the currentPipeline instance
+        //        // variable.
+        //        lock (instanceLock)
+        //        {
+        //            _ready.Reset();
+        //            currentPipeline = myRunSpace.CreatePipeline(cmd, false);
+        //        }
 
-                // Create a pipeline for this execution. Place the result in the currentPipeline
-                // instance variable so that it is available to be stopped.
-                try
-                {
-                    // currentPipeline.Commands[0].MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+        //        // Create a pipeline for this execution. Place the result in the currentPipeline
+        //        // instance variable so that it is available to be stopped.
+        //        try
+        //        {
+        //            // currentPipeline.Commands[0].MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
 
-                    // If there was any input specified, pass it in, and execute the pipeline.
-                    if (input != null)
-                    {
-                        output = currentPipeline.Invoke(new object[] { input });
-                    }
-                    else
-                    {
-                        output = currentPipeline.Invoke();
-                    }
+        //            // If there was any input specified, pass it in, and execute the pipeline.
+        //            if (input != null)
+        //            {
+        //                output = currentPipeline.Invoke(new object[] { input });
+        //            }
+        //            else
+        //            {
+        //                output = currentPipeline.Invoke();
+        //            }
 
-                }
+        //        }
 
-                finally
-                {
-                    // Dispose of the pipeline line and set it to null, locked because currentPipeline
-                    // may be accessed by the ctrl-C handler.
-                    lock (instanceLock)
-                    {
-                        currentPipeline.Dispose();
-                        currentPipeline = null;
-                    }
-                }
-                ready.Set();
-            }
-            return output;
-        }
+        //        finally
+        //        {
+        //            // Dispose of the pipeline line and set it to null, locked because currentPipeline
+        //            // may be accessed by the ctrl-C handler.
+        //            lock (instanceLock)
+        //            {
+        //                currentPipeline.Dispose();
+        //                currentPipeline = null;
+        //            }
+        //        }
+        //        _ready.Set();
+        //    }
+        //    return output;
+        //}
 
 
-        ManualResetEvent ready = new ManualResetEvent(true);
-
+        ManualResetEvent _ready = new ManualResetEvent(true);
         Command outDefault;
 
-        /// <summary>
-        /// A helper method which builds and executes a pipeline that writes to the default output.
-        /// Any exceptions that are thrown are just passed to the caller. 
-        /// Since all output goes to the default output, this method won't return anything.
-        /// </summary>
-        /// <param name="cmd">The script to run</param>
-        /// <param name="input">Any input arguments to pass to the script.</param>
-        void ExecuteHelper(string cmd, object input, bool history)
-        {
-            //// Ignore empty command lines.
-            if (String.IsNullOrEmpty(cmd))
-            {
-                history = false;
-                //return;
-            }
+        ///// <summary>
+        ///// A helper method which builds and executes a pipeline that writes to the default output.
+        ///// Any exceptions that are thrown are just passed to the caller. 
+        ///// Since all output goes to the default output, this method won't return anything.
+        ///// </summary>
+        ///// <param name="cmd">The script to run</param>
+        ///// <param name="input">Any input arguments to pass to the script.</param>
+        //void ExecuteHelper(string cmd, object input, bool history)
+        //{
+        //    //// Ignore empty command lines.
+        //    if (String.IsNullOrEmpty(cmd))
+        //    {
+        //        history = false;
+        //        //return;
+        //    }
 
-            if (ready.WaitOne(10000, true))
-            {
-                //if (history) StringHistory.Add(cmd);
+        //    if (_ready.WaitOne(10000, true))
+        //    {
+        //        //if (history) StringHistory.Add(cmd);
 
-                // Create the pipeline object and make it available
-                // to the ctrl-C handle through the currentPipeline instance
-                // variable.
-                lock (instanceLock)
-                {
-                    currentPipeline = myRunSpace.CreatePipeline(cmd, history);
-                    currentPipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(Pipeline_StateChanged);
-                }
+        //        // Create the pipeline object and make it available
+        //        // to the ctrl-C handle through the currentPipeline instance
+        //        // variable.
+        //        lock (instanceLock)
+        //        {
+        //            currentPipeline = myRunSpace.CreatePipeline(cmd, history);
+        //            currentPipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(Pipeline_StateChanged);
+        //        }
 
-                outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
+        //        outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
 
-                // Create a pipeline for this execution. Place the result in the currentPipeline
-                // instance variable so that it is available to be stopped.
-                try
-                {
-                    // currentPipeline.Commands.AddScript(cmd);
+        //        // Create a pipeline for this execution. Place the result in the currentPipeline
+        //        // instance variable so that it is available to be stopped.
+        //        try
+        //        {
+        //            // currentPipeline.Commands.AddScript(cmd);
 
-                    //foreach (Command c in currentPipeline.Commands)
-                    //{
-                    //    c.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-                    //}
+        //            //foreach (Command c in currentPipeline.Commands)
+        //            //{
+        //            //    c.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+        //            //}
 
-                    // Now add the default outputter to the end of the pipe and indicate
-                    // that it should handle both output and errors from the previous
-                    // commands. This will result in the output being written using the PSHost
-                    // and PSHostUserInterface classes instead of returning objects to the hosting
-                    // application.
-                    currentPipeline.Commands.Add( outDefault );
+        //            // Now add the default outputter to the end of the pipe and indicate
+        //            // that it should handle both output and errors from the previous
+        //            // commands. This will result in the output being written using the PSHost
+        //            // and PSHostUserInterface classes instead of returning objects to the hosting
+        //            // application.
+        //            currentPipeline.Commands.Add( outDefault );
 
-                    currentPipeline.InvokeAsync();
-                    if (input != null)
-                    {
-                        currentPipeline.Input.Write(input);
-                    }
-                    currentPipeline.Input.Close();
+        //            currentPipeline.InvokeAsync();
+        //            if (input != null)
+        //            {
+        //                currentPipeline.Input.Write(input);
+        //            }
+        //            currentPipeline.Input.Close();
 
-                    ready.Reset();
-                }
-                catch
-                {
-                    // Dispose of the pipeline line and set it to null, locked because currentPipeline
-                    // may be accessed by the ctrl-C handler.
-                    lock (instanceLock)
-                    {
-                        currentPipeline.Dispose();
-                        currentPipeline = null;
-                    }
-                }
-            }
-            else
-            {
-                buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
-            }
-        }
+        //            _ready.Reset();
+        //        }
+        //        catch
+        //        {
+        //            // Dispose of the pipeline line and set it to null, locked because currentPipeline
+        //            // may be accessed by the ctrl-C handler.
+        //            lock (instanceLock)
+        //            {
+        //                currentPipeline.Dispose();
+        //                currentPipeline = null;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
+        //    }
+        //}
 
 
 
@@ -550,9 +676,9 @@ namespace Huddled.PoshConsole
                         currentPipeline = null;
                     }
                     // let the next command through
-                    ready.Set();
+                    _ready.Set();
                     // run the prompt method
-                    if (!this.IsClosing) Prompt();
+                    if (!this.IsClosing) ExecutePromptFunction();
                     break;
                 case PipelineState.Completed:
                     buffer.CommandFinished(CommandResults.Completed);
@@ -564,9 +690,9 @@ namespace Huddled.PoshConsole
                         currentPipeline = null;
                     }
                     // let the next command through
-                    ready.Set();
+                    _ready.Set();
                     // run the prompt method
-                    if (!this.IsClosing) Prompt();
+                    if (!this.IsClosing) ExecutePromptFunction();
                     break;
                 case PipelineState.Stopping:
                     buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
@@ -577,59 +703,7 @@ namespace Huddled.PoshConsole
         }
         private const string PromptPadding = " ";
 
-        /// <summary>
-        /// Invoke's the user's PROMPT function to display a prompt.
-        /// Called after each command completes
-        /// </summary>
-        internal void Prompt()
-        {
-            StringBuilder sb = new StringBuilder();
-            try
-            {
-                Collection<PSObject> output = InvokeHelper("prompt", null);
 
-                foreach (PSObject thing in output)
-                {
-                    sb.Append(thing.ToString());
-                }
-                //sb.Append(PromptPadding);
-            }
-            catch (RuntimeException rte)
-            {
-                // An exception occurred that we want to display ...
-                // We have to run another pipeline, and pass in the error record.
-                // The runtime will bind the input to the $input variable
-                ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
-                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                sb.Append("\n> ");
-            }
-            finally
-            {
-                buffer.Prompt(sb.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Basic script execution routine - any runtime exceptions are
-        /// caught and passed back into the runtime to display.
-        /// </summary>
-        /// <param name="cmd">The command to execute</param>
-        void Execute(string cmd)
-        {
-            try
-            {
-                // execute the command with no input...
-                ExecuteHelper(cmd, null, true);
-            }
-            catch (RuntimeException rte)
-            {
-                // TODO: handle the "incomplete" commands by displaying an additional prompt?
-                // An exception occurred that we want to display ...
-                // We have to run another pipeline, and pass in the error record.
-                // The runtime will bind the input to the $input variable
-                ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-            }
-        }
 
         #endregion ConsoleRichTextBox Event Handlers
 
