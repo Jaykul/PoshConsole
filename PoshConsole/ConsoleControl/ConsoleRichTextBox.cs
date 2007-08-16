@@ -287,8 +287,17 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                //return _commandStart.GetOffsetToPosition(CaretPosition) >= 0;
-                return _commandStart.GetOffsetToPosition(CaretPosition) >= 1;
+                //return _promptEnd.GetOffsetToPosition(CaretPosition) >= 0;
+                return _promptEnd.GetOffsetToPosition(CaretPosition) >= 1;
+            }
+        }
+
+
+        private TextPointer CommandStart
+        {
+            get
+            {
+                return _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
             }
         }
 
@@ -296,7 +305,7 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                TextRange cmd = new TextRange(_commandStart.GetNextInsertionPosition(LogicalDirection.Forward), CaretPosition);
+                TextRange cmd = new TextRange(CommandStart, CaretPosition);
                 // Run cmd = _currentParagraph.Inlines.LastInline as Run;
 
                 if (cmd != null)
@@ -309,7 +318,7 @@ namespace Huddled.PoshConsole
             set
             {
                 //Run cmd = _currentParagraph.Inlines.LastInline as Run;
-                TextRange cmd = new TextRange(_commandStart.GetNextInsertionPosition(LogicalDirection.Forward), CaretPosition);
+                TextRange cmd = new TextRange(CommandStart, CaretPosition);
                 if (cmd != null)
                 {
                     cmd.Text = value;
@@ -322,6 +331,7 @@ namespace Huddled.PoshConsole
                 CaretPosition = Document.ContentEnd;
             }
         }
+
 
 
 
@@ -705,7 +715,7 @@ namespace Huddled.PoshConsole
         #endregion Private Members
 
         int _promptInlines = 0;
-        TextPointer _commandStart = null;
+        TextPointer _promptEnd = null;
 
         public delegate void EndOutputDelegate();
         public delegate void PromptDelegate(string prompt);
@@ -720,7 +730,7 @@ namespace Huddled.PoshConsole
             {
                 Write(_consoleBrushes.DefaultForeground, _consoleBrushes.Transparent, prompt);
                 ////TextRange prmpt = new TextRange( _currentParagraph.ContentStart, _currentParagraph.ContentEnd );
-                //_commandStart = _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
+                //_promptEnd = _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
                 SetPrompt();
             });
         }
@@ -728,7 +738,7 @@ namespace Huddled.PoshConsole
         private void SetPrompt()
         {
             BeginChange();
-            _commandStart = _currentParagraph.ContentEnd.GetPositionAtOffset(-1).GetNextInsertionPosition(LogicalDirection.Backward);
+            _promptEnd = _currentParagraph.ContentEnd.GetPositionAtOffset(-1).GetNextInsertionPosition(LogicalDirection.Backward);
             // this is the run that the user will type their command into...
             Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd
             //// it's VITAL that this Run "look" different than the previous one

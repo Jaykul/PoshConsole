@@ -206,10 +206,12 @@ namespace Huddled.PoshConsole
 
         private bool IsRunspaceReady()
         {
-            bool ready = _ready.WaitOne(10000, true);
-            if (!ready)
+            bool ready = _ready.WaitOne(5000, true);
+            int count = 0;
+            while( !ready && count < 5 )
             {
-                myUI.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
+                myUI.WriteErrorLine("Timeout (" + (++count) + " of 5) - Console Busy, To Cancel Running Pipeline press Esc");
+                ready = _ready.WaitOne(5000, true);
             }
             return ready;
         }

@@ -158,7 +158,7 @@ namespace Huddled.PoshConsole
             Trace.WriteLine("Key:    " + e.Key);
             Trace.WriteLine("Source: " + e.Source);
 
-            if (_commandStart == null || e.Source != this)
+            if (_promptEnd == null || e.Source != this)
             {
                 base.OnPreviewKeyDown(e);
 
@@ -258,7 +258,7 @@ namespace Huddled.PoshConsole
 
                     _expansion.Reset();
 
-                    if (_commandStart == null || !inCommand)
+                    if (_promptEnd == null || !inCommand)
                     {
                         CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
                     }
@@ -299,7 +299,9 @@ namespace Huddled.PoshConsole
             }
             else
             {
-                int offset = _commandStart.GetInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition);
+
+                // for "Delete" it would be enough to test "CaretInCommand" but for backspace we need to know if they're on the end
+                int offset = CommandStart.GetOffsetToPosition(CaretPosition);
                 e.Handled = (offset < 0 || (offset == 0 && e.Key == Key.Back) || (CurrentCommand.Length <= 0));
             }
         }
@@ -361,7 +363,7 @@ namespace Huddled.PoshConsole
             {
                 if (Utilities.IsModifierOn(e, ModifierKeys.Shift))
                 {
-                    Selection.Select(CaretPosition, _commandStart.GetNextInsertionPosition(LogicalDirection.Forward));
+                    Selection.Select(CaretPosition, CommandStart);
                 }
 
                 else if (Utilities.IsModifierOn(e, ModifierKeys.Control))
@@ -371,7 +373,7 @@ namespace Huddled.PoshConsole
 
                 else
                 {
-                    CaretPosition = _commandStart.GetNextInsertionPosition(LogicalDirection.Forward);
+                    CaretPosition = CommandStart;
                 }
 
                 e.Handled = true;
@@ -381,8 +383,8 @@ namespace Huddled.PoshConsole
         private void OnLeftPressed(KeyEventArgs e)
         {
             // cancel the "left" if we're at the left edge of the prompt
-            if (_commandStart.GetNextInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition) >= 0 &&
-                _commandStart.GetNextInsertionPosition(LogicalDirection.Forward).GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) < 0)
+            if (CommandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
+                CommandStart.GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) < 0)
             {
                 e.Handled = true;
             }
@@ -483,7 +485,7 @@ namespace Huddled.PoshConsole
 
         private void RestrictSelectionToInputArea()
         {
-            TextPointer inputAreaIP = _commandStart.GetNextInsertionPosition(LogicalDirection.Forward);
+            TextPointer inputAreaIP = CommandStart;
 
             if (Selection.Start.GetOffsetToPosition(inputAreaIP) >= 0)
             {
