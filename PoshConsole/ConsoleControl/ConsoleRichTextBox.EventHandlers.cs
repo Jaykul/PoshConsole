@@ -69,7 +69,7 @@ namespace Huddled.PoshConsole
                 {
                     System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                     Document.Blocks.Clear();
-                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8150");
+                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8170");
                 }
                 ClearUndoBuffer();
             }
