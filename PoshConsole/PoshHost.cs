@@ -160,7 +160,7 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private void KillConsole()
+        public void KillConsole()
         {
             if( console != null ) console.Dispose();
             console = null;
@@ -177,11 +177,6 @@ namespace Huddled.PoshConsole
         public override void SetShouldExit(int exitCode)
         {
             IsClosing = true; 
-            buffer.WriteVerboseLine("Running Exit Scripts...");
-            ExecuteShutdownProfile();
-            buffer.WriteVerboseLine("Shutting Down.");
-            KillConsole();
-
             // Application.Current.Shutdown(exitCode);
             PsUi.SetShouldExit(exitCode);
         }
@@ -330,12 +325,17 @@ namespace Huddled.PoshConsole
             {
                 if (File.Exists(path))
                 {
-                    cmd.AppendFormat(". \"{0}\";", path);
+                    cmd.AppendFormat(". \"{0}\";\n", path);
                 }
             }
             if (cmd.Length > 0)
             {
-                ExecutePipeline(new Command(cmd.ToString(), true, false), (PipelineOutputHandler)delegate(PipelineExecutionResult result) { ExecutePromptFunction(); });
+                ExecutePipelineOutDefault(cmd.ToString(), false, 
+                    (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
+                    {
+                        buffer.CommandFinished(result.State); 
+                        ExecutePromptFunction(); 
+                    });
 
                 //try
                 //{
@@ -374,7 +374,7 @@ namespace Huddled.PoshConsole
             foreach (string path in
                  new string[4] {
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\Huddled.PoshConsole_profile_exit.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\Huddled.PoshConsole_profile_exit.ps1")),
                 })
@@ -386,7 +386,7 @@ namespace Huddled.PoshConsole
             }
             if (cmd.Length > 0)
             {
-                ExecutePipeline(new Command(cmd.ToString(), true, true), null);
+                ExecutePipeline(new Command(cmd.ToString(), true, false), null);
                 //try
                 //{
                 //    ExecuteHelper(cmd.ToString(), null, false);
@@ -414,18 +414,27 @@ namespace Huddled.PoshConsole
 
         private void Execute(string cmd)
         {
-            ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler) delegate(PipelineExecutionResult result) 
+            if(!string.IsNullOrEmpty(cmd))
             {
-                if (result.Failure != null)
+                ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler)delegate(PipelineExecutionResult result)
                 {
-                    WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
-                }
+                    if (result.Failure != null)
+                    {
+                        WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                    }
 
-                if (!IsClosing)
-                {
-                    ExecutePromptFunction();
-                }
-            });
+                    if (!IsClosing)
+                    {
+                        buffer.CommandFinished(result.State);
+                        ExecutePromptFunction();
+                    }
+                });
+            }
+            else if (!IsClosing)
+            {
+                buffer.CommandFinished(PipelineState.NotStarted);
+                ExecutePromptFunction();
+            }
         }
 
         private void WriteErrorRecord(ErrorRecord record)
@@ -649,59 +658,6 @@ namespace Huddled.PoshConsole
         //}
 
 
-
-        /// <summary>
-        /// Handles the StateChanged event of the Pipeline control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Management.Automation.Runspaces.PipelineStateEventArgs"/> instance containing the event data.</param>
-        void Pipeline_StateChanged(object sender, PipelineStateEventArgs e)
-        {
-            switch (e.PipelineStateInfo.State)
-            {
-                case PipelineState.Failed:
-                    buffer.CommandFinished(CommandResults.Failed);
-                    break;
-                case PipelineState.NotStarted:
-                    break;
-                case PipelineState.Running:
-                    break;
-                case PipelineState.Stopped:
-                    buffer.CommandFinished(CommandResults.Stopped);
-                    // Dispose of the pipeline line and set it to null
-                    // locked because currentPipeline may be accessed by the ctrl-C handler, etc
-                    lock (instanceLock)
-                    {
-                        currentPipeline.Dispose();
-                        currentPipeline = null;
-                    }
-                    // let the next command through
-                    _ready.Set();
-                    // run the prompt method
-                    if (!this.IsClosing) ExecutePromptFunction();
-                    break;
-                case PipelineState.Completed:
-                    buffer.CommandFinished(CommandResults.Completed);
-                    // Dispose of the pipeline line and set it to null
-                    // locked because currentPipeline may be accessed by the ctrl-C handler, etc
-                    lock (instanceLock)
-                    {
-                        currentPipeline.Dispose();
-                        currentPipeline = null;
-                    }
-                    // let the next command through
-                    _ready.Set();
-                    // run the prompt method
-                    if (!this.IsClosing) ExecutePromptFunction();
-                    break;
-                case PipelineState.Stopping:
-                    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
-                    break;
-                default:
-                    break;
-            }
-        }
-        private const string PromptPadding = " ";
 
 
 

@@ -194,16 +194,16 @@ namespace Huddled.PoshConsole
                     OnDownPressed(e, inCommand);
                     break;
 
+                case Key.Left:
+                    OnLeftPressed(e, inCommand);
+                    break;
+
                 case Key.Escape:
                     OnEscapePressed();
                     break;
 
                 case Key.Enter:
                     OnEnterPressed(e);
-                    break;
-
-                case Key.Left:
-                    OnLeftPressed(e);
                     break;
 
                 case Key.Home:
@@ -219,16 +219,15 @@ namespace Huddled.PoshConsole
                     OnBackspaceDeletePressed(e);
                     break;
 
-                //// we're only handling this to avoid the default handler when you try to copy
-                //// since that would de-select the text
-                //case Key.X:
-                //case Key.C:
-                //    if (!Utilities.IsModifierOn(e, ModifierKeys.Control))
-                //    {
-                //        goto default;
-                //    }
-
-                //    break;
+                // we're handling this to avoid the default handler when you try to copy since that 
+                // would de-select the text -- and result in copying the whole (first) paragraph
+                case Key.X:
+                case Key.C:
+                    if (!Utilities.IsModifierOn(e, ModifierKeys.Control))
+                    {
+                        goto default;
+                    }
+                    break;
 
                 case Key.PageUp:
                     OnPageUpPressed(e, inCommand);
@@ -239,7 +238,6 @@ namespace Huddled.PoshConsole
                     break;
 
                 // here's a few keys we want the base control to handle:
-                case Key.Right:
                 case Key.RightAlt:
                 case Key.LeftAlt:
                 case Key.RightCtrl:
@@ -342,9 +340,13 @@ namespace Huddled.PoshConsole
             string cmd = CurrentCommand;
 
             _currentParagraph.ContentEnd.InsertLineBreak();
-
             _cmdHistory.Reset();
-            _cmdHistory.Add(cmd);
+
+            if (!string.IsNullOrEmpty(cmd))
+            {
+                _cmdHistory.Add(cmd);
+            }
+
             OnCommand(cmd);
 
             e.Handled = true;
@@ -380,19 +382,26 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private void OnLeftPressed(KeyEventArgs e)
+        private void OnLeftPressed(KeyEventArgs e, bool inPrompt)
         {
-            // cancel the "left" if we're at the left edge of the prompt
-            if (CommandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
-                CommandStart.GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) < 0)
+            if( CommandStart.GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) == 0
+            //if(inPrompt ||
+             && !Utilities.IsModifierOn(e, ModifierKeys.Control) 
+             && !IsScrollLockToggled(e.KeyboardDevice))
             {
+            //// cancel the "left" if we're at the left edge of the prompt
+            //if (CommandStart.GetOffsetToPosition(CaretPosition) >= 0 &&
+            //     <= 0)
+            //{
                 e.Handled = true;
             }
         }
 
         private void OnDownPressed(KeyEventArgs e, bool inPrompt)
         {
-            if (inPrompt)
+            if (inPrompt
+            && !Utilities.IsModifierOn(e, ModifierKeys.Control)
+            && !IsScrollLockToggled(e.KeyboardDevice))
             {
                 CurrentCommand = _cmdHistory.Next(CurrentCommand);
                 e.Handled = true;
@@ -401,7 +410,9 @@ namespace Huddled.PoshConsole
 
         private void OnUpPressed(KeyEventArgs e, bool inPrompt)
         {
-            if (inPrompt && (!Utilities.IsModifierOn(e, ModifierKeys.Control)))
+            if (inPrompt 
+            && !Utilities.IsModifierOn(e, ModifierKeys.Control) 
+            && !IsScrollLockToggled(e.KeyboardDevice))
             {
                 CurrentCommand = _cmdHistory.Previous(CurrentCommand);
                 e.Handled = true;
@@ -442,11 +453,11 @@ namespace Huddled.PoshConsole
 
         private void OnHistoryMenu(KeyEventArgs e, bool inPrompt)
         {
-            if (inPrompt && !IsScrollLockToggled(e.KeyboardDevice))
-            {
+            //if (inPrompt && !IsScrollLockToggled(e.KeyboardDevice))
+            //{
                 _popup.ShowHistoryPopup(new Rect(CursorPosition.X, CursorPosition.Y, ActualWidth - CursorPosition.X, ActualHeight - CursorPosition.Y), _cmdHistory.GetChoices(CurrentCommand));
                 e.Handled = true;
-            }
+            //}
         }
 
 

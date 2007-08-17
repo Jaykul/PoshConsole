@@ -113,8 +113,6 @@ namespace Huddled.PoshConsole
         public delegate void OutputDelegate(string text);
         public event OutputDelegate WriteOutputLine;
         public event OutputDelegate WriteErrorLine;
-        private EventWaitHandle EndOutput = new ManualResetEvent(false);
-        private EventWaitHandle EndError = new ManualResetEvent(false);
 
         private Thread outputThread, errorThread;
 

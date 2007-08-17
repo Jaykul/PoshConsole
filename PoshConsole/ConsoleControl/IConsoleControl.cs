@@ -109,7 +109,7 @@ namespace Huddled.PoshConsole
     {
         event CommandHandler ProcessCommand;
 
-        void CommandFinished( CommandResults results );
+        void CommandFinished( System.Management.Automation.Runspaces.PipelineState results );
         void Prompt(string text );
 
         string CurrentCommand { get; set; }

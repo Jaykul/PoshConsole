@@ -16,16 +16,19 @@ namespace Huddled.PoshConsole
             private Collection<PSObject> _output;
             private Collection<Object> _errors;
             private Exception _failure;
+            private PipelineState _state;
 
             public Collection<PSObject> Output { get { return _output; } }
             public Collection<Object> Errors { get { return _errors; } }
             public Exception Failure { get { return _failure; } }
+            public PipelineState State { get { return _state; } }
 
-            public PipelineExecutionResult(Collection<PSObject> output, Collection<Object> errors, Exception failure)
+            public PipelineExecutionResult(Collection<PSObject> output, Collection<Object> errors, Exception failure, PipelineState state)
             {
                 _failure = failure; 
                 _errors = errors ?? new Collection<Object>();
                 _output = output ?? new Collection<PSObject>();
+                _state = state;
             }
         }
 
@@ -148,6 +151,7 @@ namespace Huddled.PoshConsole
 
         private void ExecutePipeline(Pipeline pipeline, IEnumerable input, PipelineOutputHandler callback)
         {
+            // This is a dynamic anonymous delegate so that it can access the callback parameter
             pipeline.StateChanged += (EventHandler<PipelineStateEventArgs>)delegate(object sender, PipelineStateEventArgs e) // =>
             {
                 if (PipelineHelper.IsDone(e.PipelineStateInfo))
@@ -165,9 +169,13 @@ namespace Huddled.PoshConsole
 
                         if (callback != null)
                         {
-                            callback(new PipelineExecutionResult(results, errors, failure));
+                            callback(new PipelineExecutionResult(results, errors, failure, e.PipelineStateInfo.State));
                         }
                     }
+                }
+                else if (e.PipelineStateInfo.State == PipelineState.Stopping)
+                {
+                    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
                 }
             };
 
@@ -178,6 +186,7 @@ namespace Huddled.PoshConsole
 
             currentPipeline = pipeline;
         }
+
 
         private Pipeline CreatePipelineOutDefault(string command, bool addToHistory)
         {

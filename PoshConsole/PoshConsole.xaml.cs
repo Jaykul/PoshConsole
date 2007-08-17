@@ -111,6 +111,19 @@ namespace Huddled.PoshConsole
                 buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
             }
         }
+
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Window.Closing"></see> event, and executes the ShutdownProfile
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.ComponentModel.CancelEventArgs"></see> that contains the event data.</param>
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            ((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
+            myHost.ExecuteShutdownProfile();
+            ((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
+            myHost.KillConsole();
+            base.OnClosing(e);
+        }
         //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
         //{
         //    RecalculateSizes();

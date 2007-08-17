@@ -80,11 +80,12 @@ namespace Huddled.PoshConsole
         /// But we want to trim any whitespace off the end of the output first 
         /// because the paragraph mark makes plenty of whitespace
         /// </summary>
-        void IPSConsoleControl.CommandFinished(CommandResults results)
+        void IPSConsoleControl.CommandFinished(System.Management.Automation.Runspaces.PipelineState results)
         {
             //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate {
-                if (results != CommandResults.Completed)
+                if (results != System.Management.Automation.Runspaces.PipelineState.Completed
+                    && results != System.Management.Automation.Runspaces.PipelineState.NotStarted)
                 {
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }

@@ -297,7 +297,23 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                return _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
+                TextPointer cs = null;
+                if (_promptEnd != null)
+                {
+                    cs = _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
+                }
+                if (cs == null)
+                {
+                    if (Document.Blocks.LastBlock is Paragraph && (Document.Blocks.LastBlock as Paragraph).Inlines.LastInline != null)
+                    {
+                        cs = (Document.Blocks.LastBlock as Paragraph).Inlines.LastInline.ContentStart;
+                    }
+                    else
+                    {
+                        cs = Document.Blocks.LastBlock.ContentStart;
+                    }
+                }
+                return cs;
             }
         }
 
@@ -305,7 +321,7 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                TextRange cmd = new TextRange(CommandStart, CaretPosition);
+                TextRange cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
                 // Run cmd = _currentParagraph.Inlines.LastInline as Run;
 
                 if (cmd != null)
@@ -318,7 +334,7 @@ namespace Huddled.PoshConsole
             set
             {
                 //Run cmd = _currentParagraph.Inlines.LastInline as Run;
-                TextRange cmd = new TextRange(CommandStart, CaretPosition);
+                TextRange cmd = new TextRange(CommandStart, Document.ContentEnd);
                 if (cmd != null)
                 {
                     cmd.Text = value;
@@ -1036,18 +1052,17 @@ namespace Huddled.PoshConsole
                 if (!_autoCopy)
                 {
                     _autoCopy = true;
+                    // select a whole paragraph, from the bottom
+                    CaretPosition = CaretPosition.Paragraph.ContentEnd;
                     EditingCommands.SelectUpByParagraph.Execute(null, this);
+
                     CaretPosition = Selection.Start;
                 }
                 EditingCommands.SelectUpByParagraph.Execute(null, this);
             }
-            //Paragraph p = this.CaretPosition.Paragraph;
-            //// would select the prompt.
-            //// Selection.Select(p.Inlines.FirstInline.ContentStart,p.Inlines.FirstInline.NextInline.NextInline.ContentEnd)
-            //// 
-            //Selection.Select(p.Inlines.FirstInline.NextInline.NextInline.NextInline.ContentStart, p.Inlines.LastInline.ContentEnd);
 
-            //return Selection.Text;
+            // TODO: an option to leave the prompt out of the copied text.
+
             base.Copy();
         }
 
