@@ -59,7 +59,7 @@ namespace Huddled.PoshConsole
 
         private static void OnZoom(object sender, ExecutedRoutedEventArgs e)
         {
-            ConsoleRichTextBox control = (ConsoleRichTextBox)(sender);
+            ConsoleRichTextBox control = (ConsoleRichTextBox)sender;
 
             if (e.Parameter is double)
             {
@@ -77,8 +77,25 @@ namespace Huddled.PoshConsole
             }
         }
 
-        private void SetZoomFactor(double zoom)
+        /// <summary>
+        /// A handler for the Application.Stop event...
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
+        private static void OnApplicationStop(object sender, ExecutedRoutedEventArgs e)
         {
+            ConsoleRichTextBox control = (ConsoleRichTextBox)sender;
+            if (!control.IsRunning)
+            {
+                control.History.ResetCurrentCommand();
+                control.CurrentCommand = string.Empty;
+                e.Handled = true;
+            }
+            ApplicationCommands.Stop.Execute(null, (IInputElement)control.Parent);
+        }
+
+        private void SetZoomFactor(double zoom)
+        {            
             FontSize = Math.Max(1.0, zoom * Properties.Settings.Default.FontSize);
         }
 

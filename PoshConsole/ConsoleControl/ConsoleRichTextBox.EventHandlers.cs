@@ -198,10 +198,6 @@ namespace Huddled.PoshConsole
                     OnLeftPressed(e, inCommand);
                     break;
 
-                case Key.Escape:
-                    OnEscapePressed();
-                    break;
-
                 case Key.Enter:
                     OnEnterPressed(e);
                     break;
@@ -352,12 +348,6 @@ namespace Huddled.PoshConsole
             e.Handled = true;
         }
 
-
-        private void OnEscapePressed()
-        {
-            _cmdHistory.ResetCurrentCommand();
-            CurrentCommand = string.Empty;
-        }
 
         private void OnHomePressed(KeyEventArgs e, bool inPrompt)
         {

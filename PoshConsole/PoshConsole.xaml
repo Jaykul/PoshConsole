@@ -154,6 +154,8 @@
     </Window.Topmost>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Stop" Executed="HandleControlC" CanExecute="CanHandleControlC"/>
+        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
+        
         <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
         <CommandBinding Command="NavigationCommands.Zoom" Executed="HandleSetZoom" />
         <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="HandleIncreaseZoom" />
@@ -163,7 +165,14 @@
         <!-- 
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
+        
+        <!-- Default Binding 
+        -->
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Esc" />
         <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Break" Modifiers="Control" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
 
         <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
         <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />

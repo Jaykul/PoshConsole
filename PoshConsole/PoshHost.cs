@@ -227,6 +227,7 @@ namespace Huddled.PoshConsole
                                 }
                             }
                         }
+                        set = null;
                     }
 
                     set = InvokePipeline("resolve-path \"" + lastWord + "*\"");
@@ -242,6 +243,7 @@ namespace Huddled.PoshConsole
                             else completions.Add(completion);
                         }
                     }
+                    set = null;
 
                     // Finally, call the TabExpansion string
                     set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
@@ -422,7 +424,6 @@ namespace Huddled.PoshConsole
                     {
                         WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
                     }
-
                     if (!IsClosing)
                     {
                         buffer.CommandFinished(result.State);
@@ -794,12 +795,12 @@ namespace Huddled.PoshConsole
             get { return new Version(1, 0, 2007, 7310); }
         }
 
-		 public override PSObject PrivateData
-		 {
-			 get
-			 {
-                 return PSObject.AsPSObject( Options );
-			 }
-		 }
+        public override PSObject PrivateData
+        {
+            get
+            {
+                return PSObject.AsPSObject( Options );
+            }
+        }
     }
 }

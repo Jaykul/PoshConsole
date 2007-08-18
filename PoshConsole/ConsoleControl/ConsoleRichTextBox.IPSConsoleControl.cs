@@ -90,40 +90,46 @@ namespace Huddled.PoshConsole
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }
                 _promptInlines = 0; // there are no prompt inlines we need to save
-                BeginChange();
-                if (_currentParagraph != null)
+                TrimOutput();
+            });
+        }
+
+
+        private void TrimOutput()
+        {
+            BeginChange();
+            if (_currentParagraph != null && _currentParagraph.ContentEnd.IsInSameDocument(Document.ContentEnd))
+            {
+                // if the paragraph has content
+                if (_currentParagraph.Inlines.Count > _promptInlines)
                 {
-                    // if the paragraph has content
-                    if (_currentParagraph.Inlines.Count > _promptInlines)
+                    // trim from the end until we run out of inlines or hit some non-whitespace
+                    Inline ln = _currentParagraph.Inlines.LastInline;
+                    while (ln != null)
                     {
-                        // trim from the end until we run out of inlines or hit some non-whitespace
-                        Inline ln = _currentParagraph.Inlines.LastInline;
-                        while (ln != null)
+                        Run run = ln as Run;
+                        if (run != null)
                         {
-                            Run run = ln as Run;
-                            if (run != null)
-                            {
-                                run.Text = run.Text.TrimEnd();
-                                // if there's text in this run, stop trimming!!!
-                                if (run.Text.Length > 0) break;
-                            }
-                            // if( run == null || run.Text.Length == 0 )
-                            Inline tmp = ln;
-                            ln = ln.PreviousInline;
-                            _currentParagraph.Inlines.Remove(tmp);
+                            run.Text = run.Text.TrimEnd();
+                            // if there's text in this run, stop trimming!!!
+                            if (run.Text.Length > 0) break;
                         }
-                    }
-                    if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
-                    {
-                        _currentParagraph.ContentEnd.InsertLineBreak();
+                        // if( run == null || run.Text.Length == 0 )
+                        Inline tmp = ln;
+                        ln = ln.PreviousInline;
+                        _currentParagraph.Inlines.Remove(tmp);
                     }
                 }
-                //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
-                //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
-                Document.ContentEnd.InsertParagraphBreak();
-                _currentParagraph = (Paragraph)Document.Blocks.LastBlock;
-                EndChange();
-            });
+                if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
+                {
+                    _currentParagraph.ContentEnd.InsertLineBreak();
+                }
+            }
+            //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
+            //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
+            Document.ContentEnd.InsertParagraphBreak();
+            _currentParagraph = (Paragraph)Document.Blocks.LastBlock;
+            EndChange();
         }
 
         ConsoleScrollBarVisibility IPSConsoleControl.VerticalScrollBarVisibility

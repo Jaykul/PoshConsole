@@ -162,6 +162,7 @@ namespace Huddled.PoshConsole
         /// <param name="command">The command.</param>
         private void OnCommand(string command)
         {
+            _running = true;
             if (_waitingForInput)
             {
                 //if (command.EndsWith("\n"))
@@ -188,7 +189,6 @@ namespace Huddled.PoshConsole
         string IPSConsole.ReadLine()
         {
             string result = null;
-
             _waitingForInput = true;
             _gotInput.WaitOne();
             _waitingForInput = false;
@@ -270,7 +270,10 @@ namespace Huddled.PoshConsole
         void IPSConsole.WriteErrorRecord(ErrorRecord errorRecord)
         {
             ((IPSConsole)this).WriteErrorLine(errorRecord.ToString());
-            ((IPSConsole)this).WriteErrorLine(errorRecord.InvocationInfo.PositionMessage);
+            if (errorRecord.InvocationInfo != null)
+            {
+                ((IPSConsole)this).WriteErrorLine(errorRecord.InvocationInfo.PositionMessage);
+            }
         }
 
 

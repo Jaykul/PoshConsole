@@ -88,10 +88,7 @@ namespace Huddled.PoshConsole
             Object syncRoot = new Object();
 
             ExecutePipeline(cmd, input,  (PipelineOutputHandler) delegate(PipelineExecutionResult r) { 
-            //    r => 
-            //{
-            //    result = r;
-
+                result = r;
                 lock (syncRoot)
                 {
                     Monitor.Pulse(syncRoot);
@@ -172,11 +169,16 @@ namespace Huddled.PoshConsole
                             callback(new PipelineExecutionResult(results, errors, failure, e.PipelineStateInfo.State));
                         }
                     }
+                    //if (!IsClosing)
+                    //{
+                    //    buffer.CommandFinished(e.PipelineStateInfo.State);
+                    //    ExecutePromptFunction();
+                    //}
                 }
-                else if (e.PipelineStateInfo.State == PipelineState.Stopping)
-                {
-                    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
-                }
+                //else if (e.PipelineStateInfo.State == PipelineState.Stopping)
+                //{
+                //    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
+                //}
             };
 
             pipeline.InvokeAsync();
@@ -223,6 +225,11 @@ namespace Huddled.PoshConsole
                 ready = _ready.WaitOne(5000, true);
             }
             return ready;
+        }
+
+        public bool IsBusy()
+        {
+            return _ready.WaitOne(0, false);
         }
     }
 }

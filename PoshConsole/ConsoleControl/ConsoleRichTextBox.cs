@@ -62,7 +62,11 @@ namespace Huddled.PoshConsole
             NullOutCommands();
 
             RegisterClipboardCommands();
-           
+
+            CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
+                new CommandBinding(ApplicationCommands.Stop,
+                new ExecutedRoutedEventHandler(OnApplicationStop)));
+
         }
 
         /// <summary>
@@ -287,10 +291,10 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                //return _promptEnd.GetOffsetToPosition(CaretPosition) >= 0;
-                return _promptEnd.GetOffsetToPosition(CaretPosition) >= 1;
+                return _promptEnd.IsInSameDocument(Document.ContentEnd) && _promptEnd.GetOffsetToPosition(CaretPosition) >= 1;
             }
         }
+
 
 
         private TextPointer CommandStart
@@ -298,6 +302,7 @@ namespace Huddled.PoshConsole
             get
             {
                 TextPointer cs = null;
+                 
                 if (_promptEnd != null)
                 {
                     cs = _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
@@ -742,6 +747,7 @@ namespace Huddled.PoshConsole
         /// <param name="prompt">The prompt.</param>
         public void Prompt(string prompt)
         {
+            Dispatcher.ExitAllFrames();
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
             {
                 Write(_consoleBrushes.DefaultForeground, _consoleBrushes.Transparent, prompt);
@@ -751,9 +757,23 @@ namespace Huddled.PoshConsole
             });
         }
 
+        private bool _running = false;
+        public bool IsRunning { get { return _running; } }
+
+        private void FixPrompt()
+        {
+            if (!_promptEnd.IsInSameDocument(Document.ContentEnd) )
+            {
+                TrimOutput();
+                Prompt(">");
+            }
+        }
+
+
         private void SetPrompt()
         {
             BeginChange();
+            _running   = false;
             _promptEnd = _currentParagraph.ContentEnd.GetPositionAtOffset(-1).GetNextInsertionPosition(LogicalDirection.Backward);
             // this is the run that the user will type their command into...
             Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd

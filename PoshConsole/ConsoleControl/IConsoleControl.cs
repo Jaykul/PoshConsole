@@ -97,6 +97,12 @@ namespace Huddled.PoshConsole
         void WriteNativeErrorLine(string message);
     }
 
+    public interface IPSXamlConsole : IPSConsole
+    {
+        void WriteXaml();
+    }
+
+
 
     //public delegate string HistoryHandler(ref int index);
     public delegate void CommandHandler(string commandLine);
