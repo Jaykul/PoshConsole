@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
+using System.Windows.Markup;
 
 namespace Huddled.PoshConsole
 {
@@ -137,6 +138,75 @@ namespace Huddled.PoshConsole
         {
             return t.Top + t.Bottom;
         }
+    }
+
+    internal static class XamlHelper
+    {
+        public static bool TryLoad<T>(System.IO.Stream stream, out T xamlObject, out string errorMessage)
+        {
+            try
+            {
+                xamlObject = (T)XamlReader.Load(stream);//, context);
+                errorMessage = String.Empty;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // ToDo: Offer some help about how to fix this.
+                // ToDo: Show (at least one level of) InnerException if it's not null
+                string innerMessage = string.Empty;
+                if (null != ex.InnerException)
+                {
+                    innerMessage = ex.InnerException.Message;
+                }
+
+                errorMessage = string.Format("Syntax error loading XAML\n{0}\n\n\n\nRoot Cause:\n{1}Stack Trace:\n{2}", ex.Message, innerMessage, ex.StackTrace);
+
+                xamlObject = default(T);
+                return false;
+            }
+        }
+
+        public static bool TryLoadFromFile<T>(string sourceFile, out T xamlObject, out string errorMessage)
+        {
+            return TryLoad<T>(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read), out xamlObject, out errorMessage);
+        }
+
+        public static bool TryLoadFromFile<T>(string sourceFile, out T xamlObject)
+        {
+            string errorMessage;
+            return TryLoad<T>(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read), out xamlObject, out errorMessage);
+        }
+
+
+        //public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject, out string errorMessage)
+        //{
+        //    return TryLoad<T>(new System.IO.StringReader(xamlSource), out xamlObject, out errorMessage);
+        //}
+
+        //public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject)
+        //{
+        //    string errorMessage;
+        //    return TryLoad<T>(new System.IO.StringReader(xamlSource), out xamlObject, out errorMessage);
+        //}
+
+
+        public static T Load<T>(System.IO.Stream stream)
+        {
+            return (T)XamlReader.Load(stream);//, context);
+        }
+
+        public static T LoadFromFile<T>(string sourceFile)
+        {
+            return (T)XamlReader.Load(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));
+        }
+
+        //public static T LoadFromSource<T>(string xamlSource)
+        //{
+        //    return (T)XamlReader.Load(new System.IO.StringReader(xamlSource));
+        //}
+
+
     }
 
 }

@@ -10,50 +10,23 @@ namespace Huddled.PoshConsole
 {
     partial class ConsoleRichTextBox
     {
+        //<Floater Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Left">
+        //	<Paragraph>
+        //		<Image Source="http://blogs.msdn.com/photos/llester/images/1566947/original.aspx" SnapsToDevicePixels="True" Stretch="None"/>
+        //	</Paragraph>
+        //</Floater>
 
         /// <summary>
-        /// Reloads the content of the Bar.
+        /// Tries to load xaml from the specified file.
         /// </summary>
-        /// <returns><c>true</c> if we succeed in loading from the SourceFile; <c>false</c> otherwise.</returns>
-        public List<Block> LoadBanner(string SourceFile)
-        {
-            List<Block> blocks = new List<Block>();
-            if (!System.IO.File.Exists(SourceFile))
-            {
-                return blocks;
-            }
-            
-            try
-            {
-                FlowDocument banner = (FlowDocument)XamlReader.Load(new System.IO.FileStream(SourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));//, context);
-                foreach (Block b in banner.Blocks)
-                {
-                    blocks.Add(b);
-                }
-                banner.Blocks.Clear();
-                return blocks;
-            }
-            catch (Exception ex)
-            {
-                // ToDo: Offer some help about how to fix this.
-                // ToDo: Show (at least one level of) InnerException if it's not null
-                string message;
-                if (null != ex.InnerException)
-                {
-                    message = ex.Message + "\n\nRoot Cause:\n" + ex.InnerException.Message;
-                }
-                else
-                {
-                    message = ex.Message;
-                }
+        /// <param name="SourceFile">The path to the XAML source file .</param>
+        /// <param name="XamlObject">The object parsed from XAML.</param>
+        /// <returns></returns>
 
-                MessageBox.Show(string.Format("Syntax error loading {0}\n{1}\n\nStack Trace:\n{2}", SourceFile, message, ex.StackTrace), "Error Loading XAML GeoBar", MessageBoxButton.OK);
-                System.Diagnostics.Trace.TraceError("Syntax error loading {0}\n{1}", SourceFile, ex.Message);
-                System.Diagnostics.Trace.TraceInformation(ex.StackTrace);
-                blocks.Clear();
-                return blocks;
-            }
-        }
+
+
+
+
         public override void EndInit()
         {
             base.EndInit();
@@ -62,8 +35,25 @@ namespace Huddled.PoshConsole
             {
                 try
                 {
+                    Paragraph banner;
+                    string error;
+                    if (XamlHelper.TryLoadFromFile<Paragraph>("StartupBanner.xaml", out banner, out error))
+                    {
+                        Document.Blocks.Add(banner);
+
+                        _currentParagraph = new Paragraph();
+                        _currentParagraph.ClearFloaters = WrapDirection.Both;
+                        _currentParagraph.Padding = new Thickness(5);
+                        Document.Blocks.Add(_currentParagraph);
+                    }
+                    else
+                    {
+                        MessageBox.Show(error, "Problem Loading Startup Banner");
+                    }
+
+
                     // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
-                    Document.Blocks.AddRange(LoadBanner("StartupBanner.xaml"));
+                    // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
                 }
                 catch (Exception ex)
                 {

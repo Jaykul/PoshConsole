@@ -1,6 +1,6 @@
-<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-    <Paragraph ClearFloaters="Both" Padding="5">
-        <Floater Width="Auto" Margin="0,0,0,0" Padding="0,0,0,0">
+<!--<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">-->
+    <Paragraph Padding="5" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+        <Floater Width="Auto" Margin="0" Padding="0">
             <Paragraph >
                 <Canvas Width="180" Height="180">
                     <Rectangle StrokeLineJoin="Miter" StrokeMiterLimit="20" StrokeStartLineCap="Flat" RadiusX="10" RadiusY="10" Width="180" Height="180">
@@ -30,19 +30,19 @@
                 </Canvas>
             </Paragraph>
         </Floater>
-        <Floater Width="Auto" Margin="0,0,20,15" Padding="0,0,0,0">
+        <Floater Width="Auto" Margin="0,0,20,15" Padding="0">
             <Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="/FontLibrary;Component/#Pescadero">
                 <Run FontSize="28" Typography.ContextualSwashes="1">Posh</Run>
-                <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj</Run>
-                <Run FontSize="28" Typography.ContextualSwashes="1">., Smart and fashionable</Run>
+                <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj.,</Run>
+                <Run FontSize="28" Typography.ContextualSwashes="1">Smart and fashionable</Run>
             </Paragraph>
             <Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="/FontLibrary;Component/#Pescadero">
                 <Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run>
                 <LineBreak/>
-                <Run FontSize="20" Typography.ContextualSwashes="1">brought to you by </Run>
-                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run>
-                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run>
-                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run>
+                <Run FontSize="20" Typography.ContextualSwashes="1">brought to you by</Run>
+                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run
+                ><Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run
+                ><Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run>
             </Paragraph>
             <Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="/FontLibrary;Component/#Pescadero">
                 <Hyperlink FontSize="18" Foreground="#FF178EC8" NavigateUri="http://HuddledMasses.org" >
@@ -69,5 +69,5 @@
             </Paragraph>
         </Floater>
     </Paragraph>
-	<Paragraph ClearFloaters="Both" />
-</FlowDocument>
+	<!--<Paragraph ClearFloaters="Both" />
+</FlowDocument>-->
