@@ -3,12 +3,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Posh="clr-namespace:Huddled.PoshConsole"
     xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-
+    xmlns:PoshProps="clr-namespace:Huddled.PoshConsole.Properties"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2006"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
 
-    xmlns:PoshProps="clr-namespace:Huddled.PoshConsole.Properties"
 	
     x:Class="Huddled.PoshConsole.PoshConsole"
     x:Name="window"
@@ -43,52 +42,6 @@
                                   HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
                                   Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
                         </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="{x:Type TextBoxBase}" BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
-            <!-- It turns out that setting this Background is the main way to change the cursor color too!
-            http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-            -->
-
-            <Setter Property="Padding" Value="1"/>
-            <Setter Property="AllowDrop" Value="true"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
-                        <!--Create a RichTextBox that looks "flat".
-                        The control template for a TextBox or RichTextBox must
-                        include an element tagged as the content host.  An element is
-                        tagged as the content host element when it has the special name
-                        PART_ContentHost.  The content host element must be a ScrollViewer,
-                        or an element that derives from Decorator. 
-                        -->
-                        <aero:ListBoxChrome SnapsToDevicePixels="true" x:Name="Bd"
-                                                  Background="{TemplateBinding Background}"
-                                                  BorderThickness="0"
-                                                  BorderBrush="{TemplateBinding BorderBrush}"
-                                                  RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
-                                                  RenderMouseOver="{TemplateBinding IsMouseOver}">
-                            <ScrollViewer  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                           x:Name="PART_ContentHost" Padding="0,0,0,0" />
-                            <!--<StackPanel Name="ConsoleTextBox">
-                                <Popup Name="IntelliPopup">
-                                    <ListBox Name="IntelliList" />
-                                </Popup>
-                            </StackPanel>-->
-                        </aero:ListBoxChrome>
-                        <!--<ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Background" Value="Transparent"/>-->
-                        <!--{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>-->
-                        <!--
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>-->
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -200,17 +153,19 @@
                 <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
             </Grid.RowDefinitions>
             <Posh:ProgressPanel  Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" d:LayoutOverrides="Margin" />
-            <Posh:ConsoleRichTextBox Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 AcceptsTab="True"
-								 IsDocumentEnabled="True"
-                                 IsUndoEnabled="True"
-                                 Background="#FF000000" Foreground="#FFFFFFFF"
-                                 PreviewMouseWheel="buffer_PreviewMouseWheel"
-                                 Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole"
-                                 VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}"
-                                 FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"
-								 >
+            <Posh:ConsoleRichTextBox    Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        AcceptsTab="True"
+                                        IsDocumentEnabled="True"
+                                        IsUndoEnabled="True"
+                                        ForceCursor="True" 
+                                        Background="#FF000000"
+                                        Foreground="#FFFFFFFF"
+                                        PreviewMouseWheel="buffer_PreviewMouseWheel"
+                                        Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole"
+                                        VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}"
+                                        FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"
+                                        >
 
                 <Posh:ConsoleRichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
@@ -227,7 +182,7 @@
                 <Posh:ConsoleRichTextBox.ContextMenu>
                     <ContextMenu/>
                 </Posh:ConsoleRichTextBox.ContextMenu>
-                <FlowDocument/>
+                <FlowDocument />
 
             </Posh:ConsoleRichTextBox>
             <StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"

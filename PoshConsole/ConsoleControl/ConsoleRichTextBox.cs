@@ -222,10 +222,10 @@ namespace Huddled.PoshConsole
                 new ExecutedRoutedEventHandler(OnCut),
                 new CanExecuteRoutedEventHandler(OnCanExecuteCut)));
 
-            CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
-                new CommandBinding(ApplicationCommands.Copy,
-                new ExecutedRoutedEventHandler(OnCopy),
-                new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
+            //CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
+            //    new CommandBinding(ApplicationCommands.Copy,
+            //    new ExecutedRoutedEventHandler(OnCopy),
+            //    new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
 
             CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
                 new CommandBinding(ApplicationCommands.Paste,
