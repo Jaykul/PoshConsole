@@ -80,7 +80,8 @@ namespace Huddled.PoshConsole
 
             if (_choices.Count > 0)
             {
-                return _choices[_index];
+                string last = Utilities.GetLastWord(_command);
+                return _command.Remove(_command.Length - last.Length) + _choices[_index];
             }
             else
             {
