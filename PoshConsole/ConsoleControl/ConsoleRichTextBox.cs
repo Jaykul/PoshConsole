@@ -1225,7 +1225,8 @@ namespace Huddled.PoshConsole
             }
             set
             {
-                CaretPosition = GetPositionFromPoint(new Point(value.X * FontSize * _characterWidth, value.Y * Document.LineHeight), true);
+                TextPointer p = GetPositionFromPoint(new Point(value.X * FontSize * _characterWidth, value.Y * Document.LineHeight), true);
+                CaretPosition = p ?? Document.ContentEnd;
             }
         }
 
