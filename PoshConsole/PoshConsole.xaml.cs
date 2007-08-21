@@ -38,11 +38,11 @@ namespace Huddled.PoshConsole
         delegate RET returnDelegate<RET>();
         delegate RET passReturnDelegate<T,RET>(T input);
 
-        public static DependencyProperty ConsoleProperty = DependencyProperty.Register("Console", typeof(IPSConsoleControl), typeof(PoshConsole));
+        public static DependencyProperty ConsoleProperty = DependencyProperty.Register("Console", typeof(IPoshConsoleControl), typeof(PoshConsole));
 
-        public IPSConsoleControl Console
+        public IPoshConsoleControl Console
         {
-            get { return ((IPSConsoleControl)base.GetValue(ConsoleProperty)); }
+            get { return ((IPoshConsoleControl)base.GetValue(ConsoleProperty)); }
             set { base.SetValue(ConsoleProperty, value); }
         }
 

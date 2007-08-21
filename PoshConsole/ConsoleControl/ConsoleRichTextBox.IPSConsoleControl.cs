@@ -23,7 +23,7 @@ namespace Huddled.PoshConsole
     /// Importantly, this implementation just calls the existing methods on the our ConsoleRichTextBox class
     /// Each call is wrapped in Dispatcher methods so that the interface is thread-safe!
     /// </summary>
-    public partial class ConsoleRichTextBox : IPSConsoleControl  //, IPSConsole, IConsoleControlBuffered
+    public partial class ConsoleRichTextBox : IPoshConsoleControl  //, IPSConsole, IConsoleControlBuffered
     {
         //public event TabCompleteHandler TabComplete;
         //public event HistoryHandler GetHistory;
@@ -80,7 +80,7 @@ namespace Huddled.PoshConsole
         /// But we want to trim any whitespace off the end of the output first 
         /// because the paragraph mark makes plenty of whitespace
         /// </summary>
-        void IPSConsoleControl.CommandFinished(System.Management.Automation.Runspaces.PipelineState results)
+        void IPoshConsoleControl.CommandFinished(System.Management.Automation.Runspaces.PipelineState results)
         {
             //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate {
@@ -113,11 +113,20 @@ namespace Huddled.PoshConsole
                             run.Text = run.Text.TrimEnd();
                             // if there's text in this run, stop trimming!!!
                             if (run.Text.Length > 0) break;
+                            ln = ln.PreviousInline;
+                            _currentParagraph.Inlines.Remove(run);
                         }
+                        else if (ln is LineBreak)
+                        {
+                            Inline tmp = ln;
+                            ln = ln.PreviousInline;
+                            _currentParagraph.Inlines.Remove(tmp);
+                        }
+                        else break;
                         // if( run == null || run.Text.Length == 0 )
-                        Inline tmp = ln;
-                        ln = ln.PreviousInline;
-                        _currentParagraph.Inlines.Remove(tmp);
+                        //Inline tmp = ln;
+                        //ln = ln.PreviousInline;
+                        //_currentParagraph.Inlines.Remove(tmp);
                     }
                 }
                 if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
@@ -132,7 +141,7 @@ namespace Huddled.PoshConsole
             EndChange();
         }
 
-        ConsoleScrollBarVisibility IPSConsoleControl.VerticalScrollBarVisibility
+        ConsoleScrollBarVisibility IPoshConsoleControl.VerticalScrollBarVisibility
         {
             get
             {
@@ -144,7 +153,7 @@ namespace Huddled.PoshConsole
             }
         }
 
-        ConsoleScrollBarVisibility IPSConsoleControl.HorizontalScrollBarVisibility
+        ConsoleScrollBarVisibility IPoshConsoleControl.HorizontalScrollBarVisibility
         {
             get
             {

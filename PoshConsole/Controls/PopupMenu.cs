@@ -14,11 +14,11 @@ namespace Huddled.PoshConsole
     public class PopupMenu : System.Windows.Controls.Primitives.Popup
     {
         ListBox _intellisense = new ListBox();
-        IPSConsoleControl _console;
+        IPoshConsoleControl _console;
         
         private string _lastWord, _tabbing = null;
 
-        public PopupMenu(IPSConsoleControl console)
+        public PopupMenu(IPoshConsoleControl console)
         {
             Closed += new EventHandler(Closed_TabComplete);
             Closed += new EventHandler(Closed_History);

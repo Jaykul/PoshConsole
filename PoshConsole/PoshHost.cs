@@ -57,7 +57,7 @@ namespace Huddled.PoshConsole
         /// <summary>
         /// A ConsoleRichTextBox for output
         /// </summary>
-        private IPSConsoleControl buffer;
+        private IPoshConsoleControl buffer;
         private IPSUI PsUi;
 
         public bool IsClosing = false;
@@ -129,7 +129,6 @@ namespace Huddled.PoshConsole
                 ExecuteStartupProfile();
             }
         }
-
 
         /// <summary>
         /// Handler for the IInput.GotUserInput event.

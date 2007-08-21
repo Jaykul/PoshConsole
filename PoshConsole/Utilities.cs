@@ -5,6 +5,8 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Markup;
+using System.Xml;
+using System.IO;
 
 namespace Huddled.PoshConsole
 {
@@ -142,11 +144,11 @@ namespace Huddled.PoshConsole
 
     internal static class XamlHelper
     {
-        public static bool TryLoad<T>(System.IO.Stream stream, out T xamlObject, out string errorMessage)
+        private static bool TryLoad<T>(XmlReader xmlReader, out T xamlObject, out string errorMessage)
         {
             try
             {
-                xamlObject = (T)XamlReader.Load(stream);//, context);
+                xamlObject = (T)XamlReader.Load(xmlReader);//, context);
                 errorMessage = String.Empty;
                 return true;
             }
@@ -167,44 +169,51 @@ namespace Huddled.PoshConsole
             }
         }
 
-        public static bool TryLoadFromFile<T>(string sourceFile, out T xamlObject, out string errorMessage)
+
+        public static bool TryLoadFromFile<T>(string sourceUri, out T xamlObject, out string errorMessage)
         {
-            return TryLoad<T>(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read), out xamlObject, out errorMessage);
+            if (!File.Exists(sourceUri))
+            {
+                xamlObject = default(T);
+                errorMessage = string.Format("The file {0} does not exist.", sourceUri);
+                return false;
+            }
+            return TryLoad<T>(XmlReader.Create(sourceUri), out xamlObject, out errorMessage);
         }
 
-        public static bool TryLoadFromFile<T>(string sourceFile, out T xamlObject)
+        public static bool TryLoadFromFile<T>(string sourceUri, out T xamlObject)
+        {
+            if (!File.Exists(sourceUri))
+            {
+                xamlObject = default(T);
+                return false;
+            }
+            string errorMessage;
+            return TryLoad<T>(XmlReader.Create(sourceUri), out xamlObject, out errorMessage);
+        }
+
+
+        public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject, out string errorMessage)
+        {
+            return TryLoad<T>(XmlReader.Create(new StringReader(xamlSource)), out xamlObject, out errorMessage);
+        }
+
+        public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject)
         {
             string errorMessage;
-            return TryLoad<T>(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read), out xamlObject, out errorMessage);
+            return TryLoad<T>(XmlReader.Create(new StringReader(xamlSource)), out xamlObject, out errorMessage);
         }
 
 
-        //public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject, out string errorMessage)
-        //{
-        //    return TryLoad<T>(new System.IO.StringReader(xamlSource), out xamlObject, out errorMessage);
-        //}
-
-        //public static bool TryLoadFromSource<T>(string xamlSource, out T xamlObject)
-        //{
-        //    string errorMessage;
-        //    return TryLoad<T>(new System.IO.StringReader(xamlSource), out xamlObject, out errorMessage);
-        //}
-
-
-        public static T Load<T>(System.IO.Stream stream)
+        public static T LoadFromFile<T>(string sourceUri)
         {
-            return (T)XamlReader.Load(stream);//, context);
+            return (T)XamlReader.Load(XmlReader.Create(sourceUri));
         }
 
-        public static T LoadFromFile<T>(string sourceFile)
+        public static T LoadFromSource<T>(string xamlSource)
         {
-            return (T)XamlReader.Load(new System.IO.FileStream(sourceFile, System.IO.FileMode.Open, System.IO.FileAccess.Read));
+            return (T)XamlReader.Load(XmlReader.Create(new StringReader(xamlSource)));
         }
-
-        //public static T LoadFromSource<T>(string xamlSource)
-        //{
-        //    return (T)XamlReader.Load(new System.IO.StringReader(xamlSource));
-        //}
 
 
     }

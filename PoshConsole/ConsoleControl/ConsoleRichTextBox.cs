@@ -31,7 +31,7 @@ namespace Huddled.PoshConsole
     /// Ultimately intended for use as a PowerShell console
     /// </remarks>
     /// </summary>
-    public partial class ConsoleRichTextBox : RichTextBox, IPSConsoleControl, IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
+    public partial class ConsoleRichTextBox : RichTextBox, IPoshConsoleControl, IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
     {
         // events and such ...
 

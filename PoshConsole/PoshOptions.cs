@@ -7,21 +7,60 @@ namespace Huddled.PoshConsole
 {
     internal class PoshOptions : DependencyObject
     {
-        PoshHost myHost;
-        IPSConsoleControl myConsole;
-        public PoshOptions(PoshHost host, IPSConsoleControl console)
+        PoshHost _host;
+        IPoshConsoleControl _console;
+        XamlConsole _xamlUI;
+        public PoshOptions(PoshHost host, IPoshConsoleControl console)
         {
-            myHost = host;
-            myConsole = console;
+            _host = host;
+            _console = console;
+            _xamlUI = new XamlConsole(console);
         }
 
         public Properties.Settings Settings
         {
             get { return Properties.Settings.Default; }
         }
+
         public Properties.Colors Colors
         {
             get { return Properties.Colors.Default; }
+        }
+
+        public class XamlConsole : IPSXamlConsole
+        {
+            private IPSXamlConsole _console;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="XamlConsole"/> class.
+            /// </summary>
+            /// <param name="console">The console.</param>
+            public XamlConsole(IPSXamlConsole console)
+            {
+                _console = console;
+            }
+
+            #region IPSXamlConsole Members
+
+            public void WriteXaml(string xamlSource)
+            {
+                _console.WriteXaml(xamlSource);
+            }
+
+            public void LoadXaml(string sourceFile)
+            {
+                _console.LoadXaml(sourceFile);
+            }
+
+            #endregion
+        }
+
+        public IPSXamlConsole XamlUI
+        {
+            get
+            {
+                return _xamlUI;
+            }
         }
 
         private delegate string GetStringDelegate();
@@ -69,7 +108,7 @@ namespace Huddled.PoshConsole
         {
             get
             {
-                return myConsole.History;
+                return _console.History;
             }
         }
     }

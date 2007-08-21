@@ -16,17 +16,6 @@ namespace Huddled.PoshConsole
         //	</Paragraph>
         //</Floater>
 
-        /// <summary>
-        /// Tries to load xaml from the specified file.
-        /// </summary>
-        /// <param name="SourceFile">The path to the XAML source file .</param>
-        /// <param name="XamlObject">The object parsed from XAML.</param>
-        /// <returns></returns>
-
-
-
-
-
         public override void EndInit()
         {
             base.EndInit();

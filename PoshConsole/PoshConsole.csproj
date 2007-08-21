@@ -89,6 +89,7 @@
     <Compile Include="ConsoleControl\ConsoleRichTextBox.CommandHandlers.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.ConsoleBrushList.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.EventHandlers.cs" />
+    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSXamlConsole.cs" />
     <Compile Include="ConsoleControl\History.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsole.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsoleControl.cs" />

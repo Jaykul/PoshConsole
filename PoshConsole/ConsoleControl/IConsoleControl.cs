@@ -26,7 +26,7 @@ namespace Huddled.PoshConsole
         SecureString ReadLineAsSecureString();
 
         void SetShouldExit(int exitCode);
-        IPSConsoleControl Console { get; }
+        IPoshConsoleControl Console { get; }
     }
 
     /// <summary>
@@ -97,9 +97,10 @@ namespace Huddled.PoshConsole
         void WriteNativeErrorLine(string message);
     }
 
-    public interface IPSXamlConsole : IPSConsole
+    public interface IPSXamlConsole
     {
-        void WriteXaml();
+        void WriteXaml( string xamlSource );
+        void LoadXaml( string sourceFile );
     }
 
 
@@ -111,7 +112,7 @@ namespace Huddled.PoshConsole
         Stopped, Failed, Completed
     }
 
-    public interface IPSConsoleControl: IPSConsole
+    public interface IPoshConsoleControl : IPSXamlConsole, IPSConsole
     {
         event CommandHandler ProcessCommand;
 
