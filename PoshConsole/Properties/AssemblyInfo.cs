@@ -6,6 +6,7 @@ using System.Resources;
 using System.Globalization;
 using System.Windows;
 using System.Runtime.InteropServices;
+using System.Windows.Markup;
 
 #endregion
 
@@ -30,6 +31,9 @@ using System.Runtime.InteropServices;
 //the line below to match the UICulture setting in the project file.
 [assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.MainAssembly)]
 
+// This will expose a couple of pieces of our code as xaml/wpf controls
+// ToDo: We should consider a library for this and the cmdlet(s)
+[assembly: XmlnsDefinition("http://HuddledMasses.org/wpf/core", "Huddled.Core.Controls")]
 
 // Specifies the location in which theme dictionaries are stored for types in an assembly.
 [assembly: ThemeInfo(

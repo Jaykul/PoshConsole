@@ -76,6 +76,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Page Include="themes\generic.xaml" />
+    <None Include="XamlTemplates\image.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="XamlTemplates\thumbnail.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -95,12 +101,14 @@
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsoleControl.cs" />
     <Compile Include="Controls\PopupMenu.cs" />
     <Compile Include="ConsoleControl\TabExpansion.cs" />
+    <Compile Include="Controls\WindowImage.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="Interop\Hotkeys\Hotkey.cs" />
     <Compile Include="Interop\Hotkeys\HotkeyConverter.cs" />
     <Compile Include="Interop\Hotkeys\HotkeyService.cs" />
     <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
     <Compile Include="Interop\WindowSwitcher.cs" />
+    <Compile Include="Cmdlets\OutWPFCommand.cs" />
     <Compile Include="PoshHost.InvokeHelper.cs" />
     <Compile Include="PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">

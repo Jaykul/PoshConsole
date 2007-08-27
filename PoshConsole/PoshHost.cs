@@ -114,6 +114,17 @@ namespace Huddled.PoshConsole
             // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
             myRunSpace = RunspaceFactory.CreateRunspace(this);
+
+            //PSSnapInException warning;
+            //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);
+            //if (warning != null)
+            //{
+            //    buffer.WriteErrorLine("Couldn't load PoshSnapin, it's probably not registered.");
+            //    buffer.WriteErrorLine(warning.Message);
+            //}
+
+            myRunSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
+
             myRunSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
             myRunSpace.OpenAsync();
             MakeConsole();

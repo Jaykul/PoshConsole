@@ -24,22 +24,19 @@ namespace Huddled.PoshConsole
             {
                 try
                 {
-                    Paragraph banner;
-                    string error;
-                    if (XamlHelper.TryLoadFromFile<Paragraph>("StartupBanner.xaml", out banner, out error))
+                    Paragraph banner = (Paragraph)XamlReader.Load(System.Xml.XmlReader.Create("StartupBanner.xaml"));
+                    if (banner != null)
                     {
+                        banner.Padding = new Thickness(5);
                         Document.Blocks.Add(banner);
-
                         _currentParagraph = new Paragraph();
                         _currentParagraph.ClearFloaters = WrapDirection.Both;
-                        _currentParagraph.Padding = new Thickness(5);
                         Document.Blocks.Add(_currentParagraph);
                     }
                     else
                     {
-                        MessageBox.Show(error, "Problem Loading Startup Banner");
+                        Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8170");
                     }
-
 
                     // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
                     // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
@@ -50,7 +47,10 @@ namespace Huddled.PoshConsole
                     Document.Blocks.Clear();
                     Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8170");
                 }
-                ClearUndoBuffer();
+                finally
+                {
+                    ClearUndoBuffer();
+                }
             }
         }
 

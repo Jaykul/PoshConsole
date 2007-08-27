@@ -119,9 +119,9 @@ namespace Huddled.PoshConsole
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             ((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
-            myHost.ExecuteShutdownProfile();
+            if(myHost != null) myHost.ExecuteShutdownProfile();
             ((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
-            myHost.KillConsole();
+            if (myHost != null) myHost.KillConsole();
             base.OnClosing(e);
         }
         //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -301,9 +301,12 @@ namespace Huddled.PoshConsole
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			//buffer.Document.IsColumnWidthFlexible = false;
+            Binding statusBinding = new Binding("StatusText");
             try
             {
                 myHost = new PoshHost((IPSUI)this);
+
+                statusBinding.Source = myHost.Options;
             }
             catch (Exception ex)
             {
@@ -311,8 +314,6 @@ namespace Huddled.PoshConsole
                 Application.Current.Shutdown(1);
             }
 
-            Binding statusBinding = new Binding("StatusText");
-            statusBinding.Source = myHost.Options;
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
             StatusBarItem el = status.Items[status.Items.Count - 1] as StatusBarItem;
             if (el != null)
@@ -352,7 +353,7 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		private void Window_Deactivated(object sender, EventArgs e)
 		{
-            if (!myHost.IsClosing && Properties.Settings.Default.AutoHide)
+            if ((myHost == null || !myHost.IsClosing) && Properties.Settings.Default.AutoHide)
             {
                 HideWindow();
             }
@@ -485,8 +486,11 @@ namespace Huddled.PoshConsole
 		/// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-            myHost.IsClosing = true;
-            myHost.SetShouldExit(0);
+            if (myHost != null)
+            {
+                myHost.IsClosing = true;
+                myHost.SetShouldExit(0);
+            }
 
 			Properties.Settings.Default.Save();
             Properties.Colors.Default.Save();

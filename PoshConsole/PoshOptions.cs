@@ -27,6 +27,7 @@ namespace Huddled.PoshConsole
             get { return Properties.Colors.Default; }
         }
 
+
         public class XamlConsole : IPSXamlConsole
         {
             private IPSXamlConsole _console;
@@ -40,16 +41,27 @@ namespace Huddled.PoshConsole
                 _console = console;
             }
 
+
             #region IPSXamlConsole Members
 
-            public void WriteXaml(string xamlSource)
+            public void OutXaml(System.Xml.XmlDocument template)
             {
-                _console.WriteXaml(xamlSource);
+                _console.OutXaml(template);
             }
 
-            public void LoadXaml(string sourceFile)
+            public void OutXaml(System.IO.FileInfo template)
             {
-                _console.LoadXaml(sourceFile);
+                _console.OutXaml(template);
+            }
+
+            public void OutXaml(System.Xml.XmlDocument template, System.Management.Automation.PSObject data)
+            {
+                _console.OutXaml(template, data);
+            }
+
+            public void OutXaml(System.IO.FileInfo template, System.Management.Automation.PSObject data)
+            {
+                _console.OutXaml(template, data);
             }
 
             #endregion

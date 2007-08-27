@@ -97,12 +97,14 @@ namespace Huddled.PoshConsole
         void WriteNativeErrorLine(string message);
     }
 
+
     public interface IPSXamlConsole
     {
-        void WriteXaml( string xamlSource );
-        void LoadXaml( string sourceFile );
+        void OutXaml(System.Xml.XmlDocument template);
+        void OutXaml(System.IO.FileInfo template);
+        void OutXaml(System.Xml.XmlDocument template, PSObject data);
+        void OutXaml(System.IO.FileInfo template, PSObject data);
     }
-
 
 
     //public delegate string HistoryHandler(ref int index);
