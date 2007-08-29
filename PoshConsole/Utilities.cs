@@ -99,12 +99,7 @@ namespace PoshConsole
 		public static TEnum? Parse<TEnum>(string str, bool ignoreCase) where TEnum : struct
         {
             TEnum value = (TEnum)Enum.Parse(typeof(TEnum), str, ignoreCase);
-
-            if (IsDefined<TEnum>(value))
-            {
-                return value;
-            }
-
+            if (IsDefined<TEnum>(value)) return value;
             return null;
         }
 		

@@ -314,9 +314,9 @@ namespace PoshConsole.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Windows+OemTilde")]
-        public PoshConsole.Hotkey FocusKey {
+        public PoshConsole.Interop.Hotkey FocusKey {
             get {
-                return ((PoshConsole.Hotkey)(this["FocusKey"]));
+                return ((PoshConsole.Interop.Hotkey)(this["FocusKey"]));
             }
             set {
                 this["FocusKey"] = value;

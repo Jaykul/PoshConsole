@@ -626,7 +626,7 @@ namespace PoshConsole
         }
 
         #endregion [rgn]
-    }
+    
 		
 		private void OnBufferPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -660,7 +660,5 @@ namespace PoshConsole
                 buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
             }
         }
-		
-		#endregion [rgn]
-
+    }
 }

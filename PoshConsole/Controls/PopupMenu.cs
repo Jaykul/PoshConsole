@@ -20,7 +20,7 @@ namespace PoshConsole.Controls
 		int _intelliNum = -1;
 		ListBox _intellisense = new ListBox();
 		static Regex _number = new Regex(@"[0-9]", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-		static Regex _tabseparator = new Regex(@"[.;
+        static Regex _tabseparator = new Regex(@"[.;,=\\ |/[\]()""']", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 		string _terminalString = string.Empty;
 
 		#endregion [rgn]
@@ -402,7 +402,7 @@ namespace PoshConsole.Controls
             _popupClicked = true;
             base.OnMouseDown(e);
         }
-        #endregion,=\\ |/[\]()""']", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        #endregion
 
     }
 }
