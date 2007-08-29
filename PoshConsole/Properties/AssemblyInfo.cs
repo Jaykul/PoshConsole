@@ -13,7 +13,7 @@ using System.Windows.Markup;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Posh Console")]
+[assembly: AssemblyTitle("PoshConsole")]
 [assembly: AssemblyDescription("A sleek PowerShell console in WPF")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
@@ -33,7 +33,9 @@ using System.Windows.Markup;
 
 // This will expose a couple of pieces of our code as xaml/wpf controls
 // ToDo: We should consider a library for this and the cmdlet(s)
-[assembly: XmlnsDefinition("http://HuddledMasses.org/wpf/core", "Huddled.Core.Controls")]
+[assembly: XmlnsDefinition("http://schemas.poshconsole.org/interop", "PoshConsole.Interop")]
+[assembly: XmlnsDefinition("http://schemas.poshconsole.org/controls", "PoshConsole.Controls")]
+[assembly: XmlnsDefinition("http://schemas.poshconsole.org/properties", "PoshConsole.Properties")]
 
 // Specifies the location in which theme dictionaries are stored for types in an assembly.
 [assembly: ThemeInfo(

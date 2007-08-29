@@ -16,7 +16,7 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     /// <summary>
     /// Here we EXPLICITLY implement the IPSConsoleControl interface.

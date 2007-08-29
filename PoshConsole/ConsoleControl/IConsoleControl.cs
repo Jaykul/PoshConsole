@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Security;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     [Serializable]
     public enum ConsoleScrollBarVisibility
@@ -31,10 +31,18 @@ namespace Huddled.PoshConsole
 
     /// <summary>
     /// An interface for <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> to allow 
-    /// implementation of both <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> 
-    /// and <see cref="System.Management.Automation.Host.PSHostUserInterface"/> in the same class 
-    /// ... since there's no multiple inheritance in C#.
+    /// implementation along with <see cref="System.Management.Automation.Host.PSHostUserInterface"/> in 
+    /// the same class ... since there's no multiple inheritance in C#.
     /// </summary>
+    /// <remarks>The need for this interface appears to be an oversight in the PowerShell hosting API.
+    /// Since most implementations of <see cref="System.Management.Automation.Host.PSHostUserInterface"/>
+    /// and <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> will be within the same 
+    /// control, it seems problematic at best to have them as separate base classes.
+    /// </remarks>
+    /// <seealso cref="IPSConsole"/>
+    /// <seealso cref="IPSXamlConsole"/>
+    /// <seealso cref="IPSUI"/>
+    /// <seealso cref="IPoshConsoleControl"/>
     public interface IPSRawConsole
     {
         int CursorSize { get; set; }
@@ -63,10 +71,18 @@ namespace Huddled.PoshConsole
 
     /// <summary>
     /// An interface for <see cref="System.Management.Automation.Host.PSHostUserInterface"/> to allow 
-    /// implementation of both <see cref="System.Management.Automation.Host.PSHostUserInterface"/> 
-    /// and <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> in the same class 
-    /// ... since there's no multiple inheritance in C#.
+    /// implementation along with <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> in 
+    /// the same class ... since there's no multiple inheritance in C#.
     /// </summary>
+    /// <remarks>The need for this interface appears to be an oversight in the PowerShell hosting API.
+    /// Since most implementations of <see cref="System.Management.Automation.Host.PSHostUserInterface"/>
+    /// and <see cref="System.Management.Automation.Host.PSHostRawUserInterface"/> will be within the same 
+    /// control, it seems problematic at best to have them as separate base classes.
+    /// </remarks>
+    /// <seealso cref="IPSRawConsole"/>
+    /// <seealso cref="IPSXamlConsole"/>
+    /// <seealso cref="IPSUI"/>
+    /// <seealso cref="IPoshConsoleControl"/>
     public interface IPSConsole
     {
         Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions);
@@ -97,7 +113,15 @@ namespace Huddled.PoshConsole
         void WriteNativeErrorLine(string message);
     }
 
-
+    /// <summary>
+    /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
+    /// based user interface which allows loading of arbitrary bits of Xaml source.  This
+    /// is peculiar to the <see cref="PoshConsole"/> implementation.</para>
+    /// <para>The implemenation of these methods must be done on the UI Delegate thread, because
+    /// typically Xaml can only be loaded on the UI thread, since no other thread is allowed to 
+    /// create instances of the visual controls (the likely contents of the <paramref name="template"/>).
+    /// </para>
+    /// </summary>
     public interface IPSXamlConsole
     {
         void OutXaml(System.Xml.XmlDocument template);

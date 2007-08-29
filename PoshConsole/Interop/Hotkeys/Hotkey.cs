@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Markup;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     [Serializable]
     [TypeConverter(typeof(HotkeyConverter))]

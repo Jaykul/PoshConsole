@@ -4,90 +4,34 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public partial class NativeMethods {
-        [DllImport("kernel32")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool AllocConsole();
-
-        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool FreeConsole();
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ShowWindow(IntPtr hWnd, ShowState nCmdShow);
-
-        [DllImport("kernel32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetStdHandle(StdHandle nStdHandle, IntPtr hHandle);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(IntPtr hHandle);
-
-        [DllImport("kernel32.dll", SetLastError=true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
-           IntPtr hSourceHandle, IntPtr hTargetProcessHandle, out IntPtr lpTargetHandle,
-           uint dwDesiredAccess, bool bInheritHandle, uint dwOptions);
-
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool ReadFile(
-            IntPtr hFile,                   // handle to file
-            byte[] lpBuffer,                // data buffer
-            int nNumberOfBytesToRead,       // number of bytes to read
-            out int lpNumberOfBytesRead,    // number of bytes read
-            IntPtr overlapped               // overlapped buffer
-            );
         
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern int WriteFile(IntPtr hFile, byte[] buffer,
-          int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
+		#region [rgn] Fields (5)
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, GwlIndex nIndex);
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hWnd, GwlIndex nIndex, int dwNewLong);
-        [DllImport("user32.dll")]
-        public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
+		public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
+		public const int LWA_ALPHA = 0x2;
+		public const int LWA_COLORKEY = 0x1;
+		public const int WS_EX_LAYERED = 0x80000;
+		public const int WS_EX_TRANSPARENT = 0x00000020;
 
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int WS_EX_LAYERED = 0x80000;
-        public const int LWA_ALPHA = 0x2;
-        public const int LWA_COLORKEY = 0x1;
+		#endregion [rgn]
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SECURITY_ATTRIBUTES
+		#region [rgn] Enums (3)
+
+		public enum ShowState : int
         {
-            public int nLength;
-            public IntPtr lpSecurityDescriptor;
-            [MarshalAs(UnmanagedType.Bool)]
-            public bool bInheritHandle;
+            SW_HIDE = 0
+            /// and lots of others
         }
-
-        public enum GwlIndex : int
+		public enum GwlIndex : int
         {
             Id = (-12),
             Style = (-16),
             ExStyle = (-20)
         }
-
-        public enum ShowState : int
-        {
-            SW_HIDE = 0
-            /// and lots of others
-        }
-
-        public enum StdHandle : int
+		public enum StdHandle : int
         {
             /// <summary>
             /// The standard input device
@@ -103,30 +47,97 @@ namespace Huddled.PoshConsole
             ERROR_HANDLE = -12 //(DWORD)-12 	The standard error device.
         }
 
-        public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
+		#endregion [rgn]
+
+		#region [rgn] Methods (13)
+
+		// [rgn] Public Methods (13)
+
+		[DllImport("kernel32")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AllocConsole();
+		
+		[DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool CloseHandle(IntPtr hHandle);
+		
+		[DllImport("kernel32.dll", SetLastError=true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
+		
+		[DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
+           IntPtr hSourceHandle, IntPtr hTargetProcessHandle, out IntPtr lpTargetHandle,
+           uint dwDesiredAccess, bool bInheritHandle, uint dwOptions);
+		
+		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FreeConsole();
+		
+		[DllImport("kernel32.dll")]
+        public static extern IntPtr GetConsoleWindow();
+		
+		[DllImport("user32.dll", SetLastError = true)]
+        public static extern int GetWindowLong(IntPtr hWnd, GwlIndex nIndex);
+		
+		[DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool ReadFile(
+            IntPtr hFile,                   // handle to file
+            byte[] lpBuffer,                // data buffer
+            int nNumberOfBytesToRead,       // number of bytes to read
+            out int lpNumberOfBytesRead,    // number of bytes read
+            IntPtr overlapped               // overlapped buffer
+            );
+		
+		[DllImport("user32.dll")]
+        public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
+		
+		[DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetStdHandle(StdHandle nStdHandle, IntPtr hHandle);
+		
+		[DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hWnd, GwlIndex nIndex, int dwNewLong);
+		
+		[DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowWindow(IntPtr hWnd, ShowState nCmdShow);
+		
+		[DllImport("kernel32.dll", SetLastError = true)]
+        public static extern int WriteFile(IntPtr hFile, byte[] buffer,
+          int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
+		
+		#endregion [rgn]
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool bInheritHandle;
+        }
     }
     /// <summary>
     /// A wrapper around AllocConsole, with some nice eventing to handle
     /// </summary>
     public class NativeConsole : IDisposable
     {
-        public delegate void OutputDelegate(string text);
-        public event OutputDelegate WriteOutputLine;
-        public event OutputDelegate WriteErrorLine;
+        
+		#region [rgn] Fields (3)
 
-        private Thread outputThread, errorThread;
-
-        // A nice handle to our console window
-        private IntPtr handle;
-        // And our process
-        private System.Diagnostics.Process process;
-        // Track whether Dispose has been called.
+		// Track whether Dispose has been called.
         private bool disposed = false;
+		// A nice handle to our console window
+        private IntPtr handle;
+		// And our process
+        private System.Diagnostics.Process process;
 
+		#endregion [rgn]
 
-        private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
-        private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
-        /// <summary>
+		#region [rgn] Constructors (2)
+
+		/// <summary>
         /// Initializes a new instance of the <see cref="NativeConsole"/> class.
         /// </summary>
         public NativeConsole()
@@ -228,61 +239,54 @@ namespace Huddled.PoshConsole
             //buffer.WriteOutput(this.myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, System.Console.In.ReadToEnd(), true);
 
         }
-
-        /// <summary>
-        /// The OutputThread ThreadStart delegate
+		
+		/// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Console"/> is reclaimed by garbage collection.
+        /// Use C# destructor syntax for finalization code.
+        /// This destructor will run only if the Dispose method does not get called.
         /// </summary>
-        private void OutputThread()
+        /// <remarks>NOTE: Do not provide destructors in types derived from this class.</remarks>
+        ~NativeConsole()      
         {
-            int BytesRead;
-            byte[] BufBytes = new byte[4096];
-            // consider wrapping this in a System.IO.FileStream
-            try
-            {
-                while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
-                {
-                    if (WriteOutputLine != null)
-                    {
-                        WriteOutputLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
-                    }
-                }
-            }
-            catch (ThreadAbortException){}
-            finally
-            {
-                NativeMethods.CloseHandle(stdOutWrite);
-                NativeMethods.CloseHandle(stdOutReadCopy);
-            }
+            // Instead of cleaning up in BOTH Dispose() and here ...
+            // We call Dispose(false) for the best readability and maintainability.
+            Dispose(false);
         }
+		
+		#endregion [rgn]
 
-        /// <summary>
-        /// The ErrorThread ThreadStart delegate
+		#region [rgn] Delegates and Events (3)
+
+		// [rgn] Delegates (1)
+
+		public delegate void OutputDelegate(string text);
+		
+		// [rgn] Events (2)
+
+		public event OutputDelegate WriteErrorLine;
+		
+		public event OutputDelegate WriteOutputLine;
+		
+		#endregion [rgn]
+
+		#region [rgn] Methods (5)
+
+		// [rgn] Public Methods (2)
+
+		/// <summary>
+        /// Implement IDisposable
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        private void ErrorThread()
+        public void Dispose()
         {
-            int BytesRead;
-            byte[] BufBytes = new byte[4096];
-            // consider wrapping this in a System.IO.FileStream
-            try
-            {
-                while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
-                {
-                    if (WriteErrorLine != null)
-                    {
-                        WriteErrorLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
-                    }
-                }
-            }
-            catch (ThreadAbortException) { }
-            finally
-            {
-                NativeMethods.CloseHandle(stdErrWrite);
-                NativeMethods.CloseHandle(stdErrReadCopy);
-            }
+            Dispose(true);
+            // This object will be cleaned up by the Dispose method. Therefore, we call GC.SupressFinalize 
+            // to tell the runtime we dont' need to be finalized (we would clean up twice)
+            GC.SuppressFinalize(this);
         }
-
-
-        /// <summary>
+		
+		/// <summary>
         /// Writes the input.
         /// </summary>
         /// <param name="input">The input.</param>
@@ -297,21 +301,10 @@ namespace Huddled.PoshConsole
                 throw new Exception("Error Writing to StdIn, HRESULT: " + hresult.ToString());
             }
         }
+		
+		// [rgn] Private Methods (3)
 
-        /// <summary>
-        /// Implement IDisposable
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            // This object will be cleaned up by the Dispose method. Therefore, we call GC.SupressFinalize 
-            // to tell the runtime we dont' need to be finalized (we would clean up twice)
-            GC.SuppressFinalize(this);
-        }
-
-
-        /// <summary>
+		/// <summary>
         /// Handles actual cleanup actions, under two different scenarios
         /// </summary>
         /// <param name="disposing">if set to <c>true</c> we've been called directly or 
@@ -349,19 +342,65 @@ namespace Huddled.PoshConsole
             }
             disposed = true;         
         }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Console"/> is reclaimed by garbage collection.
-        /// Use C# destructor syntax for finalization code.
-        /// This destructor will run only if the Dispose method does not get called.
+		
+		/// <summary>
+        /// The ErrorThread ThreadStart delegate
         /// </summary>
-        /// <remarks>NOTE: Do not provide destructors in types derived from this class.</remarks>
-        ~NativeConsole()      
+        private void ErrorThread()
         {
-            // Instead of cleaning up in BOTH Dispose() and here ...
-            // We call Dispose(false) for the best readability and maintainability.
-            Dispose(false);
+            int BytesRead;
+            byte[] BufBytes = new byte[4096];
+            // consider wrapping this in a System.IO.FileStream
+            try
+            {
+                while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
+                {
+                    if (WriteErrorLine != null)
+                    {
+                        WriteErrorLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                    }
+                }
+            }
+            catch (ThreadAbortException) { }
+            finally
+            {
+                NativeMethods.CloseHandle(stdErrWrite);
+                NativeMethods.CloseHandle(stdErrReadCopy);
+            }
         }
+		
+		/// <summary>
+        /// The OutputThread ThreadStart delegate
+        /// </summary>
+        private void OutputThread()
+        {
+            int BytesRead;
+            byte[] BufBytes = new byte[4096];
+            // consider wrapping this in a System.IO.FileStream
+            try
+            {
+                while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
+                {
+                    if (WriteOutputLine != null)
+                    {
+                        WriteOutputLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                    }
+                }
+            }
+            catch (ThreadAbortException){}
+            finally
+            {
+                NativeMethods.CloseHandle(stdOutWrite);
+                NativeMethods.CloseHandle(stdOutReadCopy);
+            }
+        }
+		
+		#endregion [rgn]
+
+        private Thread outputThread, errorThread;
+
+        private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
+        private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
+
     }
 }

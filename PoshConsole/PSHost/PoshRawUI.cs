@@ -14,8 +14,9 @@ using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
 using System.Windows.Threading;
 using System.Windows.Documents;
+using PoshConsole.Controls;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.PSHost
 {
     /// <summary>
     /// An implementation of PSHostRawUserInterface based on an IConsoleControl 
@@ -25,8 +26,16 @@ namespace Huddled.PoshConsole
     /// </summary>
     class PoshRawUI : PSHostRawUserInterface
     {
-        private IPSRawConsole myConsole;
-        /// <summary>
+        
+		#region [rgn] Fields (1)
+
+		private IPSRawConsole myConsole;
+
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		/// <summary>
         /// Initializes a new instance of the <see cref="PoshRawUI"/> class.
         /// </summary>
         /// <param name="console">An implementation of <see cref="IPSRawConsole"/>.</param>
@@ -34,6 +43,8 @@ namespace Huddled.PoshConsole
         {
             myConsole = console;
         }
+		
+		#endregion [rgn]
 
         #region Stuff I should move into IConsoleControl
         /// <summary>
@@ -44,7 +55,6 @@ namespace Huddled.PoshConsole
             get { return myConsole.CursorSize; }
             set { myConsole.CursorSize = value;  }
         }
-
         /// <summary>
         /// Return the MaxPhysicalWindowSize size adapted from the .NET Console
         /// LargestWindowWidth and LargestWindowHeight.
@@ -53,7 +63,6 @@ namespace Huddled.PoshConsole
         {
             get { return myConsole.MaxPhysicalWindowSize; }
         }
-
         /// <summary>
         /// Return the MaxWindowSize size adapted from the .NET Console
         /// LargestWindowWidth and LargestWindowHeight.
@@ -62,7 +71,6 @@ namespace Huddled.PoshConsole
         {
             get { return myConsole.MaxWindowSize; }
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call simple returns silently.
         /// </summary>
@@ -71,7 +79,6 @@ namespace Huddled.PoshConsole
             ;  //Do nothing...
         }
         #endregion Stuff I should move into IConsoleControl
-
         #region NOT IMPLEMENTED
         /// <summary>
         /// Map directly to the corresponding .NET Console property.
@@ -80,7 +87,6 @@ namespace Huddled.PoshConsole
         {
             get { throw new NotImplementedException("The KeyAvailable method isn't implemented."); }
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -90,7 +96,6 @@ namespace Huddled.PoshConsole
         {
             throw new NotImplementedException("The ReadKey() method is not implemented by MyRawUserInterface.");
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -107,9 +112,7 @@ namespace Huddled.PoshConsole
             throw new NotImplementedException("The ScrollBufferContents() method is not implemented by MyRawUserInterface.");
         }
         #endregion NOT IMPLEMENTED
-
         #region Implemented by IConsoleControl
-
         /// <summary>
         /// Return the host buffer size adapted from the .NET Console buffer size.
         /// </summary>
@@ -118,7 +121,6 @@ namespace Huddled.PoshConsole
             get { return myConsole.BufferSize; }
             set { myConsole.BufferSize = value; }
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -127,7 +129,6 @@ namespace Huddled.PoshConsole
             get { return myConsole.CursorPosition; }
             set { myConsole.CursorPosition = value; }
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -137,7 +138,6 @@ namespace Huddled.PoshConsole
         {
             return myConsole.GetBufferContents(rectangle);
         }
-
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -147,7 +147,6 @@ namespace Huddled.PoshConsole
         {
             myConsole.SetBufferContents(origin, contents); 
         }
-
         /// <summary>
         ///  This functionality is not currently implemented. The call fails with an exception.
         /// </summary>
@@ -157,7 +156,6 @@ namespace Huddled.PoshConsole
         {
             myConsole.SetBufferContents(rectangle, fill);
         }
-
         /// <summary>
         /// Return the window position adapted from the Console window position information.
         /// </summary>
@@ -166,8 +164,6 @@ namespace Huddled.PoshConsole
             get { return myConsole.WindowPosition; }
             set { myConsole.WindowPosition = value; }
         }
-
-
         /// <summary>
         /// Return the window size adapted from the corresponding .NET Console calls.
         /// </summary>
@@ -176,19 +172,16 @@ namespace Huddled.PoshConsole
             get { return myConsole.WindowSize; }
             set { myConsole.WindowSize = value; }
         }
-
         public override string WindowTitle
         {
             get { return myConsole.WindowTitle; }
             set { myConsole.WindowTitle = value; }
         }
-
         public override ConsoleColor BackgroundColor
         {
             get { return myConsole.BackgroundColor;  }
             set { myConsole.BackgroundColor = value; }
         }
-
         public override ConsoleColor ForegroundColor
         {
             get { return myConsole.ForegroundColor;  }

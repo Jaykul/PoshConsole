@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Huddled.PoshConsole.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PoshConsole.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="CopyOnMouseSelect" Type="System.Boolean" Scope="User">
@@ -74,7 +74,7 @@
     <Setting Name="TabCompleteDoubleTapMilliseconds" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>
-    <Setting Name="FocusKey" Type="Huddled.PoshConsole.Hotkey" Scope="User">
+    <Setting Name="FocusKey" Type="PoshConsole.Hotkey" Scope="User">
       <Value Profile="(Default)">Windows+OemTilde</Value>
     </Setting>
   </Settings>

@@ -6,16 +6,20 @@ using System.Windows.Input;
 using System.Collections.Generic;
 using System.Windows.Markup;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     partial class ConsoleRichTextBox
     {
-        //<Floater Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Left">
+        
+		#region [rgn] Methods (13)
+
+		// [rgn] Public Methods (1)
+
+		//<Floater Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Left">
         //	<Paragraph>
         //		<Image Source="http://blogs.msdn.com/photos/llester/images/1566947/original.aspx" SnapsToDevicePixels="True" Stretch="None"/>
         //	</Paragraph>
         //</Floater>
-
         public override void EndInit()
         {
             base.EndInit();
@@ -53,72 +57,16 @@ namespace Huddled.PoshConsole
                 }
             }
         }
+		
+		// [rgn] Protected Methods (7)
 
-        //protected override void OnInitialized(EventArgs e)
-        //{
-        //    base.OnInitialized(e);
-
-        //    // LOAD the startup banner only when it's set (instead of removing it after)
-        //    if (Properties.Settings.Default.StartupBanner)
-        //    {
-        //        try
-        //        {
-        //            Write(Foreground, _consoleBrushes.Transparent, "PoshConsole\nVersion 1.0.2007.8150");
-        //            // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
-        //            Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, LoadBanner("StartupBanner.xaml"));
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{1}", ex.Message);
-        //            Document.Blocks.Clear();
-        //        }
-        //    }
-        //}
-
-        protected override void OnQueryContinueDrag(QueryContinueDragEventArgs e)
-        {
-            base.OnQueryContinueDrag(e);
-
-            e.Action = DragAction.Cancel;
-            e.Handled = true;
-        }
-
-        protected override void OnGotFocus(RoutedEventArgs e)
+		protected override void OnGotFocus(RoutedEventArgs e)
         {
             CaretPosition = Document.ContentEnd;
             base.OnGotFocus(e);
         }
-
-        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
-            {
-                Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
-            }
-
-            base.OnPreviewMouseLeftButtonUp(e);
-        }
-
-        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
-        {
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-            {
-                if (e.Delta > 0)
-                {
-                    NavigationCommands.IncreaseZoom.Execute(null, this);
-                }
-                else if (e.Delta < 0)
-                {
-                    NavigationCommands.DecreaseZoom.Execute(null, this);
-                }
-
-                e.Handled = true;
-            }
-
-            base.OnPreviewMouseWheel(e);
-        }
-
-        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+		
+		protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
         {
             if (!CaretInCommand)
             {
@@ -128,8 +76,8 @@ namespace Huddled.PoshConsole
             ApplicationCommands.Paste.Execute(null, this);
             e.Handled = true;
         }
-
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
+		
+		protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             Trace.TraceInformation("Entering OnPreviewKeyDown:");
             Trace.Indent();
@@ -247,9 +195,37 @@ namespace Huddled.PoshConsole
             Trace.Unindent();
             Trace.TraceInformation("Exiting OnPreviewKeyDown:");
         }
+		
+		protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
+            {
+                Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
+            }
 
+            base.OnPreviewMouseLeftButtonUp(e);
+        }
+		
+		protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (e.Delta > 0)
+                {
+                    NavigationCommands.IncreaseZoom.Execute(null, this);
+                }
+                else if (e.Delta < 0)
+                {
+                    NavigationCommands.DecreaseZoom.Execute(null, this);
+                }
 
-        protected override void OnPreviewTextInput(TextCompositionEventArgs e)
+                e.Handled = true;
+            }
+
+            base.OnPreviewMouseWheel(e);
+        }
+		
+		protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
             // if they're trying to input text, they will overwrite the selection
             // lets make sure they don't overwrite the history buffer
@@ -261,8 +237,38 @@ namespace Huddled.PoshConsole
 
             base.OnPreviewTextInput(e);
         }
+		
+		//protected override void OnInitialized(EventArgs e)
+        //{
+        //    base.OnInitialized(e);
 
-        private void OnBackspaceDeletePressed(KeyEventArgs e)
+        //    // LOAD the startup banner only when it's set (instead of removing it after)
+        //    if (Properties.Settings.Default.StartupBanner)
+        //    {
+        //        try
+        //        {
+        //            Write(Foreground, _consoleBrushes.Transparent, "PoshConsole\nVersion 1.0.2007.8150");
+        //            // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+        //            Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, LoadBanner("StartupBanner.xaml"));
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{1}", ex.Message);
+        //            Document.Blocks.Clear();
+        //        }
+        //    }
+        //}
+        protected override void OnQueryContinueDrag(QueryContinueDragEventArgs e)
+        {
+            base.OnQueryContinueDrag(e);
+
+            e.Action = DragAction.Cancel;
+            e.Handled = true;
+        }
+		
+		// [rgn] Private Methods (5)
+
+		private void OnBackspaceDeletePressed(KeyEventArgs e)
         {
             if (!Selection.IsEmpty)
             {
@@ -278,8 +284,8 @@ namespace Huddled.PoshConsole
                 e.Handled = (offset < 0 || (offset == 0 && e.Key == Key.Back) || (CurrentCommand.Length <= 0));
             }
         }
-
-        private void OnEndPressed(KeyEventArgs e)
+		
+		private void OnEndPressed(KeyEventArgs e)
         {
             if (Utilities.IsModifierOn(e, ModifierKeys.Control) &&
                 Utilities.IsModifierOn(e, ModifierKeys.Shift))
@@ -306,8 +312,8 @@ namespace Huddled.PoshConsole
 
             e.Handled = true;
         }
-
-        private void OnEnterPressed(KeyEventArgs e)
+		
+		private void OnEnterPressed(KeyEventArgs e)
         {
             ClearUndoBuffer();
 
@@ -326,9 +332,8 @@ namespace Huddled.PoshConsole
 
             e.Handled = true;
         }
-
-
-        private void OnHomePressed(KeyEventArgs e, bool inPrompt)
+		
+		private void OnHomePressed(KeyEventArgs e, bool inPrompt)
         {
             if (inPrompt)
             {
@@ -350,8 +355,8 @@ namespace Huddled.PoshConsole
                 e.Handled = true;
             }
         }
-
-        private void OnLeftPressed(KeyEventArgs e, bool inPrompt)
+		
+		private void OnLeftPressed(KeyEventArgs e, bool inPrompt)
         {
             if( CommandStart.GetOffsetToPosition(CaretPosition.GetInsertionPosition(LogicalDirection.Backward)) == 0
             //if(inPrompt ||
@@ -478,5 +483,7 @@ namespace Huddled.PoshConsole
             }
         }
     }
+		
+		#endregion [rgn]
 
 }

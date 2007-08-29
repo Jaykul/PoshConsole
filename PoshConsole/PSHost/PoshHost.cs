@@ -18,57 +18,67 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.IO;
+using PoshConsole.Interop;
+using PoshConsole.Controls;
+using PoshConsole.Cmdlets;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.PSHost
 {
     /// <summary>
     /// A sample implementation of the PSHost abstract class for console
     /// applications. Not all members are implemented. Those that are 
     /// not implemented throw a NotImplementedException exception.
     /// </summary>
-    public partial class PoshHost : PSHost
+    public partial class PoshHost : System.Management.Automation.Host.PSHost
     {
-        /// <summary>
-        /// The PSHostUserInterface implementation
-        /// </summary>
-        private PoshUI myUI;
-        private PoshRawUI myRawUI;
-        /// <summary>
-        /// The runspace for this interpeter.
-        /// </summary>
-        private Runspace myRunSpace;
+        
+		#region [rgn] Fields (16)
 
-        /// <summary>
+		/// <summary>
+        /// A ConsoleRichTextBox for output
+        /// </summary>
+        private IPoshConsoleControl buffer;
+		/// <summary>
+        /// A Console window wrapper that hides the console
+        /// </summary>
+        private NativeConsole console = null;
+		/// <summary>
         /// The currently executing pipeline 
         /// (So it can be stopped by Control-C or Break).
         /// </summary>
         private Pipeline currentPipeline;
-        
-        /// <summary>
-        /// A Console window wrapper that hides the console
-        /// </summary>
-        private NativeConsole console = null;
-
-        /// <summary>
+		private static Guid instanceId = Guid.NewGuid();
+		/// <summary>
         /// Used to serialize access to instance data...
         /// </summary>
         private object instanceLock = new object();
-
-        /// <summary>
-        /// A ConsoleRichTextBox for output
+		public bool IsClosing = false;
+		protected int MaxBufferLength = 500;
+		private PoshRawUI myRawUI;
+		/// <summary>
+        /// The runspace for this interpeter.
         /// </summary>
-        private IPoshConsoleControl buffer;
-        private IPSUI PsUi;
-
-        public bool IsClosing = false;
-
-
-        // Universal Delegates
-        delegate void voidDelegate();
-
-        //private IInput inputHandler = null; 
+        private Runspace myRunSpace;
+		/// <summary>
+        /// The PSHostUserInterface implementation
+        /// </summary>
+        private PoshUI myUI;
+		/// <summary>
+        /// This API is called before an external application process is started.
+        /// </summary>
+        int native = 0;
+		//private IInput inputHandler = null; 
         internal PoshOptions Options;
-        //internal List<string> StringHistory;
+		private CultureInfo originalCultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
+		private CultureInfo originalUICultureInfo = System.Threading.Thread.CurrentThread.CurrentUICulture;
+		private IPSUI PsUi;
+		private string savedTitle = String.Empty;
+
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		//internal List<string> StringHistory;
         public PoshHost(IPSUI PsUi)
         {
             this.buffer = PsUi.Console;
@@ -132,16 +142,282 @@ namespace Huddled.PoshConsole
             //// Finally, STARTUP!
             //ExecuteStartupProfile();
         }
+		
+		#endregion [rgn]
 
-        void myRunSpace_StateChanged(object sender, RunspaceStateEventArgs e)
+		#region [rgn] Properties (7)
+
+		/// <summary>
+        /// Return the culture info to use - this implementation just snapshots the
+        /// culture info of the thread that created this object.
+        /// </summary>
+        public override CultureInfo CurrentCulture
+        {
+            get { return originalCultureInfo; }
+        }
+		
+		/// <summary>
+        /// Return the UI culture info to use - this implementation just snapshots the
+        /// UI culture info of the thread that created this object.
+        /// </summary>
+        public override CultureInfo CurrentUICulture
+        {
+            get { return originalUICultureInfo; }
+        }
+		
+		/// <summary>
+        /// This implementation always returns the GUID allocated at instantiation time.
+        /// </summary>
+        public override Guid InstanceId
+        {
+            get { return instanceId; }
+        }
+		
+		/// <summary>
+        /// Return an appropriate string to identify your host implementation.
+        /// Keep in mind that this string may be used by script writers to identify
+        /// when your host is being used.
+        /// </summary>
+        public override string Name
+        {
+            get { return "PoshConsole"; }
+
+        }
+		
+		public override PSObject PrivateData
+        {
+            get
+            {
+                return PSObject.AsPSObject( Options );
+            }
+        }
+		
+		/// <summary>
+        /// Return an instance of the implementation of the PSHostUserInterface
+        /// class for this application. This instance is allocated once at startup time
+        /// and returned every time thereafter.
+        /// </summary>
+        public override PSHostUserInterface UI
+        {
+            get { return myUI; }
+        }
+		
+		//private PoshUI myHostUserInterface = new PoshUI();
+        /// <summary>
+        /// Return the version object for this application. Typically this should match the version
+        /// resource in the application.
+        /// </summary>
+        public override Version Version
+        {
+            get { return new Version(1, 0, 2007, 7310); }
+        }
+		
+		#endregion [rgn]
+
+		#region [rgn] Delegates and Events (1)
+
+		// [rgn] Delegates (1)
+
+		// Universal Delegates
+        delegate void voidDelegate();
+		
+		#endregion [rgn]
+
+		#region [rgn] Methods (14)
+
+		// [rgn] Public Methods (6)
+
+		/// <summary>
+        /// Not implemented by this example class. The call fails with an exception.
+        /// </summary>
+        public override void EnterNestedPrompt()
+        {
+            throw new NotImplementedException("Cannot suspend the shell, EnterNestedPrompt() method is not implemented by MyHost.");
+        }
+		
+		/// <summary>
+        /// Not implemented by this example class. The call fails with an exception.
+        /// </summary>
+        public override void ExitNestedPrompt()
+        {
+            throw new NotImplementedException("The ExitNestedPrompt() method is not implemented by MyHost.");
+        }
+		
+		public void KillConsole()
+        {
+            if( console != null ) console.Dispose();
+            console = null;
+        }
+		
+		public override void NotifyBeginApplication()
+        {
+            savedTitle = myUI.RawUI.WindowTitle;
+
+            native++;
+            //MakeConsole();
+        }
+		
+		/// <summary>
+        /// This API is called after an external application process finishes.
+        /// </summary>
+        public override void NotifyEndApplication()
+        {
+            myUI.RawUI.WindowTitle = savedTitle;
+            
+            native--;
+            //if (native == 0) KillConsole();
+        }
+		
+		/// <summary>
+        /// Method used to handle control-C's from the user. It calls the
+        /// pipeline Stop() method to stop execution. If any exceptions occur,
+        /// they are printed to the console; otherwise they are ignored.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
+        //public void StopPipeline()
+        //{
+        //    lock (instanceLock)
+        //    {
+        //        if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
+        //        {
+        //            if (native > 0)
+        //            {
+        //                console.WriteInput("\n" + (char)26);
+        //            }
+        //            else
+        //            {
+        //                currentPipeline.StopAsync();
+        //            }
+        //        }
+        //        //else
+        //        //    ApplicationCommands.Copy.Execute(null, buffer);
+        //    }
+        //}
+        public void StopPipeline()
+        {
+            Pipeline pipe = currentPipeline;
+
+            if (pipe != null && pipe.PipelineStateInfo.State == PipelineState.Running)
+            {
+                pipe.StopAsync();
+            }
+        }
+		
+		// [rgn] Private Methods (6)
+
+		/// <summary>
+        /// Basic script execution routine - any runtime exceptions are
+        /// caught and passed back into the runtime to display.
+        /// </summary>
+        /// <param name="cmd">The command to execute</param>
+        private void Execute(string cmd)
+        {
+            if(!string.IsNullOrEmpty(cmd))
+            {
+                ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler)delegate(PipelineExecutionResult result)
+                {
+                    if (result.Failure != null)
+                    {
+                        WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                    }
+                    if (!IsClosing)
+                    {
+                        buffer.CommandFinished(result.State);
+                        ExecutePromptFunction();
+                    }
+                });
+            }
+            else if (!IsClosing)
+            {
+                buffer.CommandFinished(PipelineState.NotStarted);
+                ExecutePromptFunction();
+            }
+        }
+		
+		//void Execute(string cmd)
+        //{
+        //    try
+        //    {
+        //        // execute the command with no input...
+        //        ExecuteHelper(cmd, null, true);
+        //    }
+        //    catch (RuntimeException rte)
+        //    {
+        //        // TODO: handle the "incomplete" commands by displaying an additional prompt?
+        //        // An exception occurred that we want to display ...
+        //        // We have to run another pipeline, and pass in the error record.
+        //        // The runtime will bind the input to the $input variable
+        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+        //    }
+        //}
+        ///// <summary>
+        ///// Invoke's the user's PROMPT function to display a prompt.
+        ///// Called after each command completes
+        ///// </summary>
+        //internal void Prompt()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    try
+        //    {
+        //        Collection<PSObject> output = InvokePipeline("prompt");
+
+        //        foreach (PSObject thing in output)
+        //        {
+        //            sb.Append(thing.ToString());
+        //        }
+        //        //sb.Append(PromptPadding);
+        //    }
+        //    catch (RuntimeException rte)
+        //    {
+        //        // An exception occurred that we want to display ...
+        //        // We have to run another pipeline, and pass in the error record.
+        //        // The runtime will bind the input to the $input variable
+        //        ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
+        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+        //        sb.Append("\n> ");
+        //    }
+        //    finally
+        //    {
+        //        buffer.Prompt(sb.ToString());
+        //    }
+        //}
+        private void ExecutePromptFunction()
+        {
+            //buffer.EndOutput();
+
+            ExecutePipeline(new Command("Prompt"), (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
+            {
+                StringBuilder str = new StringBuilder();
+
+                foreach (PSObject obj in result.Output)
+                {
+                    str.Append(obj);
+                }
+
+                buffer.Prompt(str.ToString());
+            });
+        }
+		
+		private void MakeConsole()
+        {
+            if (console == null)
+            {
+                console = new NativeConsole();
+                console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
+                console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
+            }
+        }
+		
+		void myRunSpace_StateChanged(object sender, RunspaceStateEventArgs e)
         {
             if (e.RunspaceStateInfo.State == RunspaceState.Opened)
             {
                 ExecuteStartupProfile();
             }
         }
-
-        /// <summary>
+		
+		/// <summary>
         /// Handler for the IInput.GotUserInput event.
         /// </summary>
         /// <param name="commandLine">The command line.</param>
@@ -159,25 +435,121 @@ namespace Huddled.PoshConsole
                 } else console.WriteInput(commandLine + '\n');
             } 
         }
-
-        private void MakeConsole()
+		
+		private void WriteErrorRecord(ErrorRecord record)
         {
-            if (console == null)
+            buffer.WriteErrorRecord(record);
+        }
+		
+		// [rgn] Internal Methods (2)
+
+		/// <summary>
+        /// Executes the shutdown profile(s).
+        /// </summary>
+        internal void ExecuteShutdownProfile()
+        {
+            //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
+            //  This profile applies to all users and all shells.
+            //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1
+            //  This profile applies to all users, but only to the PoshConsole shell.
+            //* %UserProfile%\My Documents\WindowsPowerShell\profile_exit.ps1
+            //  This profile applies only to the current user, but affects all shells.
+            //* %UserProfile%\\My Documents\WindowsPowerShell\PoshConsole_profile_exit.ps1
+            //  This profile applies only to the current user and the PoshConsole shell.
+
+            StringBuilder cmd = new StringBuilder();
+            foreach (string path in
+                 new string[4] {
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
+                })
             {
-                console = new NativeConsole();
-                console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
-                console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
+                if (File.Exists(path))
+                {
+                    cmd.AppendFormat(". \"{0}\";", path);
+                }
+            }
+            if (cmd.Length > 0)
+            {
+                ExecutePipeline(new Command(cmd.ToString(), true, false), null);
+                //try
+                //{
+                //    ExecuteHelper(cmd.ToString(), null, false);
+                //}
+                //catch (RuntimeException rte)
+                //{
+                //    // An exception occurred that we want to display ...
+                //    // We have to run another pipeline, and pass in the error record.
+                //    // The runtime will bind the input to the $input variable
+                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+                //}
+            }
+            else
+            {
+                ExecutePromptFunction();
             }
         }
-
-        public void KillConsole()
+		
+		/// <summary>
+        /// Executes the startup profile(s).
+        /// </summary>
+        internal void ExecuteStartupProfile()
         {
-            if( console != null ) console.Dispose();
-            console = null;
+            //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
+            //  This profile applies to all users and all shells.
+            //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile.ps1
+            //  This profile applies to all users, but only to the Microsoft.PowerShell shell.
+            //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
+            //  This profile applies only to the current user, but affects all shells.
+            //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
+            //  This profile applies only to the current user and the Microsoft.PowerShell shell.
+
+            StringBuilder cmd = new StringBuilder();
+            foreach (string path in
+                 new string[4] {
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
+                })
+            {
+                if (File.Exists(path))
+                {
+                    cmd.AppendFormat(". \"{0}\";\n", path);
+                }
+            }
+            if (cmd.Length > 0)
+            {
+                ExecutePipelineOutDefault(cmd.ToString(), false, 
+                    (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
+                    {
+                        buffer.CommandFinished(result.State); 
+                        ExecutePromptFunction(); 
+                    });
+
+                //try
+                //{
+                //    ExecutePipelineOutDefault(cmd.ToString(), null, false);
+                //}
+                //catch (RuntimeException rte)
+                //{
+                //    // An exception occurred that we want to display ...
+                //    // We have to run another pipeline, and pass in the error record.
+                //    // The runtime will bind the input to the $input variable
+                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+                //}
+            }
+            else
+            {
+                ExecutePromptFunction();
+            }
         }
+		
+		#endregion [rgn]
 
         #region ConsoleRichTextBox Event Handlers
-
         /// <summary>
         /// Indicate to the host application that exit has
         /// been requested. Pass the exit code that the host
@@ -190,11 +562,6 @@ namespace Huddled.PoshConsole
             // Application.Current.Shutdown(exitCode);
             PsUi.SetShouldExit(exitCode);
         }
-
-
-
-
-
         private List<string> buffer_TabComplete(string cmdline)
         {
             List<string> completions = new List<string>();
@@ -273,266 +640,7 @@ namespace Huddled.PoshConsole
             return completions;
         }
         #endregion
-
-        /// <summary>
-        /// Method used to handle control-C's from the user. It calls the
-        /// pipeline Stop() method to stop execution. If any exceptions occur,
-        /// they are printed to the console; otherwise they are ignored.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
-        //public void StopPipeline()
-        //{
-        //    lock (instanceLock)
-        //    {
-        //        if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
-        //        {
-        //            if (native > 0)
-        //            {
-        //                console.WriteInput("\n" + (char)26);
-        //            }
-        //            else
-        //            {
-        //                currentPipeline.StopAsync();
-        //            }
-        //        }
-        //        //else
-        //        //    ApplicationCommands.Copy.Execute(null, buffer);
-        //    }
-        //}
-
-
-        public void StopPipeline()
-        {
-            Pipeline pipe = currentPipeline;
-
-            if (pipe != null && pipe.PipelineStateInfo.State == PipelineState.Running)
-            {
-                pipe.StopAsync();
-            }
-        }
-
-        /// <summary>
-        /// Executes the startup profile(s).
-        /// </summary>
-        internal void ExecuteStartupProfile()
-        {
-            //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
-            //  This profile applies to all users and all shells.
-            //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile.ps1
-            //  This profile applies to all users, but only to the Microsoft.PowerShell shell.
-            //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
-            //  This profile applies only to the current user, but affects all shells.
-            //* %UserProfile%\My Documents\WindowsPowerShell\Huddled.PoshConsole_profile.ps1
-            //  This profile applies only to the current user and the Microsoft.PowerShell shell.
-
-            StringBuilder cmd = new StringBuilder();
-            foreach (string path in
-                 new string[4] {
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\Huddled.PoshConsole_profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\Huddled.PoshConsole_profile.ps1")),
-                })
-            {
-                if (File.Exists(path))
-                {
-                    cmd.AppendFormat(". \"{0}\";\n", path);
-                }
-            }
-            if (cmd.Length > 0)
-            {
-                ExecutePipelineOutDefault(cmd.ToString(), false, 
-                    (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
-                    {
-                        buffer.CommandFinished(result.State); 
-                        ExecutePromptFunction(); 
-                    });
-
-                //try
-                //{
-                //    ExecutePipelineOutDefault(cmd.ToString(), null, false);
-                //}
-                //catch (RuntimeException rte)
-                //{
-                //    // An exception occurred that we want to display ...
-                //    // We have to run another pipeline, and pass in the error record.
-                //    // The runtime will bind the input to the $input variable
-                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                //}
-            }
-            else
-            {
-                ExecutePromptFunction();
-            }
-        }
-
-
-        /// <summary>
-        /// Executes the shutdown profile(s).
-        /// </summary>
-        internal void ExecuteShutdownProfile()
-        {
-            //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
-            //  This profile applies to all users and all shells.
-            //* %windir%\system32\WindowsPowerShell\v1.0\Huddled.PoshConsole_profile_exit.ps1
-            //  This profile applies to all users, but only to the Huddled.PoshConsole shell.
-            //* %UserProfile%\My Documents\WindowsPowerShell\profile_exit.ps1
-            //  This profile applies only to the current user, but affects all shells.
-            //* %UserProfile%\\My Documents\WindowsPowerShell\Huddled.PoshConsole_profile_exit.ps1
-            //  This profile applies only to the current user and the Huddled.PoshConsole shell.
-
-            StringBuilder cmd = new StringBuilder();
-            foreach (string path in
-                 new string[4] {
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\Huddled.PoshConsole_profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\Huddled.PoshConsole_profile_exit.ps1")),
-                })
-            {
-                if (File.Exists(path))
-                {
-                    cmd.AppendFormat(". \"{0}\";", path);
-                }
-            }
-            if (cmd.Length > 0)
-            {
-                ExecutePipeline(new Command(cmd.ToString(), true, false), null);
-                //try
-                //{
-                //    ExecuteHelper(cmd.ToString(), null, false);
-                //}
-                //catch (RuntimeException rte)
-                //{
-                //    // An exception occurred that we want to display ...
-                //    // We have to run another pipeline, and pass in the error record.
-                //    // The runtime will bind the input to the $input variable
-                //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                //}
-            }
-            else
-            {
-                ExecutePromptFunction();
-            }
-        }
-
-
-        /// <summary>
-        /// Basic script execution routine - any runtime exceptions are
-        /// caught and passed back into the runtime to display.
-        /// </summary>
-        /// <param name="cmd">The command to execute</param>
-
-        private void Execute(string cmd)
-        {
-            if(!string.IsNullOrEmpty(cmd))
-            {
-                ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler)delegate(PipelineExecutionResult result)
-                {
-                    if (result.Failure != null)
-                    {
-                        WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
-                    }
-                    if (!IsClosing)
-                    {
-                        buffer.CommandFinished(result.State);
-                        ExecutePromptFunction();
-                    }
-                });
-            }
-            else if (!IsClosing)
-            {
-                buffer.CommandFinished(PipelineState.NotStarted);
-                ExecutePromptFunction();
-            }
-        }
-
-        private void WriteErrorRecord(ErrorRecord record)
-        {
-            buffer.WriteErrorRecord(record);
-        }
-
-        //void Execute(string cmd)
-        //{
-        //    try
-        //    {
-        //        // execute the command with no input...
-        //        ExecuteHelper(cmd, null, true);
-        //    }
-        //    catch (RuntimeException rte)
-        //    {
-        //        // TODO: handle the "incomplete" commands by displaying an additional prompt?
-        //        // An exception occurred that we want to display ...
-        //        // We have to run another pipeline, and pass in the error record.
-        //        // The runtime will bind the input to the $input variable
-        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-        //    }
-        //}
-
-
-        ///// <summary>
-        ///// Invoke's the user's PROMPT function to display a prompt.
-        ///// Called after each command completes
-        ///// </summary>
-        //internal void Prompt()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-        //    try
-        //    {
-        //        Collection<PSObject> output = InvokePipeline("prompt");
-
-        //        foreach (PSObject thing in output)
-        //        {
-        //            sb.Append(thing.ToString());
-        //        }
-        //        //sb.Append(PromptPadding);
-        //    }
-        //    catch (RuntimeException rte)
-        //    {
-        //        // An exception occurred that we want to display ...
-        //        // We have to run another pipeline, and pass in the error record.
-        //        // The runtime will bind the input to the $input variable
-        //        ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
-        //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-        //        sb.Append("\n> ");
-        //    }
-        //    finally
-        //    {
-        //        buffer.Prompt(sb.ToString());
-        //    }
-        //}
-
-
-        private void ExecutePromptFunction()
-        {
-            //buffer.EndOutput();
-
-            ExecutePipeline(new Command("Prompt"), (PipelineOutputHandler)delegate(PipelineExecutionResult result) 
-            {
-                StringBuilder str = new StringBuilder();
-
-                foreach (PSObject obj in result.Output)
-                {
-                    str.Append(obj);
-                }
-
-                buffer.Prompt(str.ToString());
-            });
-        }
-
-
-
-
-
-        protected int MaxBufferLength = 500;
-
-
         #region
-
-
-
-
         ///// <summary>
         ///// A helper method which builds and executes a pipeline that returns it's output.
         ///// </summary>
@@ -588,11 +696,8 @@ namespace Huddled.PoshConsole
         //    }
         //    return output;
         //}
-
-
         ManualResetEvent _ready = new ManualResetEvent(true);
         Command outDefault;
-
         ///// <summary>
         ///// A helper method which builds and executes a pipeline that writes to the default output.
         ///// Any exceptions that are thrown are just passed to the caller. 
@@ -667,20 +772,12 @@ namespace Huddled.PoshConsole
         //        buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
         //    }
         //}
-
-
-
-
-
         #endregion ConsoleRichTextBox Event Handlers
-
         #region Settings
-
         void SettingsSettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
         {
             //e.SettingClass
         }
-
         void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -699,118 +796,6 @@ namespace Huddled.PoshConsole
             // we save on every change.
             Properties.Settings.Default.Save();
         }
-
-
         #endregion
-
-        /// <summary>
-        /// Return the culture info to use - this implementation just snapshots the
-        /// culture info of the thread that created this object.
-        /// </summary>
-        public override CultureInfo CurrentCulture
-        {
-            get { return originalCultureInfo; }
-        }
-        private CultureInfo originalCultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
-
-        /// <summary>
-        /// Return the UI culture info to use - this implementation just snapshots the
-        /// UI culture info of the thread that created this object.
-        /// </summary>
-        public override CultureInfo CurrentUICulture
-        {
-            get { return originalUICultureInfo; }
-        }
-        private CultureInfo originalUICultureInfo = System.Threading.Thread.CurrentThread.CurrentUICulture;
-
-        /// <summary>
-        /// Not implemented by this example class. The call fails with an exception.
-        /// </summary>
-        public override void EnterNestedPrompt()
-        {
-            throw new NotImplementedException("Cannot suspend the shell, EnterNestedPrompt() method is not implemented by MyHost.");
-        }
-
-        /// <summary>
-        /// Not implemented by this example class. The call fails with an exception.
-        /// </summary>
-        public override void ExitNestedPrompt()
-        {
-            throw new NotImplementedException("The ExitNestedPrompt() method is not implemented by MyHost.");
-        }
-
-        private static Guid instanceId = Guid.NewGuid();
-        /// <summary>
-        /// This implementation always returns the GUID allocated at instantiation time.
-        /// </summary>
-        public override Guid InstanceId
-        {
-            get { return instanceId; }
-        }
-
-        /// <summary>
-        /// Return an appropriate string to identify your host implementation.
-        /// Keep in mind that this string may be used by script writers to identify
-        /// when your host is being used.
-        /// </summary>
-        public override string Name
-        {
-            get { return "PoshConsole"; }
-
-        }
-
-        /// <summary>
-        /// This API is called before an external application process is started.
-        /// </summary>
-        int native = 0;
-        public override void NotifyBeginApplication()
-        {
-            savedTitle = myUI.RawUI.WindowTitle;
-
-            native++;
-            //MakeConsole();
-        }
-
-        private string savedTitle = String.Empty;
-
-        /// <summary>
-        /// This API is called after an external application process finishes.
-        /// </summary>
-        public override void NotifyEndApplication()
-        {
-            myUI.RawUI.WindowTitle = savedTitle;
-            
-            native--;
-            //if (native == 0) KillConsole();
-        }
-
-
-        /// <summary>
-        /// Return an instance of the implementation of the PSHostUserInterface
-        /// class for this application. This instance is allocated once at startup time
-        /// and returned every time thereafter.
-        /// </summary>
-        public override PSHostUserInterface UI
-        {
-            get { return myUI; }
-        }
-        //private PoshUI myHostUserInterface = new PoshUI();
-
-        /// <summary>
-        /// Return the version object for this application. Typically this should match the version
-        /// resource in the application.
-        /// </summary>
-        public override Version Version
-        {
-            get { return new Version(1, 0, 2007, 7310); }
-        }
-
-        public override PSObject PrivateData
-        {
-            get
-            {
-                return PSObject.AsPSObject( Options );
-            }
-        }
     }
 }

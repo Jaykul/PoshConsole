@@ -2,33 +2,111 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using PoshConsole.Controls;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.PSHost
 {
     internal class PoshOptions : DependencyObject
     {
-        PoshHost _host;
-        IPoshConsoleControl _console;
-        XamlConsole _xamlUI;
-        public PoshOptions(PoshHost host, IPoshConsoleControl console)
+        
+		#region [rgn] Fields (4)
+
+		IPoshConsoleControl _console;
+		PoshHost _host;
+		XamlConsole _xamlUI;
+		public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
+
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		public PoshOptions(PoshHost host, IPoshConsoleControl console)
         {
             _host = host;
             _console = console;
             _xamlUI = new XamlConsole(console);
         }
+		
+		#endregion [rgn]
 
-        public Properties.Settings Settings
-        {
-            get { return Properties.Settings.Default; }
-        }
+		#region [rgn] Properties (7)
 
-        public Properties.Colors Colors
+		public Properties.Colors Colors
         {
             get { return Properties.Colors.Default; }
         }
+		
+		public double FullPrimaryScreenHeight
+        {
+            get { return System.Windows.SystemParameters.FullPrimaryScreenHeight; }
+        }
+		
+		public double FullPrimaryScreenWidth
+        {
+            get { return System.Windows.SystemParameters.FullPrimaryScreenWidth; }
+        }
+		
+		public CommandHistory History
+        {
+            get
+            {
+                return _console.History;
+            }
+        }
+		
+		public Properties.Settings Settings
+        {
+            get { return Properties.Settings.Default; }
+        }
+		
+		public string StatusText
+        {
+            get
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    return (string)Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
+                }
+                else
+                {
+                    return (string)base.GetValue(StatusTextProperty);
+                }
+            }
+            set
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
+                }
+                else
+                {
+                    base.SetValue(StatusTextProperty, value);
+                }
+            }
+        }
+		
+		public IPSXamlConsole XamlUI
+        {
+            get
+            {
+                return _xamlUI;
+            }
+        }
+		
+		#endregion [rgn]
 
+		#region [rgn] Delegates and Events (2)
 
-        public class XamlConsole : IPSXamlConsole
+		// [rgn] Delegates (2)
+
+		private delegate string GetStringDelegate();
+		private delegate void SetStringDelegate( /* string value */ );
+		
+		#endregion [rgn]
+
+		#region [rgn] Nested Classes (1)
+
+		public class XamlConsole : IPSXamlConsole
         {
             private IPSXamlConsole _console;
 
@@ -67,61 +145,7 @@ namespace Huddled.PoshConsole
             #endregion
         }
 
-        public IPSXamlConsole XamlUI
-        {
-            get
-            {
-                return _xamlUI;
-            }
-        }
+		#endregion [rgn]
 
-        private delegate string GetStringDelegate();
-        private delegate void SetStringDelegate( /* string value */ );
-
-        public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
-
-        public string StatusText
-        {
-            get
-            {
-                if (!Dispatcher.CheckAccess())
-                {
-                    return (string)Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
-                }
-                else
-                {
-                    return (string)base.GetValue(StatusTextProperty);
-                }
-            }
-            set
-            {
-                if (!Dispatcher.CheckAccess())
-                {
-                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
-                }
-                else
-                {
-                    base.SetValue(StatusTextProperty, value);
-                }
-            }
-        }
-
-        public double FullPrimaryScreenWidth
-        {
-            get { return System.Windows.SystemParameters.FullPrimaryScreenWidth; }
-        }
-
-        public double FullPrimaryScreenHeight
-        {
-            get { return System.Windows.SystemParameters.FullPrimaryScreenHeight; }
-        }
-
-        public CommandHistory History
-        {
-            get
-            {
-                return _console.History;
-            }
-        }
     }
 }

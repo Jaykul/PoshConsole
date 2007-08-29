@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
@@ -7,32 +7,44 @@ using System.Windows.Markup;
 using System.ComponentModel.Design.Serialization;
 using System.Reflection;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public sealed class HotkeyConverter : TypeConverter
     {
-        private const char Delimiter = '+';
+        
+		#region [rgn] Fields (2)
 
-        private static readonly ConstructorInfo _ctor;
+		private static readonly ConstructorInfo _ctor;
+		private const char Delimiter = '+';
 
-        static HotkeyConverter()
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		static HotkeyConverter()
         {
             _ctor = typeof(Hotkey).GetConstructor(new Type[] { typeof(ModifierKeys), typeof(Key) });
         }
+		
+		#endregion [rgn]
 
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		#region [rgn] Methods (10)
+
+		// [rgn] Public Methods (6)
+
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             return sourceType == typeof(string);
         }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             return 
                 destinationType == typeof(string) ||
                 destinationType == typeof(InstanceDescriptor);
         }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+		
+		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             string source = (value as string);
 
@@ -43,8 +55,8 @@ namespace Huddled.PoshConsole
 
             return FromString(source, culture);
         }
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		
+		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == null)
             {
@@ -66,8 +78,15 @@ namespace Huddled.PoshConsole
 
             throw GetConvertToException(value, destinationType);
         }
-
-        public static void VerifyIsHotkeyDefined(Hotkey hotkey)
+		
+		public static bool IsHotkeyDefined(Hotkey hotkey)
+        {
+            return
+                ModifierKeysConverter.IsDefinedModifierKeys(hotkey.Modifiers) &&
+                EnumHelper.IsDefined<Key>(hotkey.Key);
+        }
+		
+		public static void VerifyIsHotkeyDefined(Hotkey hotkey)
         {
             if (!ModifierKeysConverter.IsDefinedModifierKeys(hotkey.Modifiers))
             {
@@ -76,30 +95,22 @@ namespace Huddled.PoshConsole
 
             EnumHelper.VerifyIsDefined<Key>(hotkey.Key, "Key");
         }
+		
+		// [rgn] Private Methods (1)
 
-        public static bool IsHotkeyDefined(Hotkey hotkey)
+		private static T ConvertFromString<T>(string text, CultureInfo culture)
         {
-            return
-                ModifierKeysConverter.IsDefinedModifierKeys(hotkey.Modifiers) &&
-                EnumHelper.IsDefined<Key>(hotkey.Key);
+            return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(null, culture, text);
         }
+		
+		// [rgn] Internal Methods (3)
 
-        internal static string ToString(Hotkey hotkey, CultureInfo culture)
+		internal static string ConvertToString(object component, CultureInfo culture)
         {
-            StringBuilder result = new StringBuilder();
-
-            if (hotkey.Key != Key.None && hotkey.Modifiers != ModifierKeys.None)
-            {
-                result.Append(ConvertToString(hotkey.Modifiers, culture));
-                result.Append(Delimiter);
-            }
-
-            result.Append(ConvertToString(hotkey.Key, culture));
-
-            return result.ToString();
+            return TypeDescriptor.GetConverter(component).ConvertToString(null, culture, component);
         }
-
-        internal static Hotkey FromString(string source, CultureInfo culture)
+		
+		internal static Hotkey FromString(string source, CultureInfo culture)
         {
             Key key = Key.None;
             ModifierKeys modifiers = ModifierKeys.None;
@@ -123,26 +134,39 @@ namespace Huddled.PoshConsole
 
             return new Hotkey(modifiers, key);
         }
-
-        internal static string ConvertToString(object component, CultureInfo culture)
+		
+		internal static string ToString(Hotkey hotkey, CultureInfo culture)
         {
-            return TypeDescriptor.GetConverter(component).ConvertToString(null, culture, component);
-        }
+            StringBuilder result = new StringBuilder();
 
-        private static T ConvertFromString<T>(string text, CultureInfo culture)
-        {
-            return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(null, culture, text);
+            if (hotkey.Key != Key.None && hotkey.Modifiers != ModifierKeys.None)
+            {
+                result.Append(ConvertToString(hotkey.Modifiers, culture));
+                result.Append(Delimiter);
+            }
+
+            result.Append(ConvertToString(hotkey.Key, culture));
+
+            return result.ToString();
         }
+		
+		#endregion [rgn]
+
     }
 
     public sealed class HotkeyValueSerializer : ValueSerializer
     {
-        public override bool CanConvertFromString(string value, IValueSerializerContext context)
+        
+		#region [rgn] Methods (4)
+
+		// [rgn] Public Methods (4)
+
+		public override bool CanConvertFromString(string value, IValueSerializerContext context)
         {
             return true;
         }
-
-        public override bool CanConvertToString(object value, IValueSerializerContext context)
+		
+		public override bool CanConvertToString(object value, IValueSerializerContext context)
         {
             if (value is Hotkey)
             {
@@ -151,15 +175,18 @@ namespace Huddled.PoshConsole
 
             return false;
         }
-
-        public override object ConvertFromString(string value, IValueSerializerContext context)
+		
+		public override object ConvertFromString(string value, IValueSerializerContext context)
         {
             return HotkeyConverter.FromString(value, CultureInfo.InvariantCulture);
         }
-
-        public override string ConvertToString(object value, IValueSerializerContext context)
+		
+		public override string ConvertToString(object value, IValueSerializerContext context)
         {
             return HotkeyConverter.ToString((Hotkey)(value), CultureInfo.InvariantCulture);
         }
+		
+		#endregion [rgn]
+
     }
 }

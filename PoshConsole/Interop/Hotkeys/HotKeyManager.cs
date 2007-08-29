@@ -5,50 +5,56 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Input;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public sealed class HotkeyEventArgs : EventArgs
     {
-        private Hotkey _key;
+        
+		#region [rgn] Fields (1)
 
-        public HotkeyEventArgs(Hotkey key)
+		private Hotkey _key;
+
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		public HotkeyEventArgs(Hotkey key)
         {
             _key = key;
         }
+		
+		#endregion [rgn]
 
-        public Hotkey Hotkey
+		#region [rgn] Properties (1)
+
+		public Hotkey Hotkey
         {
             get { return _key; }
         }
+		
+		#endregion [rgn]
+
     }
 
     public delegate void HotkeyEventHandler(object sender, HotkeyEventArgs e);
 
     public class HotkeyManager : IDisposable
     {
-        private struct HotkeyEntry
-        {
-            public Int32 Id;
-            public Hotkey Hotkey;
+        
+		#region [rgn] Fields (6)
 
-            public HotkeyEntry(Int32 id, Hotkey hotkey)
-            {
-                Id = id;
-                Hotkey = hotkey;
-            }
-        }
+		private readonly Dictionary<Int32, HotkeyEntry> _entries;
+		private IntPtr _hwnd;
+		private HwndSource _hwndSource;
+		private Int32 _id;
+		private readonly List<Hotkey> _keysPending;
+		private readonly Window _window;
 
-        private readonly Dictionary<Int32, HotkeyEntry> _entries;
-        private readonly List<Hotkey> _keysPending;
-        private readonly Window _window;
+		#endregion [rgn]
 
-        private HwndSource _hwndSource;
-        private IntPtr _hwnd;
-        private Int32 _id;
+		#region [rgn] Constructors (1)
 
-        public event HotkeyEventHandler HotkeyPressed = delegate { };
-
-        public HotkeyManager(Window window)
+		public HotkeyManager(Window window)
         {
             _window = window;
 
@@ -65,36 +71,14 @@ namespace Huddled.PoshConsole
                 window.SourceInitialized += OnSourceInitialized;
             }
         }
+		
+		#endregion [rgn]
 
-        public void Register(Hotkey key)
-        {
-            _window.Dispatcher.VerifyAccess();
+		#region [rgn] Methods (8)
 
-            if (_hwnd == IntPtr.Zero)
-            {
-                _keysPending.Add(key);
-            }
-            else
-            {
-                RegisterHotkey(key);
-            }
+		// [rgn] Public Methods (3)
 
-        }
-
-        public void Unregister(Hotkey key)
-        {
-            _window.Dispatcher.VerifyAccess();
-
-            int? nativeId = GetNativeId(key);
-
-            if (nativeId.HasValue)
-            {
-                UnregisterHotkey(nativeId.Value);
-                _entries.Remove(nativeId.Value);
-            }
-        }
-
-        public void Dispose()
+		public void Dispose()
         {
             if (_hwnd == IntPtr.Zero)
             {
@@ -111,8 +95,38 @@ namespace Huddled.PoshConsole
             _entries.Clear();
             _hwnd = IntPtr.Zero;
         }
+		
+		public void Register(Hotkey key)
+        {
+            _window.Dispatcher.VerifyAccess();
 
-        private int? GetNativeId(Hotkey hotkey)
+            if (_hwnd == IntPtr.Zero)
+            {
+                _keysPending.Add(key);
+            }
+            else
+            {
+                RegisterHotkey(key);
+            }
+
+        }
+		
+		public void Unregister(Hotkey key)
+        {
+            _window.Dispatcher.VerifyAccess();
+
+            int? nativeId = GetNativeId(key);
+
+            if (nativeId.HasValue)
+            {
+                UnregisterHotkey(nativeId.Value);
+                _entries.Remove(nativeId.Value);
+            }
+        }
+		
+		// [rgn] Private Methods (5)
+
+		private int? GetNativeId(Hotkey hotkey)
         {
             foreach (HotkeyEntry entry in _entries.Values)
             {
@@ -124,30 +138,8 @@ namespace Huddled.PoshConsole
 
             return null;
         }
-
-        private void RegisterHotkey(Hotkey hotkey)
-        {
-            int id = ++_id;
-            int modifiers = (int)(hotkey.Modifiers);
-            int virtualkey = KeyInterop.VirtualKeyFromKey(hotkey.Key);
-
-            if (!NativeMethods.RegisterHotKey(_hwnd, id, modifiers, virtualkey))
-            {
-                throw new Win32Exception();
-            }
-
-            _entries.Add(id, new HotkeyEntry (id, hotkey ));
-        }
-
-        private void UnregisterHotkey(int nativeId)
-        {
-            if (!NativeMethods.UnregisterHotKey(_hwnd, nativeId))
-            {
-                throw new Win32Exception();
-            }
-        }
-
-        private void OnSourceInitialized(object sender, EventArgs e)
+		
+		private void OnSourceInitialized(object sender, EventArgs e)
         {
             _hwnd = new WindowInteropHelper(_window).Handle;
             _hwndSource = HwndSource.FromHwnd(_hwnd);
@@ -163,8 +155,30 @@ namespace Huddled.PoshConsole
 
             _hwndSource.AddHook(WndProc);
         }
+		
+		private void RegisterHotkey(Hotkey hotkey)
+        {
+            int id = ++_id;
+            int modifiers = (int)(hotkey.Modifiers);
+            int virtualkey = KeyInterop.VirtualKeyFromKey(hotkey.Key);
 
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+            if (!NativeMethods.RegisterHotKey(_hwnd, id, modifiers, virtualkey))
+            {
+                throw new Win32Exception();
+            }
+
+            _entries.Add(id, new HotkeyEntry (id, hotkey ));
+        }
+		
+		private void UnregisterHotkey(int nativeId)
+        {
+            if (!NativeMethods.UnregisterHotKey(_hwnd, nativeId))
+            {
+                throw new Win32Exception();
+            }
+        }
+		
+		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const int WM_HOTKEY = 0x312;
 
@@ -183,5 +197,20 @@ namespace Huddled.PoshConsole
 
             return IntPtr.Zero;
         }
+		
+		#endregion [rgn]
+private struct HotkeyEntry
+        {
+            public Int32 Id;
+            public Hotkey Hotkey;
+
+            public HotkeyEntry(Int32 id, Hotkey hotkey)
+            {
+                Id = id;
+                Hotkey = hotkey;
+            }
+        }
+        public event HotkeyEventHandler HotkeyPressed = delegate { };
+
     }
 }

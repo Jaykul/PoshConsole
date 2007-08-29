@@ -16,12 +16,12 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     /// <summary>
-    /// Here we EXPLICITLY implement the IPSRawConsole interface.
-    /// Importantly, this implementation just calls the existing methods on the our ConsoleRichTextBox class
-    /// Each call is wrapped in Dispatcher methods so that the interface is thread-safe!
+    /// Explicitly implements the IPSRawConsole interface.
+    /// This implementation calls other existing methods on the ConsoleRichTextBox class, 
+    /// and only exists to proxy the calls through the Dispatcher thread.
     /// </summary>
     public partial class ConsoleRichTextBox : IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
     {

@@ -1,9 +1,7 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:Posh="clr-namespace:Huddled.PoshConsole"
     xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-    xmlns:local="clr-namespace:PoshConsole;assembly=PoshConsole"
     >
     <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>

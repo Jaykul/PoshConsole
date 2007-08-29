@@ -4,7 +4,7 @@ using System.Data;
 using System.Xml;
 using System.Configuration;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -12,6 +12,5 @@ namespace Huddled.PoshConsole
 
     public partial class App : System.Windows.Application
     {
-
     }
 }

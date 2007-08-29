@@ -1,57 +1,25 @@
-﻿using System;
+using System;
 using System.Windows;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public static class HotkeyService
     {
-        #region DependencyProperty FocusHotkey
         
-        public static readonly DependencyProperty FocusHotkeyProperty = DependencyProperty.RegisterAttached(
-            "FocusHotkey", typeof(Hotkey), typeof(HotkeyService),
-            new FrameworkPropertyMetadata(Hotkey.None, OnFocusHotkeyChanged)
-        );
+		#region [rgn] Fields (1)
 
-        [AttachedPropertyBrowsableForType(typeof(Window))]
-        public static Hotkey GetFocusHotkey(DependencyObject element)
-        {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            return (Hotkey)element.GetValue(FocusHotkeyProperty);
-        }
-
-        public static void SetFocusHotkey(DependencyObject element, Hotkey value)
-        {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            element.SetValue(FocusHotkeyProperty, value);
-        }
-
-        private static void OnFocusHotkeyChanged(DependencyObject target, DependencyPropertyChangedEventArgs e)
-        {
-            Window window = (Window)target;
-            HotkeyServiceHelper helper = EnsureHotkeyServiceHelper(window);
-
-            Hotkey oldValue = (Hotkey)e.OldValue;
-            Hotkey newValue = (Hotkey)e.NewValue;
-
-            helper.UpdateFocusKey(oldValue, newValue);
-        }
-        #endregion
-
-        private static readonly DependencyPropertyKey HotkeyServiceHelperPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
+		private static readonly DependencyPropertyKey HotkeyServiceHelperPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "HotkeyServiceHelper", typeof(HotkeyServiceHelper), typeof(HotkeyService),
             new FrameworkPropertyMetadata(null)
         );
 
+		#endregion [rgn]
 
-        private static HotkeyServiceHelper EnsureHotkeyServiceHelper(Window window)
+		#region [rgn] Methods (1)
+
+		// [rgn] Private Methods (1)
+
+		private static HotkeyServiceHelper EnsureHotkeyServiceHelper(Window window)
         {
             HotkeyServiceHelper helper = (HotkeyServiceHelper)window.GetValue(HotkeyServiceHelperPropertyKey.DependencyProperty);
 
@@ -63,8 +31,12 @@ namespace Huddled.PoshConsole
 
             return helper;
         }
+		
+		#endregion [rgn]
 
-        private sealed class HotkeyServiceHelper
+		#region [rgn] Nested Classes (1)
+
+		private sealed class HotkeyServiceHelper
         {
             private readonly Window _window;
             private readonly HotkeyManager _manager;
@@ -112,5 +84,42 @@ namespace Huddled.PoshConsole
                 _manager.Dispose();
             }
         }
+
+		#endregion [rgn]
+#region DependencyProperty FocusHotkey
+        public static readonly DependencyProperty FocusHotkeyProperty = DependencyProperty.RegisterAttached(
+            "FocusHotkey", typeof(Hotkey), typeof(HotkeyService),
+            new FrameworkPropertyMetadata(Hotkey.None, OnFocusHotkeyChanged)
+        );
+        [AttachedPropertyBrowsableForType(typeof(Window))]
+        public static Hotkey GetFocusHotkey(DependencyObject element)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
+
+            return (Hotkey)element.GetValue(FocusHotkeyProperty);
+        }
+        public static void SetFocusHotkey(DependencyObject element, Hotkey value)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
+
+            element.SetValue(FocusHotkeyProperty, value);
+        }
+        private static void OnFocusHotkeyChanged(DependencyObject target, DependencyPropertyChangedEventArgs e)
+        {
+            Window window = (Window)target;
+            HotkeyServiceHelper helper = EnsureHotkeyServiceHelper(window);
+
+            Hotkey oldValue = (Hotkey)e.OldValue;
+            Hotkey newValue = (Hotkey)e.NewValue;
+
+            helper.UpdateFocusKey(oldValue, newValue);
+        }
+        #endregion
     }
 }

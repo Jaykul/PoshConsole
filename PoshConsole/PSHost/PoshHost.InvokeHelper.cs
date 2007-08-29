@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 //using System.Linq;
@@ -7,135 +7,72 @@ using System.Management.Automation.Runspaces;
 using System.Threading;
 using System.Collections;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.PSHost
 {
     partial class PoshHost
     {
-        private struct PipelineExecutionResult
+        
+		#region [rgn] Fields (1)
+
+		private static readonly object[] EmptyArray = new object[0];
+
+		#endregion [rgn]
+
+		#region [rgn] Delegates and Events (1)
+
+		// [rgn] Delegates (1)
+
+		private delegate void PipelineOutputHandler(PipelineExecutionResult result);
+		
+		#endregion [rgn]
+
+		#region [rgn] Methods (18)
+
+		// [rgn] Public Methods (1)
+
+		public bool IsBusy()
         {
-            private Collection<PSObject> _output;
-            private Collection<Object> _errors;
-            private Exception _failure;
-            private PipelineState _state;
+            return _ready.WaitOne(0, false);
+        }
+		
+		// [rgn] Private Methods (17)
 
-            public Collection<PSObject> Output { get { return _output; } }
-            public Collection<Object> Errors { get { return _errors; } }
-            public Exception Failure { get { return _failure; } }
-            public PipelineState State { get { return _state; } }
+		private Pipeline CreatePipeline(Command[] commands)
+        {
+            Pipeline pipeline = myRunSpace.CreatePipeline();
 
-            public PipelineExecutionResult(Collection<PSObject> output, Collection<Object> errors, Exception failure, PipelineState state)
+            foreach (Command cmd in commands)
             {
-                _failure = failure; 
-                _errors = errors ?? new Collection<Object>();
-                _output = output ?? new Collection<PSObject>();
-                _state = state;
-            }
-        }
-
-        private delegate void PipelineOutputHandler(PipelineExecutionResult result);
-
-        private static readonly object[] EmptyArray = new object[0];
-
-        private T InvokePipelineSelectFirst<T>(Command cmd)
-        {
-            PSObject psobj = InvokePipelineSelectFirst(cmd);
-
-            if (psobj != null)
-            {
-                return (T)psobj.BaseObject;
-            }
-
-            return default(T);
-        }
-
-        private PSObject InvokePipelineSelectFirst(Command cmd)
-        {
-            return EnumHelper.First( InvokePipeline(cmd) );// OR default?
-        }
-
-        private Collection<PSObject> InvokePipeline(string cmd)
-        {
-            return InvokePipeline(new Command(cmd, true, true));
-        }
-
-        private Collection<PSObject> InvokePipeline(Command cmd)
-        {
-            Collection<Object> errors;
-            return InvokePipeline(cmd, out errors);
-        }
-
-        private Collection<PSObject> InvokePipeline(Command cmd, out Collection<Object> errors)
-        {
-            PipelineExecutionResult result = ExecutePipelineSync(cmd);
-
-            if (result.Failure != null)
-            {
-                throw result.Failure;
+                pipeline.Commands.Add(cmd);
             }
 
-            errors = result.Errors;
-            return result.Output;
+            return pipeline;
         }
-
-        private PipelineExecutionResult ExecutePipelineSync(Command cmd)
+		
+		private Pipeline CreatePipelineOutDefault(string command, bool addToHistory)
         {
-            return ExecutePipelineSync(cmd, EmptyArray);
+            Pipeline pipe = myRunSpace.CreatePipeline(command, addToHistory);
+            pipe.Commands.Add(outDefault);
+
+            return pipe;
         }
-
-        private PipelineExecutionResult ExecutePipelineSync(Command cmd, IEnumerable input)
-        {
-            PipelineExecutionResult result = new PipelineExecutionResult();
-            Object syncRoot = new Object();
-
-            ExecutePipeline(cmd, input,  (PipelineOutputHandler) delegate(PipelineExecutionResult r) { 
-                result = r;
-                lock (syncRoot)
-                {
-                    Monitor.Pulse(syncRoot);
-                }
-            });
-
-            lock (syncRoot)
-            {
-                Monitor.Wait(syncRoot);
-            }
-
-            return result;
-        }
-
-        private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
-        {
-            ExecutePipelineOutDefault(command, EmptyArray, addToHistory, callback);
-        }
-
-        private void ExecutePipelineOutDefault(string command, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
-        {
-            if (IsRunspaceReady())
-            {
-
-                _ready.Reset();
-
-                ExecutePipeline(CreatePipelineOutDefault(command, addToHistory), input, callback);
-            }
-            else myUI.WriteErrorLine("Couldn't Execute\n" + command);
-        }
-
-        private void ExecutePipeline(Command command, PipelineOutputHandler callback)
+		
+		private void ExecutePipeline(Command command, PipelineOutputHandler callback)
         {
             ExecutePipeline(command, EmptyArray, callback);
         }
-
-        private void ExecutePipeline(Command command, IEnumerable input, PipelineOutputHandler callback)
+		
+		private void ExecutePipeline(Command command, IEnumerable input, PipelineOutputHandler callback)
         {
             ExecutePipeline(new Command[] { command }, input, callback);
         }
-
-        private void ExecutePipeline(Command[] commands, PipelineOutputHandler callback)
+		
+		private void ExecutePipeline(Command[] commands, PipelineOutputHandler callback)
         {
             ExecutePipeline(commands, EmptyArray, callback);
         }
-
-        private void ExecutePipeline(Command[] commands, IEnumerable input, PipelineOutputHandler callback)
+		
+		private void ExecutePipeline(Command[] commands, IEnumerable input, PipelineOutputHandler callback)
         {
             if (IsRunspaceReady())
             {
@@ -145,8 +82,8 @@ namespace Huddled.PoshConsole
             }
             else myUI.WriteErrorLine( "Couldn't Execute\n" + commands.ToString());
         }
-
-        private void ExecutePipeline(Pipeline pipeline, IEnumerable input, PipelineOutputHandler callback)
+		
+		private void ExecutePipeline(Pipeline pipeline, IEnumerable input, PipelineOutputHandler callback)
         {
             // This is a dynamic anonymous delegate so that it can access the callback parameter
             pipeline.StateChanged += (EventHandler<PipelineStateEventArgs>)delegate(object sender, PipelineStateEventArgs e) // =>
@@ -188,33 +125,95 @@ namespace Huddled.PoshConsole
 
             currentPipeline = pipeline;
         }
-
-
-        private Pipeline CreatePipelineOutDefault(string command, bool addToHistory)
+		
+		private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
         {
-            Pipeline pipe = myRunSpace.CreatePipeline(command, addToHistory);
-            pipe.Commands.Add(outDefault);
-
-            return pipe;
+            ExecutePipelineOutDefault(command, EmptyArray, addToHistory, callback);
         }
-
-        private Pipeline CreatePipeline(Command[] commands)
+		
+		private void ExecutePipelineOutDefault(string command, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
         {
-            Pipeline pipeline = myRunSpace.CreatePipeline();
-
-            foreach (Command cmd in commands)
+            if (IsRunspaceReady())
             {
-                pipeline.Commands.Add(cmd);
+
+                _ready.Reset();
+
+                ExecutePipeline(CreatePipelineOutDefault(command, addToHistory), input, callback);
+            }
+            else myUI.WriteErrorLine("Couldn't Execute\n" + command);
+        }
+		
+		private PipelineExecutionResult ExecutePipelineSync(Command cmd)
+        {
+            return ExecutePipelineSync(cmd, EmptyArray);
+        }
+		
+		private PipelineExecutionResult ExecutePipelineSync(Command cmd, IEnumerable input)
+        {
+            PipelineExecutionResult result = new PipelineExecutionResult();
+            Object syncRoot = new Object();
+
+            ExecutePipeline(cmd, input,  (PipelineOutputHandler) delegate(PipelineExecutionResult r) { 
+                result = r;
+                lock (syncRoot)
+                {
+                    Monitor.Pulse(syncRoot);
+                }
+            });
+
+            lock (syncRoot)
+            {
+                Monitor.Wait(syncRoot);
             }
 
-            return pipeline;
+            return result;
         }
+		
+		private Collection<PSObject> InvokePipeline(string cmd)
+        {
+            return InvokePipeline(new Command(cmd, true, true));
+        }
+		
+		private Collection<PSObject> InvokePipeline(Command cmd)
+        {
+            Collection<Object> errors;
+            return InvokePipeline(cmd, out errors);
+        }
+		
+		private Collection<PSObject> InvokePipeline(Command cmd, out Collection<Object> errors)
+        {
+            PipelineExecutionResult result = ExecutePipelineSync(cmd);
 
-        //private void EnsureRunspaceIsReady()
+            if (result.Failure != null)
+            {
+                throw result.Failure;
+            }
+
+            errors = result.Errors;
+            return result.Output;
+        }
+		
+		private T InvokePipelineSelectFirst<T>(Command cmd)
+        {
+            PSObject psobj = InvokePipelineSelectFirst(cmd);
+
+            if (psobj != null)
+            {
+                return (T)psobj.BaseObject;
+            }
+
+            return default(T);
+        }
+		
+		private PSObject InvokePipelineSelectFirst(Command cmd)
+        {
+            return EnumHelper.First( InvokePipeline(cmd) );// OR default?
+        }
+		
+		//private void EnsureRunspaceIsReady()
         //{
         //    if (!IsRunspaceReady())
         //}
-
         private bool IsRunspaceReady()
         {
             bool ready = _ready.WaitOne(5000, true);
@@ -226,10 +225,27 @@ namespace Huddled.PoshConsole
             }
             return ready;
         }
-
-        public bool IsBusy()
+		
+		#endregion [rgn]
+private struct PipelineExecutionResult
         {
-            return _ready.WaitOne(0, false);
+            private Collection<PSObject> _output;
+            private Collection<Object> _errors;
+            private Exception _failure;
+            private PipelineState _state;
+
+            public Collection<PSObject> Output { get { return _output; } }
+            public Collection<Object> Errors { get { return _errors; } }
+            public Exception Failure { get { return _failure; } }
+            public PipelineState State { get { return _state; } }
+
+            public PipelineExecutionResult(Collection<PSObject> output, Collection<Object> errors, Exception failure, PipelineState state)
+            {
+                _failure = failure; 
+                _errors = errors ?? new Collection<Object>();
+                _output = output ?? new Collection<PSObject>();
+                _state = state;
+            }
         }
     }
 }

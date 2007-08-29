@@ -16,7 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 
-namespace Huddled.Core
+namespace PoshConsole
 {
     namespace Controls
     {
@@ -57,7 +57,19 @@ namespace Huddled.Core
 
         public partial class ThumbnailImage : Image
         {
-            public static readonly DependencyProperty WindowSourceProperty = DependencyProperty.Register(
+            
+		#region [rgn] Fields (4)
+
+		public static DependencyProperty ClientAreaOnlyProperty = DependencyProperty.Register(
+                "ClientAreaOnly",                                              // name
+                typeof(bool), typeof(ThumbnailImage),                  // Type information
+                new FrameworkPropertyMetadata(false,                     // Default Value
+                FrameworkPropertyMetadataOptions.AffectsRender,         // Property Options
+                new PropertyChangedCallback(OnClientAreaOnlyChanged))      // Change Callback
+                );
+		private HwndSource target;
+		private IntPtr thumb;
+		public static readonly DependencyProperty WindowSourceProperty = DependencyProperty.Register(
                 "WindowSource",                                              // name
                 typeof(IntPtr), typeof(ThumbnailImage),                  // Type information
                 new FrameworkPropertyMetadata(IntPtr.Zero,                     // Default Value
@@ -67,44 +79,20 @@ namespace Huddled.Core
                 new PropertyChangedCallback(OnWindowSourceChanged))      // Change Callback
                 );
 
+		#endregion [rgn]
 
+		#region [rgn] Constructors (3)
 
-            public static DependencyProperty ClientAreaOnlyProperty = DependencyProperty.Register(
-                "ClientAreaOnly",                                              // name
-                typeof(bool), typeof(ThumbnailImage),                  // Type information
-                new FrameworkPropertyMetadata(false,                     // Default Value
-                FrameworkPropertyMetadataOptions.AffectsRender,         // Property Options
-                new PropertyChangedCallback(OnClientAreaOnlyChanged))      // Change Callback
-                );
-
-            private static void OnWindowSourceChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs args)
+		/// <summary>Initializes a new instance of the <see cref="ThumbnailButton"/> class.
+            /// </summary>
+            public ThumbnailImage(IntPtr source)
+                : this()
             {
-                if (depObj is ThumbnailImage)
-                {
-                    if (args.NewValue is IntPtr && !IntPtr.Zero.Equals(args.NewValue))
-                    {
-                        IntPtr source = (IntPtr)args.NewValue;
-                        (depObj as ThumbnailImage).InitialiseThumbnail(source);
-                    }
-                }
+                WindowSource = source;
+                InitialiseThumbnail(source);
             }
-
-            private static void OnClientAreaOnlyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs args)
-            {
-                if (depObj is ThumbnailImage)
-                {
-                    if (args.NewValue is bool)
-                    {
-                        (depObj as ThumbnailImage).ClientAreaOnly = (bool)args.NewValue;
-                        //if( !IntPtr.Zero.Equals(WindowSource) ) 
-                        //    InitialiseThumbnail(source);
-                    }
-                }
-            }
-            private HwndSource target;
-            private IntPtr thumb;
-
-            /// <summary>Initializes the <see cref="ThumbnailButton"/> class.
+		
+		/// <summary>Initializes the <see cref="ThumbnailButton"/> class.
             /// </summary>
             static ThumbnailImage()
             {
@@ -122,17 +110,8 @@ namespace Huddled.Core
                 DefaultStyleKeyProperty.OverrideMetadata(typeof(ThumbnailImage), new FrameworkPropertyMetadata(typeof(ThumbnailImage)));
 
             }
-
-            /// <summary>Initializes a new instance of the <see cref="ThumbnailButton"/> class.
-            /// </summary>
-            public ThumbnailImage(IntPtr source)
-                : this()
-            {
-                WindowSource = source;
-                InitialiseThumbnail(source);
-            }
-
-            /// <summary>Initializes a new instance of the <see cref="ThumbnailImage"/> class.
+		
+		/// <summary>Initializes a new instance of the <see cref="ThumbnailImage"/> class.
             /// </summary>
             public ThumbnailImage()
             {
@@ -146,18 +125,12 @@ namespace Huddled.Core
                 //this.MouseLeave += new MouseEventHandler(Thumbnail_MouseLeave);
                 //keyIsDown = mouseIsDown = false;
             }
+		
+		#endregion [rgn]
 
+		#region [rgn] Properties (3)
 
-            /// <summary>Gets or sets the window source
-            /// </summary>
-            /// <value>The window source.</value>
-            public IntPtr WindowSource
-            {
-                get { return (IntPtr)this.GetValue(WindowSourceProperty); }
-                set { this.SetValue(WindowSourceProperty, value); }
-            }
-
-            /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole window.
+		/// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole window.
             /// </summary>
             /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole window, chrome and all.</value>
             public bool ClientAreaOnly
@@ -165,8 +138,8 @@ namespace Huddled.Core
                 get { return (bool)this.GetValue(ClientAreaOnlyProperty); }
                 set { this.SetValue(ClientAreaOnlyProperty, value); }
             }
-
-            /// <summary>Gets or sets the opacity factor
+		
+		/// <summary>Gets or sets the opacity factor
             /// applied to the entire image when it is rendered in the user interface (UI).  
             /// This is a dependency property.
             /// </summary>
@@ -177,8 +150,70 @@ namespace Huddled.Core
                 get { return (double)this.GetValue(OpacityProperty); }
                 set { this.SetValue(OpacityProperty, value); }
             }
+		
+		/// <summary>Gets or sets the window source
+            /// </summary>
+            /// <value>The window source.</value>
+            public IntPtr WindowSource
+            {
+                get { return (IntPtr)this.GetValue(WindowSourceProperty); }
+                set { this.SetValue(WindowSourceProperty, value); }
+            }
+		
+		#endregion [rgn]
 
-            /// <summary>Initialises the thumbnail image
+		#region [rgn] Methods (9)
+
+		// [rgn] Protected Methods (2)
+
+		/// <summary>Positions elements and determines a size for the ThumbnailImage
+            /// </summary>
+            /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
+            /// <returns>The actual size used.</returns>
+            protected override Size ArrangeOverride(Size finalSize)
+            {
+                System.Drawing.Size size;
+                Win32.NativeMethods.DwmQueryThumbnailSourceSize(this.thumb, out size);
+
+                // scale to fit whatever size we were allocated
+                double scale = finalSize.Width / size.Width;
+                scale = Math.Min(scale, finalSize.Height / size.Height);
+
+                return new Size(size.Width * scale, size.Height * scale);
+            }
+		
+		/// <summary>
+            /// Measures the size in layout required for child elements and determines a size for the Image.
+            /// </summary>
+            /// <param name="availableSize">The available size that this element can give to child elements. 
+            /// Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
+            /// <returns>
+            /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
+            /// </returns>
+            protected override Size MeasureOverride(Size availableSize)
+            {
+                if (IntPtr.Zero == thumb)
+                {
+                    InitialiseThumbnail(this.WindowSource);
+                }
+                System.Drawing.Size size;
+                Win32.NativeMethods.DwmQueryThumbnailSourceSize(thumb, out size);
+
+                double scale = 1;
+
+                // our preferred size is the thumbnail source size
+                // if less space is available, we scale appropriately
+                if (size.Width > availableSize.Width)
+                    scale = availableSize.Width / size.Width;
+                if (size.Height > availableSize.Height)
+                    scale = Math.Min(scale, availableSize.Height / size.Height);
+
+                return new Size(size.Width * scale, size.Height * scale); ;
+            }
+		
+		// [rgn] Private Methods (7)
+
+		/// <summary>Initialises the thumbnail image
             /// </summary>
             /// <param name="source">The source.</param>
             private void InitialiseThumbnail(IntPtr source)
@@ -206,8 +241,33 @@ namespace Huddled.Core
                     }
                 }
             }
-
-            /// <summary>Releases the thumbnail
+		
+		private static void OnClientAreaOnlyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs args)
+            {
+                if (depObj is ThumbnailImage)
+                {
+                    if (args.NewValue is bool)
+                    {
+                        (depObj as ThumbnailImage).ClientAreaOnly = (bool)args.NewValue;
+                        //if( !IntPtr.Zero.Equals(WindowSource) ) 
+                        //    InitialiseThumbnail(source);
+                    }
+                }
+            }
+		
+		private static void OnWindowSourceChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs args)
+            {
+                if (depObj is ThumbnailImage)
+                {
+                    if (args.NewValue is IntPtr && !IntPtr.Zero.Equals(args.NewValue))
+                    {
+                        IntPtr source = (IntPtr)args.NewValue;
+                        (depObj as ThumbnailImage).InitialiseThumbnail(source);
+                    }
+                }
+            }
+		
+		/// <summary>Releases the thumbnail
             /// </summary>
             private void ReleaseThumbnail()
             {
@@ -218,31 +278,8 @@ namespace Huddled.Core
                 }
                 this.target = null;
             }
-
-            /// <summary>Updates the thumbnail
-            /// </summary>
-            private void UpdateThumbnail()
-            {
-                if (IntPtr.Zero != thumb)
-                {
-                    Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
-                    props.ClientAreaOnly = this.ClientAreaOnly;
-                    props.Opacity = (byte)(255 * this.Opacity);
-                    props.Flags = Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Win32.NativeMethods.ThumbnailFlags.Opacity;
-                    Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
-                }
-            }
-
-            /// <summary>Handles the Unloaded event of the Thumbnail control.
-            /// </summary>
-            /// <param name="sender">The source of the event.</param>
-            /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-            private void Thumbnail_Unloaded(object sender, RoutedEventArgs e)
-            {
-                ReleaseThumbnail();
-            }
-
-            /// <summary>Handles the LayoutUpdated event of the Thumbnail image
+		
+		/// <summary>Handles the LayoutUpdated event of the Thumbnail image
             /// Actually, we really just ask Windows to paint us at our new size...
             /// </summary>
             /// <param name="sender">The source of the event.</param>
@@ -275,51 +312,32 @@ namespace Huddled.Core
                     Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
             }
-
-            /// <summary>
-            /// Measures the size in layout required for child elements and determines a size for the Image.
+		
+		/// <summary>Handles the Unloaded event of the Thumbnail control.
             /// </summary>
-            /// <param name="availableSize">The available size that this element can give to child elements. 
-            /// Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
-            /// <returns>
-            /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
-            /// </returns>
-            protected override Size MeasureOverride(Size availableSize)
+            /// <param name="sender">The source of the event.</param>
+            /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+            private void Thumbnail_Unloaded(object sender, RoutedEventArgs e)
             {
-                if (IntPtr.Zero == thumb)
+                ReleaseThumbnail();
+            }
+		
+		/// <summary>Updates the thumbnail
+            /// </summary>
+            private void UpdateThumbnail()
+            {
+                if (IntPtr.Zero != thumb)
                 {
-                    InitialiseThumbnail(this.WindowSource);
+                    Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+                    props.ClientAreaOnly = this.ClientAreaOnly;
+                    props.Opacity = (byte)(255 * this.Opacity);
+                    props.Flags = Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Win32.NativeMethods.ThumbnailFlags.Opacity;
+                    Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
-                System.Drawing.Size size;
-                Win32.NativeMethods.DwmQueryThumbnailSourceSize(thumb, out size);
-
-                double scale = 1;
-
-                // our preferred size is the thumbnail source size
-                // if less space is available, we scale appropriately
-                if (size.Width > availableSize.Width)
-                    scale = availableSize.Width / size.Width;
-                if (size.Height > availableSize.Height)
-                    scale = Math.Min(scale, availableSize.Height / size.Height);
-
-                return new Size(size.Width * scale, size.Height * scale); ;
             }
+		
+		#endregion [rgn]
 
-            /// <summary>Positions elements and determines a size for the ThumbnailImage
-            /// </summary>
-            /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
-            /// <returns>The actual size used.</returns>
-            protected override Size ArrangeOverride(Size finalSize)
-            {
-                System.Drawing.Size size;
-                Win32.NativeMethods.DwmQueryThumbnailSourceSize(this.thumb, out size);
-
-                // scale to fit whatever size we were allocated
-                double scale = finalSize.Width / size.Width;
-                scale = Math.Min(scale, finalSize.Height / size.Height);
-
-                return new Size(size.Width * scale, size.Height * scale);
-            }
         }
     }
 
@@ -328,30 +346,10 @@ namespace Huddled.Core
 
         public partial class NativeMethods
         {
+            
+		#region [rgn] Enums (1)
 
-            // ************************************************
-            // ***** VISTA ONLY *******************************
-            // ************************************************
-
-            //[DllImport("dwmapi.dll")]
-            //public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, IntPtr pReserved, out SafeThumbnailHandle phThumbnailId);
-            [DllImport("dwmapi.dll")]
-            public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, out IntPtr hThumbnailId);
-
-            [DllImport("dwmapi.dll")]
-            public static extern int DwmUnregisterThumbnail(IntPtr hThumbnailId);
-            [DllImport("dwmapi.dll")]
-            public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out System.Drawing.Size size);
-
-            //[DllImport("dwmapi.dll")]
-            //public static extern int DwmUpdateThumbnailProperties(SafeThumbnailHandle hThumbnailId, ref DwmThumbnailProperties ptnProperties);
-            [DllImport("dwmapi.dll")]
-            public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnailId, ref ThumbnailProperties thumbProps);
-
-            [DllImport("dwmapi.dll")]
-            public static extern int DwmIsCompositionEnabled([MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
-
-            [Flags()]
+		[Flags()]
             public enum ThumbnailFlags : uint
             {
                 /// <summary>
@@ -376,7 +374,36 @@ namespace Huddled.Core
                 SourceClientAreaOnly = 0x10
             }
 
-            [Serializable, StructLayout(LayoutKind.Sequential)]
+		#endregion [rgn]
+
+		#region [rgn] Methods (4)
+
+		// [rgn] Public Methods (4)
+
+		[DllImport("dwmapi.dll")]
+            public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out System.Drawing.Size size);
+		
+		// ************************************************
+            // ***** VISTA ONLY *******************************
+            // ************************************************
+            //[DllImport("dwmapi.dll")]
+            //public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, IntPtr pReserved, out SafeThumbnailHandle phThumbnailId);
+            [DllImport("dwmapi.dll")]
+            public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, out IntPtr hThumbnailId);
+		
+		[DllImport("dwmapi.dll")]
+            public static extern int DwmUnregisterThumbnail(IntPtr hThumbnailId);
+		
+		//[DllImport("dwmapi.dll")]
+            //public static extern int DwmUpdateThumbnailProperties(SafeThumbnailHandle hThumbnailId, ref DwmThumbnailProperties ptnProperties);
+            [DllImport("dwmapi.dll")]
+            public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnailId, ref ThumbnailProperties thumbProps);
+		
+		#endregion [rgn]
+
+            [DllImport("dwmapi.dll")]
+            public static extern int DwmIsCompositionEnabled([MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
+[Serializable, StructLayout(LayoutKind.Sequential)]
             public struct ThumbnailProperties
             {
                 public ThumbnailFlags Flags;
@@ -402,7 +429,6 @@ namespace Huddled.Core
                     ClientAreaOnly = false;
                 }
             }
-
             [Serializable, StructLayout(LayoutKind.Sequential)]
             public struct RECT
             {
@@ -470,7 +496,6 @@ namespace Huddled.Core
 
                 #endregion
             }
-
         }
     }
 }

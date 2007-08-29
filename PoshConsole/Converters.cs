@@ -4,12 +4,17 @@ using System.Text;
 using System.Windows.Data;
 using System.Globalization;
 
-namespace Huddled.WPF.Converters
+namespace PoshConsole.WPF.Converters
 {
     [ValueConversion(typeof(object), typeof(string))]
     public class FormattingConverter : IValueConverter
     {
-        /// <summary>
+        
+		#region [rgn] Methods (2)
+
+		// [rgn] Public Methods (2)
+
+		/// <summary>
         /// Converts a value. The data binding engine calls this method when it propagates a value from the binding source to the binding target.
         /// </summary>
         /// <param name="value">The value produced by the binding source.</param>
@@ -31,8 +36,8 @@ namespace Huddled.WPF.Converters
                 return value.ToString();
             }
         }
-
-        /// <summary>
+		
+		/// <summary>
         /// This converter is one-way, it doesn't convert back.
         /// </summary>
         /// <param name="value">The value that is produced by the binding target.</param>
@@ -46,5 +51,8 @@ namespace Huddled.WPF.Converters
         {
             throw new NotImplementedException("The FormattingConverter can't convert back");
         }
+		
+		#endregion [rgn]
+
     }
 }

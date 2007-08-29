@@ -16,11 +16,16 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     public partial class ConsoleRichTextBox
     {
-        void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        
+		#region [rgn] Methods (1)
+
+		// [rgn] Private Methods (1)
+
+		void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
             {
@@ -151,10 +156,12 @@ namespace Huddled.PoshConsole
                 Properties.Colors.Default.Save();
             });
         }
+		
+		#endregion [rgn]
 
+		#region [rgn] Nested Classes (1)
 
-
-        public class ConsoleBrushList
+		public class ConsoleBrushList
         {
             public Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
             public Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
@@ -276,5 +283,8 @@ namespace Huddled.PoshConsole
             }
 
         }
+
+		#endregion [rgn]
+
     }
 }

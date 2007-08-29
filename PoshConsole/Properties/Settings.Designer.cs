@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Huddled.PoshConsole.Properties {
+namespace PoshConsole.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -314,9 +314,9 @@ namespace Huddled.PoshConsole.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Windows+OemTilde")]
-        public global::Huddled.PoshConsole.Hotkey FocusKey {
+        public PoshConsole.Hotkey FocusKey {
             get {
-                return ((global::Huddled.PoshConsole.Hotkey)(this["FocusKey"]));
+                return ((PoshConsole.Hotkey)(this["FocusKey"]));
             }
             set {
                 this["FocusKey"] = value;

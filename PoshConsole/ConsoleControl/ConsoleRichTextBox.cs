@@ -17,7 +17,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Globalization;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     public delegate object Invoke();
     public delegate void BeginInvoke();
@@ -362,7 +362,7 @@ namespace Huddled.PoshConsole
         //private List<string> completions = null;
         //private int historyIndex = -1;
         ///// <summary>
-        ///// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+        ///// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see>ï¿½attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
         ///// </summary>
         ///// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
         //protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -671,30 +671,44 @@ namespace Huddled.PoshConsole
         /// </summary>
         private class Word
         {
-            public Word(TextPointer wordStart, TextPointer wordEnd)
+            
+		#region [rgn] Fields (2)
+
+		private readonly TextPointer _wordEnd;
+		private readonly TextPointer _wordStart;
+
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		public Word(TextPointer wordStart, TextPointer wordEnd)
             {
                 _wordStart = wordStart.GetPositionAtOffset(0, LogicalDirection.Forward);
                 _wordEnd = wordEnd.GetPositionAtOffset(0, LogicalDirection.Backward);
             }
+		
+		#endregion [rgn]
 
-            public TextPointer Start
-            {
-                get
-                {
-                    return _wordStart;
-                }
-            }
+		#region [rgn] Properties (2)
 
-            public TextPointer End
+		public TextPointer End
             {
                 get
                 {
                     return _wordEnd;
                 }
             }
+		
+		public TextPointer Start
+            {
+                get
+                {
+                    return _wordStart;
+                }
+            }
+		
+		#endregion [rgn]
 
-            private readonly TextPointer _wordStart;
-            private readonly TextPointer _wordEnd;
         }
 
         #endregion

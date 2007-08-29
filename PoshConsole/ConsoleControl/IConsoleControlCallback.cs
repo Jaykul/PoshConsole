@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     public interface IConsoleControlCallback
     {

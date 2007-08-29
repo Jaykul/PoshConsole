@@ -11,12 +11,11 @@ using System.IO;
 using System.Windows.Controls;
 using System.Management.Automation;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     partial class ConsoleRichTextBox : IPSXamlConsole
     {
         #region IPSXamlConsole Members
-
         void IPSXamlConsole.OutXaml(XmlDocument source)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
@@ -30,7 +29,6 @@ namespace Huddled.PoshConsole
                 }
             });
         }
-
         void IPSXamlConsole.OutXaml(FileInfo source)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
@@ -45,7 +43,6 @@ namespace Huddled.PoshConsole
                 }
             });
         }
-
         void IPSXamlConsole.OutXaml(XmlDocument source, PSObject data)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
@@ -56,8 +53,8 @@ namespace Huddled.PoshConsole
                     if (loaded is FrameworkElement)
                     {
                         InlineUIContainer iui = new InlineUIContainer();// ((UIElement)fromXaml);
-                        iui.DataContext = data.BaseObject;
                         iui.Child = (FrameworkElement)loaded;
+                        iui.DataContext = data.BaseObject;
                         _currentParagraph.Inlines.Add(iui);
                         //_currentParagraph.Inlines.Add(iui);
                         //((FrameworkElement)loaded).DataContext
@@ -72,7 +69,6 @@ namespace Huddled.PoshConsole
                 }
             });
         }
-
         void IPSXamlConsole.OutXaml(FileInfo source, PSObject data)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
@@ -83,13 +79,13 @@ namespace Huddled.PoshConsole
                     if (loaded is FrameworkElement)
                     {
                         InlineUIContainer iui = new InlineUIContainer();// ((UIElement)fromXaml);
-                        iui.DataContext = data;
                         iui.Child = (FrameworkElement)loaded;
+                        iui.DataContext = data.BaseObject;
                         _currentParagraph.Inlines.Add(iui);
                         //((FrameworkElement)loaded).DataContext = data;
                         //OutXamlObject(((FrameworkElement)loaded));
                     } else {
-                        ((IPSConsole)this).WriteErrorRecord(new ErrorRecord(new ArgumentException("XmlDocument doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded));
+                        ((IPSConsole)this).WriteErrorRecord(new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded));
                     }
                 }
                 catch (Exception ex)
@@ -98,8 +94,6 @@ namespace Huddled.PoshConsole
                 }
             });
         }
-
-        
         private void OutXamlObject(object fromXaml) {
             if (fromXaml is ContentElement)
             { 
@@ -110,7 +104,6 @@ namespace Huddled.PoshConsole
                 OutXamlElement((FrameworkElement)fromXaml); 
             }
         }
-
         private void OutXamlElement(ContentElement fromXaml)
         {
             if( fromXaml is Inline )
@@ -127,7 +120,6 @@ namespace Huddled.PoshConsole
                 ((IPSConsole)this).WriteErrorLine(fromXaml.GetType().FullName + ", " + fromXaml.GetType().BaseType.FullName);
             }
         }
-
         private void OutXamlElement(FrameworkElement fromXaml)
         {
             if (fromXaml is UIElement)
@@ -144,7 +136,6 @@ namespace Huddled.PoshConsole
                 ((IPSConsole)this).WriteErrorLine(fromXaml.GetType().FullName + ", " + fromXaml.GetType().BaseType.FullName);
             }
         }
-
         #endregion
     }
 }

@@ -1,25 +1,32 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public static class WindowSwitcher
     {
-        public static void ActivateNextWindow()
+        
+		#region [rgn] Methods (4)
+
+		// [rgn] Public Methods (2)
+
+		public static void ActivateNextWindow()
         {
             ActivateNextWindow(Application.Current.MainWindow);
         }
-
-        public static void ActivateNextWindow(Window current)
+		
+		public static void ActivateNextWindow(Window current)
         {
             IntPtr next = GetNextWindow(current);
 
             NativeMethods.ShowWindow(next, NativeMethods.ShowWindowCommand.Show);
             NativeMethods.SetForegroundWindow(next);
         }
+		
+		// [rgn] Private Methods (2)
 
-        private static IntPtr GetNextWindow(Window relativeTo)
+		private static IntPtr GetNextWindow(Window relativeTo)
         {
             IntPtr current = GetWindowHandle(relativeTo);
             IntPtr next = NativeMethods.GetWindow(current, NativeMethods.GetWindowCommand.Next);
@@ -31,11 +38,14 @@ namespace Huddled.PoshConsole
 
             return next;
         }
-
-        private static IntPtr GetWindowHandle(Window window)
+		
+		private static IntPtr GetWindowHandle(Window window)
         {
             return new WindowInteropHelper(window).Handle;
         }
+		
+		#endregion [rgn]
+
     }
 
 }

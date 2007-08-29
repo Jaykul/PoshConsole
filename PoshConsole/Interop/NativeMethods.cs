@@ -5,12 +5,14 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Runtime.ConstrainedExecution;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Interop
 {
     public static partial class NativeMethods
 	{
+        
+		#region [rgn] Enums (2)
 
-        /// <summary>
+		/// <summary>
         /// Provides the enumeration values for calls to <see cref="NativeMethods.ShowWindow"/> or <see cref="NativeMethods.ShowWindowAsync"/>
         /// </summary>
         public enum ShowWindowCommand : uint
@@ -84,8 +86,7 @@ namespace Huddled.PoshConsole
             /// </summary>
             ForceMinimize = 11
         }
-
-        /// <summary>
+		/// <summary>
         /// Provides the enumeration values for calls to <see cref="NativeMethods.GetWindow"/>
         /// </summary>
         public enum GetWindowCommand : uint
@@ -120,26 +121,74 @@ namespace Huddled.PoshConsole
             Popup = 6
         }
 
+		#endregion [rgn]
 
+		#region [rgn] Methods (6)
 
-		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool SetForegroundWindow(IntPtr hWnd);
+		// [rgn] Public Methods (6)
 
-        //[DllImport("user32.dll")]
-        //[return: MarshalAs(UnmanagedType.Bool)]
-        //public static extern bool BringWindowToTop(IntPtr hWnd);
+		/// <summary>
+		/// Activates the next window.
+		/// </summary>
+		/// <returns></returns>
+        public static bool ActivateNextWindow(IntPtr windowHandle)
+		{
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsWindowVisible(IntPtr hWnd);
-         
+            IntPtr next = GetNextWindow(windowHandle);
+            ShowWindow(next,ShowWindowCommand.Show);
+            return SetForegroundWindow(next);
+            
+		}
+		
+		//public static IntPtr GetOwnerHandle(System.Windows.Window window)
+        //{
+        //    return new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Owner;
+        //}
+		/// <summary>
+		/// Gets the next window.
+		/// </summary>
+		/// <returns></returns>
+		public static IntPtr GetNextWindow( IntPtr windowHandle )
+		{
+            //IntPtr handle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
+            IntPtr next = GetWindow(windowHandle, GetWindowCommand.Next);
 
-        // It looks like the function is in shell32.dll - just not exported pre XP SP1. 
+            // and then make sure we have a visible window
+            while (!IsWindowVisible(next))
+            {
+                next = GetWindow(next, GetWindowCommand.Next);
+            }
+            return next;
+		}
+		
+		/// <summary>
+        /// Gets the window handle for the specified <see cref="System.Windows.Window"/>
+        /// </summary>
+        /// <param name="window">The window.</param>
+        /// <returns></returns>
+        public static IntPtr GetWindowHandle(System.Windows.Window window)
+        {
+            return new WindowInteropHelper(window).Handle;
+        }
+		
+		// It looks like the function is in shell32.dll - just not exported pre XP SP1. 
         // We could hypothetically reference it by ordinal number -- should work from Win2K SP4 on.
         // [DllImport("shell32.dll",EntryPoint="#680",CharSet=CharSet.Unicode)]
         [DllImport("shell32.dll", EntryPoint="IsUserAnAdmin", CharSet=CharSet.Unicode)]
         public static extern bool IsUserAnAdmin();
+		
+		//[DllImport("user32.dll")]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //public static extern bool BringWindowToTop(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+		
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool SetForegroundWindow(IntPtr hWnd);
+		
+		#endregion [rgn]
 
         #region user32!GetWindow
         /// <summary> The GetWindow function retrieves a handle to a window 
@@ -163,7 +212,6 @@ namespace Huddled.PoshConsole
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         public static extern IntPtr GetWindow(IntPtr windowHandle, GetWindowCommand command);
         #endregion
-
         #region user32!ShowWindow
         /// <summary>
         /// The ShowWindow function sets the specified window's show state.
@@ -183,50 +231,5 @@ namespace Huddled.PoshConsole
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         public static extern bool ShowWindow(IntPtr windowHandle, ShowWindowCommand command);
         #endregion
-
-        /// <summary>
-        /// Gets the window handle for the specified <see cref="System.Windows.Window"/>
-        /// </summary>
-        /// <param name="window">The window.</param>
-        /// <returns></returns>
-        public static IntPtr GetWindowHandle(System.Windows.Window window)
-        {
-            return new WindowInteropHelper(window).Handle;
-        }
-
-        //public static IntPtr GetOwnerHandle(System.Windows.Window window)
-        //{
-        //    return new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Owner;
-        //}
-
-		/// <summary>
-		/// Gets the next window.
-		/// </summary>
-		/// <returns></returns>
-		public static IntPtr GetNextWindow( IntPtr windowHandle )
-		{
-            //IntPtr handle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
-            IntPtr next = GetWindow(windowHandle, GetWindowCommand.Next);
-
-            // and then make sure we have a visible window
-            while (!IsWindowVisible(next))
-            {
-                next = GetWindow(next, GetWindowCommand.Next);
-            }
-            return next;
-		}
-
-		/// <summary>
-		/// Activates the next window.
-		/// </summary>
-		/// <returns></returns>
-        public static bool ActivateNextWindow(IntPtr windowHandle)
-		{
-
-            IntPtr next = GetNextWindow(windowHandle);
-            ShowWindow(next,ShowWindowCommand.Show);
-            return SetForegroundWindow(next);
-            
-		}
 	}
 }

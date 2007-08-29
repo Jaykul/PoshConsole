@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{44C927E3-2C76-4CA4-9677-28DA10E3FA83}</ProjectGuid>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <RootNamespace>Huddled.PoshConsole</RootNamespace>
+    <RootNamespace>PoshConsole</RootNamespace>
     <AssemblyName>PoshConsole</AssemblyName>
     <WarningLevel>4</WarningLevel>
     <OutputType>winexe</OutputType>
@@ -64,10 +64,10 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.cs" />
-    <Compile Include="ProgressPanel.xaml.cs">
+    <Compile Include="Controls\ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
     </Compile>
-    <Page Include="ProgressPanel.xaml" />
+    <Page Include="Controls\ProgressPanel.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -109,8 +109,8 @@
     <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
     <Compile Include="Interop\WindowSwitcher.cs" />
     <Compile Include="Cmdlets\OutWPFCommand.cs" />
-    <Compile Include="PoshHost.InvokeHelper.cs" />
-    <Compile Include="PoshOptions.cs" />
+    <Compile Include="PSHost\PoshHost.InvokeHelper.cs" />
+    <Compile Include="PSHost\PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -123,7 +123,7 @@
     <Compile Include="Interop\Hotkeys\HotKeyManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PoshHost.cs" />
+    <Compile Include="PSHost\PoshHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -140,17 +140,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="PoshRawUI.cs" />
-    <Compile Include="PoshUI.cs" />
+    <Compile Include="PSHost\PoshRawUI.cs" />
+    <Compile Include="PSHost\PoshUI.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
-    <Compile Include="Win32.Vista.Glass.cs" />
+    <Compile Include="Interop\Vista\Glass.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

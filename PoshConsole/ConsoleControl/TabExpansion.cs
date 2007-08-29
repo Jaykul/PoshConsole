@@ -2,30 +2,48 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Huddled.PoshConsole
+namespace PoshConsole.Controls
 {
     public delegate List<string> TabExpansionLister(string commandLine);
 
     public class TabExpansion
     {
-        public event TabExpansionLister TabComplete;
+        
+		#region [rgn] Fields (3)
 
-        private int _index;
-        private string _command;
-        private List<string> _choices;
+		private List<string> _choices;
+		private string _command;
+		private int _index;
 
-        public TabExpansion()
+		#endregion [rgn]
+
+		#region [rgn] Constructors (1)
+
+		public TabExpansion()
         {
             _choices = new List<string>();
             TabComplete += new TabExpansionLister(delegate(string cmd) { return new List<string>(); });
         }
+		
+		#endregion [rgn]
 
-        //private IPoshConsoleService _service;
+		#region [rgn] Delegates and Events (1)
+
+		// [rgn] Events (1)
+
+		public event TabExpansionLister TabComplete;
+		
+		#endregion [rgn]
+
+		#region [rgn] Methods (5)
+
+		// [rgn] Public Methods (4)
+
+		//private IPoshConsoleService _service;
         //public void SetService(IPoshConsoleService service)
         //{
         //    _service = service;
         //}
-
         public List<string> GetChoices(string currentCommand)
         {
             if( (_choices == null || _choices.Count == 0) 
@@ -36,26 +54,27 @@ namespace Huddled.PoshConsole
             }
             return _choices;
         }
-	
-
-        public string Next(string currentCommand)
+		
+		public string Next(string currentCommand)
         {
             return Move(currentCommand, 1);
         }
-
-        public string Previous(string currentCommand)
+		
+		public string Previous(string currentCommand)
         {
             return Move(currentCommand, -1);
         }
-
-        public void Reset()
+		
+		public void Reset()
         {
             _index = 0;
             _command = null;
             _choices = null;
         }
+		
+		// [rgn] Private Methods (1)
 
-        private string Move(string currentCommand, int direction)
+		private string Move(string currentCommand, int direction)
         {
             if (_choices.Count == 0)
             {
@@ -88,5 +107,8 @@ namespace Huddled.PoshConsole
                 return _command;
             }
         }
+		
+		#endregion [rgn]
+
     }
 }
