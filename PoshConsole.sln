@@ -2,21 +2,43 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole", "PoshConsole\PoshConsole.csproj", "{44C927E3-2C76-4CA4-9677-28DA10E3FA83}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\FontLibrary.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code Style Enforcer", "{8E22457A-2B70-47B4-BC56-4AE2636124D1}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\ImplementationRules.xml = ..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\ImplementationRules.xml
+		..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\NameRules.xml = ..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\NameRules.xml
+		..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml = ..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 2
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PoshConsole\\PoshConsole.csproj
-		SccProjectName1 = PoshConsole
-		SccLocalPath1 = PoshConsole
-		SccProjectUniqueName2 = FontLibrary\\FontLibrary.csproj
-		SccProjectName2 = FontLibrary
-		SccLocalPath2 = FontLibrary
+		SccProjectUniqueName0 = PoshConsole\\PoshConsole.csproj
+		SccProjectName0 = PoshConsole
+		SccAuxPath0 = https://tfs04.codeplex.com
+		SccLocalPath0 = PoshConsole
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = FontLibrary\\FontLibrary.csproj
+		SccProjectName1 = FontLibrary
+		SccAuxPath1 = https://tfs04.codeplex.com
+		SccLocalPath1 = FontLibrary
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,5 +56,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 EndGlobal
