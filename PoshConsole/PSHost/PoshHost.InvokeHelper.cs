@@ -95,6 +95,12 @@ namespace PoshConsole.PSHost
                     if (completed != null)
                     {
                         Exception failure = e.PipelineStateInfo.Reason;
+
+                        if (failure != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine(failure.GetType(), "PipelineFailure");
+                            System.Diagnostics.Debug.WriteLine(failure.Message, "PipelineFailure");
+                        }
                         Collection<Object> errors = completed.Error.ReadToEnd();
                         Collection<PSObject> results = completed.Output.ReadToEnd();
 

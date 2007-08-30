@@ -5,10 +5,7 @@
                        HOWEVER, if you want the console's version, you have to reference them
                        as {DynamicResources} or you'll be hard-coded to the ones you defined.
             -->
-            <Style x:Key="POSHFont" />
-            <Style x:Key="ConsoleFont" />
-            <Style x:Key="BannerFont" />
-            <Style x:Key="SigFont" />
+            <Style x:Key="POSHFont" /><Style x:Key="ConsoleFont" /><Style x:Key="BannerFont" /><Style x:Key="SigFont" />
         </Paragraph.Resources>
         <Floater Width="Auto" Margin="0" Padding="0">
             <Paragraph >
@@ -32,8 +29,8 @@
                             <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
                         </TextBlock.BitmapEffect>Q
                     </TextBlock>
-                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10" Style="{DynamicResource POSHFont}" FontSize="46" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
-                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10" Style="{DynamicResource ConsoleFont}" FontSize="19" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
+                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10" Style="{DynamicResource POSHFont}" FontSize="46" FontWeight="Bold">POSH</TextBlock>
+                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10" Style="{DynamicResource ConsoleFont}" FontSize="19" FontWeight="Bold">[Posh]::Console</TextBlock>
                 </Canvas>
             </Paragraph>
         </Floater>

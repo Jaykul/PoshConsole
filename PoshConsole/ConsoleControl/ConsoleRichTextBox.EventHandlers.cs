@@ -236,6 +236,12 @@ namespace PoshConsole.Controls
 		
 		protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
+            Trace.TraceInformation("Entering OnPreviewTextInput:");
+            Trace.Indent();
+            Trace.WriteLine("Event:  " + e.RoutedEvent);
+            Trace.WriteLine("Text:   " + e.Text);
+            Trace.WriteLine("Source: " + e.OriginalSource);
+
             // if they're trying to input text, they will overwrite the selection
             // lets make sure they don't overwrite the history buffer
 
@@ -245,6 +251,8 @@ namespace PoshConsole.Controls
             }
 
             base.OnPreviewTextInput(e);
+            Trace.Unindent();
+            Trace.TraceInformation("Exiting OnPreviewTextInput");
         }
 		
 		//protected override void OnInitialized(EventArgs e)

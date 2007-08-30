@@ -339,11 +339,14 @@ namespace PoshConsole.Controls
             set
             {
                 //Run cmd = _currentParagraph.Inlines.LastInline as Run;
-                TextRange cmd = new TextRange(CommandStart, Document.ContentEnd);
+                TextRange cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
                 if (cmd != null)
                 {
-                    cmd.Text = value;
+                    cmd.Text = string.Empty;
                 }
+
+                Run command = new Run(value, _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward));
+
                 // EndOfPrompt.DeleteTextInRun(EndOfPrompt.GetTextRunLength(LogicalDirection.Forward));
                 //((Run)commandStart.Paragraph.Inlines.LastInline)
                 //commandStart.DeleteTextInRun(commandStart.GetTextRunLength(LogicalDirection.Forward));
