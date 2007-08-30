@@ -24,7 +24,7 @@ namespace PoshConsole.Controls
         {
             base.EndInit();
             // LOAD the startup banner only when it's set (instead of removing it after)
-            if (Properties.Settings.Default.StartupBanner)
+            if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
             {
                 try
                 {
@@ -34,8 +34,9 @@ namespace PoshConsole.Controls
                         // Copy over *all* resources from the DOCUMENT to the BANNER
                         // NOTE: be careful not to put resources in the document you're not willing to expose
                         // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
-                        foreach (string key in Document.Resources.Keys) { 
-                            banner.Resources[key] = Document.Resources[key]; 
+                        foreach (string key in Document.Resources.Keys)
+                        {
+                            banner.Resources[key] = Document.Resources[key];
                         }
                         banner.Padding = new Thickness(5);
                         Document.Blocks.Add(banner);
@@ -55,13 +56,15 @@ namespace PoshConsole.Controls
                 {
                     System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                     Document.Blocks.Clear();
-                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8170");
-                }
-                finally
-                {
-                    ClearUndoBuffer();
+                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8300");
                 }
             }
+            else
+            {
+                Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8300");
+            }
+
+            ClearUndoBuffer();
         }
 		
 		// [rgn] Protected Methods (7)
