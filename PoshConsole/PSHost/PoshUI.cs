@@ -31,7 +31,7 @@ namespace PoshConsole.PSHost
     /// existing .NET console APIs are supported. The credential and 
     /// secure string methods are not supported.
     /// </summary>
-    class PoshUI : PSHostUserInterface
+    internal class PoshUI : PSHostUserInterface
     {
         
 		#region [rgn] Fields (3)

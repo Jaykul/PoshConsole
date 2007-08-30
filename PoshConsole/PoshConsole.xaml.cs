@@ -42,11 +42,24 @@ namespace PoshConsole
 		private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
 		private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
 		private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
-		public static DependencyProperty ConsoleProperty = DependencyProperty.Register("Console", typeof(IPoshConsoleControl), typeof(PoshConsoleWindow));
+		
+        private static DependencyProperty _consoleProperty;
+        static PoshConsoleWindow()
+        {
+            try
+            {
+                _consoleProperty = DependencyProperty.Register("Console", typeof(IPoshConsoleControl), typeof(PoshConsoleWindow));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+            }
+        }
+
 		/// <summary>
         /// The PSHost implementation for this interpreter.
         /// </summary>
-        private PoshHost myHost;
+        private PoshHost _host;
 
 		#endregion [rgn]
 
@@ -96,8 +109,8 @@ namespace PoshConsole
 
 		public IPoshConsoleControl Console
         {
-            get { return ((IPoshConsoleControl)base.GetValue(ConsoleProperty)); }
-            set { base.SetValue(ConsoleProperty, value); }
+            get { return ((IPoshConsoleControl)base.GetValue(_consoleProperty)); }
+            set { base.SetValue(_consoleProperty, value); }
         }
 		
 		#endregion [rgn]
@@ -107,9 +120,9 @@ namespace PoshConsole
 		// [rgn] Delegates (5)
 
 		// Universal Delegates
-        delegate void passDelegate<T>(T input);
-		delegate RET passReturnDelegate<T, RET>(T input);
-		delegate RET returnDelegate<RET>();
+        internal delegate void PassDelegate<T>(T input);
+	    internal delegate RET PassReturnDelegate<T, RET>(T input);
+	    internal delegate RET ReturnDelegate<RET>();
 		private delegate void SettingsChangedDelegate(object sender, System.ComponentModel.PropertyChangedEventArgs e);
 		private delegate void VoidVoidDelegate();
 		
@@ -126,9 +139,9 @@ namespace PoshConsole
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             ((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
-            if (myHost != null) myHost.ExecuteShutdownProfile();
+            if (_host != null) _host.ExecuteShutdownProfile();
             ((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
-            if (myHost != null) myHost.KillConsole();
+            if (_host != null) _host.KillConsole();
             base.OnClosing(e);
         }
 		
@@ -221,7 +234,7 @@ namespace PoshConsole
                 {
                     if (proc.Start())
                     {
-                        this.myHost.SetShouldExit(0);
+                        this._host.SetShouldExit(0);
                     }
                 }
                 catch (System.ComponentModel.Win32Exception we)
@@ -288,12 +301,12 @@ namespace PoshConsole
         {
             try
             {
-                myHost.StopPipeline();
+                _host.StopPipeline();
                 e.Handled = true;
             }
             catch (Exception exception)
             {
-                myHost.UI.WriteErrorLine(exception.ToString());
+                _host.UI.WriteErrorLine(exception.ToString());
             }
 
         }
@@ -338,10 +351,10 @@ namespace PoshConsole
         /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (myHost != null)
+            if (_host != null)
             {
-                myHost.IsClosing = true;
-                myHost.SetShouldExit(0);
+                _host.IsClosing = true;
+                _host.SetShouldExit(0);
             }
 
             Properties.Settings.Default.Save();
@@ -355,7 +368,7 @@ namespace PoshConsole
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void OnWindowDeactivated(object sender, EventArgs e)
         {
-            if ((myHost == null || !myHost.IsClosing) && Properties.Settings.Default.AutoHide)
+            if ((_host == null || !_host.IsClosing) && Properties.Settings.Default.AutoHide)
             {
                 HideWindow();
             }
@@ -372,9 +385,9 @@ namespace PoshConsole
             Binding statusBinding = new Binding("StatusText");
             try
             {
-                myHost = new PoshHost((IPSUI)this);
+                _host = new PoshHost((IPSUI)this);
 
-                statusBinding.Source = myHost.Options;
+                statusBinding.Source = _host.Options;
             }
             catch (Exception ex)
             {
@@ -499,11 +512,6 @@ namespace PoshConsole
             //{
             //    Properties.Settings.Default.FocusKey = new Hotkey(Modifiers.Win, Keys.Oemtilde);
             //}
-
-            if (!Properties.Settings.Default.StartupBanner)
-            {
-                buffer.ClearScreen();
-            }
 
             //// this shouldn't be needed, because we hooked the settings.change event earlier
             //if(FocusKey == null || FocusKey.Id == 0)

@@ -1,5 +1,15 @@
 <!--<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">-->
-    <Paragraph Padding="5" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Paragraph Padding="5" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        <Paragraph.Resources>
+            <!-- NOTE: these FOUR Font resources are the ones which the console overwrites 
+                       HOWEVER, if you want the console's version, you have to reference them
+                       as {DynamicResources} or you'll be hard-coded to the ones you defined.
+            -->
+            <Style x:Key="POSHFont" />
+            <Style x:Key="ConsoleFont" />
+            <Style x:Key="BannerFont" />
+            <Style x:Key="SigFont" />
+        </Paragraph.Resources>
         <Floater Width="Auto" Margin="0" Padding="0">
             <Paragraph >
                 <Canvas Width="180" Height="180">
@@ -17,34 +27,33 @@
                             </LinearGradientBrush>
                         </Rectangle.Stroke>
                     </Rectangle>
-                    <TextBlock TextAlignment="Center" Width="180"
-                            FontFamily="/FontLibrary;Component/#QUAKE" FontSize="145" Foreground="#FF3275B9">
+                    <TextBlock TextAlignment="Center" Width="180" Style="{DynamicResource POSHFont}" FontSize="145" Foreground="#FF3275B9">
                         <TextBlock.BitmapEffect>
                             <BevelBitmapEffect BevelWidth="1" EdgeProfile="CurvedOut" LightAngle="258" Relief="0.03" Smoothness="0.565"/>
                         </TextBlock.BitmapEffect>Q
                     </TextBlock>
-                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10"
-                            FontFamily="/FontLibrary;Component/#QUAKE" FontSize="56" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
-                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10"
-                            FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono" FontSize="19" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
+                    <TextBlock TextAlignment="Center" Width="180" Canvas.Top="10" Style="{DynamicResource POSHFont}" FontSize="46" FontWeight="Bold" Foreground="#FFFFFFFF">POSH</TextBlock>
+                    <TextBlock TextAlignment="Center" Width="180" Canvas.Bottom="10" Style="{DynamicResource ConsoleFont}" FontSize="19" FontWeight="Bold" Foreground="#FFFFFFFF">[Posh]::Console</TextBlock>
                 </Canvas>
             </Paragraph>
         </Floater>
         <Floater Width="Auto" Margin="0,0,20,15" Padding="0">
-            <Paragraph Padding="5,5,5,5" TextAlignment="Left" FontFamily="/FontLibrary;Component/#Pescadero">
-                <Run FontSize="28" Typography.ContextualSwashes="1">Posh</Run>
-                <Run FontSize="28" FontStyle="Italic" Typography.ContextualSwashes="1">adj.,</Run>
-                <Run FontSize="28" Typography.ContextualSwashes="1">Smart and fashionable</Run>
+            <Paragraph Padding="5,5,5,5" TextAlignment="Left" Style="{DynamicResource BannerFont}">
+                <Run>Posh</Run>
+                <Run FontStyle="Italic">adj.,</Run>
+                <Run>Smart and fashionable</Run>
             </Paragraph>
-            <Paragraph Padding="5,5,5,5" TextAlignment="Right" FontFamily="/FontLibrary;Component/#Pescadero">
-                <Run FontSize="20" Typography.ContextualSwashes="1">PoshConsole: A smarter PowerShell Console</Run>
+            <Paragraph Padding="5,5,5,5" TextAlignment="Right" Style="{DynamicResource BannerFont}">
+                <Run>PoshConsole: A smarter PowerShell Console</Run>
                 <LineBreak/>
-                <Run FontSize="20" Typography.ContextualSwashes="1">brought to you by</Run>
-                <Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">Joel "</Run
-                ><Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" FontStyle="Italic" Typography.ContextualSwashes="1">Jaykul</Run
-                ><Run FontFamily="/FontLibrary;Component/#Lindsey" FontSize="20" Typography.ContextualSwashes="1">" Bennett</Run>
+                <Run>brought to you by</Run>
+                <Run Style="{DynamicResource SigFont}">Joel "</Run
+                >
+                <Run Style="{DynamicResource SigFont}" FontStyle="Italic">Jaykul</Run
+                >
+                <Run Style="{DynamicResource SigFont}">" Bennett</Run>
             </Paragraph>
-            <Paragraph Padding="5,5,5,5" TextAlignment="Center" FontFamily="/FontLibrary;Component/#Pescadero">
+            <Paragraph Padding="5,5,5,5" TextAlignment="Center" Style="{DynamicResource BannerFont}">
                 <Hyperlink FontSize="18" Foreground="#FF178EC8" NavigateUri="http://HuddledMasses.org" >
                     <Hyperlink.ToolTip>
                         <TextBlock>
@@ -53,7 +62,7 @@
                             <Bold>Ctrl-Click to follow link</Bold>
                         </TextBlock>
                     </Hyperlink.ToolTip>
-                    <Run Typography.ContextualSwashes="1">http://HuddledMasses.org</Run>
+                    <Run>http://HuddledMasses.org</Run>
                 </Hyperlink>
                 <LineBreak/>
                 <Hyperlink FontSize="18" Foreground="#FF178EC8" NavigateUri="http://CodePlex.com/PoshConsole" >
@@ -64,10 +73,10 @@
                             <Bold>Ctrl-Click to follow link</Bold>
                         </TextBlock>
                     </Hyperlink.ToolTip>
-                    <Run Typography.ContextualSwashes="1">http://CodePlex.com/PoshConsole/</Run>
+                    <Run>http://CodePlex.com/PoshConsole/</Run>
                 </Hyperlink>
             </Paragraph>
         </Floater>
     </Paragraph>
-	<!--<Paragraph ClearFloaters="Both" />
+    <!--<Paragraph ClearFloaters="Both" />
 </FlowDocument>-->

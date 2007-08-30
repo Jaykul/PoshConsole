@@ -31,6 +31,12 @@ namespace PoshConsole.Controls
                     Paragraph banner = (Paragraph)XamlReader.Load(System.Xml.XmlReader.Create("StartupBanner.xaml"));
                     if (banner != null)
                     {
+                        // Copy over *all* resources from the DOCUMENT to the BANNER
+                        // NOTE: be careful not to put resources in the document you're not willing to expose
+                        // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+                        foreach (string key in Document.Resources.Keys) { 
+                            banner.Resources[key] = Document.Resources[key]; 
+                        }
                         banner.Padding = new Thickness(5);
                         Document.Blocks.Add(banner);
                         _currentParagraph = new Paragraph();
