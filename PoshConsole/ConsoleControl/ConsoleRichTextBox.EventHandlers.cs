@@ -85,14 +85,34 @@ namespace PoshConsole.Controls
             ApplicationCommands.Paste.Execute(null, this);
             e.Handled = true;
         }
-		
+
+
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        {
+            Trace.TraceInformation("Entering OnPreviewKeyUp:");
+            Trace.Indent();
+            Trace.WriteLine("Event:  " + e.RoutedEvent);
+            Trace.WriteLine("Key:    " + e.Key);
+            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
+
+            //Trace.WriteLine("Source: " + e.Source);
+
+            base.OnPreviewKeyUp(e);
+
+            Trace.Unindent();
+            Trace.TraceInformation("Exiting OnPreviewKeyUp:");
+        }
+
+
 		protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             Trace.TraceInformation("Entering OnPreviewKeyDown:");
             Trace.Indent();
             Trace.WriteLine("Event:  " + e.RoutedEvent);
             Trace.WriteLine("Key:    " + e.Key);
-            Trace.WriteLine("Source: " + e.Source);
+            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
+
+            //Trace.WriteLine("Source: " + e.Source);
 
             if (_promptEnd == null || e.Source != this)
             {
@@ -240,7 +260,9 @@ namespace PoshConsole.Controls
             Trace.Indent();
             Trace.WriteLine("Event:  " + e.RoutedEvent);
             Trace.WriteLine("Text:   " + e.Text);
-            Trace.WriteLine("Source: " + e.OriginalSource);
+            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
+
+            //Trace.WriteLine("Source: " + e.OriginalSource);
 
             // if they're trying to input text, they will overwrite the selection
             // lets make sure they don't overwrite the history buffer

@@ -351,14 +351,14 @@ namespace PoshConsole
         /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            Properties.Settings.Default.Save();
+            Properties.Colors.Default.Save();
+
             if (_host != null)
             {
                 _host.IsClosing = true;
                 _host.SetShouldExit(0);
             }
-
-            Properties.Settings.Default.Save();
-            Properties.Colors.Default.Save();
         }
 
         /// <summary>
