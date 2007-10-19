@@ -1,9 +1,9 @@
-using System.Windows.Interop;
 using System;
+using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Runtime.ConstrainedExecution;
 
-namespace PoshConsole.Interop
+namespace Huddled.Interop.Hotkeys
 {
     public partial class NativeMethods
     {
@@ -13,6 +13,7 @@ namespace PoshConsole.Interop
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int uVirtKey);
         #endregion
+
         #region user32!UnregisterHotKey
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32", SetLastError = true)]

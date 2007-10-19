@@ -13,10 +13,10 @@ using System.Windows;
 ///     AllowsTransparency="True"  WindowStyle="None" (or make it a popup?)
 ///     
 
-namespace PoshConsole.Interop.Vista
+namespace Huddled.Interop.Vista
 {
     [Serializable, StructLayout(LayoutKind.Sequential)]
-    struct MARGINS
+    public struct MARGINS
     {
         public MARGINS(System.Windows.Thickness t)
         {
@@ -60,16 +60,15 @@ namespace PoshConsole.Interop.Vista
                 DwmExtendFrameIntoClientArea(hwnd, ref margins);
                 return true;
             } else return false;
-
         }
 		
 		// [rgn] Private Methods (2)
 
 		[DllImport("dwmapi.dll", PreserveSig = false)]
-        static extern void DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS margins);
+        private static extern void DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS margins);
 		
 		[DllImport("dwmapi.dll", PreserveSig = false)]
-        static extern bool DwmIsCompositionEnabled();
+        private static extern bool DwmIsCompositionEnabled();
 		
 		#endregion [rgn]
 

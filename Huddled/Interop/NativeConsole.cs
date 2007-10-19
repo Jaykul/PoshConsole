@@ -4,125 +4,129 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace PoshConsole.Interop
+namespace Huddled.Interop
 {
-    public partial class NativeMethods {
-        
-		#region [rgn] Fields (5)
 
-		public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
-		public const int LWA_ALPHA = 0x2;
-		public const int LWA_COLORKEY = 0x1;
-		public const int WS_EX_LAYERED = 0x80000;
-		public const int WS_EX_TRANSPARENT = 0x00000020;
-
-		#endregion [rgn]
-
-		#region [rgn] Enums (3)
-
-		public enum ShowState : int
-        {
-            SW_HIDE = 0
-            /// and lots of others
-        }
-		public enum GwlIndex : int
-        {
-            Id = (-12),
-            Style = (-16),
-            ExStyle = (-20)
-        }
-		public enum StdHandle : int
-        {
-            /// <summary>
-            /// The standard input device
-            /// </summary>
-            INPUT_HANDLE = -10, //(DWORD)-10 	The standard input device.
-            /// <summary>
-            /// The standard output device.
-            /// </summary>
-            OUTPUT_HANDLE = -11, //(DWORD)-11 	The standard output device.
-            /// <summary>
-            /// The standard error device.
-            /// </summary>
-            ERROR_HANDLE = -12 //(DWORD)-12 	The standard error device.
-        }
-
-		#endregion [rgn]
-
-		#region [rgn] Methods (13)
-
-		// [rgn] Public Methods (13)
-
-		[DllImport("kernel32")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool AllocConsole();
-		
-		[DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(IntPtr hHandle);
-		
-		[DllImport("kernel32.dll", SetLastError=true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
-		
-		[DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
-           IntPtr hSourceHandle, IntPtr hTargetProcessHandle, out IntPtr lpTargetHandle,
-           uint dwDesiredAccess, bool bInheritHandle, uint dwOptions);
-		
-		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool FreeConsole();
-		
-		[DllImport("kernel32.dll")]
-        public static extern IntPtr GetConsoleWindow();
-		
-		[DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, GwlIndex nIndex);
-		
-		[DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool ReadFile(
-            IntPtr hFile,                   // handle to file
-            byte[] lpBuffer,                // data buffer
-            int nNumberOfBytesToRead,       // number of bytes to read
-            out int lpNumberOfBytesRead,    // number of bytes read
-            IntPtr overlapped               // overlapped buffer
-            );
-		
-		[DllImport("user32.dll")]
-        public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
-		
-		[DllImport("kernel32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetStdHandle(StdHandle nStdHandle, IntPtr hHandle);
-		
-		[DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hWnd, GwlIndex nIndex, int dwNewLong);
-		
-		[DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ShowWindow(IntPtr hWnd, ShowState nCmdShow);
-		
-		[DllImport("kernel32.dll", SetLastError = true)]
-        public static extern int WriteFile(IntPtr hFile, byte[] buffer,
-          int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
-		
-		#endregion [rgn]
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SECURITY_ATTRIBUTES
-        {
-            public int nLength;
-            public IntPtr lpSecurityDescriptor;
-            [MarshalAs(UnmanagedType.Bool)]
-            public bool bInheritHandle;
-        }
-    }
     /// <summary>
     /// A wrapper around AllocConsole, with some nice eventing to handle
     /// </summary>
     public class NativeConsole : IDisposable
     {
+        /// <summary>
+        /// The API/Interop/PInvoke methods for the NativeConsole 
+        /// </summary>
+        internal class NativeMethods {
+            
+		    #region [rgn] Fields (5)
+
+		    public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
+		    public const int LWA_ALPHA = 0x2;
+		    public const int LWA_COLORKEY = 0x1;
+		    public const int WS_EX_LAYERED = 0x80000;
+		    public const int WS_EX_TRANSPARENT = 0x00000020;
+
+		    #endregion [rgn]
+
+		    #region [rgn] Enums (3)
+
+		    public enum ShowState : int
+            {
+                SW_HIDE = 0
+                /// and lots of others
+            }
+		    public enum GwlIndex : int
+            {
+                Id = (-12),
+                Style = (-16),
+                ExStyle = (-20)
+            }
+		    public enum StdHandle : int
+            {
+                /// <summary>
+                /// The standard input device
+                /// </summary>
+                INPUT_HANDLE = -10, //(DWORD)-10 	The standard input device.
+                /// <summary>
+                /// The standard output device.
+                /// </summary>
+                OUTPUT_HANDLE = -11, //(DWORD)-11 	The standard output device.
+                /// <summary>
+                /// The standard error device.
+                /// </summary>
+                ERROR_HANDLE = -12 //(DWORD)-12 	The standard error device.
+            }
+
+		    #endregion [rgn]
+
+		    #region [rgn] Methods (13)
+
+		    // [rgn] Public Methods (13)
+
+		    [DllImport("kernel32")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool AllocConsole();
+    		
+		    [DllImport("kernel32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool CloseHandle(IntPtr hHandle);
+    		
+		    [DllImport("kernel32.dll", SetLastError=true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
+    		
+		    [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
+               IntPtr hSourceHandle, IntPtr hTargetProcessHandle, out IntPtr lpTargetHandle,
+               uint dwDesiredAccess, bool bInheritHandle, uint dwOptions);
+    		
+		    [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool FreeConsole();
+    		
+		    [DllImport("kernel32.dll")]
+            public static extern IntPtr GetConsoleWindow();
+    		
+		    [DllImport("user32.dll", SetLastError = true)]
+            public static extern int GetWindowLong(IntPtr hWnd, GwlIndex nIndex);
+    		
+		    [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern bool ReadFile(
+                IntPtr hFile,                   // handle to file
+                byte[] lpBuffer,                // data buffer
+                int nNumberOfBytesToRead,       // number of bytes to read
+                out int lpNumberOfBytesRead,    // number of bytes read
+                IntPtr overlapped               // overlapped buffer
+                );
+    		
+		    [DllImport("user32.dll")]
+            public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
+    		
+		    [DllImport("kernel32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool SetStdHandle(StdHandle nStdHandle, IntPtr hHandle);
+    		
+		    [DllImport("user32.dll")]
+            public static extern int SetWindowLong(IntPtr hWnd, GwlIndex nIndex, int dwNewLong);
+    		
+		    [DllImport("user32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool ShowWindow(IntPtr hWnd, ShowState nCmdShow);
+    		
+		    [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern int WriteFile(IntPtr hFile, byte[] buffer,
+              int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
+    		
+		    #endregion [rgn]
+
+            [StructLayout(LayoutKind.Sequential)]
+            public struct SECURITY_ATTRIBUTES
+            {
+                public int nLength;
+                public IntPtr lpSecurityDescriptor;
+                [MarshalAs(UnmanagedType.Bool)]
+                public bool bInheritHandle;
+            }
+        }
         
 		#region [rgn] Fields (3)
 

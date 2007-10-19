@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace PoshConsole.Interop
+namespace Huddled.Interop.Windows
 {
     public static class WindowSwitcher
     {
