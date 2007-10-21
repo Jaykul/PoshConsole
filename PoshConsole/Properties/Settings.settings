@@ -74,8 +74,5 @@
     <Setting Name="TabCompleteDoubleTapMilliseconds" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>
-    <Setting Name="FocusKey" Type="PoshConsole.Hotkey" Scope="User">
-      <Value Profile="(Default)">Windows+OemTilde</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

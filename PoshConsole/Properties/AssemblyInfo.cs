@@ -33,7 +33,6 @@ using System.Windows.Markup;
 
 // This will expose a couple of pieces of our code as xaml/wpf controls
 // ToDo: We should consider a library for this and the cmdlet(s)
-[assembly: XmlnsDefinition("http://schemas.poshconsole.org/interop", "PoshConsole.Interop")]
 [assembly: XmlnsDefinition("http://schemas.poshconsole.org/controls", "PoshConsole.Controls")]
 [assembly: XmlnsDefinition("http://schemas.poshconsole.org/properties", "PoshConsole.Properties")]
 

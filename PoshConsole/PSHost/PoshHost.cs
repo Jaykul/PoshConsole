@@ -21,6 +21,7 @@ using System.IO;
 using PoshConsole.Interop;
 using PoshConsole.Controls;
 using PoshConsole.Cmdlets;
+using Huddled.Interop;
 
 namespace PoshConsole.PSHost
 {

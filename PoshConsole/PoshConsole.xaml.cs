@@ -19,8 +19,9 @@ using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
 using System.Diagnostics;
 using PoshConsole.Controls;
-using PoshConsole.Interop;
 using PoshConsole.PSHost;
+using Huddled.Interop;
+using Huddled.Interop.Hotkeys;
 
 namespace PoshConsole
 {
@@ -144,6 +145,35 @@ namespace PoshConsole
             if (_host != null) _host.KillConsole();
             base.OnClosing(e);
         }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            // so now we can ask which keys are still unregistered.
+            HotkeyManager hk = HotkeyManager.GetHotkeyManager(this);
+            int k = -1;
+            while (++k < hk.UnregisteredKeys.Count)
+            {
+                KeyBinding key = hk.UnregisteredKeys[k];
+                // TODO: Show them a GUI for changing the hotkeys... 
+
+                // but you could try modifying them yourself ...
+                ModifierKeys mk = HotkeyManager.FindUnsetModifier(key.Modifiers);
+                if (mk != ModifierKeys.None)
+                {
+                    MessageBox.Show(string.Format("Unable to register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
+                    key.Modifiers |= mk;
+                    hk.Add(key);
+                }
+                else
+                {
+                    MessageBox.Show(string.Format("Failed to register the hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command));
+                }
+            }
+
+
+        }
 		
 		//private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
         //{
@@ -219,7 +249,7 @@ namespace PoshConsole
         //}
         private void OnAdminMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (!NativeMethods.IsUserAnAdmin())
+            if (!PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
             {
                 Process current = Process.GetCurrentProcess();
 
@@ -402,7 +432,7 @@ namespace PoshConsole
                 el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
             }
 
-            if (NativeMethods.IsUserAnAdmin())
+            if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
             {
                 // StatusBarItems:: Title, Separator, Admin, Separator, Status
                 el = status.Items[2] as StatusBarItem;
@@ -496,7 +526,7 @@ namespace PoshConsole
         {
             Cursor = Cursors.AppStarting;
             // make the whole window glassy with -1
-            PoshConsole.Interop.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
+            Huddled.Interop.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
 
             // hook mousedown and call DragMove() to make the whole window a drag handle
             MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
@@ -607,7 +637,7 @@ namespace PoshConsole
                     } break;
                 case "FocusKey":
                     {
-                        HotkeyService.SetFocusHotkey(this, Properties.Settings.Default.FocusKey);
+                        //HotkeyService.SetFocusHotkey(this, Properties.Settings.Default.FocusKey);
 
                         //if (FocusKey != null && FocusKey.Id != 0) hkManager.Unregister(FocusKey);
 

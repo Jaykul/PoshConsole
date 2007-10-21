@@ -4,11 +4,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:blend="http://schemas.microsoft.com/expression/blend/2006"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
-    xmlns:PoshInterop="clr-namespace:PoshConsole.Interop"
+    xmlns:hotkeys="http://schemas.huddledmasses.org/interop/hotkeys"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
-    
     xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-    
     mc:Ignorable="blend"
 
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
@@ -26,17 +24,65 @@
     LocationChanged="OnWindowLocationChanged"
     SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
+    
+    hotkeys:HotkeyManager.HotkeyManager="{DynamicResource hotkeys}"
     >
-
     <!--
     xmlns:PoshControls="http://schemas.poshconsole.org/controls"
     xmlns:PoshInterop="http://schemas.poshconsole.org/interop"
     xmlns:Properties="http://schemas.poshconsole.org/properties"
     -->
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
+        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
 
+        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
+        <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
+        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
+        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <!-- 
+        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
+        -->
+
+        <!-- Default Binding 
+        -->
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
+
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
+
+
+    </Window.InputBindings>
     <Window.Resources>
+        <hotkeys:HotkeyManager x:Key="hotkeys">
+            <KeyBinding Command="hotkeys:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="C"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="C"  Modifiers="Win" />
+        </hotkeys:HotkeyManager>
+        
         <!--<PoshProps:Settings x:Key="SettingsDS" />-->
         <ObjectDataProvider x:Key="SettingsDS" blend:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
+
         <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type PoshControls:ConsoleRichTextBox}">
             <Style.Resources>
                 <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
@@ -72,9 +118,6 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <PoshInterop:HotkeyService.FocusHotkey>
-        <Binding Path="FocusKey" Mode="Default" Source="{StaticResource SettingsDS}" />
-    </PoshInterop:HotkeyService.FocusHotkey>
     <Window.ShowInTaskbar>
         <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.ShowInTaskbar>
@@ -96,46 +139,6 @@
     <Window.Topmost>
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
-        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
-        
-        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
-        <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
-        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
-        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
-    </Window.CommandBindings>
-    <Window.InputBindings>
-        <!-- 
-        <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
-        -->
-        
-        <!-- Default Binding 
-        -->
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Esc" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Break" Modifiers="Control" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
-        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
-
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
-
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
-
-
-    </Window.InputBindings>
     <Border x:Name="border" CornerRadius="5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}">
         <Grid>
             <Grid.RowDefinitions>

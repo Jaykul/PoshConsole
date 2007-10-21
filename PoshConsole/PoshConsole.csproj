@@ -103,11 +103,6 @@
     <Compile Include="ConsoleControl\TabExpansion.cs" />
     <Compile Include="Controls\WindowImage.cs" />
     <Compile Include="Converters.cs" />
-    <Compile Include="Interop\Hotkeys\Hotkey.cs" />
-    <Compile Include="Interop\Hotkeys\HotkeyConverter.cs" />
-    <Compile Include="Interop\Hotkeys\HotkeyService.cs" />
-    <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
-    <Compile Include="Interop\WindowSwitcher.cs" />
     <Compile Include="Cmdlets\OutWPFCommand.cs" />
     <Compile Include="PSHost\PoshHost.InvokeHelper.cs" />
     <Compile Include="PSHost\PoshOptions.cs" />
@@ -119,10 +114,6 @@
     <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSRawConsole.cs" />
     <Compile Include="ConsoleControl\IConsoleControl.cs" />
     <Compile Include="ConsoleControl\IConsoleControlCallback.cs" />
-    <Compile Include="Interop\NativeConsole.cs" />
-    <Compile Include="Interop\Hotkeys\HotKeyManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="PSHost\PoshHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -148,8 +139,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Utilities.cs" />
-    <Compile Include="Interop\NativeMethods.cs" />
-    <Compile Include="Interop\Vista\Glass.cs" />
+    <Compile Include="Controls\Interop\NativeMethods.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +158,10 @@
     <ProjectReference Include="..\FontLibrary\FontLibrary.csproj">
       <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
       <Name>FontLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Huddled\Huddled.csproj">
+      <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
+      <Name>Huddled</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -92,7 +92,7 @@ namespace PoshConsole.Controls
             Trace.TraceInformation("Entering OnPreviewKeyUp:");
             Trace.Indent();
             Trace.WriteLine("Event:  " + e.RoutedEvent);
-            Trace.WriteLine("Key:    " + e.Key);
+            Trace.WriteLine("Key:    " + e.Key + " " + System.Windows.Input.KeyInterop.VirtualKeyFromKey(e.Key));
             Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
 
             //Trace.WriteLine("Source: " + e.Source);

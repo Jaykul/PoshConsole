@@ -310,17 +310,5 @@ namespace PoshConsole.Properties {
                 this["TabCompleteDoubleTapMilliseconds"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Windows+OemTilde")]
-        public PoshConsole.Interop.Hotkey FocusKey {
-            get {
-                return ((PoshConsole.Interop.Hotkey)(this["FocusKey"]));
-            }
-            set {
-                this["FocusKey"] = value;
-            }
-        }
     }
 }
