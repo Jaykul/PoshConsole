@@ -11,9 +11,6 @@ using System.Collections.ObjectModel;
 
 namespace Huddled.Interop.Hotkeys
 {
-    [ContentProperty("Items")]
-    public class KeyBindingCollection : ObservableCollection<KeyBinding> { }
-
     //[ContentProperty("Hotkeys")]
     [ContentProperty("Items")]
     public class HotkeyManager : FrameworkElement, IDisposable, ISupportInitialize, IList<KeyBinding>//, DependencyObject, , , IAddChild, UserControl
@@ -25,27 +22,40 @@ namespace Huddled.Interop.Hotkeys
 		private IntPtr _hwnd;
 		private HwndSource _hwndSource;
 		private Window _window;
+        private KeyBindingCollection _entries;
+        private List<KeyBinding> _keysPending;
         #endregion [rgn]
 
+        #region DependencyProperties - where the magic happens
+        // The HotkeyManager only works when it's attached to a window
+        // The attached property "Changed" event is what allows us to find the window to set all the hotkeys on!
 
-        #region AttachedProperties
         public static DependencyProperty HotkeysProperty =
-            DependencyProperty.RegisterAttached("Hotkeys",
-            typeof(KeyBindingCollection),
+            DependencyProperty.RegisterAttached("HotkeyManager",
+//            typeof(KeyBindingCollection),
             typeof(HotkeyManager),
-            new FrameworkPropertyMetadata(new KeyBindingCollection(), FrameworkPropertyMetadataOptions.SubPropertiesDoNotAffectRender, new PropertyChangedCallback(KeyManagerChanged)));
-        public static void SetHotkeys(UIElement element, HotkeyManager value)
+            typeof(HotkeyManager),
+            new FrameworkPropertyMetadata(
+//                new KeyBindingCollection(),
+//                new HotkeyManager(),
+                null,
+                FrameworkPropertyMetadataOptions.SubPropertiesDoNotAffectRender, 
+                new PropertyChangedCallback(HotkeyManagerChanged)));
+        public static void SetHotkeyManager(UIElement element, HotkeyManager value)
         {
             element.SetValue(HotkeysProperty, value);
         }
-        public static HotkeyManager GetHotkeys(UIElement element)
+        public static HotkeyManager GetHotkeyManager(UIElement element)
         {
             return (HotkeyManager)element.GetValue(HotkeysProperty);
         }
 
-        public static void KeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args) 
+        public static void HotkeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args) 
         {
-            //HotkeyManager hkm = (HotkeyManager)source;
+            if (!(source is Window))
+            {
+                throw new InvalidOperationException("The HotkeyManager can only be attached to a Window");
+            }
 
             HotkeyManager hotkeys = args.OldValue as HotkeyManager;
             if( hotkeys != null )
@@ -56,7 +66,6 @@ namespace Huddled.Interop.Hotkeys
                 hotkeys.Window = source as Window;
 
         }
-        #endregion
 
         public static DependencyProperty WindowProperty =
             DependencyProperty.Register("Window",
@@ -90,13 +99,28 @@ namespace Huddled.Interop.Hotkeys
                 window.SourceInitialized += manager.OnWindowInitialized;
             }
         }
+        #endregion
 
         private IntPtr Handle
         {
             get { return _hwnd; }
             set { _hwnd = value; }
         }
-	
+
+        internal bool IsReady
+        {
+            get {
+                return _registered;
+            }
+        }
+
+        public List<KeyBinding> UnregisteredKeys
+        {
+            get
+            {
+                return _keysPending;
+            }
+        }
 
 
 		#region [rgn] Constructors (2)
@@ -126,47 +150,39 @@ namespace Huddled.Interop.Hotkeys
             _window = null;
             _hwnd = IntPtr.Zero;
 
-            #region Stuff we need when we're a control
-            //// hook up a binding so we can find our parent window
-            //Binding bind = new Binding();
-            //bind.Mode = BindingMode.OneWay;
-            //bind.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Window), 1);
-            //BindingOperations.SetBinding(this, HotkeyManager.WindowProperty, bind);
-
-            //this.Visibility = Visibility.Collapsed;
-            #endregion
-
-            _entries = new ObservableCollection<KeyBinding>();
-            _entries.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(OnHotkeysChanged);
+            _entries = new KeyBindingCollection( this );//  ObservableCollection<KeyBinding>();
+            // _entries.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(OnHotkeysChanged);
 
             _keysPending = new List<KeyBinding>();
             _hwnd = IntPtr.Zero;
         }
-
-        public static void OnHotkeysChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    // TODO: Should we handle this?
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    // TODO: Remove pending also?
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
-            }
-        }
-		
 		#endregion [rgn]
 
         #region [rgn] Methods (9)
+
+        public static ModifierKeys FindUnsetModifier(ModifierKeys mk)
+        {
+            if (ModifierKeys.Windows != (mk & ModifierKeys.Windows))
+            {
+                return ModifierKeys.Windows;
+            }
+            else if (ModifierKeys.Shift != (mk & ModifierKeys.Shift))
+            {
+                return ModifierKeys.Shift;
+            }
+            else if (ModifierKeys.Control != (mk & ModifierKeys.Control))
+            {
+                return ModifierKeys.Control;
+            }
+            else if (ModifierKeys.Alt != (mk & ModifierKeys.Alt))
+            {
+                return ModifierKeys.Alt;
+            }
+            else
+            {
+                return ModifierKeys.None;
+            }
+        }
 
 		// [rgn] Public Methods (1)
 
@@ -178,94 +194,40 @@ namespace Huddled.Interop.Hotkeys
             }
 
             _window.Dispatcher.VerifyAccess();
-
             _entries.Clear();
-
             _hwnd = IntPtr.Zero;
         }
 		
-		// [rgn] Private Methods (8)
-
-        //private void AddHotkey(KeyBinding binding)
-        //{
-        //    _entries.Add(binding);
-        //    RegisterHotkey(_entries.Count - 1, binding.Key, binding.Modifiers);
-        //}
-		
-		/// <summary>
-        /// Adds the specified bindings to the pending list...
-        /// </summary>
-        /// <param name="bindings">The bindings.</param>
-        //private void AddPending(IEnumerable<KeyBinding> bindings)
-        //{
-        //    _keysPending.AddRange(bindings);
-        //}
-		
-		private void HookWindow(Window host)
-        {
-            _window = host;
-            _hwnd = new WindowInteropHelper(_window).Handle;
-
-            if (_hwnd != IntPtr.Zero)
-            {
-                OnWindowInitialized(_window, EventArgs.Empty);
-            }
-            else
-            {
-                _window.SourceInitialized += OnWindowInitialized;
-            }
-        }
-		
-		//public void Register(Hotkey key)
-        //{
-        //    _window.Dispatcher.VerifyAccess();
-
-        //    if (_hwnd == IntPtr.Zero)
-        //    {
-        //        _keysPending.Add(key);
-        //    }
-        //    else
-        //    {
-        //        RegisterHotkey(key);
-        //    }
-
-        //}
-        //public void Unregister(Hotkey key)
-        //{
-        //    _window.Dispatcher.VerifyAccess();
-
-        //    int? nativeId = GetNativeId(key);
-
-        //    if (nativeId.HasValue)
-        //    {
-        //        UnregisterHotkey(nativeId.Value);
-        //        _entries.Remove(nativeId.Value);
-        //    }
-        //}
         bool _registered = false;
         private void OnWindowInitialized(object sender, EventArgs e)
         {
-            if (!_registered)
+            lock (_entries)
             {
-                _registered = true;
-
-                _hwnd = new WindowInteropHelper(Window).Handle;
-                _hwndSource = HwndSource.FromHwnd(_hwnd);
-                _hwndSource.AddHook(WndProc);
-
-                //_keysPending.AddRange(_entries);
-                //_entries.Clear();
-                foreach (KeyBinding key in _entries)
+                if (!_registered)
                 {
-                    RegisterHotkey(key);
+
+                    _hwnd = new WindowInteropHelper(Window).Handle;
+                    _hwndSource = HwndSource.FromHwnd(_hwnd);
+                    _hwndSource.AddHook(WndProc);
+
+                    //_keysPending.AddRange(_entries);
+                    //_entries.Clear();
+                    foreach (KeyBinding key in _entries)
+                    {
+                        RegisterHotkey(key);
+                    }
+                    _registered = true;
                 }
             }
             //_keysPending.Clear();
         }
 
-        private void RegisterHotkey( KeyBinding key )
+        internal void RegisterHotkey( KeyBinding key )
         {
-            RegisterHotkey(_entries.IndexOf(key), key.Key, key.Modifiers);
+            if (!RegisterHotkey(_entries.IndexOf(key), key.Key, key.Modifiers))
+            {
+                _keysPending.Add(key);
+            }
             if (key.Command is WindowCommand)
             {
                 ((WindowCommand)key.Command).Window = this.Window;
@@ -273,28 +235,21 @@ namespace Huddled.Interop.Hotkeys
             // unecessary // key.CommandTarget = this.Window;
         }
 
-		private void RegisterHotkey( int id, Key key, ModifierKeys modifiers)
+		private bool RegisterHotkey( int id, Key key, ModifierKeys modifiers)
         {
             int virtualkey = KeyInterop.VirtualKeyFromKey(key);
 
-            if (!NativeMethods.RegisterHotKey(_hwnd, id, (int)(modifiers), virtualkey))
-            {
-                throw new Win32Exception();
-            }
-            //_entries.Add(id, new HotkeyEntry (id, hotkey ));
+            return NativeMethods.RegisterHotKey(_hwnd, id, (int)(modifiers), virtualkey);
         }
 
-        private void UnregisterHotkey(KeyBinding key)
+        internal void UnregisterHotkey(KeyBinding key)
         {
             UnregisterHotkey(_entries.IndexOf(key));
         }
 
-        private void UnregisterHotkey(int nativeId)
+        private bool UnregisterHotkey(int nativeId)
         {
-            if (!NativeMethods.UnregisterHotKey(_hwnd, nativeId))
-            {
-                throw new Win32Exception();
-            }
+            return NativeMethods.UnregisterHotKey(_hwnd, nativeId);
         }
 		
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -339,9 +294,7 @@ namespace Huddled.Interop.Hotkeys
 
         //public class HotkeyCollection : IList<KeyBinding>
         //{
-            private ObservableCollection<KeyBinding> _entries;
-            //private List<KeyBinding> _entries;
-            private List<KeyBinding> _keysPending;
+
             
             //private IntPtr _hwnd;
 
@@ -352,109 +305,111 @@ namespace Huddled.Interop.Hotkeys
             //    _hwnd = IntPtr.Zero;
             //}
 
-            public ObservableCollection<KeyBinding> Items
+        public KeyBindingCollection Items
+        {
+            get
             {
-                get
-                {
-                    return _entries;
-                }
+                return _entries;
             }
+        }
 
-            #region IList<KeyBinding> Members
-            public int IndexOf(KeyBinding item)
-            {
-                return _entries.IndexOf(item);
-            }
-            public void Insert(int index, KeyBinding item)
-            {
-                throw new NotSupportedException("You can't insert Hotkeys by index");
-            }
-            public void RemoveAt(int index)
-            {
-                UnregisterHotkey( _entries[index] );
-                _entries[index].Key = Key.None;
-                //throw new Exception("The method or operation is not implemented.");
-            }
+        #region IList<KeyBinding> Members
+        public int IndexOf(KeyBinding item)
+        {
+            return _entries.IndexOf(item);
+        }
+        public void Insert(int index, KeyBinding item)
+        {
+            throw new NotSupportedException("You can't insert Hotkeys by index");
+        }
+        public void RemoveAt(int index)
+        {
+            UnregisterHotkey( _entries[index] );
+            /// We don't remove the entry, because we need to preserve the index of items
+            
+            //_entries.RemoveAt(index);
+            _entries[index].Key = Key.None;
+            //throw new Exception("The method or operation is not implemented.");
+        }
 
-            public KeyBinding this[int index]
+        public KeyBinding this[int index]
+        {
+            get
             {
-                get
-                {
-                    return _entries[index];
-                }
-                set
-                {
-                    UnregisterHotkey(_entries[index]);
-                    _entries[index] = value;
-                    RegisterHotkey(index, value.Key, value.Modifiers);
-                }
+                return _entries[index];
             }
-            #endregion
-            #region ICollection<KeyBinding> Members
-            public void Add(KeyBinding item)
+            set
             {
-                if (_hwnd == IntPtr.Zero)
-                {
-                    _keysPending.Add(item);
-                }
-                else
-                {
-                    _entries.Add(item);
-                  
-                }
+                UnregisterHotkey(_entries[index]);
+                _entries[index] = value;
+                RegisterHotkey(index, value.Key, value.Modifiers);
             }
+        }
+        #endregion
+        #region ICollection<KeyBinding> Members
+        public void Add(KeyBinding item)
+        {
+            //if (_hwnd == IntPtr.Zero)
+            //{
+            //    _keysPending.Add(item);
+            //}
+            //else
+            //{
+                _entries.Add(item);                  
+            //}
+        }
 
-            public void Clear()
+        public void Clear()
+        {
+            for (int h = 0; h < _entries.Count; ++h)
             {
-                for (int h = 0; h < _entries.Count; ++h)
+                if (_entries[h].Key != Key.None)
                 {
-                    if (_entries[h].Key != Key.None)
-                    {
-                        UnregisterHotkey(_entries[h]);
-                    }
-                }
-                _entries.Clear();
-            }
-            public bool Contains(KeyBinding item)
-            {
-                return _entries.Contains(item);
-            }
-            public void CopyTo(KeyBinding[] array, int arrayIndex)
-            {
-                _entries.CopyTo(array, arrayIndex);
-            }
-            public int Count
-            {
-                get
-                {
-                    return _entries.Count;
+                    UnregisterHotkey(_entries[h]);
                 }
             }
-            public bool IsReadOnly
+            _entries.Clear();
+        }
+        public bool Contains(KeyBinding item)
+        {
+            return _entries.Contains(item);
+        }
+        public void CopyTo(KeyBinding[] array, int arrayIndex)
+        {
+            _entries.CopyTo(array, arrayIndex);
+        }
+        public int Count
+        {
+            get
             {
-                get
-                {
-                    return false;
-                }
+                return _entries.Count;
             }
-            public bool Remove(KeyBinding item)
+        }
+        public bool IsReadOnly
+        {
+            get
             {
-              
-                return _entries.Remove(item);
+                return false;
             }
-            #endregion
-            #region IEnumerable<KeyBinding> Members
-            public IEnumerator<KeyBinding> GetEnumerator()
-            {
-                return _entries.GetEnumerator();
-            }
-            #endregion
-            #region IEnumerable Members
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return _entries.GetEnumerator();
-            }
-            #endregion
+        }
+        public bool Remove(KeyBinding item)
+        {
+          
+            return _entries.Remove(item);
+        }
+        #endregion
+        #region IEnumerable<KeyBinding> Members
+        public IEnumerator<KeyBinding> GetEnumerator()
+        {
+            return _entries.GetEnumerator();
+        }
+        #endregion
+        #region IEnumerable Members
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return _entries.GetEnumerator();
+        }
+        #endregion
 
         //}
             //#endregion Hotkeys as an Attribute

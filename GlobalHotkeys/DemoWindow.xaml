@@ -3,14 +3,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hotkeys="http://schemas.huddledmasses.org/interop/hotkeys"
     Title="GlobalHotkeys" Height="300" Width="300"
-    hotkeys:HotkeyManager.Hotkeys="{DynamicResource hotkeys}"
+    hotkeys:HotkeyManager.HotkeyManager="{DynamicResource hotkeys}"
     >
     <Window.Resources>
         <hotkeys:HotkeyManager x:Key="hotkeys">
             <KeyBinding Command="hotkeys:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
             <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
-            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="H"  Modifiers="Ctrl+Shift" />
-            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Ctrl+Shift" />
+            <KeyBinding Command="hotkeys:GlobalCommands.ToggleWindow"   Key="S"  Modifiers="Win" />
+            <!-- the next two (at least) will always cause a conflict, because they use the same key -->
+            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="S"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win" />
         </hotkeys:HotkeyManager>
     </Window.Resources>
     <Grid>

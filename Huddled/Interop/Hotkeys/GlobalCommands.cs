@@ -18,55 +18,115 @@ namespace Huddled.Interop.Hotkeys
     /// </summary>
     public abstract class WindowCommand : ICommand
     {
+
         /// <summary>
-        /// Default constructor for <see cref="WindowCommand"/> leaves the Window property unitialized.
+        /// EventArgs class for the Execute events 
+        /// </summary>
+        public class WindowCommandArgs : EventArgs {
+
+            public WindowCommandArgs( Window window, object parameter ){
+                Window = window;
+                Parameter = parameter;
+            }
+            public Window Window;
+            public object Parameter;
+        }
+
+        public class WindowCanExecuteArgs :WindowCommandArgs{
+            public WindowCanExecuteArgs(Window window, object parameter) : base(window,parameter){}
+            public bool CanExecute = false;
+        }
+        public class WindowOnExecuteArgs :WindowCommandArgs{
+            public WindowOnExecuteArgs(Window window, object parameter) : base(window, parameter) { }
+            public bool Handled = false;
+        }
+
+
+        /// <summary>Default constructor for <see cref="WindowCommand"/> leaves the Window property unitialized.
         /// </summary>
         public WindowCommand() : base() { }
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WindowCommand"/> class.
+        /// <summary>Initializes a new instance of the <see cref="WindowCommand"/> class.
         /// </summary>
         /// <param name="window">The window.</param>
         public WindowCommand(Window window) { _window = window; }
 
-
-
         protected Window _window;
 
-        /// <summary>
-        /// Gets or sets the window that is the target of this command
+        /// <summary>Gets or sets the window that is the target of this command
         /// </summary>
         /// <value>The window.</value>
+        
         public Window Window
         {
             get { return _window; }
             set { _window = value; }
         }
 
-
         #region ICommand Members
-
-        /// <summary>
-        /// Determines whether this instance can execute on specified window 
+        /// <summary>Determines whether this instance can execute on specified window 
         /// (or the default window, if you pass in null).
         /// </summary>
         /// <param name="window">The window.</param>
         /// <returns>
         /// 	<c>true</c> if this instance can execute on the specified window; otherwise, <c>false</c>.
         /// </returns>
-        public abstract bool CanExecute(object window);
+        protected abstract void IfNoHandlerOnCanExecute(object source, WindowCanExecuteArgs e);
+        /// <summary>Executes the hotkey action on the specified window.
+        /// </summary>
+        /// <param name="window">The window.</param>
+        protected abstract void IfNoHandlerOnExecute(object source, WindowOnExecuteArgs e);
+
+        public delegate void CanExecuteHandler(object source, WindowCanExecuteArgs e);
+        public delegate void ExecuteHandler(object source, WindowOnExecuteArgs e);
+
+        public event CanExecuteHandler OnCanExecute;
+        public event ExecuteHandler OnExecute;
+
+        public bool CanExecute(object parameter)
+        {
+            WindowCanExecuteArgs args = new WindowCanExecuteArgs((parameter as Window) ?? _window, parameter);
+
+            if (args.Window != null)
+            {
+                CanExecuteHandler temp = OnCanExecute;
+                if (temp != null)
+                {
+                    temp(this, args);
+                }
+                else
+                {
+                    IfNoHandlerOnCanExecute(this, args);
+                }
+            }
+            return args.CanExecute;
+        }
+
+        public void Execute(object parameter)
+        {
+            WindowOnExecuteArgs args = new WindowOnExecuteArgs((parameter as Window) ?? _window, parameter);
+
+            if (args.Window != null)
+            {
+                ExecuteHandler temp = OnExecute;
+                if (temp != null)
+                {
+                    temp(this, args);
+                }
+                else
+                {
+                    IfNoHandlerOnExecute(this, args);
+                }
+            }
+        }
+
         
-        /// <summary>
-        /// Occurs when changes occur which affect whether or not the command should execute.
+        /// <summary>Occurs when changes occur which affect whether or not the command should execute.
         /// (Is never fired for WindowCommand).
         /// </summary>
         public event EventHandler CanExecuteChanged;
 
-        /// <summary>
-        /// Executes the hotkey action on the specified window.
-        /// </summary>
-        /// <param name="window">The window.</param>
-        public abstract void Execute(object window);
+
 
         #endregion
     }
@@ -92,6 +152,10 @@ namespace Huddled.Interop.Hotkeys
         /// An instance of a <see cref="WindowCommand"/> which unhides the window
         /// </summary>
         public static ShowCommand ShowWindow = new ShowCommand();
+        /// <summary>
+        /// An instance of a <see cref="WindowCommand"/> which toggles the visibility of the window
+        /// </summary>
+        public static ToggleCommand ToggleWindow = new ToggleCommand();
 
 
         /// <summary>
@@ -99,26 +163,26 @@ namespace Huddled.Interop.Hotkeys
         /// </summary>
         public class ActivateCommand : WindowCommand
         {
-            public ActivateCommand() : base() { }
-
-            public override bool CanExecute(object window)
+            public ActivateCommand() : base() 
             {
-                Window wnd = (window as Window) ?? _window;
-                return null != wnd && !wnd.IsFocused && wnd.IsLoaded;
+                //CanExecute += new CanExecuteHandler(MyCanExecute);
+                //Execute += new ExecuteHandler(MyExecute);
             }
 
-            public override void Execute(object window)
+            protected override void IfNoHandlerOnCanExecute(object source, WindowCanExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                if (null != wnd)
+                //Window wnd = (window as Window) ?? _window;
+                e.CanExecute = e.Window.IsLoaded;
+            }
+
+            protected override void IfNoHandlerOnExecute(object source, WindowOnExecuteArgs e)
+            {
+                if (!e.Window.IsVisible)
                 {
-                    if (!wnd.IsVisible)
-                    {
-                        wnd.Show();
-                    }
-                    // wnd.Focus();
-                    wnd.Activate();
+                    e.Window.Show();
                 }
+                // wnd.Focus();
+                e.Window.Activate();
             }
         }
 
@@ -128,19 +192,15 @@ namespace Huddled.Interop.Hotkeys
         public class CloseCommand : WindowCommand
         {
             public CloseCommand() : base() { }
-            public override bool CanExecute(object window)
+            protected override void IfNoHandlerOnCanExecute(object window, WindowCanExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                return null != wnd && wnd.IsLoaded;
+                //Window wnd = (window as Window) ?? _window;
+                e.CanExecute = e.Window.IsInitialized;
             }
 
-            public override void Execute(object window)
+            protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                if (null != wnd)
-                {
-                    wnd.Close();
-                }
+                e.Window.Close();
             }
         }
 
@@ -150,19 +210,14 @@ namespace Huddled.Interop.Hotkeys
         public class HideCommand : WindowCommand
         {
             public HideCommand() : base() { }
-            public override bool CanExecute(object window)
+            protected override void IfNoHandlerOnCanExecute(object window, WindowCanExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                return null != wnd && wnd.IsVisible;
+                e.CanExecute = e.Window.IsVisible;
             }
 
-            public override void Execute(object window)
+            protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                if (null != wnd)
-                {
-                    wnd.Hide();
-                }
+                e.Window.Hide();
             }
         }
 
@@ -173,20 +228,46 @@ namespace Huddled.Interop.Hotkeys
         {
             public ShowCommand() : base() { }
 
-            public override bool CanExecute(object window)
+            protected override void IfNoHandlerOnCanExecute(object window, WindowCanExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                return null != wnd && !wnd.IsVisible && wnd.IsLoaded;
+                e.CanExecute = !e.Window.IsVisible && e.Window.IsLoaded;
             }
 
-            public override void Execute(object window)
+            protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
             {
-                Window wnd = (window as Window) ?? _window;
-                if (null != wnd)
+                e.Window.Show();
+            }
+        }
+
+        /// <summary>
+        /// A <see cref="WindowCommand"/> which toggles the visibility of the window
+        /// </summary>
+        public class ToggleCommand : WindowCommand
+        {
+            public ToggleCommand() : base() { }
+
+            protected override void IfNoHandlerOnCanExecute(object window, WindowCanExecuteArgs e)
+            {
+                e.CanExecute = e.Window.IsLoaded;
+            }
+
+            protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
+            {
+                if (e.Window.IsVisible)
                 {
-                    wnd.Show();
+                    e.Window.Show();
+                    e.Window.Activate();
+                }
+                else if (!e.Window.IsActive)
+                {
+                    e.Window.Activate();
+                } 
+                else 
+                {
+                    e.Window.Hide();
                 }
             }
         }
+
     }
 }

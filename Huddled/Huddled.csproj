@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Interop\Hotkeys\GlobalCommands.cs" />
     <Compile Include="Interop\Hotkeys\HotkeyManager.cs" />
+    <Compile Include="Interop\Hotkeys\KeyBindingCollection.cs" />
     <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
     <Compile Include="Interop\NativeConsole.cs" />
     <Compile Include="Interop\Vista\Glass.cs" />
