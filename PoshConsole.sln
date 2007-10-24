@@ -24,21 +24,36 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code
 		..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml = ..\..\..\..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Huddled", "Huddled\Huddled.csproj", "{23A411B5-657B-4B8E-9B10-D7256D39AD08}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalHotkeysDemo", "GlobalHotkeys\GlobalHotkeysDemo.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
+		SccNumberOfProjects = 5
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccProjectUniqueName0 = PoshConsole\\PoshConsole.csproj
-		SccProjectName0 = PoshConsole
-		SccAuxPath0 = https://tfs04.codeplex.com
-		SccLocalPath0 = PoshConsole
-		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName1 = FontLibrary\\FontLibrary.csproj
-		SccProjectName1 = FontLibrary
-		SccAuxPath1 = https://tfs04.codeplex.com
-		SccLocalPath1 = FontLibrary
-		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = PoshConsole\\PoshConsole.csproj
+		SccProjectName1 = ../
+		SccLocalPath1 = PoshConsole
+		SccProjectUniqueName2 = FontLibrary\\FontLibrary.csproj
+		SccProjectName2 = ../../FontLibrary
+		SccLocalPath2 = FontLibrary
+		SccProjectUniqueName3 = Huddled\\Huddled.csproj
+		SccProjectName3 = Huddled
+		SccLocalPath3 = Huddled
+		SccProjectUniqueName4 = GlobalHotkeys\\GlobalHotkeysDemo.csproj
+		SccProjectName4 = GlobalHotkeys
+		SccLocalPath4 = GlobalHotkeys
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +68,14 @@ Global
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A411B5-657B-4B8E-9B10-D7256D39AD08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A411B5-657B-4B8E-9B10-D7256D39AD08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A411B5-657B-4B8E-9B10-D7256D39AD08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A411B5-657B-4B8E-9B10-D7256D39AD08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
