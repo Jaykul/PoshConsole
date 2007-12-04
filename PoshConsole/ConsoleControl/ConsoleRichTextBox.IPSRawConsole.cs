@@ -400,8 +400,6 @@ namespace PoshConsole.Controls
                 });
             }
         }
-
-
         #endregion
     }
 }

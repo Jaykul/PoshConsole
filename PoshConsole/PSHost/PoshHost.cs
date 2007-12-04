@@ -578,7 +578,7 @@ namespace PoshConsole.PSHost
             //   TODO: TabComplete Aliases
             //   TODO: TabComplete Executables in (current?) path
 
-            if (lastWord != null)
+            if (lastWord != null && lastWord.Length > 0)
             {
                 // TODO: TabComplete Cmdlets inside the pipeline
                 foreach (RunspaceConfigurationEntry cmdlet in myRunSpace.RunspaceConfiguration.Cmdlets)
@@ -597,7 +597,7 @@ namespace PoshConsole.PSHost
                         set = InvokePipeline("get-variable " + lastWord.Substring(1) + "*");
                         if (set != null)
                         {
-                            foreach(PSObject opt in set)
+                            foreach (PSObject opt in set)
                             {
                                 PSVariable var = opt.ImmediateBaseObject as PSVariable;
                                 if (var != null)
@@ -606,9 +606,17 @@ namespace PoshConsole.PSHost
                                 }
                             }
                         }
-                        set = null;
                     }
+                }// hide the error
+                catch (RuntimeException) { }
+                finally
+                {
+                    set = null;
+                }
 
+
+                try
+                {
                     set = InvokePipeline("resolve-path \"" + lastWord + "*\"");
                     if (set != null)
                     {
@@ -622,9 +630,16 @@ namespace PoshConsole.PSHost
                             else completions.Add(completion);
                         }
                     }
+                }// hide the error
+                catch (RuntimeException) { }
+                finally
+                {
                     set = null;
+                }
 
-                    // Finally, call the TabExpansion string
+                // Finally, call the TabExpansion string
+                try
+                {
                     set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
                     if (set != null)
                     {
@@ -633,11 +648,11 @@ namespace PoshConsole.PSHost
                             completions.Add(opt.ToString());
                         }
                     }
-                }
-                catch (RuntimeException)
-                {
-                    // hide the error
-                }
+                }// hide the error
+                catch (RuntimeException) { }
+                //finally {
+                //    set = null;
+                //}
             }
             return completions;
         }
