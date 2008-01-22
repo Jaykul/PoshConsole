@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Management.Automation;
-using System.Collections;
-using System.Xml;
 using System.IO;
-using System.Windows.Controls;
-using System.Windows.Markup;
+using System.Management.Automation;
+using System.Xml;
 
 namespace PoshConsole.Cmdlets
 {

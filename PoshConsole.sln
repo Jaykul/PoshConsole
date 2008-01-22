@@ -22,12 +22,12 @@ Global
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = PoshConsole\\PoshConsole.csproj
-		SccProjectName1 = PoshConsole
-		SccLocalPath1 = PoshConsole
-		SccProjectUniqueName2 = Huddled\\Huddled.csproj
-		SccProjectName2 = Huddled
-		SccLocalPath2 = Huddled
+		SccProjectUniqueName1 = Huddled\\Huddled.csproj
+		SccProjectName1 = Huddled
+		SccLocalPath1 = Huddled
+		SccProjectUniqueName2 = PoshConsole\\PoshConsole.csproj
+		SccProjectName2 = PoshConsole
+		SccLocalPath2 = PoshConsole
 		SccProjectUniqueName3 = GlobalHotkeys\\GlobalHotkeysDemo.csproj
 		SccProjectName3 = GlobalHotkeys
 		SccLocalPath3 = GlobalHotkeys
@@ -61,7 +61,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal

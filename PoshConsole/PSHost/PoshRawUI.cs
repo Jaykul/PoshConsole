@@ -116,7 +116,7 @@ namespace PoshConsole.PSHost
         /// <summary>
         /// Return the host buffer size adapted from the .NET Console buffer size.
         /// </summary>
-        public override System.Management.Automation.Host.Size BufferSize
+        public override Size BufferSize
         {
             get { return myConsole.BufferSize; }
             set { myConsole.BufferSize = value; }
@@ -167,7 +167,7 @@ namespace PoshConsole.PSHost
         /// <summary>
         /// Return the window size adapted from the corresponding .NET Console calls.
         /// </summary>
-        public override System.Management.Automation.Host.Size WindowSize
+        public override Size WindowSize
         {
             get { return myConsole.WindowSize; }
             set { myConsole.WindowSize = value; }
