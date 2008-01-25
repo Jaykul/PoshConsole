@@ -88,7 +88,7 @@ namespace PoshConsole.PSHost
             // This is a dynamic anonymous delegate so that it can access the callback parameter
             pipeline.StateChanged += (EventHandler<PipelineStateEventArgs>)delegate(object sender, PipelineStateEventArgs e) // =>
             {
-                if (PipelineHelper.IsDone(e.PipelineStateInfo))
+                if (e.PipelineStateInfo.IsDone())
                 {
                     Pipeline completed = (Pipeline)Interlocked.Exchange(ref currentPipeline, null);
 
@@ -213,7 +213,7 @@ namespace PoshConsole.PSHost
 		
 		private PSObject InvokePipelineSelectFirst(Command cmd)
         {
-            return EnumHelper.First( InvokePipeline(cmd) );// OR default?
+            return InvokePipeline(cmd)[0]; // OR default?
         }
 		
 		//private void EnsureRunspaceIsReady()

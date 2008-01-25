@@ -121,13 +121,6 @@ namespace PoshConsole.Controls
             }
         }
 
-        public bool IsDocumentEnabled
-        {
-            get { return Document.IsEnabled; }
-            set { Document.IsEnabled = value; }
-        }
-	
-
 
         ///// <summary>
         ///// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized"></see> event. 

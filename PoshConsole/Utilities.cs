@@ -7,10 +7,11 @@ using System.ComponentModel;
 using System.Windows.Markup;
 using System.Xml;
 using System.IO;
+using System.Linq;
 
 namespace PoshConsole
 {
-    public class Utilities
+    public static class Utilities
     {
         
 		#region [rgn] Fields (1)
@@ -23,7 +24,7 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (2)
 
-		public static string GetLastWord(string cmdline)
+        public static string GetLastWord(this string cmdline)
         {
             string lastWord = null;
             MatchCollection words = chunker.Matches(cmdline);
@@ -43,7 +44,7 @@ namespace PoshConsole
             return lastWord;
         }
 		
-		public static bool IsModifierOn(KeyEventArgs e, ModifierKeys modifier)
+		public static bool IsModifierOn(this KeyEventArgs e, ModifierKeys modifier)
         {
             return (e.KeyboardDevice.Modifiers & modifier) == modifier;
         }
@@ -59,32 +60,32 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (7)
 
-		public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>(IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
-        {
-            if (input != null)
-            {
-                foreach (TInput item in input)
-                {
-                    yield return converter(item);
-                }
-            }
-        }
+        //public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>( this IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
+        //{
+        //    if (input != null)
+        //    {
+        //        foreach (TInput item in input)
+        //        {
+        //            yield return converter(item);
+        //        }
+        //    }
+        //}
 		
-		public static T First<T>(System.Collections.ObjectModel.Collection<T> collection)
-        {
-            return (T)collection[0];
-        }
+        //public static T First<T>( this System.Collections.ObjectModel.Collection<T> collection)
+        //{
+        //    return (T)collection[0];
+        //}
 		
-		public static void ForEach<T>(IEnumerable<T> input, Action<T> action)
-        {
-            if (input != null)
-            {
-                foreach (T item in input)
-                {
-                    action(item);
-                }
-            }
-        }
+        //public static void ForEach<T>(IEnumerable<T> input, Action<T> action)
+        //{
+        //    if (input.fo != null)
+        //    {
+        //        foreach (T item in input)
+        //        {
+        //            action(item);
+        //        }
+        //    }
+        //}
 		
 		public static bool IsDefined<TEnum>(TEnum value) where TEnum : struct
         {
@@ -122,7 +123,7 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (2)
 
-		public static bool IsDone(System.Management.Automation.Runspaces.PipelineStateInfo psi)
+		public static bool IsDone( this System.Management.Automation.Runspaces.PipelineStateInfo psi)
         {
             return
                 psi.State == System.Management.Automation.Runspaces.PipelineState.Completed ||
@@ -130,7 +131,7 @@ namespace PoshConsole
                 psi.State == System.Management.Automation.Runspaces.PipelineState.Failed;
         }
 		
-		public static bool IsFailed(System.Management.Automation.Runspaces.PipelineStateInfo info)
+		public static bool IsFailed( this System.Management.Automation.Runspaces.PipelineStateInfo info)
         {
             return info.State == System.Management.Automation.Runspaces.PipelineState.Failed;
         }
@@ -147,12 +148,12 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (2)
 
-		public static int Height(System.Management.Automation.Host.Rectangle rect)
+		public static int Height(this System.Management.Automation.Host.Rectangle rect)
         {
             return rect.Bottom - rect.Top;
         }
 		
-		public static int Width(System.Management.Automation.Host.Rectangle rect)
+		public static int Width(this System.Management.Automation.Host.Rectangle rect)
         {
             return rect.Right - rect.Left;
         }
@@ -168,12 +169,12 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (2)
 
-		public static double Height(System.Windows.Thickness t)
+		public static double Height(this System.Windows.Thickness t)
         {
             return t.Top + t.Bottom;
         }
 		
-		public static double Width(System.Windows.Thickness t)
+		public static double Width(this System.Windows.Thickness t)
         {
             return t.Left + t.Right;
         }

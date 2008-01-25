@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System.Windows.Markup;
+using System.Management.Automation.Host;
 
 namespace PoshConsole.Controls
 {
