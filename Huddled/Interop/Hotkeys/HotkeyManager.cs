@@ -13,6 +13,7 @@ namespace Huddled.Interop.Hotkeys
 {
     //[ContentProperty("Hotkeys")]
     [ContentProperty("Items")]
+    [Serializable]
     public class HotkeyManager : FrameworkElement, IDisposable, ISupportInitialize, IList<KeyBinding>//, DependencyObject, , , IAddChild, UserControl
     {
         // public event HotkeyEventHandler HotkeyPressed = (HotkeyEventHandler)delegate(object sender, HotkeyEventArgs e) { };
@@ -304,7 +305,7 @@ namespace Huddled.Interop.Hotkeys
             //    _keysPending = new List<KeyBinding>();
             //    _hwnd = IntPtr.Zero;
             //}
-
+        
         public KeyBindingCollection Items
         {
             get
@@ -415,21 +416,22 @@ namespace Huddled.Interop.Hotkeys
             //#endregion Hotkeys as an Attribute
 
         #region Stuff we need when we're NOT a control
-            #region ISupportInitialize Members
-            public void BeginInit()
-            {
-                System.Diagnostics.Debug.WriteLine("BEGIN");
+            //#region ISupportInitialize Members
+            //public void BeginInit()
+            //{
+            //    System.Diagnostics.Debug.WriteLine("BEGIN");
 
-                // throw new Exception("The method or operation is not implemented.");
-            }
+            //    // throw new Exception("The method or operation is not implemented.");
+            //}
 
-            public void EndInit()
-            {
-                System.Diagnostics.Debug.WriteLine("END");
+            //public void EndInit()
+            //{
+            //    System.Diagnostics.Debug.WriteLine("END");
 
-                // throw new Exception("The method or operation is not implemented.");
-            }
-            #endregion
+            //    // throw new Exception("The method or operation is not implemented.");
+            //}
+            //#endregion
         #endregion
     }
+
 }

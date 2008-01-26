@@ -253,7 +253,7 @@ namespace Huddled.Interop.Hotkeys
 
             protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
             {
-                if (e.Window.IsVisible)
+                if (!e.Window.IsVisible)
                 {
                     e.Window.Show();
                     e.Window.Activate();
