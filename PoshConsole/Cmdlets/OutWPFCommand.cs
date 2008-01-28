@@ -5,9 +5,36 @@ using System.Xml;
 
 namespace PoshConsole.Cmdlets
 {
-    [Cmdlet(VerbsData.Out, "WPF", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
+    [Cmdlet(VerbsData.Out, "WPF", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName="FileTemplate")]
     public class OutWPFCommand : PSCmdlet
     {
+        #region Parameters
+        [Parameter(
+           Position = 0,
+            //           ParameterSetName = "Input",
+           Mandatory = true,
+           ValueFromPipeline = true,
+           HelpMessage = "Data to bind to the wpf control")]
+        public PSObject InputObject { get; set; }
+
+        [Parameter(
+           Position = 1,
+           ParameterSetName = "FileTemplate",
+           Mandatory = false,
+           ValueFromPipeline = false,
+           
+           HelpMessage = "XAML template file")]
+        public FileInfo FileTemplate { get; set; }
+
+        [Parameter(
+           Position = 1,
+           ParameterSetName = "SourceTemplate",
+           Mandatory = true,
+           ValueFromPipeline = false,
+           HelpMessage = "XAML template file")]
+        [Alias("Template")]
+        public XmlDocument SourceTemplate { get; set; }
+        #endregion
         
 		#region [rgn] Methods (1)
 
@@ -19,77 +46,63 @@ namespace PoshConsole.Cmdlets
             {
                 if (ParameterSetName == "FileTemplate")
                 {
-                    if (!_templateFile.Exists)
+                    string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
+                    string template = null;
+                    if (FileTemplate == null)
                     {
-                        string newPath = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path,_templateFile.Name);
-                        if (!File.Exists(newPath))
+                        // try to magically pick a file based on type and name....
+                        foreach (string typeName in InputObject.TypeNames)
                         {
-                            throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", _templateFile.FullName);
+                            template = Path.Combine(templates,typeName + ".psxaml" );
+                            if (File.Exists(template))
+                            {
+                                FileTemplate = new FileInfo(template);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!FileTemplate.Exists)
+                    {
+                        // try to magically resolve the file
+                        template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path,FileTemplate.Name);
+                        if (File.Exists(template))
+                        {
+                            FileTemplate = new FileInfo(template);
                         }
                         else
                         {
-                            _templateFile = new FileInfo(newPath);
+                            template = Path.Combine(templates, FileTemplate.Name);
+                            if (File.Exists(template))
+                            {
+                                FileTemplate = new FileInfo(template);
+                            }
+                            else
+                            {
+                                throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
+                            }
                         }
                     }
 
-                    ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(_templateFile, _inputObject);
+                    ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(FileTemplate, InputObject);
                 }
                 else if (ParameterSetName == "SourceTemplate")
                 {
-                    ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(_templateSource, _inputObject);
+                    ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(SourceTemplate, InputObject);
                 }
                 else 
                     WriteError(new ErrorRecord(
                         new ArgumentNullException("Template", "Automatic template choosing is not implemented yet."), 
                         "Must Specify a Template", 
-                        ErrorCategory.NotImplemented, 
-                        _inputObject));
+                        ErrorCategory.NotImplemented,
+                        InputObject));
             }
             catch (Exception ex)
             {
-                WriteError(new ErrorRecord( ex, "NoIdeaWhy!", ErrorCategory.InvalidData, _inputObject));
+                WriteError(new ErrorRecord(ex, "NoIdeaWhy!", ErrorCategory.InvalidData, InputObject));
             }
         }
 		
 		#endregion [rgn]
-#region Parameters
-        [Parameter(
-           Position = 1,
-//           ParameterSetName = "Input",
-           Mandatory = true,
-           ValueFromPipeline = true,
-           HelpMessage = "Data to bind to the wpf control")]
-        public PSObject InputObject
-        {
-            get { return _inputObject; }
-            set { _inputObject = value; }
-        }
-        [Parameter(
-           Position = 0,
-           ParameterSetName = "FileTemplate",
-           Mandatory = true,
-           ValueFromPipeline = false,
-           HelpMessage = "XAML template file")]
-        public FileInfo FileTemplate
-        {
-            get { return _templateFile; } 
-            set { _templateFile = value; }
-        }
-        [Parameter(
-           Position = 0,
-           ParameterSetName = "SourceTemplate",
-           Mandatory = true,
-           ValueFromPipeline = false,
-           HelpMessage = "XAML template file")]
-        [Alias("Template")]
-        public XmlDocument SourceTemplate
-        {
-            get { return _templateSource; }
-            set { _templateSource = value; }
-        }
-        private PSObject _inputObject;
-        private FileInfo _templateFile;
-        private XmlDocument _templateSource;
-        #endregion
     }
 }
