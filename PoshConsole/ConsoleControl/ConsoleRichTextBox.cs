@@ -98,6 +98,8 @@ namespace PoshConsole.Controls
             AddLogicalChild(_popup);
         }
 
+      
+
         /// <summary>
         /// Handle the Settings PropertyChange event for fonts
         /// </summary>
@@ -110,6 +112,7 @@ namespace PoshConsole.Controls
                 case "FontFamily":
                     Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
                     {
+                        // BUGBUG: Fonts that are not embedded cannot be resolved from this base Uri
                         FontFamily = new FontFamily(new Uri("pack://application:,,,/PoshConsole;component/poshconsole.xaml"), Properties.Settings.Default.FontFamily.Source + ",/FontLibrary;Component/#Bitstream Vera Sans Mono,Global Monospace");
                     });
                     break;

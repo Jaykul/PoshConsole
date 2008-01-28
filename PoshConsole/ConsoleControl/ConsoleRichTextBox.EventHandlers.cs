@@ -71,6 +71,8 @@ namespace PoshConsole.Controls
             }
 
             ClearUndoBuffer();
+            UpdateCharacterWidth();
+
         }
 		
 		// [rgn] Protected Methods (7)

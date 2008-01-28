@@ -68,7 +68,8 @@ namespace PoshConsole
             // will be available.
 
             InitializeComponent();
-
+            
+            // "buffer" is defined in the XAML
             this.Console = buffer;
 
             // before we start animating, set the animation endpoints to the current values.
@@ -91,7 +92,7 @@ namespace PoshConsole
                 border.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
                 ResizeMode = ResizeMode.CanResize;
             }
-
+            
         }
 		
 		#endregion [rgn]

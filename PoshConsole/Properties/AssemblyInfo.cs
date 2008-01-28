@@ -14,7 +14,7 @@ using System.Windows.Markup;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PoshConsole")]
-[assembly: AssemblyDescription("WPF Controls for PoshConsole")]
+[assembly: AssemblyDescription("A sleek PowerShell console in WPF")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Posh Console")]
@@ -55,6 +55,6 @@ using System.Windows.Markup;
 
 
 // Version information
-[assembly: AssemblyVersion("1.0.2007.8170")]
-[assembly: AssemblyFileVersion("1.0.2007.8170")]
-[assembly: AssemblyInformationalVersion("1.0.2007.8170")]
+[assembly: AssemblyVersion("1.0.2008.128")]
+[assembly: AssemblyFileVersion("1.0.2008.128")]
+[assembly: AssemblyInformationalVersion("1.0.2008.128")]

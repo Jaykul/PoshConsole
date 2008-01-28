@@ -94,7 +94,7 @@ namespace PoshConsole.PSHost
                 myRawUI = new PoshRawUI(buffer.RawUI);
                 myUI = new PoshUI(myRawUI, PsUi);
 
-                // precreate this
+                // pre-create this
                 outDefault = new Command("Out-Default");
                 // for now, merge the errors with the rest of the output
                 outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
@@ -135,6 +135,7 @@ namespace PoshConsole.PSHost
             //}
 
             myRunSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
+            
 
             myRunSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
             myRunSpace.OpenAsync();
@@ -508,20 +509,31 @@ namespace PoshConsole.PSHost
             //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
             //  This profile applies only to the current user and the Microsoft.PowerShell shell.
 
+
+            string[] profiles =  new string[4] {
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
+                };
+
+            // just for the sake of the profiles...
+            List<string> existing = new List<string>(4);
+
             StringBuilder cmd = new StringBuilder();
-            foreach (string path in
-                 new string[4] {
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
-                })
+            foreach (string path in profiles)
             {
                 if (File.Exists(path))
                 {
+                    existing.Add( path );
                     cmd.AppendFormat(". \"{0}\";\n", path);
                 }
             }
+            
+            myRunSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
+            myRunSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
+
+
             if (cmd.Length > 0)
             {
                 ExecutePipelineOutDefault(cmd.ToString(), false, 
