@@ -148,7 +148,6 @@ namespace PoshConsole.Controls
             //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
             //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
             _currentParagraph.ContentEnd.InsertParagraphBreak();
-            Document.ContentEnd.InsertParagraphBreak();
             _currentParagraph = (Paragraph)Document.Blocks.LastBlock;
             EndChange();
         }
