@@ -6,6 +6,8 @@ using System.Windows.Input;
 using System.Collections.Generic;
 using System.Windows.Markup;
 using System.Management.Automation.Host;
+using PoshConsole.Interop;
+
 
 namespace PoshConsole.Controls
 {
@@ -29,8 +31,10 @@ namespace PoshConsole.Controls
             {
                 try
                 {
-                    Paragraph banner = (Paragraph)XamlReader.Load(System.Xml.XmlReader.Create("StartupBanner.xaml"));
-                    if (banner != null)
+                    Paragraph banner;
+                    System.Management.Automation.ErrorRecord error;
+                    System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
+                    if (startup.TryLoadXaml( out banner, out error))
                     {
                         // Copy over *all* resources from the DOCUMENT to the BANNER
                         // NOTE: be careful not to put resources in the document you're not willing to expose
@@ -47,7 +51,7 @@ namespace PoshConsole.Controls
                     }
                     else
                     {
-                        Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8170");
+                        Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2008.127");
                     }
 
                     // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
@@ -57,12 +61,13 @@ namespace PoshConsole.Controls
                 {
                     System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                     Document.Blocks.Clear();
-                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8300");
+                    Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2008.127");
                 }
+                ClearUndoBuffer();
             }
             else
             {
-                Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2007.8300");
+                Write(Foreground, _consoleBrushes.Transparent, "PoshConsole 1.0.2008.127");
             }
 
             ClearUndoBuffer();
@@ -92,139 +97,180 @@ namespace PoshConsole.Controls
         {
             Trace.TraceInformation("Entering OnPreviewKeyUp:");
             Trace.Indent();
-            Trace.WriteLine("Event:  " + e.RoutedEvent);
-            Trace.WriteLine("Key:    " + e.Key + " " + System.Windows.Input.KeyInterop.VirtualKeyFromKey(e.Key));
-            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
-
-            //Trace.WriteLine("Source: " + e.Source);
-
-            base.OnPreviewKeyUp(e);
-
+            if (!_running)
+            {
+                base.OnPreviewKeyUp(e);
+            }
+            else
+            {
+                _keyBuffer.Enqueue(new ReplayableKeyEventArgs(e, GetControlKeyStates(e.KeyboardDevice)));
+                if (_waitingForKey && ((_readKeyOptions & ReadKeyOptions.IncludeKeyUp) == ReadKeyOptions.IncludeKeyUp))
+                {
+                    _gotInput.Set();
+                }
+                //e.Handled = true;
+            }
             Trace.Unindent();
             Trace.TraceInformation("Exiting OnPreviewKeyUp:");
         }
-
-
-		protected override void OnPreviewKeyDown(KeyEventArgs e)
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             Trace.TraceInformation("Entering OnPreviewKeyDown:");
             Trace.Indent();
-            Trace.WriteLine("Event:  " + e.RoutedEvent);
-            Trace.WriteLine("Key:    " + e.Key);
-            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
 
-            //Trace.WriteLine("Source: " + e.Source);
-
-            if (_promptEnd == null || e.Source != this)
+            // if we're not running a command, there's no need to cache keystrokes...
+            if (!_running)
             {
+                if (_promptEnd == null || e.Source != this)
+                {
+                    Trace.TraceInformation("OnPreviewKeyDown: No Prompt || Wrong Source!");
+                    base.OnPreviewKeyDown(e);
+
+                    Trace.Unindent();
+                    Trace.TraceInformation("Exiting OnPreviewKeyDown:");
+
+                    return;
+                }
+
+                bool inCommand = CaretInCommand;
+
+                #region SpecialKeyHandler
+                switch (e.Key)
+                {
+                    case Key.Tab:
+                        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate { OnTabPressed(e, inCommand); });
+                        break;
+
+                    case Key.Enter:
+                        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate { OnEnterPressed(e); });
+                        break;
+
+                    case Key.F7:
+                        OnHistoryMenu(e, inCommand);
+                        break;
+
+                    case Key.Up:
+                        OnUpPressed(e, inCommand);
+                        break;
+
+                    case Key.Down:
+                        OnDownPressed(e, inCommand);
+                        break;
+
+                    case Key.Left:
+                        OnLeftPressed(e, inCommand);
+                        break;
+
+
+                    case Key.Home:
+                        OnHomePressed(e, inCommand);
+                        break;
+
+                    case Key.End:
+                        OnEndPressed(e);
+                        break;
+
+                    case Key.Back:
+                    case Key.Delete:
+                        OnBackspaceDeletePressed(e);
+                        break;
+
+                    // we're handling this to avoid the default handler when you try to copy since that 
+                    // would de-select the text -- and result in copying the whole (first) paragraph
+                    case Key.X:
+                    case Key.C:
+                        if (!Utilities.IsModifierOn(e, ModifierKeys.Control))
+                        {
+                            goto default;
+                        }
+                        break;
+
+                    case Key.PageUp:
+                        OnPageUpPressed(e, inCommand);
+                        break;
+
+                    case Key.PageDown:
+                        OnPageDownPressed(e, inCommand);
+                        break;
+
+                    // here's a few keys we want the base control to handle:
+                    case Key.RightAlt:
+                    case Key.LeftAlt:
+                    case Key.RightCtrl:
+                    case Key.LeftCtrl:
+                    case Key.RightShift:
+                    case Key.LeftShift:
+                    case Key.RWin:
+                    case Key.LWin:
+                    case Key.CapsLock:
+                    case Key.Insert:
+                    case Key.NumLock:
+                        break;
+
+                    // if a key isn't in the list above, then make sure we're in the prompt before we let it through
+                    default:
+
+                        _expansion.Reset();
+
+                        if (_promptEnd == null || !inCommand)
+                        {
+                            CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
+                        }
+                        // if they type anything, they're no longer using the autocopy
+                        _autoCopy = false;
+                        break;
+
+                }
+                #endregion
+                
                 base.OnPreviewKeyDown(e);
-
-                Trace.Unindent();
-                Trace.TraceInformation("Exiting OnPreviewKeyDown:");
-
-                return;
             }
-
-            //if (_currentParagraph.Inlines.Count < _promptInlines)
-            //{
-            //    SetPrompt();
-            //    _promptInlines = _currentParagraph.Inlines.Count;
-            //}
-
-            bool inCommand = CaretInCommand;
-
-            switch (e.Key)
+            else
             {
-                case Key.Tab:
-                    OnTabPressed(e, inCommand);
-                    break;
+                ReplayableKeyEventArgs rk = new ReplayableKeyEventArgs(e, GetControlKeyStates(e.KeyboardDevice));
+                //KeyInfo ki = GetKeyInfo(
+                _keyBuffer.Enqueue(rk);
+                // SPECIALLY handle output-altering characters
+                if (e.Key == Key.Tab || e.Key == Key.Space || e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    //if (rk.IsCharacter())
+                    //{
+                    //    rk.TextCompositionEventArgs =
+                    //        new TextCompositionEventArgs(e.KeyboardDevice,
+                    //            new TextComposition(InputManager.Current, e.KeyboardDevice.FocusedElement, rk.CharacterOrEmpty));
+                    //}
+                }
 
-                case Key.F7:
-                    OnHistoryMenu(e, inCommand);
-                    break;
+                if (_waitingForKey && (_readKeyOptions & ReadKeyOptions.IncludeKeyDown) == ReadKeyOptions.IncludeKeyDown)
+                {
+                    _gotInput.Set();
+                }
 
-                case Key.Up:
-                    OnUpPressed(e, inCommand);
-                    break;
-
-                case Key.Down:
-                    OnDownPressed(e, inCommand);
-                    break;
-
-                case Key.Left:
-                    OnLeftPressed(e, inCommand);
-                    break;
-
-                case Key.Enter:
-                    OnEnterPressed(e);
-                    break;
-
-                case Key.Home:
-                    OnHomePressed(e, inCommand);
-                    break;
-
-                case Key.End:
-                    OnEndPressed(e);
-                    break;
-
-                case Key.Back:
-                case Key.Delete:
-                    OnBackspaceDeletePressed(e);
-                    break;
-
-                // we're handling this to avoid the default handler when you try to copy since that 
-                // would de-select the text -- and result in copying the whole (first) paragraph
-                case Key.X:
-                case Key.C:
-                    if (!Utilities.IsModifierOn(e, ModifierKeys.Control))
-                    {
-                        goto default;
-                    }
-                    break;
-
-                case Key.PageUp:
-                    OnPageUpPressed(e, inCommand);
-                    break;
-
-                case Key.PageDown:
-                    OnPageDownPressed(e, inCommand);
-                    break;
-
-                // here's a few keys we want the base control to handle:
-                case Key.RightAlt:
-                case Key.LeftAlt:
-                case Key.RightCtrl:
-                case Key.LeftCtrl:
-                case Key.RightShift:
-                case Key.LeftShift:
-                case Key.RWin:
-                case Key.LWin:
-                case Key.CapsLock:
-                case Key.Insert:
-                case Key.NumLock:
-                    break;
-
-                // if a key isn't in the list above, then make sure we're in the prompt before we let it through
-                default:
-
-                    _expansion.Reset();
-
-                    if (_promptEnd == null || !inCommand)
-                    {
-                        CaretPosition = Document.ContentEnd.GetInsertionPosition(LogicalDirection.Forward);
-                    }
-
-                    // if they type anything, they're no longer using the autocopy
-                    _autoCopy = false;
-                    break;
-
+                //e.Handled = true;
             }
-
-            base.OnPreviewKeyDown(e);
 
             Trace.Unindent();
             Trace.TraceInformation("Exiting OnPreviewKeyDown:");
         }
+
+        protected override void OnTextInput(TextCompositionEventArgs e)
+        {
+            Trace.TraceInformation("Entering OnTextInput:");
+            Trace.TraceInformation("Text Input [" + e.Text + "]");
+            if (!_running)
+            {
+                base.OnTextInput(e);
+            }
+            else
+            {
+                _keyBuffer.Last.Value.TextCompositionEventArgs = e;
+                //e.Handled = true;
+            }
+            Trace.TraceInformation("Exiting OnTextInput:");
+        }
+
+
 		
 		protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
@@ -251,17 +297,55 @@ namespace PoshConsole.Controls
 
                 e.Handled = true;
             }
-
             base.OnPreviewMouseWheel(e);
         }
-		
-		protected override void OnPreviewTextInput(TextCompositionEventArgs e)
+
+        private static ControlKeyStates GetControlKeyStates(KeyboardDevice kb)
+        {
+            ControlKeyStates controlStates = default(ControlKeyStates);
+
+            if (kb.IsKeyDown(Key.LeftCtrl))
+            {
+                controlStates |= ControlKeyStates.LeftCtrlPressed;
+            }
+            if (kb.IsKeyDown(Key.LeftAlt))
+            {
+                controlStates |= ControlKeyStates.LeftAltPressed;
+            }
+            if (kb.IsKeyDown(Key.RightAlt))
+            {
+                controlStates |= ControlKeyStates.RightAltPressed;
+            }
+            if (kb.IsKeyDown(Key.RightCtrl))
+            {
+                controlStates |= ControlKeyStates.RightCtrlPressed;
+            }
+            if (kb.IsKeyToggled(Key.Scroll))
+            {
+                controlStates |= ControlKeyStates.ScrollLockOn;
+            }
+            if (kb.IsKeyToggled(Key.CapsLock))
+            {
+                controlStates |= ControlKeyStates.CapsLockOn;
+            }
+            if (kb.IsKeyToggled(Key.NumLock))
+            {
+                controlStates |= ControlKeyStates.NumLockOn;
+            }
+            if (kb.IsKeyDown(Key.LeftShift) || kb.IsKeyDown(Key.RightShift))
+            {
+                controlStates |= ControlKeyStates.ShiftPressed;
+            }
+            return controlStates;
+        }
+
+        protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
             Trace.TraceInformation("Entering OnPreviewTextInput:");
             Trace.Indent();
-            Trace.WriteLine("Event:  " + e.RoutedEvent);
-            Trace.WriteLine("Text:   " + e.Text);
-            Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
+            // Trace.WriteLine("Event:  " + e.RoutedEvent);
+            // Trace.WriteLine("Text:   " + e.Text);
+            // Trace.WriteLine("Now!:   " + DateTime.Now.ToString("hh:mm:ss.fff"));
 
             //Trace.WriteLine("Source: " + e.OriginalSource);
 
@@ -318,7 +402,6 @@ namespace PoshConsole.Controls
             }
             else
             {
-
                 // for "Delete" it would be enough to test "CaretInCommand" but for backspace we need to know if they're on the end
                 int offset = CommandStart.GetOffsetToPosition(CaretPosition);
                 e.Handled = (offset < 0 || (offset == 0 && e.Key == Key.Back) || (CurrentCommand.Length <= 0));
@@ -355,6 +438,7 @@ namespace PoshConsole.Controls
 		
 		private void OnEnterPressed(KeyEventArgs e)
         {
+            System.Threading.Thread.Sleep(0);
             ClearUndoBuffer();
 
             // the "EndOfOutput" marker gets stuck just before the last character of the prompt...
@@ -367,7 +451,7 @@ namespace PoshConsole.Controls
             {
                 _cmdHistory.Add(cmd);
             }
-
+            UpdateLayout();
             OnCommand(cmd);
 
             e.Handled = true;
@@ -434,17 +518,31 @@ namespace PoshConsole.Controls
         }
 
         private DateTime _tabTime = DateTime.Now;
+        
         private void OnTabPressed(KeyEventArgs e, bool inPrompt)
         {
+            System.Threading.Thread.Sleep(0);
+            ClearUndoBuffer();
+
+            // the "EndOfOutput" marker gets stuck just before the last character of the prompt...
+            string[] cmds = new string[]{ CurrentCommand };
+            // hackmode for when we're playing back buffered keystrokes 
+            cmds = cmds[0].Split('\t');
+            //if (cmd[cmd.Length - 1] == '\t') cmd = cmd.Substring(0, cmd.Length - 1);
+
             if (!Utilities.IsModifierOn(e, ModifierKeys.Control))
             {
                 if (inPrompt)
                 {
-                    List<string> choices = _expansion.GetChoices(CurrentCommand);
+                    List<string> choices = _expansion.GetChoices(cmds[0]);
 
-                    if( (Properties.Settings.Default.TabCompleteMenuThreshold > 0
+                    // DO NOT use menu mode if we're in _playbackMode 
+                    // OTHERWISE, DO USE it if there are more than TabCompleteMenuThreshold items
+                    // OR if they double-tapped
+                    if ((cmds.Length == 0) &&
+                        ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
                         && choices.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
-                    || (((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds))
+                    || (((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds)))
                     {
                         _popup.ShowTabPopup(new Rect(CursorPosition.X, CursorPosition.Y, ActualWidth - CursorPosition.X, ActualHeight - CursorPosition.Y), choices, CurrentCommand);
                     }
@@ -452,11 +550,11 @@ namespace PoshConsole.Controls
                     {
                         if (Utilities.IsModifierOn(e, ModifierKeys.Shift))
                         {
-                            CurrentCommand = _expansion.Previous(CurrentCommand);
+                            CurrentCommand = _expansion.Previous(cmds[0]) + ((cmds.Length > 1) ? string.Join("\t", cmds, 1, cmds.Length - 1) : string.Empty);
                         }
                         else
                         {
-                            CurrentCommand = _expansion.Next(CurrentCommand);
+                            CurrentCommand = _expansion.Next(cmds[0]) + ((cmds.Length > 1) ? string.Join("\t", cmds, 1, cmds.Length - 1) : string.Empty);
                         }
                     }
                 }
@@ -521,6 +619,12 @@ namespace PoshConsole.Controls
             {
                 Selection.Select(Selection.Start, inputAreaIP);
             }
+
+            if (Selection.Start.GetOffsetToPosition(inputAreaIP) >= 0)
+            {
+                Selection.Select(inputAreaIP, Selection.End);
+            }
+
         }
     }
 		

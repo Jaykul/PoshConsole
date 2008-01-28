@@ -16,9 +16,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalHotkeysDemo", "Global
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\FontLibrary.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{DDAA0210-5A8D-4681-9025-ED86A6AD8091}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
+		SccNumberOfProjects = 6
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -34,6 +36,9 @@ Global
 		SccProjectUniqueName4 = PoshConsole\\PoshConsole.csproj
 		SccProjectName4 = PoshConsole
 		SccLocalPath4 = PoshConsole
+		SccProjectUniqueName5 = UnitTests\\UnitTests.csproj
+		SccProjectName5 = UnitTests
+		SccLocalPath5 = UnitTests
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +61,10 @@ Global
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,12 +1,12 @@
 ﻿<UserControl
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:Cvt="clr-namespace:PoshConsole.WPF.Converters"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cvt="clr-namespace:PoshConsole.Controls;assembly="
 	x:Class="PoshConsole.Controls.ProgressPanel"
 	x:Name="ProgressDisplayPanel"
 	Height="Auto" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
     <UserControl.Resources>
-        <Cvt:FormattingConverter x:Key="formatter" />
+        <cvt:FormattingConverter x:Key="formatter" />
     </UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot" Margin="5,5,5,5">

@@ -310,5 +310,29 @@ namespace PoshConsole.Properties {
                 this["TabCompleteDoubleTapMilliseconds"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int MaxBufferLines {
+            get {
+                return ((int)(this["MaxBufferLines"]));
+            }
+            set {
+                this["MaxBufferLines"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int MaxBufferCommands {
+            get {
+                return ((int)(this["MaxBufferCommands"]));
+            }
+            set {
+                this["MaxBufferCommands"] = value;
+            }
+        }
     }
 }

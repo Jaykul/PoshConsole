@@ -73,27 +73,23 @@ namespace PoshConsole.Controls
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (BeginInvoke)delegate
             {
-                try
+                ErrorRecord error;
+                FrameworkElement element;
+                if (source.TryLoadXaml( out element, out error))
                 {
-                    object loaded = XamlReader.Load(source.OpenRead());
-                    if (loaded is FrameworkElement)
-                    {
-                        InlineUIContainer iui = new InlineUIContainer();// ((UIElement)fromXaml);
-                        iui.Child = (FrameworkElement)loaded;
-                        iui.DataContext = data.BaseObject;
-                        _currentParagraph.Inlines.Add(iui);
-                        //((FrameworkElement)loaded).DataContext = data;
-                        //OutXamlObject(((FrameworkElement)loaded));
-                    } else {
-                        ((IPSConsole)this).WriteErrorRecord(new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded));
-                    }
+                    InlineUIContainer iui = new InlineUIContainer();// ((UIElement)fromXaml);
+                    iui.Child = element;
+                    iui.DataContext = data.BaseObject;
+                    _currentParagraph.Inlines.Add(iui);
                 }
-                catch (Exception ex)
+                else
                 {
-                    ((IPSConsole)this).WriteErrorRecord(new ErrorRecord(ex, "Loading Xaml", ErrorCategory.SyntaxError, source));
+                    ((IPSConsole)this).WriteErrorRecord(error);
                 }
             });
         }
+
+
         private void OutXamlObject(object fromXaml) {
             if (fromXaml is ContentElement)
             { 

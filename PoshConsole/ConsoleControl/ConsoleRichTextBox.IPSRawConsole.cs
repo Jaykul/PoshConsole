@@ -15,6 +15,7 @@ using System.Management.Automation;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
+using PoshConsole.Interop;
 
 namespace PoshConsole.Controls
 {
@@ -26,6 +27,51 @@ namespace PoshConsole.Controls
     public partial class ConsoleRichTextBox : IPSRawConsole  //, IPSConsole, IConsoleControlBuffered
     {
         #region IPSRawConsole Members
+
+        bool _waitingForKey = false;
+        ReadKeyOptions _readKeyOptions;
+        LinkedList<ReplayableKeyEventArgs> _keyBuffer = new LinkedList<ReplayableKeyEventArgs>();
+        //LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
+        //Queue<KeyInfo> _reInputBuffer;
+
+        /// <summary>
+        /// Provides a way for scripts to request user input ...
+        /// </summary>
+        /// <returns></returns>
+        KeyInfo IPSRawConsole.ReadKey(ReadKeyOptions options)
+        {
+            _readKeyOptions = options;
+            //_keyInfo = null;
+            _waitingForKey = true;
+            _gotInput.Reset();
+            _gotInput.WaitOne();
+            _waitingForKey = false;
+
+            KeyInfo k = new KeyInfo();
+            while (_keyBuffer.Count > 0)
+            {
+                ReplayableKeyEventArgs kea = _keyBuffer.Dequeue();
+                if ((options & ReadKeyOptions.NoEcho) != ReadKeyOptions.NoEcho )
+                {
+                    if(kea.IsDown) {
+                        base.OnKeyDown(kea.KeyEventArgs);
+                        base.OnTextInput(kea.TextCompositionEventArgs);
+                    } else {
+                        base.OnKeyUp(kea.KeyEventArgs);
+                    }
+                }
+                // if the KeyInfo is the type they're looking for
+                if (kea.KeyEventArgs.IsDown == ((options & ReadKeyOptions.IncludeKeyDown) == ReadKeyOptions.IncludeKeyDown) ||
+                    kea.KeyEventArgs.IsDown != ((options & ReadKeyOptions.IncludeKeyUp) == ReadKeyOptions.IncludeKeyUp))
+                {
+                    k = kea.KeyInfo;
+                    break;
+                }
+            }
+            return k;
+        }
+        bool IPSRawConsole.KeyAvailable { get { return _keyBuffer.Count > 0; } }
+
 
         int IPSRawConsole.CursorSize
         {
@@ -331,12 +377,14 @@ namespace PoshConsole.Controls
             if (Dispatcher.CheckAccess())
             {
                 this.FlushInputBuffer();
+                _keyBuffer.Clear();
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate
                 {
                     this.FlushInputBuffer();
+                    _keyBuffer.Clear();
                 });
             }
         }

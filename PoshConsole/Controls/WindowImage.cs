@@ -173,7 +173,7 @@ namespace PoshConsole
             protected override Size ArrangeOverride(Size finalSize)
             {
                 System.Drawing.Size size;
-                Win32.NativeMethods.DwmQueryThumbnailSourceSize(this.thumb, out size);
+                Interop.NativeMethods.DwmQueryThumbnailSourceSize(this.thumb, out size);
 
                 // scale to fit whatever size we were allocated
                 double scale = finalSize.Width / size.Width;
@@ -197,7 +197,7 @@ namespace PoshConsole
                     InitialiseThumbnail(this.WindowSource);
                 }
                 System.Drawing.Size size;
-                Win32.NativeMethods.DwmQueryThumbnailSourceSize(thumb, out size);
+                Interop.NativeMethods.DwmQueryThumbnailSourceSize(thumb, out size);
 
                 double scale = 1;
 
@@ -229,15 +229,15 @@ namespace PoshConsole
                     target = (HwndSource)HwndSource.FromVisual(this);
 
                     // if we have one, we can attempt to register the thumbnail
-                    if (target != null && 0 == Win32.NativeMethods.DwmRegisterThumbnail(target.Handle, source, out this.thumb))
+                    if (target != null && 0 == Interop.NativeMethods.DwmRegisterThumbnail(target.Handle, source, out this.thumb))
                     {
-                        Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+                        Interop.NativeMethods.ThumbnailProperties props = new Interop.NativeMethods.ThumbnailProperties();
                         props.Visible = false;
                         props.ClientAreaOnly = this.ClientAreaOnly;
                         props.Opacity = (byte)(255 * this.Opacity);
-                        props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly
-                            | Win32.NativeMethods.ThumbnailFlags.Opacity;
-                        Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+                        props.Flags = Interop.NativeMethods.ThumbnailFlags.Visible | Interop.NativeMethods.ThumbnailFlags.SourceClientAreaOnly
+                            | Interop.NativeMethods.ThumbnailFlags.Opacity;
+                        Interop.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
                     }
                 }
             }
@@ -273,7 +273,7 @@ namespace PoshConsole
             {
                 if (IntPtr.Zero != thumb)
                 {
-                    Win32.NativeMethods.DwmUnregisterThumbnail(thumb);
+                    Interop.NativeMethods.DwmUnregisterThumbnail(thumb);
                     this.thumb = IntPtr.Zero;
                 }
                 this.target = null;
@@ -303,13 +303,13 @@ namespace PoshConsole
                     Point a = transform.Transform(new Point(0, 0));
                     Point b = transform.Transform(new Point(this.ActualWidth, this.ActualHeight));
 
-                    Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+                    Interop.NativeMethods.ThumbnailProperties props = new Interop.NativeMethods.ThumbnailProperties();
                     props.Visible = true;
-                    props.Destination = new Win32.NativeMethods.RECT(
+                    props.Destination = new Interop.NativeMethods.RECT(
                         2 + (int)Math.Ceiling(a.X), 2 + (int)Math.Ceiling(a.Y),
                         -2 + (int)Math.Ceiling(b.X), -2 + (int)Math.Ceiling(b.Y));
-                    props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.RectDestination;
-                    Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+                    props.Flags = Interop.NativeMethods.ThumbnailFlags.Visible | Interop.NativeMethods.ThumbnailFlags.RectDestination;
+                    Interop.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
             }
 		
@@ -328,11 +328,11 @@ namespace PoshConsole
             {
                 if (IntPtr.Zero != thumb)
                 {
-                    Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+                    Interop.NativeMethods.ThumbnailProperties props = new Interop.NativeMethods.ThumbnailProperties();
                     props.ClientAreaOnly = this.ClientAreaOnly;
                     props.Opacity = (byte)(255 * this.Opacity);
-                    props.Flags = Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Win32.NativeMethods.ThumbnailFlags.Opacity;
-                    Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+                    props.Flags = Interop.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Interop.NativeMethods.ThumbnailFlags.Opacity;
+                    Interop.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
             }
 		
@@ -341,7 +341,7 @@ namespace PoshConsole
         }
     }
 
-    namespace Win32
+    namespace Interop
     {
 
         public partial class NativeMethods

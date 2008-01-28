@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Windows.Markup;
 using System.Xml;
 using System.IO;
-using System.Linq;
 
 namespace PoshConsole
 {
@@ -43,7 +42,19 @@ namespace PoshConsole
             }
             return lastWord;
         }
-		
+
+        public static int LineCount(this string text)
+        {
+            char[] lineends = new char[] { '\r', '\n' };
+            int index = 0,count =0;
+            while ((index = 1 + text.IndexOfAny(lineends, index)) > 0)
+            {
+                count++;
+                index += (text[index] == lineends[1]) ? 1 : 0;
+            }
+            return count;
+        }
+
 		public static bool IsModifierOn(this KeyEventArgs e, ModifierKeys modifier)
         {
             return (e.KeyboardDevice.Modifiers & modifier) == modifier;
@@ -114,6 +125,33 @@ namespace PoshConsole
 		
 		#endregion [rgn]
 
+    }
+
+    public static class LinkedListStackQueue
+    {
+        public static T Dequeue<T>(this LinkedList<T> list)
+        {
+            T result = list.First.Value;
+            list.RemoveFirst();
+            return result;
+        }
+
+        public static T Pop<T>(this LinkedList<T> list)
+        {
+            T result = list.Last.Value;
+            list.RemoveLast();
+            return result;
+        }
+
+        public static void Enqueue<T>(this LinkedList<T> list, T item) 
+        {
+            list.AddLast(item);
+        }
+
+        public static void Push<T>(this LinkedList<T> list, T item)
+        {
+            list.AddFirst(item);
+        }
     }
 
     internal static class PipelineHelper

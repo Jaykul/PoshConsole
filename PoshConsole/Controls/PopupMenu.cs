@@ -8,6 +8,7 @@ using System.Windows;
 using System.Management.Automation.Host;
 using System.Windows.Controls.Primitives;
 using System.Diagnostics;
+using PoshConsole.Controls;
 
 namespace PoshConsole.Controls
 {

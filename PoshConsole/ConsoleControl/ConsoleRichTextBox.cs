@@ -16,6 +16,7 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Globalization;
+using PoshConsole.Controls;
 
 namespace PoshConsole.Controls
 {
@@ -319,6 +320,11 @@ namespace PoshConsole.Controls
         {
             get
             {
+                // Because we are processing commands based on the document content ...
+                // We require a "Yield" to make sure the document has a chance to process
+                // any remaining keypresses before we read the command from it.
+                System.Threading.Thread.Sleep(0);
+
                 TextRange cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
                 // Run cmd = _currentParagraph.Inlines.LastInline as Run;
 
@@ -764,10 +770,21 @@ namespace PoshConsole.Controls
                 ////TextRange prmpt = new TextRange( _currentParagraph.ContentStart, _currentParagraph.ContentEnd );
                 //_promptEnd = _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Backward);
                 SetPrompt();
+                LimitBuffer();
             });
+
         }
 
-        private bool _running = false;
+        private void LimitBuffer()
+        {
+            while ( (Document.Blocks.Count > Properties.Settings.Default.MaxBufferCommands)
+                || (new TextRange(Document.ContentStart,Document.ContentEnd).Text.LineCount() > Properties.Settings.Default.MaxBufferLines))
+            {
+                Document.Blocks.Remove(Document.Blocks.FirstBlock);
+            }
+        }
+
+        private bool _running = true; // starts "running" because it's processing the profile (until the first prompt is written)
         public bool IsRunning { get { return _running; } }
 
         private void FixPrompt()
@@ -783,7 +800,6 @@ namespace PoshConsole.Controls
         private void SetPrompt()
         {
             BeginChange();
-            _running   = false;
             _promptEnd = _currentParagraph.ContentEnd.GetPositionAtOffset(-1).GetNextInsertionPosition(LogicalDirection.Backward);
             // this is the run that the user will type their command into...
             Run command = new Run("", _currentParagraph.ContentEnd.GetInsertionPosition(LogicalDirection.Forward)); // , Document.ContentEnd
@@ -799,6 +815,22 @@ namespace PoshConsole.Controls
             IsUndoEnabled = true;
 
             CaretPosition = Document.ContentEnd;
+
+            _running = false;
+            //Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (BeginInvoke)delegate
+            //{
+            while (!_running && (_keyBuffer.Count > 0))
+            {
+                ReplayableKeyEventArgs k = _keyBuffer.Dequeue();
+                k.KeyEventArgs.Handled = false;
+                InputManager.Current.ProcessInput(k.KeyEventArgs);
+                if (k.TextCompositionEventArgs != null)
+                {
+                    //k.TextCompositionEventArgs.Handled = false;
+                    InputManager.Current.ProcessInput(k.TextCompositionEventArgs);
+                }
+            }
+            //});
         }
 
         Paragraph _currentParagraph = null;
@@ -1735,8 +1767,5 @@ namespace PoshConsole.Controls
         {
             throw new NotImplementedException("Credentials are not yet implemented by PoshConsole");
         }
-
-
-
     }
 }

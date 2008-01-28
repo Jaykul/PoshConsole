@@ -94,7 +94,7 @@ namespace PoshConsole.PSHost
         /// <returns>Nothing</returns>
         public override KeyInfo ReadKey(ReadKeyOptions options)
         {
-            throw new NotImplementedException("The ReadKey() method is not implemented by MyRawUserInterface.");
+            return myConsole.ReadKey(options);
         }
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.

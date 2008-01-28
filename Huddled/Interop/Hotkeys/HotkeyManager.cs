@@ -253,6 +253,7 @@ namespace Huddled.Interop.Hotkeys
             return NativeMethods.UnregisterHotKey(_hwnd, nativeId);
         }
 		
+        [System.Diagnostics.DebuggerHidden]
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const int WM_HOTKEY = 0x312;

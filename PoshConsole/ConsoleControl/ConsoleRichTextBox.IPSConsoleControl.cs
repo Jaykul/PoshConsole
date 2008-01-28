@@ -100,6 +100,17 @@ namespace PoshConsole.Controls
             BeginChange();
             if (_currentParagraph != null && _currentParagraph.ContentEnd.IsInSameDocument(Document.ContentEnd))
             {
+                // I'm having issues with an extra paragraph getting inserted in the output...
+                if (!_currentParagraph.Equals(Document.Blocks.LastBlock.ContentEnd.Paragraph))
+                {
+                    TextRange tr = new TextRange(_currentParagraph.ContentEnd, Document.Blocks.LastBlock.ContentEnd);
+                    if (tr.Text.TrimEnd().Length == 0)
+                    {
+                        Document.Blocks.Remove(Document.Blocks.LastBlock);
+                    }
+                }
+
+                // and extra lines too...
                 // if the paragraph has content
                 if (_currentParagraph.Inlines.Count > _promptInlines)
                 {
@@ -129,13 +140,14 @@ namespace PoshConsole.Controls
                         //_currentParagraph.Inlines.Remove(tmp);
                     }
                 }
-                if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
-                {
-                    _currentParagraph.ContentEnd.InsertLineBreak();
-                }
+                //if (_currentParagraph.Margin.Bottom == 0 && _currentParagraph.Margin.Top == 0)
+                //{
+                //    _currentParagraph.ContentEnd.InsertLineBreak();
+                //}
             }
             //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
             //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
+            _currentParagraph.ContentEnd.InsertParagraphBreak();
             Document.ContentEnd.InsertParagraphBreak();
             _currentParagraph = (Paragraph)Document.Blocks.LastBlock;
             EndChange();

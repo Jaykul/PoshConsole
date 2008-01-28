@@ -14,11 +14,11 @@ using System.Windows.Markup;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PoshConsole")]
-[assembly: AssemblyDescription("A sleek PowerShell console in WPF")]
+[assembly: AssemblyDescription("WPF Controls for PoshConsole")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Posh Console")]
-[assembly: AssemblyCopyright("Copyright Joel Bennett @  2007")]
+[assembly: AssemblyCopyright("Copyright Joel Bennett © 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

@@ -4,6 +4,8 @@ using System.Management.Automation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Security;
+using System.Xml;
+using System.IO;
 
 namespace PoshConsole.Controls
 {
@@ -59,8 +61,8 @@ namespace PoshConsole.Controls
 
         void FlushInputBuffer();
         // TODO: There are additional methods.
-        // KeyInfo ReadKey(ReadKeyOptions options);
-        // bool KeyAvailable { get; }
+        KeyInfo ReadKey(ReadKeyOptions options);
+        bool KeyAvailable { get; }
         BufferCell[,] GetBufferContents(Rectangle rectangle);
         void SetBufferContents(Rectangle rectangle, BufferCell fill);
         void SetBufferContents(Coordinates origin, BufferCell[,] contents);
@@ -153,5 +155,4 @@ namespace PoshConsole.Controls
         ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
         ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
     }
-
 }

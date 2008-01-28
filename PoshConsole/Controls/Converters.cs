@@ -4,7 +4,7 @@ using System.Text;
 using System.Windows.Data;
 using System.Globalization;
 
-namespace PoshConsole.Controls.Converters
+namespace PoshConsole.Controls
 {
     [ValueConversion(typeof(object), typeof(string))]
     public class FormattingConverter : IValueConverter

@@ -1,27 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
+using System.Management.Automation;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Management.Automation.Runspaces;
-using System.IO;
-using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using System.Windows.Controls.Primitives;
-using System.Diagnostics;
+using Huddled.Interop.Hotkeys;
 using PoshConsole.Controls;
 using PoshConsole.PSHost;
-using Huddled.Interop;
-using Huddled.Interop.Hotkeys;
 
 namespace PoshConsole
 {
