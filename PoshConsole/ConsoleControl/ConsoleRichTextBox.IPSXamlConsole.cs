@@ -89,7 +89,6 @@ namespace PoshConsole.Controls
             });
         }
 
-
         private void OutXamlObject(object fromXaml) {
             if (fromXaml is ContentElement)
             { 
@@ -132,6 +131,7 @@ namespace PoshConsole.Controls
                 ((IPSConsole)this).WriteErrorLine(fromXaml.GetType().FullName + ", " + fromXaml.GetType().BaseType.FullName);
             }
         }
+
         #endregion
     }
 }

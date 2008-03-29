@@ -9,19 +9,7 @@
     <WarningLevel>4</WarningLevel>
     <OutputType>winexe</OutputType>
     <MinFrameworkVersionRequired>3.0</MinFrameworkVersionRequired>
-    <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>false</MapFileExtensions>
-    <ApplicationVersion>1.0.0.*</ApplicationVersion>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>Publish\</PublishUrl>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <StartupObject>PoshConsole.App</StartupObject>
     <ApplicationIcon>Artwork\PoshConsole.ico</ApplicationIcon>
     <SccProjectName>SAK</SccProjectName>
@@ -34,6 +22,20 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <PublishUrl>Publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>false</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +43,10 @@
     <Optimize>false</Optimize>
     <OutputPath>.\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -116,6 +122,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cmdlets\AddHotkeyCommand.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.CommandHandlers.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.ConsoleBrushList.cs" />
     <Compile Include="ConsoleControl\ConsoleRichTextBox.EventHandlers.cs" />
@@ -141,6 +148,8 @@
     <Compile Include="Converters.cs" />
     <Compile Include="Cmdlets\OutWPFCommand.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
+    <Compile Include="PSHost\ScriptCommand.cs" />
+    <Compile Include="PSHost\IPSUI.cs" />
     <Compile Include="PSHost\PoshHost.InvokeHelper.cs" />
     <Compile Include="PSHost\PoshOptions.cs" />
     <Compile Include="Properties\Colors.Designer.cs">
@@ -198,6 +207,28 @@
       <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
       <Name>Huddled</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\Themes\" />

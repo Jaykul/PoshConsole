@@ -22,7 +22,7 @@ namespace Huddled.Interop.Hotkeys
 		// private readonly Dictionary<Int32, HotkeyEntry> _entries;
 		private IntPtr _hwnd;
 		private HwndSource _hwndSource;
-		private Window _window;
+		//private Window _window;
         private KeyBindingCollection _entries;
         private List<KeyBinding> _keysPending;
         #endregion [rgn]
@@ -148,7 +148,7 @@ namespace Huddled.Interop.Hotkeys
         
 		public HotkeyManager()
         {
-            _window = null;
+            //_window = null;
             _hwnd = IntPtr.Zero;
 
             _entries = new KeyBindingCollection( this );//  ObservableCollection<KeyBinding>();
@@ -194,7 +194,7 @@ namespace Huddled.Interop.Hotkeys
                 return;
             }
 
-            _window.Dispatcher.VerifyAccess();
+            Window.Dispatcher.VerifyAccess();
             _entries.Clear();
             _hwnd = IntPtr.Zero;
         }
@@ -223,29 +223,41 @@ namespace Huddled.Interop.Hotkeys
             //_keysPending.Clear();
         }
 
-        internal void RegisterHotkey( KeyBinding key )
+        internal bool RegisterHotkey( KeyBinding key )
         {
-            if (!RegisterHotkey(_entries.IndexOf(key), key.Key, key.Modifiers))
-            {
-                _keysPending.Add(key);
-            }
             if (key.Command is WindowCommand)
             {
                 ((WindowCommand)key.Command).Window = this.Window;
             }
+            if (!RegisterHotkey(_entries.IndexOf(key), key.Key, key.Modifiers))
+            {
+                _keysPending.Add(key);
+               return false;
+            } else return true;
+
             // unecessary // key.CommandTarget = this.Window;
         }
 
 		private bool RegisterHotkey( int id, Key key, ModifierKeys modifiers)
         {
-            int virtualkey = KeyInterop.VirtualKeyFromKey(key);
-
-            return NativeMethods.RegisterHotKey(_hwnd, id, (int)(modifiers), virtualkey);
+            if( _hwnd == IntPtr.Zero) {
+               return false;
+            } else {
+               int virtualkey = KeyInterop.VirtualKeyFromKey(key);
+               return NativeMethods.RegisterHotKey(_hwnd, id, (int)(modifiers), virtualkey);
+            }
         }
 
         internal void UnregisterHotkey(KeyBinding key)
         {
-            UnregisterHotkey(_entries.IndexOf(key));
+           if (_keysPending.Contains(key))
+           {
+              _keysPending.Remove(key);
+           }
+           else
+           {
+              UnregisterHotkey(_entries.IndexOf(key));
+           }
         }
 
         private bool UnregisterHotkey(int nativeId)
@@ -253,7 +265,7 @@ namespace Huddled.Interop.Hotkeys
             return NativeMethods.UnregisterHotKey(_hwnd, nativeId);
         }
 		
-        [System.Diagnostics.DebuggerHidden]
+        //[System.Diagnostics.DebuggerHidden]
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const int WM_HOTKEY = 0x312;
@@ -351,14 +363,14 @@ namespace Huddled.Interop.Hotkeys
         #region ICollection<KeyBinding> Members
         public void Add(KeyBinding item)
         {
-            //if (_hwnd == IntPtr.Zero)
-            //{
-            //    _keysPending.Add(item);
-            //}
-            //else
-            //{
-                _entries.Add(item);                  
-            //}
+           if (!_entries.Contains(item))
+           {
+              _entries.Add(item);
+           }
+           if (Window != null && Window.IsInitialized)
+           {
+              RegisterHotkey(item);
+           }
         }
 
         public void Clear()
