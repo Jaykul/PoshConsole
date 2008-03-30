@@ -213,10 +213,6 @@ namespace PoshConsole.Controls
                 {
                     return this.CursorPosition;
                 }
-                else if (Dispatcher.HasShutdownStarted) 
-                {
-                    return new Coordinates(); 
-                }
                 else
                 {
                     return (Coordinates)Dispatcher.Invoke(DispatcherPriority.Normal, (Invoke)delegate

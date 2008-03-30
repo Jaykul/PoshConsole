@@ -157,20 +157,22 @@ namespace PoshConsole.PSHost
 		private PipelineExecutionResult ExecutePipelineSync(Command cmd, IEnumerable input)
         {
             PipelineExecutionResult result = new PipelineExecutionResult();
-            Object syncRoot = new Object();
+            AutoResetEvent syncRoot = new AutoResetEvent(false);
 
             ExecutePipeline(cmd, input,  (PipelineOutputHandler) delegate(PipelineExecutionResult r) { 
                 result = r;
-                lock (syncRoot)
-                {
-                    Monitor.Pulse(syncRoot);
-                }
+                syncRoot.Set();
+                //lock (syncRoot)
+                //{
+                //  Monitor.Pulse(syncRoot);
+                //}
             });
 
-            lock (syncRoot)
-            {
-                Monitor.Wait(syncRoot);
-            }
+            //lock (syncRoot)
+            //{
+            //  Monitor.Wait(syncRoot);
+            //}
+            syncRoot.WaitOne();
 
             return result;
         }

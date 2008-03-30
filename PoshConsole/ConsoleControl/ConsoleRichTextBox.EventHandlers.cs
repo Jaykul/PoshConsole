@@ -137,45 +137,76 @@ namespace PoshConsole.Controls
                 bool inCommand = CaretInCommand;
 
                 #region SpecialKeyHandler
+
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate
+                {
+                   switch (e.Key)
+                   {
+                      case Key.Tab:
+                         OnTabPressed(e, inCommand);
+                         break;
+
+                      case Key.Enter:
+                         OnEnterPressed(e);
+                         //e.Handled = true;
+                         break;
+
+                      case Key.F7:
+                         OnHistoryMenu(e, inCommand);
+                         break;
+
+                      case Key.Up:
+                         OnUpPressed(e, inCommand);
+                         break;
+
+                      case Key.Down:
+                         OnDownPressed(e, inCommand);
+                         break;
+
+                      case Key.Left:
+                         OnLeftPressed(e, inCommand);
+                         break;
+
+
+                      case Key.Home:
+                         OnHomePressed(e, inCommand);
+                         break;
+
+                      case Key.End:
+                         OnEndPressed(e);
+                         break;
+
+                      case Key.Back:
+                      case Key.Delete:
+                         OnBackspaceDeletePressed(e);
+                         break;
+
+                      case Key.PageUp:
+                         OnPageUpPressed(e, inCommand);
+                         break;
+
+                      case Key.PageDown:
+                         OnPageDownPressed(e, inCommand);
+                         break;
+                   }
+                });
+                
                 switch (e.Key)
                 {
+                    // keys we handled already
                     case Key.Tab:
-                        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate { OnTabPressed(e, inCommand); });
-                        break;
-
                     case Key.Enter:
-                        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (BeginInvoke)delegate { OnEnterPressed(e); });
-                        break;
-
                     case Key.F7:
-                        OnHistoryMenu(e, inCommand);
-                        break;
-
                     case Key.Up:
-                        OnUpPressed(e, inCommand);
-                        break;
-
                     case Key.Down:
-                        OnDownPressed(e, inCommand);
-                        break;
-
                     case Key.Left:
-                        OnLeftPressed(e, inCommand);
-                        break;
-
-
                     case Key.Home:
-                        OnHomePressed(e, inCommand);
-                        break;
-
                     case Key.End:
-                        OnEndPressed(e);
-                        break;
-
                     case Key.Back:
                     case Key.Delete:
-                        OnBackspaceDeletePressed(e);
-                        break;
+                    case Key.PageUp:
+                    case Key.PageDown:
+                       break;
 
                     // we're handling this to avoid the default handler when you try to copy since that 
                     // would de-select the text -- and result in copying the whole (first) paragraph
@@ -187,13 +218,6 @@ namespace PoshConsole.Controls
                         }
                         break;
 
-                    case Key.PageUp:
-                        OnPageUpPressed(e, inCommand);
-                        break;
-
-                    case Key.PageDown:
-                        OnPageDownPressed(e, inCommand);
-                        break;
 
                     // here's a few keys we want the base control to handle:
                     case Key.RightAlt:
@@ -233,7 +257,7 @@ namespace PoshConsole.Controls
                 //KeyInfo ki = GetKeyInfo(
                 _keyBuffer.Enqueue(rk);
                 // SPECIALLY handle output-altering characters
-                if (e.Key == Key.Tab || e.Key == Key.Space || e.Key == Key.Enter)
+                if (e.Key == Key.Tab || e.Key == Key.Space || e.Key == Key.Enter || e.Key == Key.Back)
                 {
                     e.Handled = true;
                     //if (rk.IsCharacter())

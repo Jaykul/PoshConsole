@@ -328,15 +328,28 @@ namespace PoshConsole.Controls
                 // any remaining keypresses before we read the command from it.
                 System.Threading.Thread.Sleep(0);
 
-                TextRange cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
-                // Run cmd = _currentParagraph.Inlines.LastInline as Run;
-
-                if (cmd != null)
+                TextRange cmd;
+                if (_currentParagraph.NextBlock != null)
                 {
-                    return cmd.Text; //cr.Text
+                   _currentParagraph = _currentParagraph.NextBlock as Paragraph;
+                   cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
+                   if (cmd != null)
+                   {
+                      return cmd.Text.Replace("\r","").Replace("\n","");
+                   } else return String.Empty;
                 }
                 else
-                    return String.Empty;
+                {
+                   cmd = new TextRange(CommandStart, _currentParagraph.ContentEnd);
+                   if (cmd != null)
+                   {
+                     return cmd.Text; //cr.Text
+                   } else return String.Empty;
+                }
+                
+                // Run cmd = _currentParagraph.Inlines.LastInline as Run;
+
+
             }
             set
             {
