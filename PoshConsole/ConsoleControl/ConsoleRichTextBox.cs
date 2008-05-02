@@ -302,7 +302,8 @@ namespace PoshConsole.Controls
                  
                 if (_promptEnd != null)
                 {
-                    cs = _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
+                   cs = _promptEnd.GetNextInsertionPosition(LogicalDirection.Forward);
+                   // if (cs == null) cs = _promptEnd.GetInsertionPosition(LogicalDirection.Backward);
                 }
                 if (cs == null)
                 {
