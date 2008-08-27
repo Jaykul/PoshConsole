@@ -17,7 +17,7 @@ using System.Windows.Markup;
 [assembly: AssemblyCopyright("Copyright ©  2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: CLSCompliant(true)]
+// [assembly: CLSCompliant(true)]
 
 // Assigning an XML Namespace Deffinition exposes the namespace to WPF
 [assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf/controls", "Huddled.WPF.Controls")]

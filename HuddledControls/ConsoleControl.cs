@@ -23,6 +23,7 @@ namespace Huddled.WPF.Controls
    public class CommandEventArgs
    {
       public string Command;
+      public Block OutputBlock;
    }
 
    public delegate void CommmandDelegate(Object source, CommandEventArgs command);
@@ -33,59 +34,86 @@ namespace Huddled.WPF.Controls
    /// </summary>
    public partial class ConsoleControl : FlowDocumentReader
    {
+      static readonly ConsoleBrushes _consoleBrushes = new ConsoleBrushes();
+
       static ConsoleControl()
       {
          // DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
       }
 
-      private TextBox _commandBox;
-      private InlineUIContainer _commandContainer;
-      private Paragraph _current;
-      private Paragraph _next;
-      private Inline _prompt;
+
+      private readonly TextBox _commandBox;
+      private readonly InlineUIContainer _commandContainer;
+      protected Paragraph _current;
+      protected Paragraph _next;
       private Popup _popup;
+
+
 
       public event CommmandDelegate Command;
 
       public ConsoleControl()
       {
+         Document = new FlowDocument();
+         ViewingMode = FlowDocumentReaderViewingMode.Scroll;
+         Margin = new Thickness(0.0);
+         Padding = new Thickness(2.0);
+
          _popup = new Popup();
          // Add the popup to the logical branch of the console so keystrokes can be
          // processed from the popup by the console for the tab-complete scenario.
          // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
          AddLogicalChild(_popup);
-         this.Document = new FlowDocument();
-         this.ViewingMode = FlowDocumentReaderViewingMode.Scroll;
-         this.Margin = new Thickness(0.0);
-         this.Padding = new Thickness(2.0);
 
 
-         _next = new Paragraph();
-         _current = new Paragraph(new Run(@"
-There once was a man from nantucket,
-Who ran from the room with a bucket ..."));
-         Document.Blocks.Add(_current);
-
-         _commandBox = new TextBox() { 
-            IsEnabled = true,
-            Focusable = true,
-            AcceptsTab = true,
-            /*AcceptsReturn = true, */
-            Margin = new Thickness(0.0),
-            Padding = new Thickness(0.0),
-            BorderThickness = new Thickness(0.0),
-            Background = Brushes.Transparent
-         };
+         _commandBox = new TextBox()
+                          {
+                             IsEnabled = true,
+                             Focusable = true,
+                             AcceptsTab = true,
+                             /*AcceptsReturn = true, */
+                             Margin = new Thickness(0.0),
+                             Padding = new Thickness(0.0),
+                             BorderThickness = new Thickness(0.0),
+                             Background = Brushes.Transparent
+                          };
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
-         _next.Inlines.Add(_commandContainer);
-         Prompt("[" + (i++) + "]: ");
+      }
+      public override void EndInit()
+      {
+         base.EndInit();
+         Document.Background = Background;
+         Document.Foreground = Foreground;
+         Document.PagePadding = Padding;
+         Padding = new Thickness(0.0);
+
+         _commandBox.Foreground = Foreground;
+         _commandBox.Background = Background;
+
+         ProcessStartup();
       }
 
-      private int i = 0;
+      protected virtual void ProcessStartup()
+      {
+         // TODO: replace this standin with an actual startup script
+         _current = new Paragraph(new Run("There once was a man from nantucket,\nWho ran from the room with a bucket ..."));
+         Document.Blocks.Add(_current);
+
+         // create the prompt, and stick the command block in it
+         _next = new Paragraph();
+         Document.Blocks.Add(_next);
+         _next.Inlines.Add(_commandContainer);
+         Prompt("[0]: ");
+
+      }
+
+
       private void SetPrompt()
       {
          _commandContainer.Focus();
          _commandBox.Focus();
+         UpdateLayout();
+         _next.BringIntoView();
       }
 
       public void Prompt(string prompt)
@@ -95,9 +123,11 @@ Who ran from the room with a bucket ..."));
          {
             if (_next != null)
             {
-               Run insert = new Run(prompt, _next.ContentStart);
+               Run insert = new Run(prompt);
                insert.Background = Brushes.Transparent;
                insert.Foreground = Brushes.Gold;
+               _next.Inlines.Clear();
+               _next.Inlines.AddRange(new Inline[] { insert, _commandContainer });
                SetPrompt();
                // TODO: LimitBuffer();
             }
@@ -106,8 +136,12 @@ Who ran from the room with a bucket ..."));
       }
 
 
-
       private void Write(Brush foreground, Brush background, string text)
+      {
+         Write(foreground, background, text, _current);
+      }
+
+      private void Write(Brush foreground, Brush background, string text, Block target)
       {
          Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)delegate
          {
@@ -116,13 +150,17 @@ Who ran from the room with a bucket ..."));
             if (foreground == null) foreground = Foreground;
             if (background == null) background = Background;//Brushes.Transparent;
 
-            if (_current == null)
+            if (target == null)
             {
-               _current = new Paragraph();
-               Document.Blocks.Add(_current);
+               target = _current;
             }
+            //if (_current == null)
+            //{
+            //   _current = new Paragraph();
+            //   Document.Blocks.Add(_current);
+            //}
 
-            Run insert = new Run(text, _current.ContentEnd);
+            Run insert = new Run(text, target.ContentEnd);
             insert.Background = background;
             insert.Foreground = foreground;
          });
@@ -140,10 +178,8 @@ Who ran from the room with a bucket ..."));
 
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
-         Trace.TraceInformation("Entering OnPreviewKeyDown:");
-         Trace.Indent();
-
-         Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action) delegate {
+         Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
+         {
             switch (e.Key)
             {
                case Key.Enter:
@@ -171,32 +207,9 @@ Who ran from the room with a bucket ..."));
 
          // _cmdHistory.Add(_commandBox.Text);
 
-         if (Command != null)
-         {
-            Command(this, new CommandEventArgs { Command = cmd });
-         }
-         // TESTING
-         BackgroundWorker worker = new BackgroundWorker();
-         worker.DoWork +=new DoWorkEventHandler(worker_DoWork);
-         worker.RunWorkerAsync(i);
+         OnCommand(cmd);
 
          e.Handled = true;
       }
-
-      void worker_DoWork(object sender, DoWorkEventArgs e)
-      {
-         Random r = new Random();
-         int max = r.Next(2, 6);
-         for (int j = 0; j < max; j++)
-         {
-            Write(Brushes.Navy, Brushes.Transparent, "This is a test ("+e.Argument+") of the emergency broadcast system\r\n");
-            System.Threading.Thread.Sleep(r.Next(200,800));
-         }
-         Prompt("[" + (i++) + "]: ");
-      }
-      //protected override void OnKeyDown(KeyEventArgs e)
-      //{
-      //   base.OnKeyDown(e);
-      //}
    }
 }

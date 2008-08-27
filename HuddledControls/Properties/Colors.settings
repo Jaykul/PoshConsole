@@ -1,0 +1,96 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Huddled.WPF.Controls.Properties" GeneratedClassName="Colors">
+  <Profiles />
+  <Settings>
+    <Setting Name="DefaultForeground" Type="System.ConsoleColor" Scope="User">
+      <Value Profile="(Default)">White</Value>
+    </Setting>
+    <Setting Name="DefaultBackground" Type="System.ConsoleColor" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="Black" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF000000</Value>
+    </Setting>
+    <Setting Name="Blue" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF0066FF</Value>
+    </Setting>
+    <Setting Name="Cyan" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF99CCFF</Value>
+    </Setting>
+    <Setting Name="DarkBlue" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF003399</Value>
+    </Setting>
+    <Setting Name="DarkCyan" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF006699</Value>
+    </Setting>
+    <Setting Name="DarkGray" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF666666</Value>
+    </Setting>
+    <Setting Name="DarkGreen" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF006633</Value>
+    </Setting>
+    <Setting Name="DarkMagenta" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF800080</Value>
+    </Setting>
+    <Setting Name="DarkRed" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF800000</Value>
+    </Setting>
+    <Setting Name="DarkYellow" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF9900</Value>
+    </Setting>
+    <Setting Name="Gray" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFCCCCCC</Value>
+    </Setting>
+    <Setting Name="Green" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF66CC00</Value>
+    </Setting>
+    <Setting Name="Magenta" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF1493</Value>
+    </Setting>
+    <Setting Name="Red" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF0000</Value>
+    </Setting>
+    <Setting Name="White" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFFFFF</Value>
+    </Setting>
+    <Setting Name="Yellow" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFD700</Value>
+    </Setting>
+    <Setting Name="DebugBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#00FFFFFF</Value>
+    </Setting>
+    <Setting Name="DebugForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFA900</Value>
+    </Setting>
+    <Setting Name="ErrorBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#00FFFFFF</Value>
+    </Setting>
+    <Setting Name="ErrorForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF0056</Value>
+    </Setting>
+    <Setting Name="VerboseBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#00FFFFFF</Value>
+    </Setting>
+    <Setting Name="VerboseForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FF93FF29</Value>
+    </Setting>
+    <Setting Name="WarningBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#00FFFFFF</Value>
+    </Setting>
+    <Setting Name="WarningForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF7AA7</Value>
+    </Setting>
+    <Setting Name="NativeOutputForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFFFFFF</Value>
+    </Setting>
+    <Setting Name="NativeOutputBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#22FFFFFF</Value>
+    </Setting>
+    <Setting Name="NativeErrorForeground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#FFFF2771</Value>
+    </Setting>
+    <Setting Name="NativeErrorBackground" Type="System.Windows.Media.Color" Scope="User">
+      <Value Profile="(Default)">#22FFFFFF</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -41,6 +41,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -63,8 +64,19 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleBrushes.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.IPSConsole.cs" />
+    <Compile Include="Interfaces\IConsoleControl.cs" />
+    <Compile Include="Interfaces\IPSConsole.cs" />
+    <Compile Include="Interfaces\IPSRawConsole.cs" />
+    <Compile Include="Interfaces\IPSXamlConsole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Colors.Designer.cs">
+      <DependentUpon>Colors.settings</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -80,6 +92,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Properties\Colors.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Colors.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

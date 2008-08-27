@@ -7,13 +7,13 @@ namespace UnitTests
     {
         static void Main(string[] args)
         {
-            using (AutoRunner runner = new AutoRunner())
-            {
-                runner.Load();
-                runner.Run();
-                runner.ReportToHtml();
-                Console.Write(runner.Result.ToString());
-            } 
+            //using (AutoRunner runner = new AutoRunner())
+            //{
+            //    runner.Load();
+            //    runner.Run();
+            //    runner.ReportToHtml();
+            //    Console.Write(runner.Result.ToString());
+            //} 
         }
     }
 }
