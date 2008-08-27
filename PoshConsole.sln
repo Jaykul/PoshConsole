@@ -18,9 +18,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{DDAA0210-5A8D-4681-9025-ED86A6AD8091}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledControls\HuddledControls.csproj", "{969A3CF0-3AA6-499B-995B-C84E8F15B107}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleControlDemo", "ConsoleControlDemo\ConsoleControlDemo.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -39,6 +43,12 @@ Global
 		SccProjectUniqueName5 = FontLibrary\\FontLibrary.csproj
 		SccProjectName5 = FontLibrary
 		SccLocalPath5 = FontLibrary
+		SccProjectUniqueName6 = HuddledControls\\HuddledControls.csproj
+		SccProjectName6 = HuddledControls
+		SccLocalPath6 = HuddledControls
+		SccProjectUniqueName7 = ConsoleControlDemo\\ConsoleControlDemo.csproj
+		SccProjectName7 = ConsoleControlDemo
+		SccLocalPath7 = ConsoleControlDemo
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,12 +75,20 @@ Global
 		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDAA0210-5A8D-4681-9025-ED86A6AD8091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{969A3CF0-3AA6-499B-995B-C84E8F15B107}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{969A3CF0-3AA6-499B-995B-C84E8F15B107}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{969A3CF0-3AA6-499B-995B-C84E8F15B107}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{969A3CF0-3AA6-499B-995B-C84E8F15B107}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 EndGlobal
