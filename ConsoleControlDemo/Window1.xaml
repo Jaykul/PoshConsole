@@ -1,0 +1,25 @@
+﻿<Window x:Class="ConsoleControlDemo.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:posh="http://schemas.huddledmasses.org/wpf/controls"
+    Title="Window1" Height="334" Width="458">
+    <Grid>
+      <!-- <FlowDocumentReader>
+         <FlowDocument>
+            <Paragraph>
+               <Run>There once was a man from nantucket,</Run>
+               <LineBreak/>
+               <Run>Who ran from the room with a bucket ...</Run>
+            </Paragraph>
+
+            <Paragraph>
+               <Run>[0]: </Run>
+               <InlineUIContainer BaselineAlignment="Center">
+                  <TextBox></TextBox>
+               </InlineUIContainer>
+            </Paragraph>
+         </FlowDocument>
+      </FlowDocumentReader> -->
+      <posh:ConsoleControl />
+   </Grid>
+</Window>
