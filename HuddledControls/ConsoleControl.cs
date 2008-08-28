@@ -186,6 +186,11 @@ namespace Huddled.WPF.Controls
             }
          });
       }
+      protected virtual void FlushInputBuffer()
+      {
+         _commandBox.Clear();
+      }
+
 
       private void OnEnterPressed(KeyEventArgs e)
       {

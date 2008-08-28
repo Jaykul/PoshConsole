@@ -60,7 +60,6 @@ namespace Huddled.WPF.Controls
         private string _lastInputString = null;
         public bool _waitingForInput = false;
 
-
         /// <summary>
         /// Handles the CommandEntered event of the Console buffer
         /// </summary>
@@ -206,12 +205,12 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n");
+               this.Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n", _current);
             }
             else
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    (Action<Brush,Brush,String,Block>  )Write, _consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n");
+                    (Action<Brush,Brush,String,Block>  )Write, _consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n",_current);
             }
         }
 
@@ -219,12 +218,12 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
+               this.Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
             }
             else
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    (Action<Brush,Brush,String,Block>  )Write, _consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
+                Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                    (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
             }
         }
 
@@ -232,12 +231,12 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
+               this.Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
             }
             else
             {
                Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                   (Action<Brush, Brush, String>)Write, _consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message));
+                   (Action<Brush, Brush, String>)Write, _consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message),_current);
             }
         }
 
@@ -245,7 +244,7 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
+               this.Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
                 SetPrompt();
             }
             else
@@ -255,11 +254,12 @@ namespace Huddled.WPF.Controls
                 //    _consoleBrushes.NativeOutputForeground, 
                 //    _consoleBrushes.NativeOutputBackground, 
                 //    message + "\n");
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-                {
-                    Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n");
-                    SetPrompt();
-                }); 
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+                   (Action)(() => { Write( _consoleBrushes.NativeOutputForeground,
+                                           _consoleBrushes.NativeOutputBackground,
+                                           message + "\n", _current);
+                                    SetPrompt();
+                   })); 
             }
         }
 
@@ -267,7 +267,7 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-                this.Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
+               this.Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n", _current);
                 SetPrompt();
             }
             else
@@ -277,11 +277,12 @@ namespace Huddled.WPF.Controls
                //    _consoleBrushes.NativeErrorForeground, 
                //    _consoleBrushes.NativeErrorBackground, 
                //    message + "\n");
-               Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-                {
-                    Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n");
-                    SetPrompt();
-                });
+               Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+                  (Action)(() => { Write(_consoleBrushes.NativeErrorForeground, 
+                                         _consoleBrushes.NativeErrorBackground,
+                                         message + "\n", _current);
+                                   SetPrompt();
+                                 }));
             }
         }
 
