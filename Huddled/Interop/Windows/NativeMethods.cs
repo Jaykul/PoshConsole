@@ -15,7 +15,7 @@ namespace Huddled.Interop.Windows
 		/// <summary>
         /// Provides the enumeration values for calls to <see cref="NativeMethods.ShowWindow"/> or <see cref="NativeMethods.ShowWindowAsync"/>
         /// </summary>
-        public enum ShowWindowCommand : uint
+        public enum ShowWindowCommand : int
         {
             /// <summary>
             /// Hides the window and activates another window.
@@ -89,7 +89,7 @@ namespace Huddled.Interop.Windows
 		/// <summary>
         /// Provides the enumeration values for calls to <see cref="NativeMethods.GetWindow"/>
         /// </summary>
-        public enum GetWindowCommand : uint
+        public enum GetWindowCommand : int
         {
             /// <summary>
             /// The retrieved handle identifies the window of the same type that is highest in the Z order. If the specified window is a topmost window, the handle identifies the topmost window that is highest in the Z order. If the specified window is a top-level window, the handle identifies the top-level window that is highest in the Z order. If the specified window is a child window, the handle identifies the sibling window that is highest in the Z order.

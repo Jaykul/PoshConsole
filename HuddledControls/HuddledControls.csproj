@@ -65,7 +65,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleBrushes.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.BufferSize.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.IPSRawConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.IPSXamlConsole.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.IPSConsoleControl.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.CommandHandlers.cs" />
+    <Compile Include="ConsoleControl\History.cs" />
+    <Compile Include="ConsoleControl\TabExpansion.cs" />
     <Compile Include="Interfaces\IConsoleControl.cs" />
     <Compile Include="Interfaces\IPSConsole.cs" />
     <Compile Include="Interfaces\IPSRawConsole.cs" />
@@ -88,6 +95,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Utility\StringHelper.cs" />
+    <Compile Include="Utility\XamlHelper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -5,6 +5,7 @@ using System.Text;
 using Huddled.Interop.Hotkeys;
 using System.Management.Automation;
 using PoshConsole.Controls;
+using Huddled.WPF.Controls;
 
 namespace PoshConsole.PSHost
 {
@@ -14,8 +15,8 @@ namespace PoshConsole.PSHost
    public class ScriptCommand : WindowCommand
    {
       private ScriptBlock _script;
-      private CommandHandler _handler;
-      public ScriptCommand(CommandHandler handler, ScriptBlock script)
+      private CommmandDelegate _handler;
+      public ScriptCommand(CommmandDelegate handler, ScriptBlock script)
          : base()
       {
          _handler = handler;
@@ -29,7 +30,8 @@ namespace PoshConsole.PSHost
 
       protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
       {
-         _handler.Invoke(_script.ToString());
+
+         _handler.Invoke(window, new CommandEventArgs { Command = _script.ToString() });
       }
    }
 }

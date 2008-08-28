@@ -78,7 +78,6 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -123,21 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cmdlets\AddHotkeyCommand.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.CommandHandlers.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.ConsoleBrushList.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.EventHandlers.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSXamlConsole.cs" />
-    <Compile Include="ConsoleControl\History.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsole.cs" />
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSConsoleControl.cs" />
-    <Compile Include="ConsoleControl\IConsoleControl.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ConsoleControl\IConsoleControlCallback.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ConsoleControl\ReplayableKeyEvent.cs" />
-    <Compile Include="ConsoleControl\TabExpansion.cs" />
     <Compile Include="Controls\Converters.cs" />
     <Compile Include="Controls\Interop\NativeMethods.cs" />
     <Compile Include="Controls\PopupMenu.cs" />
@@ -157,7 +141,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Colors.settings</DependentUpon>
     </Compile>
-    <Compile Include="ConsoleControl\ConsoleRichTextBox.IPSRawConsole.cs" />
     <Compile Include="PSHost\PoshHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -203,6 +186,10 @@
       <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
       <Name>FontLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HuddledControls\HuddledControls.csproj">
+      <Project>{969A3CF0-3AA6-499B-995B-C84E8F15B107}</Project>
+      <Name>HuddledControls</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Huddled\Huddled.csproj">
       <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
       <Name>Huddled</Name>
@@ -231,6 +218,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ConsoleControl\" />
     <Folder Include="Controls\Themes\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

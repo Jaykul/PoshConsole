@@ -3,6 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:blend="http://schemas.microsoft.com/expression/blend/2006"
+    xmlns:huddle="http://schemas.huddledmasses.org/wpf/controls"
+
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:hotkeys="http://schemas.huddledmasses.org/interop/hotkeys"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
@@ -79,20 +81,17 @@
             <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="C"  Modifiers="Win" />
             <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="C"  Modifiers="Win" />
         </hotkeys:HotkeyManager>
-        
+
         <!--<PoshProps:Settings x:Key="SettingsDS" />-->
         <ObjectDataProvider x:Key="SettingsDS" blend:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
 
-        <Style x:Key="ConsoleBufferStyle" TargetType="{x:Type PoshControls:ConsoleRichTextBox}">
-            <Style.Resources>
+        <Style TargetType="{x:Type huddle:ConsoleControl}">
+            <!--<Style.Resources>
                 <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
                     <Setter Property="OverridesDefaultStyle" Value="true"/>
                 </Style>
-            </Style.Resources>
-            <Setter Property="MinWidth" Value="10"/>
-            <Style.BasedOn>
-                <StaticResource ResourceKey="{x:Type TextBoxBase}"/>
-            </Style.BasedOn>
+            </Style.Resources>-->
+            <Setter Property="MinWidth" Value="250"/>
         </Style>
         <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
             <Setter Property="BorderBrush">
@@ -146,36 +145,34 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
             </Grid.RowDefinitions>
-            <PoshControls:ProgressPanel         Grid.Row="0" Visibility="Collapsed" x:Name="progress" Width="Auto" blend:LayoutOverrides="Margin" />
-            <PoshControls:ConsoleRichTextBox    Grid.Row="1" x:Name="buffer" Style="{DynamicResource ConsoleBufferStyle}"
+            <PoshControls:ProgressPanel x:Name="progress"
+               Grid.Row="0" Visibility="Collapsed" Width="Auto" blend:LayoutOverrides="Margin" />
+            <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                        AcceptsTab="True"
-                                        IsDocumentEnabled="True"
-                                        IsUndoEnabled="True"
                                         ForceCursor="True"
                                         Background="#FF000000"
                                         Foreground="#FFFFFFFF"
                                         PreviewMouseWheel="OnBufferPreviewMouseWheel"
-                                        Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0" WindowTitle="PoshConsole"
-                                        VerticalScrollBarVisibility="{Binding Path=ScrollBarVisibility, Mode=Default, Source={StaticResource SettingsDS}}"
-                                        FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"
+                                        Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0"
+                                        Title="PoshConsole"
+                                        
                                         >
-
-                <PoshControls:ConsoleRichTextBox.Resources>
+<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+                <huddle:ConsoleControl.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
                     </Style>
-                </PoshControls:ConsoleRichTextBox.Resources>
-                <PoshControls:ConsoleRichTextBox.FontSize>
+                </huddle:ConsoleControl.Resources>
+                <huddle:ConsoleControl.FontSize>
                     <Binding Path="FontSize" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-                </PoshControls:ConsoleRichTextBox.FontSize>
+                </huddle:ConsoleControl.FontSize>
                 <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                <!--<Posh:ConsoleRichTextBox.FontFamily>
+                <huddle:ConsoleControl.FontFamily>
                     <Binding Path="FontFamily" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-                </Posh:ConsoleRichTextBox.FontFamily>-->
-                <PoshControls:ConsoleRichTextBox.ContextMenu>
+                </huddle:ConsoleControl.FontFamily>
+                <huddle:ConsoleControl.ContextMenu>
                     <ContextMenu/>
-                </PoshControls:ConsoleRichTextBox.ContextMenu>
+                </huddle:ConsoleControl.ContextMenu>
                 <FlowDocument>
                     <FlowDocument.Resources>
                         <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
@@ -196,11 +193,11 @@
                             <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
                             <Setter Property="Typography.ContextualSwashes" Value="1" />
                         </Style>
-                    </FlowDocument.Resources>                    
+                    </FlowDocument.Resources>
                     <Paragraph ClearFloaters="Both" />
                 </FlowDocument>
 
-            </PoshControls:ConsoleRichTextBox>
+            </huddle:ConsoleControl>
             <StatusBar Grid.Row="2" Padding="0,2,0,0" Margin="0,0,0,0" x:Name="status" OpacityMask="#FE000000"
                        Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
                        Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" BorderThickness="0,1,0,0"

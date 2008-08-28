@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using PoshConsole.Controls;
+using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
+using IPSXamlConsole=Huddled.WPF.Controls.Interfaces.IPSXamlConsole;
+using Huddled.WPF.Controls;
 
 namespace PoshConsole.PSHost
 {

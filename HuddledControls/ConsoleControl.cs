@@ -20,19 +20,14 @@ using System.ComponentModel;
 namespace Huddled.WPF.Controls
 {
 
-   public class CommandEventArgs
-   {
-      public string Command;
-      public Block OutputBlock;
-   }
 
-   public delegate void CommmandDelegate(Object source, CommandEventArgs command);
+   
 
 
    /// <summary>
    /// The ConsoleControl is a <see cref="RichTextBox"/> where all input goes to a sub-textbox after the "prompt"
    /// </summary>
-   public partial class ConsoleControl : FlowDocumentReader
+   public partial class ConsoleControl : FlowDocumentScrollViewer
    {
       static readonly ConsoleBrushes _consoleBrushes = new ConsoleBrushes();
 
@@ -46,16 +41,12 @@ namespace Huddled.WPF.Controls
       private readonly InlineUIContainer _commandContainer;
       protected Paragraph _current;
       protected Paragraph _next;
-      private Popup _popup;
-
-
-
-      public event CommmandDelegate Command;
+     
 
       public ConsoleControl()
       {
          Document = new FlowDocument();
-         ViewingMode = FlowDocumentReaderViewingMode.Scroll;
+         //ViewingMode = FlowDocumentReaderViewingMode.Scroll;
          Margin = new Thickness(0.0);
          Padding = new Thickness(2.0);
 
@@ -65,6 +56,8 @@ namespace Huddled.WPF.Controls
          // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
          AddLogicalChild(_popup);
 
+         _expansion = new TabExpansion();
+         _cmdHistory = new CommandHistory();
 
          _commandBox = new TextBox()
                           {
@@ -89,6 +82,11 @@ namespace Huddled.WPF.Controls
 
          _commandBox.Foreground = Foreground;
          _commandBox.Background = Background;
+
+         BindingOperations.SetBinding(Document, FlowDocument.FontFamilyProperty, new Binding("FontFamily") { Source = this });
+         BindingOperations.SetBinding(Document, FlowDocument.FontSizeProperty, new Binding("FontSize") { Source = this });
+         BindingOperations.SetBinding(Document, FlowDocument.FontFamilyProperty, new Binding("FontFamily") { Source = this });
+
 
          ProcessStartup();
       }
@@ -124,9 +122,10 @@ namespace Huddled.WPF.Controls
             if (_next != null)
             {
                Run insert = new Run(prompt);
-               insert.Background = Brushes.Transparent;
-               insert.Foreground = Brushes.Gold;
-               _next.Inlines.Clear();
+               insert.Background = Background;
+               insert.Foreground = Foreground;
+               _next.Inlines.Remove(_commandContainer);
+               //_next.Inlines.Clear();
                _next.Inlines.AddRange(new Inline[] { insert, _commandContainer });
                SetPrompt();
                // TODO: LimitBuffer();
@@ -150,10 +149,7 @@ namespace Huddled.WPF.Controls
             if (foreground == null) foreground = Foreground;
             if (background == null) background = Background;//Brushes.Transparent;
 
-            if (target == null)
-            {
-               target = _current;
-            }
+            if (target == null) target = _current;
             //if (_current == null)
             //{
             //   _current = new Paragraph();
@@ -164,6 +160,7 @@ namespace Huddled.WPF.Controls
             insert.Background = background;
             insert.Foreground = foreground;
          });
+         _next.BringIntoView();
          //ScrollToEnd();
          //EndChange();
       }
@@ -210,6 +207,19 @@ namespace Huddled.WPF.Controls
          OnCommand(cmd);
 
          e.Handled = true;
+      }
+
+      public string CurrentCommand
+      {
+         get { return _commandBox.Text; }
+         set { _commandBox.Text = value; }
+      }
+
+      private string _title;
+      public string Title
+      {
+         get { return _title; }
+         set { _title = value; }
       }
    }
 }

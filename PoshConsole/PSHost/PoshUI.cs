@@ -18,7 +18,7 @@ using System.Management.Automation.Runspaces;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using PoshConsole.Controls;
+using Huddled.WPF.Controls.Interfaces;
 
 namespace PoshConsole.PSHost
 {
@@ -71,22 +71,24 @@ namespace PoshConsole.PSHost
 
 		public override Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
         {
-            return myConsole.Prompt(caption, message, descriptions);
+           throw new NotImplementedException();
+           //return myConsole.Prompt(caption, message, descriptions);
         }
 		
 		public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
         {
-            return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
+           throw new NotImplementedException();
+            //return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
         }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
         {
-            throw new Exception("The method or operation is not implemented.");
+           throw new NotImplementedException();
         }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
         {
-            throw new Exception("The method or operation is not implemented.");
+            throw new NotImplementedException();
         }
 		
 		///// <summary>

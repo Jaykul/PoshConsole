@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Management.Automation;
 using System.Security;
-using PoshConsole.Controls;
+using Huddled.WPF.Controls.Interfaces;
 
 namespace PoshConsole.PSHost
 {

@@ -6,7 +6,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">None</Value>
+      <Value Profile="(Default)">ToolWindow</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -48,7 +48,7 @@
       <Value Profile="(Default)">4,8,4,4</Value>
     </Setting>
     <Setting Name="AutoHide" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="StartupBanner" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

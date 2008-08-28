@@ -10,8 +10,12 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Huddled.Interop.Hotkeys;
+using Huddled.WPF.Controls;
+//using PoshConsole.Controls;
 using PoshConsole.Controls;
 using PoshConsole.PSHost;
+using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
+using IPSConsole=Huddled.WPF.Controls.Interfaces.IPSConsole;
 
 namespace PoshConsole
 {
@@ -212,7 +216,7 @@ namespace PoshConsole
 
       void IPSUI.SetShouldExit(int exitCode)
       {
-         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (BeginInvoke)delegate { Application.Current.Shutdown(exitCode); });
+         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (Action)(() => Application.Current.Shutdown(exitCode)));
       }
 
       ///// <summary>
@@ -274,7 +278,7 @@ namespace PoshConsole
       {
          if (!Dispatcher.CheckAccess())
          {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (BeginInvoke)delegate { ((IPSUI)this).WriteProgress(sourceId, record); });
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => ((IPSUI) this).WriteProgress(sourceId, record)));
          }
          else
          {

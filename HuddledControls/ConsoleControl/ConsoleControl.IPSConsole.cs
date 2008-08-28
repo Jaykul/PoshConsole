@@ -30,14 +30,33 @@ namespace Huddled.WPF.Controls
         // Possibly an alternative panel that pops up and can be closed?
         #region IPSConsole Members
 
+
+
+       private TabExpansion _expansion;
+       private CommandHistory _cmdHistory;
+       private Popup _popup;
+
+       public CommandHistory History
+       {
+          get { return _cmdHistory; }
+          set { _cmdHistory = value; }
+       }
+
+       public TabExpansion Expander
+       {
+          get { return _expansion; }
+          set { _expansion = value; }
+       }
+
+
         IPSRawConsole IPSConsole.RawUI
         {
-           get { throw new NotImplementedException(); }
+           get { return this; }
         }
 
         #region ReadLine 
 
-        private AutoResetEvent _gotInput = new AutoResetEvent(false);
+        private readonly AutoResetEvent _gotInput = new AutoResetEvent(false);
         private string _lastInputString = null;
         public bool _waitingForInput = false;
 

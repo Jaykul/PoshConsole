@@ -51,7 +51,7 @@ namespace Huddled.Interop.Hotkeys
         /// <param name="window">The window.</param>
         public WindowCommand(Window window) { _window = window; }
 
-        protected Window _window;
+        private Window _window;
 
         /// <summary>Gets or sets the window that is the target of this command
         /// </summary>
@@ -125,8 +125,6 @@ namespace Huddled.Interop.Hotkeys
         /// (Is never fired for WindowCommand).
         /// </summary>
         public event EventHandler CanExecuteChanged;
-
-
 
         #endregion
     }

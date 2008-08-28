@@ -9,6 +9,7 @@ using System.Management.Automation.Host;
 using System.Windows.Controls.Primitives;
 using System.Diagnostics;
 using PoshConsole.Controls;
+using Huddled.WPF.Controls.Interfaces;
 
 namespace PoshConsole.Controls
 {

@@ -18,10 +18,14 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.IO;
-using PoshConsole.Interop;
+using Huddled.WPF.Controls;
+using Huddled.WPF.Controls.Interfaces;
 using PoshConsole.Controls;
+using PoshConsole.Interop;
 using PoshConsole.Cmdlets;
 using Huddled.Interop;
+using ConsoleScrollBarVisibility=Huddled.WPF.Controls.Interfaces.ConsoleScrollBarVisibility;
+using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 
 namespace PoshConsole.PSHost
 {
@@ -107,7 +111,7 @@ namespace PoshConsole.PSHost
          }
 
          buffer.Expander.TabComplete += new TabExpansionLister(buffer_TabComplete);
-         buffer.ProcessCommand += new CommandHandler(OnGotUserInput);
+         buffer.Command += new CommmandDelegate(OnGotUserInput);
          //buffer.CommandEntered +=new ConsoleRichTextBox.CommandHandler(buffer_CommandEntered);
 
          //buffer.GetHistory +=new ConsoleRichTextBox.HistoryHandler(buffer_GetHistory);
@@ -424,8 +428,9 @@ namespace PoshConsole.PSHost
       /// Handler for the IInput.GotUserInput event.
       /// </summary>
       /// <param name="commandLine">The command line.</param>
-      void OnGotUserInput(string commandLine)
+      void OnGotUserInput(Object source, CommandEventArgs command)
       {
+         string commandLine = command.Command;
          if (native == 0)
          {
             Execute(commandLine);
@@ -816,10 +821,10 @@ namespace PoshConsole.PSHost
                {
                   // do nothing, this setting is checked each time you select
                } break;
-            case "ScrollBarVisibility":
-               {
-                  buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
-               } break;
+            // TODO: case "ScrollBarVisibility":
+            //   {
+            //      buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
+            //   } break;
             default:
                break;
          }
@@ -832,11 +837,11 @@ namespace PoshConsole.PSHost
 
       public bool RegisterHotkey(KeyGesture key, ScriptBlock script)
       {
-         return (bool)(PsUi as UIElement).Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (Invoke)delegate
+         return (bool)(PsUi as UIElement).Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (Func<bool>)delegate
          {
             try
             {
-               KeyBinding binding = new KeyBinding(new ScriptCommand(new CommandHandler(OnGotUserInput), script), key);
+               KeyBinding binding = new KeyBinding(new ScriptCommand((CommmandDelegate)OnGotUserInput, script), key);
                // so now we can ask which keys are still unregistered.
                Huddled.Interop.Hotkeys.HotkeyManager hk = Huddled.Interop.Hotkeys.HotkeyManager.GetHotkeyManager(PsUi as UIElement);
                hk.Add(binding);

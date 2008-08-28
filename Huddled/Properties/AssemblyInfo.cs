@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Markup;
@@ -14,6 +15,7 @@ using System.Windows.Markup;
 [assembly: AssemblyCopyright("Copyright © 2007 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: CLSCompliant(true)]
 
 // Assigning an XML Namespace Deffinition exposes the namespace to WPF
 [assembly: XmlnsDefinition("http://schemas.huddledmasses.org/interop/hotkeys", "Huddled.Interop.Hotkeys")]
