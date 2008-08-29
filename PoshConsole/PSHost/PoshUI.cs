@@ -118,7 +118,7 @@ namespace PoshConsole.PSHost
         #region OutputMethods
         public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
-            myConsole.Write(foregroundColor, backgroundColor, value);
+           myConsole.Write(foregroundColor, backgroundColor, value);
         }
         public override void Write(string value)
         {

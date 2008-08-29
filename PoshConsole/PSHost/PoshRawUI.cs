@@ -41,7 +41,7 @@ namespace PoshConsole.PSHost
         /// <param name="console">An implementation of <see cref="IPSRawConsole"/>.</param>
         public PoshRawUI(IPSRawConsole console )
         {
-            myConsole = console;
+           myConsole = console;
         }
 		
 		#endregion [rgn]
@@ -85,7 +85,7 @@ namespace PoshConsole.PSHost
         /// </summary>
         public override bool KeyAvailable
         {
-            get { throw new NotImplementedException("The KeyAvailable method isn't implemented."); }
+           get { return false; throw new NotImplementedException("The KeyAvailable method isn't implemented."); }
         }
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.

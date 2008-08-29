@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Huddled.Interop.Interop.Vista
+namespace Huddled.Interop.Vista
 {
     class Thumbnails
     {

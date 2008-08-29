@@ -543,7 +543,7 @@ namespace PoshConsole
          //{
          //    hkManager.Register(FocusKey);
          //}
-         Focus();
+         buffer.Focus();
       }
 
       void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
