@@ -45,57 +45,11 @@ namespace Huddled.WPF.Controls
                 {
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }
-                TrimOutput();
             });
-        }
-
-
-        private void TrimOutput()
-        {
-            if (_current != null && _current.ContentEnd.IsInSameDocument(Document.ContentEnd))
-            {
-                //// I'm having issues with an extra paragraph getting inserted in the output...
-                //if (!_current.Equals(Document.Blocks.LastBlock.ContentEnd.Paragraph))
-                //{
-                //    TextRange tr = new TextRange(_current.ContentEnd, Document.Blocks.LastBlock.ContentEnd);
-                //    if (tr.Text.TrimEnd().Length == 0)
-                //    {
-                //        Document.Blocks.Remove(Document.Blocks.LastBlock);
-                //    }
-                //}
-
-                // and extra lines too...
-                // if the paragraph has content
-                if (_current.Inlines.Count > 0)
-                {
-                    // trim from the end until we run out of inlines or hit some non-whitespace
-                    Inline ln = _current.Inlines.LastInline;
-                    while (ln != null)
-                    {
-                        Run run = ln as Run;
-                        if (run != null)
-                        {
-                            run.Text = run.Text.TrimEnd();
-                            // if there's text in this run, stop trimming!!!
-                            if (run.Text.Length > 0) break;
-                            ln = ln.PreviousInline;
-                            _current.Inlines.Remove(run);
-                        }
-                        else if (ln is LineBreak)
-                        {
-                            Inline tmp = ln;
-                            ln = ln.PreviousInline;
-                            _current.Inlines.Remove(tmp);
-                        }
-                        else break;
-                    }
-                }
-            }
-            //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
-            //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
-            // _current.ContentEnd.InsertParagraphBreak();
             _current = _next;
         }
+
+
 
         //ConsoleScrollBarVisibility IPoshConsoleControl.VerticalScrollBarVisibility
         //{

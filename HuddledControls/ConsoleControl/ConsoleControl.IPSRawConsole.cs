@@ -235,29 +235,28 @@ namespace Huddled.WPF.Controls
          {
             if (Dispatcher.CheckAccess())
             {
-               return _consoleBrushes.ConsoleColorFromBrush(Background);
+               return BackgroundColor;
             }
             else
             {
                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal,
-                  (Func<ConsoleColor>)(() => _consoleBrushes.ConsoleColorFromBrush(Background)));
+                  (Func<ConsoleColor>)(() => BackgroundColor));
             }
          }
          set
          {
             if (Dispatcher.CheckAccess())
             {
-               this.Background = _consoleBrushes.BrushFromConsoleColor(value);
+               this.BackgroundColor = value;
             }
             else
             {
                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
                 {
-                   this.Background = _consoleBrushes.BrushFromConsoleColor(value);
+                   this.BackgroundColor = value;
                 });
             }
          }
-
       }
 
       ConsoleColor IPSRawConsole.ForegroundColor
@@ -266,25 +265,25 @@ namespace Huddled.WPF.Controls
          {
             if (Dispatcher.CheckAccess())
             {
-               return _consoleBrushes.ConsoleColorFromBrush(Foreground);
+               return ForegroundColor;
             }
             else
             {
                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal,
-                  (Func<ConsoleColor>)(() => _consoleBrushes.ConsoleColorFromBrush(Foreground)));
+                  (Func<ConsoleColor>)(() => ForegroundColor));
             }
          }
          set
          {
             if (Dispatcher.CheckAccess())
             {
-               this.Foreground = _consoleBrushes.BrushFromConsoleColor(value);
+               this.ForegroundColor = value;
             }
             else
             {
                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
                 {
-                   this.Foreground = _consoleBrushes.BrushFromConsoleColor(value);
+                   ForegroundColor = value;
                 });
             }
          }

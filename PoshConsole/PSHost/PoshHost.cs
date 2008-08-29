@@ -51,7 +51,7 @@ namespace PoshConsole.PSHost
       /// The currently executing pipeline 
       /// (So it can be stopped by Control-C or Break).
       /// </summary>
-      private Pipeline currentPipeline;
+      private Pipeline _pipeline;
       private static Guid instanceId = Guid.NewGuid();
       /// <summary>
       /// Used to serialize access to instance data...
@@ -302,11 +302,9 @@ namespace PoshConsole.PSHost
       //}
       public void StopPipeline()
       {
-         Pipeline pipe = currentPipeline;
-
-         if (pipe != null && pipe.PipelineStateInfo.State == PipelineState.Running)
+         if (_pipeline != null && _pipeline.PipelineStateInfo.State == PipelineState.Running)
          {
-            pipe.StopAsync();
+            _pipeline.StopAsync();
          }
       }
 
@@ -321,24 +319,22 @@ namespace PoshConsole.PSHost
       {
          if (!string.IsNullOrEmpty(cmd))
          {
-            ExecutePipelineOutDefault(cmd, true, (PipelineOutputHandler)delegate(PipelineExecutionResult result)
-            {
-               if (result.Failure != null)
-               {
-                  // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                  WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
-               }
-               if (!IsClosing)
-               {
-                  buffer.CommandFinished(result.State);
-                  ExecutePromptFunction();
-               }
-            });
+            ExecutePipelineOutDefault(cmd, true, result =>
+                                                    {
+                                                       if (result.Failure != null)
+                                                       {
+                                                          // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
+                                                          WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                                                       }
+                                                       if (!IsClosing)
+                                                       {
+                                                          ExecutePromptFunction(result.State);
+                                                       }
+                                                    });
          }
          else if (!IsClosing)
          {
-            buffer.CommandFinished(PipelineState.NotStarted);
-            ExecutePromptFunction();
+            ExecutePromptFunction(PipelineState.NotStarted);
          }
       }
 
@@ -389,9 +385,9 @@ namespace PoshConsole.PSHost
       //        buffer.Prompt(sb.ToString());
       //    }
       //}
-      private void ExecutePromptFunction()
+      private void ExecutePromptFunction(PipelineState lastState)
       {
-         //buffer.EndOutput();
+         buffer.CommandFinished(lastState);
 
          ExecutePipeline(new Command("Prompt"), (PipelineOutputHandler)delegate(PipelineExecutionResult result)
          {
@@ -427,7 +423,7 @@ namespace PoshConsole.PSHost
       /// <summary>
       /// Handler for the IInput.GotUserInput event.
       /// </summary>
-      /// <param name="commandLine">The command line.</param>
+      /// <param name="command">The command line.</param>
       void OnGotUserInput(Object source, CommandEventArgs command)
       {
          string commandLine = command.Command;
@@ -495,10 +491,10 @@ namespace PoshConsole.PSHost
             //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
             //}
          }
-         else
-         {
-            ExecutePromptFunction();
-         }
+         //else
+         //{
+         //   ExecutePromptFunction();
+         //}
       }
 
       /// <summary>
@@ -542,12 +538,7 @@ namespace PoshConsole.PSHost
 
          if (cmd.Length > 0)
          {
-            ExecutePipelineOutDefault(cmd.ToString(), false,
-                (PipelineOutputHandler)delegate(PipelineExecutionResult result)
-                {
-                   buffer.CommandFinished(result.State);
-                   ExecutePromptFunction();
-                });
+            ExecutePipelineOutDefault(cmd.ToString(), false, result => ExecutePromptFunction(result.State));
 
             //try
             //{
@@ -563,7 +554,7 @@ namespace PoshConsole.PSHost
          }
          else
          {
-            ExecutePromptFunction();
+            ExecutePromptFunction(PipelineState.NotStarted);
          }
       }
 

@@ -80,7 +80,8 @@ namespace Huddled.WPF.Controls
             }
             else if(Command != null)
             {
-                Command(this, new CommandEventArgs{Command = command, OutputBlock = _current } );
+               Command(this, new CommandEventArgs{Command = command, OutputBlock = _current } );
+               _cmdHistory.Add(command); 
             }
         }
 
@@ -91,50 +92,49 @@ namespace Huddled.WPF.Controls
         /// <returns></returns>
         string IPSConsole.ReadLine()
         {
-            string result = null;
             _waitingForInput = true;
             _gotInput.WaitOne();
             _waitingForInput = false;
 
-            result = _lastInputString;
-            return result;
+            return _lastInputString;
         }
         #endregion ReadLine
 
         void IPSConsole.Write(string message) {
-           ((IPSConsole)this).Write(message, _current);
+           Write(null, null, message, _current);
         }
 
         void IPSConsole.Write(string message, Block target)
         {
-            if (Dispatcher.CheckAccess())
-            {
-                this.Write(null, null, message, target);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                   (Action<Brush,Brush,String,Block> )Write, null, null, message, target);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+                Write(null, null, message, target);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //       (Action<Brush,Brush,String,Block> )Write, null, null, message, target);
+            //}
         }
 
         void IPSConsole.Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message)
         {
-           ((IPSConsole)this).Write(foregroundColor, backgroundColor, message, _current);
+           // ((IPSConsole)this).
+              Write(foregroundColor, backgroundColor, message, _current);
         }
         void IPSConsole.Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message, Block target)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message, target);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    (Action<Brush,Brush,String,Block>  )Write, 
-                    _consoleBrushes.BrushFromConsoleColor(foregroundColor),
-                    _consoleBrushes.BrushFromConsoleColor(backgroundColor), message, target);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+                  Write(foregroundColor, backgroundColor, message, target);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //        (Action<Brush,Brush,String,Block>  )Write, 
+            //        _consoleBrushes.BrushFromConsoleColor(foregroundColor),
+            //        _consoleBrushes.BrushFromConsoleColor(backgroundColor), message, target);
+            //}
         }
 
         void IPSConsole.WriteLine(string message)
@@ -145,7 +145,7 @@ namespace Huddled.WPF.Controls
         {
             if (Dispatcher.CheckAccess())
             {
-               this.Write(null, null, message + "\n", target);
+               Write(null, null, message + "\n", target);
             }
             else
             {
@@ -156,134 +156,136 @@ namespace Huddled.WPF.Controls
 
         void IPSConsole.WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message)
         {
-           ((IPSConsole)this).WriteLine(foregroundColor, backgroundColor, message, _current);
+           Write(foregroundColor, backgroundColor, message + "\n", _current);
         }
         void IPSConsole.WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message, Block target)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n", target);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                    (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n", target);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(foregroundColor, backgroundColor, message + "\n", target);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background,
+            //        (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.BrushFromConsoleColor(foregroundColor), _consoleBrushes.BrushFromConsoleColor(backgroundColor), message + "\n", target);
+            //}
         }
 
         void IPSConsole.WriteDebugLine(string message)
         {
-           ((IPSConsole)this).WriteDebugLine(message, _current);
-
+           Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), _current);
         }
 
        void IPSConsole.WriteDebugLine(string message, Block target)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                    (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background,
+            //        (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
+            //}
         }
 
 
         void IPSConsole.WriteErrorRecord(ErrorRecord errorRecord)
         {
-            ((IPSConsole)this).WriteErrorLine(errorRecord.ToString());
+           Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, errorRecord + "\n", _current);
+
+            //((IPSConsole)this).WriteErrorLine(errorRecord.ToString());
             if (errorRecord.InvocationInfo != null)
             {
-                ((IPSConsole)this).WriteErrorLine(errorRecord.InvocationInfo.PositionMessage);
+               Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n", _current);
+               // ((IPSConsole)this).WriteErrorLine(errorRecord.InvocationInfo.PositionMessage);
             }
         }
 
 
         void IPSConsole.WriteErrorLine(string message)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n", _current);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                    (Action<Brush,Brush,String,Block>  )Write, _consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n",_current);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n", _current);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //        (Action<Brush,Brush,String,Block>  )Write, _consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n",_current);
+            //}
         }
 
         void IPSConsole.WriteVerboseLine(string message)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                    (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
+            //}
+            //else
+            //{
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background,
+            //        (Action<Brush, Brush, String, Block>)Write, _consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
+            //}
         }
 
         void IPSConsole.WriteWarningLine(string message)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
-            }
-            else
-            {
-               Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                   (Action<Brush, Brush, String>)Write, _consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message),_current);
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
+            //}
+            //else
+            //{
+            //   Dispatcher.BeginInvoke(DispatcherPriority.Background,
+            //       (Action<Brush, Brush, String>)Write, _consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message),_current);
+            //}
         }
 
         void IPSConsole.WriteNativeLine(string message)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
-                SetPrompt();
-            }
-            else
-            {
-                //Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                //    (Action<Brush,Brush,String,Block>  )Write, 
-                //    _consoleBrushes.NativeOutputForeground, 
-                //    _consoleBrushes.NativeOutputBackground, 
-                //    message + "\n");
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                   (Action)(() => { Write( _consoleBrushes.NativeOutputForeground,
-                                           _consoleBrushes.NativeOutputBackground,
-                                           message + "\n", _current);
-                                    SetPrompt();
-                   })); 
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
+               // TODO: investigate whether NATIVE output needs to "SetPrompt();"
+            //}
+            //else
+            //{
+            //    //Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //    //    (Action<Brush,Brush,String,Block>  )Write, 
+            //    //    _consoleBrushes.NativeOutputForeground, 
+            //    //    _consoleBrushes.NativeOutputBackground, 
+            //    //    message + "\n");
+            //    Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //       (Action)(() => { Write( _consoleBrushes.NativeOutputForeground,
+            //                               _consoleBrushes.NativeOutputBackground,
+            //                               message + "\n", _current);
+            //                        SetPrompt();
+            //       })); 
+            //}
         }
 
         void IPSConsole.WriteNativeErrorLine(string message)
         {
-            if (Dispatcher.CheckAccess())
-            {
-               this.Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n", _current);
-                SetPrompt();
-            }
-            else
-            {
-               //Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-               //    (Action<Brush,Brush,String,Block>  )Write, 
-               //    _consoleBrushes.NativeErrorForeground, 
-               //    _consoleBrushes.NativeErrorBackground, 
-               //    message + "\n");
-               Dispatcher.BeginInvoke(DispatcherPriority.Background, 
-                  (Action)(() => { Write(_consoleBrushes.NativeErrorForeground, 
-                                         _consoleBrushes.NativeErrorBackground,
-                                         message + "\n", _current);
-                                   SetPrompt();
-                                 }));
-            }
+            //if (Dispatcher.CheckAccess())
+            //{
+               Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n", _current);
+            //    SetPrompt();
+            //}
+            //else
+            //{
+            //   //Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //   //    (Action<Brush,Brush,String,Block>  )Write, 
+            //   //    _consoleBrushes.NativeErrorForeground, 
+            //   //    _consoleBrushes.NativeErrorBackground, 
+            //   //    message + "\n");
+            //   Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            //      (Action)(() => { Write(_consoleBrushes.NativeErrorForeground, 
+            //                             _consoleBrushes.NativeErrorBackground,
+            //                             message + "\n", _current);
+            //                       SetPrompt();
+            //                     }));
+            //}
         }
 
         #endregion

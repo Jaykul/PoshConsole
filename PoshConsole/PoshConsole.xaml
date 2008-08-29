@@ -76,10 +76,10 @@
     </Window.InputBindings>
     <Window.Resources>
         <hotkeys:HotkeyManager x:Key="hotkeys">
-            <KeyBinding Command="hotkeys:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Win" />
             <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
-            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="C"  Modifiers="Win" />
-            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="C"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"     Key="H"  Modifiers="Win" />
+            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win+Alt" />
         </hotkeys:HotkeyManager>
 
         <!--<PoshProps:Settings x:Key="SettingsDS" />-->
@@ -150,8 +150,8 @@
             <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                         ForceCursor="True"
-                                        Background="#FF000000"
-                                        Foreground="#FFFFFFFF"
+                                        BackgroundColor="Black" Background="Black"
+                                        ForegroundColor="White" Foreground="White"
                                         PreviewMouseWheel="OnBufferPreviewMouseWheel"
                                         Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0"
                                         Title="PoshConsole"
