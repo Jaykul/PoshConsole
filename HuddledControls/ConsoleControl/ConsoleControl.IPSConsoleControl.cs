@@ -46,7 +46,6 @@ namespace Huddled.WPF.Controls
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }
             });
-            _current = _next;
         }
 
 
@@ -74,6 +73,15 @@ namespace Huddled.WPF.Controls
         //       Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate { base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value; });
         //    }
         //}
+
+        TextBox IPoshConsoleControl.CommandBox
+        {
+           get
+           {
+              return _commandBox;
+           }
+        }
+
         #endregion
     }
 }

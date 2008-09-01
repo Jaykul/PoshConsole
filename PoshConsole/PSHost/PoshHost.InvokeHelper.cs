@@ -40,7 +40,7 @@ namespace PoshConsole.PSHost
 
       private Pipeline CreatePipeline(Command[] commands)
       {
-         Pipeline pipeline = myRunSpace.CreatePipeline();
+         Pipeline pipeline = _runSpace.CreatePipeline();
          pipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
 
          foreach (Command cmd in commands)
@@ -59,7 +59,7 @@ namespace PoshConsole.PSHost
 
       private Pipeline CreatePipelineOutDefault(string command, bool addToHistory)
       {
-         Pipeline pipe = myRunSpace.CreatePipeline(command, addToHistory);
+         Pipeline pipe = _runSpace.CreatePipeline(command, addToHistory);
          pipe.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
          pipe.Commands.Add(outDefault);
 
@@ -86,12 +86,15 @@ namespace PoshConsole.PSHost
          var runner = new BackgroundWorker();
          runner.DoWork += (a, b) =>
             {
-               _ready.Reset();
-               System.Diagnostics.Trace.WriteLine("Commands");
                ExecutePipeline(CreatePipeline(commands), input, callback);
             };
          runner.RunWorkerAsync();
       }
+
+
+      ManualResetEvent _ready = new ManualResetEvent(true);
+      // The PowerShell runspace isn't threaded, so it can't INVOKE a pipeline while there's another one open...
+      object _runspaceLock = new object();
 
       private void ExecutePipeline(Pipeline pipeline, IEnumerable input, PipelineOutputHandler callback)
       {
@@ -114,34 +117,29 @@ namespace PoshConsole.PSHost
                   Collection<PSObject> results = completed.Output.ReadToEnd();
 
                   completed.Dispose();
+                  _ready.Set();
 
                   if (callback != null)
                   {
                      callback(new PipelineExecutionResult(results, errors, failure, e.PipelineStateInfo.State));
                   }
                }
-               //if (!IsClosing)
-               //{
-               //  ExecutePromptFunction(e.PipelineStateInfo.State);
-               //}
-               _ready.Set();
             }
-            //else if (e.PipelineStateInfo.State == PipelineState.Stopping)
-            //{
-            //    buffer.WriteVerboseLine("PowerShell Pipeline is: Stopping.");
-            //}
          };
 
-         while (_pipeline != null)
-         {
-            System.Diagnostics.Trace.WriteLine(_ready.WaitOne(500), "Runspace Unready");
+         lock (_runspaceLock)
+         {  
+            if(_pipeline != null)
+            {
+               System.Diagnostics.Trace.WriteLine(_ready.WaitOne(), "Runspace Unready");
+            }
+
+            _ready.Reset();
+            pipeline.InvokeAsync();
+            pipeline.Input.Write(input, true);
+            pipeline.Input.Close();
+            _pipeline = pipeline;
          }
-         pipeline.InvokeAsync();
-
-         pipeline.Input.Write(input, true);
-         pipeline.Input.Close();
-
-         _pipeline = pipeline;
       }
 
       private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
@@ -154,9 +152,6 @@ namespace PoshConsole.PSHost
          var runner = new BackgroundWorker();
          runner.DoWork += (a, b) =>
             {
-               _ready.Reset();
-               System.Diagnostics.Trace.WriteLine(command,"Command!");
-
                ExecutePipeline(CreatePipelineOutDefault(command, addToHistory), input, callback);
             };
          runner.RunWorkerAsync();

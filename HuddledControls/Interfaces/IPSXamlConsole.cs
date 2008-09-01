@@ -17,5 +17,7 @@ namespace Huddled.WPF.Controls.Interfaces
       void OutXaml(System.IO.FileInfo template);
       void OutXaml(System.Xml.XmlDocument template, PSObject data);
       void OutXaml(System.IO.FileInfo template, PSObject data);
+      void OutXaml(PSObject data);
+      void NewParagraph();
    }
 }

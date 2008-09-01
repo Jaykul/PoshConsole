@@ -41,6 +41,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -67,6 +68,7 @@
     <Compile Include="ConsoleBrushes.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.BufferSize.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.ConsoleBrushes.cs" />
+    <Compile Include="ConsoleControl\ConsoleControl.EventHandlers.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSConsole.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSRawConsole.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSXamlConsole.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="Interfaces\IPSConsole.cs" />
     <Compile Include="Interfaces\IPSRawConsole.cs" />
     <Compile Include="Interfaces\IPSXamlConsole.cs" />
+    <Compile Include="PopupMenu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +99,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ThumbnailImage.cs" />
+    <Compile Include="Utility\OtherHelpers.cs" />
     <Compile Include="Utility\StringHelper.cs" />
     <Compile Include="Utility\XamlHelper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

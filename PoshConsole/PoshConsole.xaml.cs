@@ -75,6 +75,7 @@ namespace PoshConsole
 
          // "buffer" is defined in the XAML
          this.Console = buffer;
+         
 
          // before we start animating, set the animation endpoints to the current values.
          _hideOpacityAnimations.From = _showOpacityAnimation.To = Opacity;
@@ -693,5 +694,10 @@ namespace PoshConsole
             buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
          }
       }
+
+
+
+
+
    }
 }

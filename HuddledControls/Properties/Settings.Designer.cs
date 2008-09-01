@@ -46,5 +46,53 @@ namespace Huddled.WPF.Controls.Properties {
                 this["FontSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CopyOnMouseSelect {
+            get {
+                return ((bool)(this["CopyOnMouseSelect"]));
+            }
+            set {
+                this["CopyOnMouseSelect"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int TabCompleteMenuThreshold {
+            get {
+                return ((int)(this["TabCompleteMenuThreshold"]));
+            }
+            set {
+                this["TabCompleteMenuThreshold"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        public int TabCompleteDoubleTapMilliseconds {
+            get {
+                return ((int)(this["TabCompleteDoubleTapMilliseconds"]));
+            }
+            set {
+                this["TabCompleteDoubleTapMilliseconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool HistoryMenuFilterDupes {
+            get {
+                return ((bool)(this["HistoryMenuFilterDupes"]));
+            }
+            set {
+                this["HistoryMenuFilterDupes"] = value;
+            }
+        }
     }
 }

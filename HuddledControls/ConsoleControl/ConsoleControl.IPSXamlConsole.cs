@@ -20,7 +20,7 @@ namespace Huddled.WPF.Controls
         #region IPSXamlConsole Members
         void IPSXamlConsole.OutXaml(XmlDocument source)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
             {
                 try {
                     OutXamlObject(XamlReader.Load(new XmlNodeReader(source)));
@@ -33,7 +33,7 @@ namespace Huddled.WPF.Controls
         }
         void IPSXamlConsole.OutXaml(FileInfo source)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+           Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
             {
                 try
                 {
@@ -73,7 +73,7 @@ namespace Huddled.WPF.Controls
         }
         void IPSXamlConsole.OutXaml(FileInfo source, PSObject data)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+           Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
             {
                 ErrorRecord error;
                 FrameworkElement element;
@@ -87,6 +87,30 @@ namespace Huddled.WPF.Controls
                     ((IPSConsole)this).WriteErrorRecord(error);
                 }
             });
+        }
+        void IPSXamlConsole.OutXaml(PSObject data)
+        {
+           Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(()=>
+           {
+              InlineUIContainer last = _current.Inlines.LastInline as InlineUIContainer;
+              if( last == null || !(last.Child is ItemsControl)) {
+                 last = new InlineUIContainer();
+                 FrameworkElementFactory factoryPanel = new FrameworkElementFactory(typeof(WrapPanel));
+                 factoryPanel.SetValue(WrapPanel.IsItemsHostProperty, true);
+                 factoryPanel.SetValue(WrapPanel.OrientationProperty, Orientation.Horizontal);
+                 ItemsPanelTemplate template = new ItemsPanelTemplate() { VisualTree = factoryPanel };
+
+                 last.Child = new ItemsControl() 
+                                 {  
+                                    HorizontalAlignment = HorizontalAlignment.Stretch, 
+                                    ItemsPanel = template
+                                 };
+                 _current.Inlines.Add( last );
+              }
+
+              ((ItemsControl)last.Child).Items.Add(data.BaseObject);
+
+           }));
         }
 
         private void OutXamlObject(object fromXaml) {
@@ -118,6 +142,14 @@ namespace Huddled.WPF.Controls
         private void OutXamlElement(FrameworkElement fromXaml)
         {
            _current.Inlines.Add(fromXaml);
+        }
+
+        void IPSXamlConsole.NewParagraph()
+        {
+           Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() =>
+               {
+                  _current = _next;
+               }));
         }
 
         #endregion

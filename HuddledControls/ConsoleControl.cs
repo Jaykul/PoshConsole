@@ -41,7 +41,7 @@ namespace Huddled.WPF.Controls
 
       public ConsoleControl()
       {
-         _popup = new Popup();
+         _popup = new PopupMenu( this );
          // Add the popup to the logical branch of the console so keystrokes can be
          // processed from the popup by the console for the tab-complete scenario.
          // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
@@ -59,20 +59,20 @@ namespace Huddled.WPF.Controls
                              Margin = new Thickness(0.0),
                              Padding = new Thickness(0.0),
                              BorderThickness = new Thickness(0.0),
-                             Background = Brushes.Transparent
+                             Background = Brushes.Transparent,
                           };
+         _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
+
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
 
-         //Document = new FlowDocument
-         //              {
-         //                  PagePadding = new Thickness(2.0),
-         //                  IsOptimalParagraphEnabled = true,                           
-         //              };
-         //ViewingMode = FlowDocumentReaderViewingMode.Scroll;
+
+
          Margin = new Thickness(0.0);
-         Padding = new Thickness(0.0);
+         Padding = new Thickness(5.0);
 
       }
+
+
       public override void EndInit()
       {
          base.EndInit();
@@ -81,6 +81,10 @@ namespace Huddled.WPF.Controls
 
          _current = new Paragraph();
          Document.Blocks.Add(_current);
+         // We need to crush the PagePadding so that the "Width" values work...
+         Document.PagePadding = new Thickness(0.0);
+         //   IsOptimalParagraphEnabled = true,
+         //};
 
          // create the prompt, and stick the command block in it
          _next = new Paragraph();
@@ -100,8 +104,27 @@ namespace Huddled.WPF.Controls
          // BindingOperations.SetBinding(_commandBox, FlowDocument.BackgroundProperty, new Binding("Background") { Source = this });
          BindingOperations.SetBinding(_commandBox, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
 
+         // find the ScrollViewer
+         _scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer;
       }
 
+      ScrollViewer _scrollViewer;
+      private ScrollViewer ScrollViewer
+      {
+         get
+         {
+            if (_scrollViewer == null)
+            {
+               _scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer;
+            }
+            return _scrollViewer; 
+         }
+      }
+
+      //private void NewParagraph()
+      //{
+         
+      //}
       public void Prompt(string prompt)
       {
          //Dispatcher.ExitAllFrames();
@@ -114,9 +137,12 @@ namespace Huddled.WPF.Controls
                insert.Foreground = Foreground;
                // the problem is, the prompt might have used Write-Host
                // so we need to move the _commandContainer to the end.
-               _next.Inlines.Remove(_commandContainer);
-               _next.Inlines.Add(insert);
-               _next.Inlines.Add(_commandContainer);
+               lock (_commandContainer)
+               {
+                  _next.Inlines.Remove(_commandContainer);
+                  _next.Inlines.Add(insert);
+                  _next.Inlines.Add(_commandContainer);
+               }
                SetPrompt();
             }
          });
@@ -305,57 +331,20 @@ namespace Huddled.WPF.Controls
          });
       }
 
-      protected override void OnPreviewTextInput(TextCompositionEventArgs e)
-      {
-         _commandBox.Focus();
-         //_commandBox.RaiseEvent(e);
-         base.OnPreviewTextInput(e);
-      }
-      protected override void OnPreviewKeyDown(KeyEventArgs e)
-      {
-         Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
-         {
-            switch (e.Key)
-            {
-               case Key.Enter:
-                  OnEnterPressed(e);
-                  break;
 
-            }
-         });
-      }
       protected virtual void FlushInputBuffer()
       {
          _commandBox.Clear();
       }
 
-      private void OnEnterPressed(KeyEventArgs e)
-      {
-         // get the command
-         string cmd = _commandBox.Text;
-         // clear the box
-         _commandBox.Text = "";
-         // put the text in instead
-         _next.Inlines.InsertBefore(_commandContainer, new Run(cmd + "\n"));
-         // move the box to the NEXT location
-         _next.Inlines.Remove(_commandContainer);
-         // and ... NOW, this is the destination for output
-         _current = _next; 
-         // and the new prompt will go down here
-         _next = new Paragraph(_commandContainer);
-         Document.Blocks.Add(_next);
-         
-
-         UpdateLayout();
-
-         OnCommand(cmd);
-         e.Handled = true;
-      }
 
       public string CurrentCommand
       {
          get { return _commandBox.Text; }
-         set { _commandBox.Text = value; }
+         set { 
+            _commandBox.Text = value;
+            _commandBox.CaretIndex = value.Length;
+         }
       }
 
       private string _title;

@@ -52,9 +52,9 @@ namespace Huddled.Interop.Hotkeys
 
       public static void HotkeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
       {
-         if (!(source is Window))
+         if (!(source is Window) && !(System.ComponentModel.DesignerProperties.GetIsInDesignMode(source)))
          {
-            throw new InvalidOperationException("The HotkeyManager can only be attached to a Window");
+            throw new InvalidOperationException("The HotkeyManager can only be attached to a Window!");
          }
 
          HotkeyManager hotkeys = args.OldValue as HotkeyManager;

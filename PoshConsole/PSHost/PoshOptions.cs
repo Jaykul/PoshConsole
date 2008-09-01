@@ -152,6 +152,15 @@ namespace PoshConsole.PSHost
             _console.OutXaml(template, data);
          }
 
+         public void OutXaml(System.Management.Automation.PSObject data)
+         {
+            _console.OutXaml(data);
+         }
+
+         public void NewParagraph()
+         {
+            _console.NewParagraph();
+         }
          #endregion
       }
 

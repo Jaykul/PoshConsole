@@ -4,6 +4,7 @@ using System.Windows.Documents;
 using System.Xml;
 using System.IO;
 using Huddled.WPF.Controls.Interfaces;
+using System.Windows.Controls;
 
 namespace Huddled.WPF.Controls
 {
@@ -33,10 +34,12 @@ namespace Huddled.WPF.Controls
          void Prompt(string text);
 
          string CurrentCommand { get; set; }
+         TextBox CommandBox { get; }
 
          // TODO: reimplement History and TabExpansion
          CommandHistory History { get; }
          TabExpansion Expander { get; set; }
+
 
          // TODO: reimplement scrollbar visibility options
          //ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }

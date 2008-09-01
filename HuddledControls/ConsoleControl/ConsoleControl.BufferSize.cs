@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows;
 using System.Windows.Documents;
 using System.Management.Automation.Host;
+using System.Windows.Controls;
 
 namespace Huddled.WPF.Controls
 {
@@ -70,16 +71,15 @@ namespace Huddled.WPF.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-                (int)((((ActualWidth > 0) ? ActualWidth : RenderSize.Width) - (Padding.Left + Padding.Right))
-                    / (FontSize * _characterWidth)) - 1,
-                (int)((((ActualHeight > 0) ? ActualHeight : RenderSize.Height) - (Padding.Top + Padding.Bottom))
-                    / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
+                (int)((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / (FontSize * _characterWidth)) - 1,
+                (int)(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
          }
          set
          {
-            this.Width = value.Width * FontSize * _characterWidth;
-            // our buffer is infinite-ish
-            //this.Height = value.Y * Document.LineHeight;
+
+            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
+            // ToDo: The "Height" of the buffer SHOULD control how much buffer history we keep, in lines...
+            //this.Height = (value.Width * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - sv.ViewportHeight);
          }
       }
 
@@ -91,18 +91,15 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            // ToDo: fix the Window Size to reflect the WINDOW, not the text window...
             return new System.Management.Automation.Host.Size(
-              (int)((((ActualWidth > 0) ? ActualWidth : RenderSize.Width) - (Padding.Left + Padding.Right))
-                    / (FontSize * _characterWidth)) - 1,
-              (int)(((ActualHeight > 0) ? ActualHeight : RenderSize.Height)
-                    / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
+                (int)((ScrollViewer.ViewportWidth - (Padding.Left + Padding.Right)) / (FontSize * _characterWidth)) - 1,
+                (int)(ScrollViewer.ViewportHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
 
          }
          set
          {
-            this.Width = value.Width * FontSize * _characterWidth;
-            this.Height = value.Height * Document.LineHeight;
+            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
+            this.Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - ScrollViewer.ViewportHeight); 
          }
       }
 
@@ -114,6 +111,8 @@ namespace Huddled.WPF.Controls
       {
          get
          {
+            // ToDo: should reduce the size by the difference between the viewport and the window...
+            // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
             return new System.Management.Automation.Host.Size(
                 (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)
                         / (FontSize * _characterWidth)) - 1,
@@ -186,6 +185,8 @@ namespace Huddled.WPF.Controls
       #endregion ConsoleSizeCalculations
 
 
+
+
       /// <summary>
       /// Gets the viewport position (in lines/chars)
       /// </summary>
@@ -194,45 +195,13 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            int x = 0, y = 0;
-            //int lines = -1;
-            //TextPointer origin = GetPositionFromPoint(new Point(0, 0), true).GetInsertionPosition(LogicalDirection.Forward);
-            ////TextPointer c = origin.GetLineStartPosition(0).GetNextInsertionPosition(LogicalDirection.Forward);
-            //TextPointer c = origin.GetLineStartPosition(0).GetInsertionPosition(LogicalDirection.Forward);
-            //x = c.GetOffsetToPosition(origin);
-            //origin = origin.GetLineStartPosition(1);
-
-            //while (lines < 0)
-            //{
-            //   c = c.GetLineStartPosition(-10, out lines); y -= lines;
-            //}
+            int x = 0;
+            int y = (int)(ScrollViewer.ContentVerticalOffset / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
             return new Coordinates(x, y);
          }
          set
          {
-            //// (value.X * FontSize * characterWidth, value.Y * Document.LineHeight)
-            //TextPointer lineStart = CaretPosition.DocumentStart.GetInsertionPosition(LogicalDirection.Forward).GetLineStartPosition(value.Y, out lines).GetInsertionPosition(LogicalDirection.Forward);
-            //while (lines < value.Y)
-            //{
-            //    for (; lines < value.Y; lines++)
-            //    {
-            //        CaretPosition.DocumentEnd.InsertLineBreak();
-            //    }
-            //    lineStart = CaretPosition.DocumentStart.GetInsertionPosition(LogicalDirection.Forward).GetLineStartPosition(value.Y, out lines).GetInsertionPosition(LogicalDirection.Forward);
-            //}
-
-            //TextPointer nextLine = lineStart.GetLineStartPosition(1);
-            //TextPointer site = lineStart.GetPositionAtOffset(value.X);
-            //if (site.GetOffsetToPosition(nextLine) <= 0)
-            //{
-            //    site = lineStart;
-            //}
-            this.BringIntoView(new Rect(
-               value.X * FontSize * _characterWidth,
-               value.Y * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight),
-               ActualWidth, ActualHeight));
-            //ScrollToVerticalOffset(value.Y * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
-            //ScrollToHorizontalOffset(value.X * FontSize * _characterWidth);
+            ScrollViewer.ScrollToVerticalOffset(value.Y * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
          }
       }
    }

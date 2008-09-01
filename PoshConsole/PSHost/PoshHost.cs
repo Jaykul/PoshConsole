@@ -63,7 +63,7 @@ namespace PoshConsole.PSHost
       /// <summary>
       /// The runspace for this interpeter.
       /// </summary>
-      private Runspace myRunSpace;
+      private Runspace _runSpace;
       /// <summary>
       /// The PSHostUserInterface implementation
       /// </summary>
@@ -128,7 +128,9 @@ namespace PoshConsole.PSHost
          // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
          // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
-         myRunSpace = RunspaceFactory.CreateRunspace(this);
+         
+         _runSpace = RunspaceFactory.CreateRunspace(this);
+         //_runSpace.Ap
 
          //PSSnapInException warning;
          //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);
@@ -137,12 +139,17 @@ namespace PoshConsole.PSHost
          //    buffer.WriteErrorLine("Couldn't load PoshSnapin, it's probably not registered.");
          //    buffer.WriteErrorLine(warning.Message);
          //}
+         if (_runSpace.Version.Major >= 2)
+         {
+            _runSpace.ApartmentState = ApartmentState.STA;
+            _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
+         }
+         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
+         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Add-Hotkey", typeof(AddHotkeyCommand), "AddHotkeyCommand.xml"));
+         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("New-Paragraph", typeof(NewParagraphCommand), "NewParagraphCommand.xml"));
 
-         myRunSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
-         myRunSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Add-Hotkey", typeof(AddHotkeyCommand), "AddHotkeyCommand.xml"));
-
-         myRunSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
-         myRunSpace.OpenAsync();
+         _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
+         _runSpace.OpenAsync();
          MakeConsole();
 
          //// Finally, STARTUP!
@@ -388,18 +395,22 @@ namespace PoshConsole.PSHost
       private void ExecutePromptFunction(PipelineState lastState)
       {
          buffer.CommandFinished(lastState);
-
-         ExecutePipeline(new Command("Prompt"), (PipelineOutputHandler)delegate(PipelineExecutionResult result)
-         {
-            StringBuilder str = new StringBuilder();
-
-            foreach (PSObject obj in result.Output)
+         // It is IMPERATIVE that we call "New-Paragraph" before Prompt
+         ExecutePipeline(new Command[] {new Command("New-Paragraph"),new Command("Prompt")}, result =>
             {
-               str.Append(obj);
-            }
+               StringBuilder str = new StringBuilder();
 
-            buffer.Prompt(str.ToString());
-         });
+               foreach (PSObject obj in result.Output)
+               {
+                  str.Append(obj);
+               }
+               // ToDo: write the error the same as we would for a regular command...
+               //if(result.State == PipelineState.Failed ) {
+               //   str.Append(result.Failure.Message);
+               //   str.Append(result.Failure.Message);
+
+               buffer.Prompt(str.ToString());
+            });
       }
 
       private void MakeConsole()
@@ -532,8 +543,8 @@ namespace PoshConsole.PSHost
             }
          }
 
-         myRunSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-         myRunSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
+         _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
+         _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
 
 
          if (cmd.Length > 0)
@@ -590,7 +601,7 @@ namespace PoshConsole.PSHost
          if (lastWord != null && lastWord.Length > 0)
          {
             // TODO: TabComplete Cmdlets inside the pipeline
-            foreach (RunspaceConfigurationEntry cmdlet in myRunSpace.RunspaceConfiguration.Cmdlets)
+            foreach (RunspaceConfigurationEntry cmdlet in _runSpace.RunspaceConfiguration.Cmdlets)
             {
                if (cmdlet.Name.StartsWith(lastWord, true, null))
                {
@@ -722,7 +733,6 @@ namespace PoshConsole.PSHost
       //    }
       //    return output;
       //}
-      ManualResetEvent _ready = new ManualResetEvent(true);
       Command outDefault;
       ///// <summary>
       ///// A helper method which builds and executes a pipeline that writes to the default output.

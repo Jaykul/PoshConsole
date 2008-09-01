@@ -21,7 +21,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="{x:Type TextBoxBase}" BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
+    <Style BasedOn="{x:Null}" TargetType="{x:Type TextBoxBase}">
         <!-- It turns out that setting this Background is the main way to change the cursor color too!
             http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
             -->
