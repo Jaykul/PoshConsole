@@ -189,6 +189,7 @@ namespace Huddled.Interop
 
          // For the output handles we need a thread to read them
          outputThread = new Thread(OutputThread);
+         outputThread.SetApartmentState(ApartmentState.STA);
          outputThread.Start();
 
          // The steps for redirecting STDERR are the same:
@@ -213,6 +214,7 @@ namespace Huddled.Interop
 
          // For the output handles we need a thread to read them
          errorThread = new Thread(ErrorThread);
+         errorThread.SetApartmentState(ApartmentState.STA);
          errorThread.Start();
 
          // The steps for redirecting STDIN:

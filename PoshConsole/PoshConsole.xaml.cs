@@ -139,7 +139,10 @@ namespace PoshConsole
          ((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
          if (_host != null) _host.ExecuteShutdownProfile();
          ((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
-         if (_host != null) _host.KillConsole();
+         // // This doesn't fix the COM RCW problem
+         // Dispatcher.Invoke((Action)(() => { _host.KillConsole(); }));
+         _host.KillConsole();
+
          base.OnClosing(e);
       }
 
@@ -168,8 +171,6 @@ namespace PoshConsole
                MessageBox.Show(string.Format("Failed to register the hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command));
             }
          }
-
-
       }
 
 
@@ -461,7 +462,8 @@ namespace PoshConsole
          try
          {
             _host = new PoshHost((IPSUI)this);
-
+            // // This doesn't actually solve the COM RCW problem
+            // Dispatcher.Invoke((Action)(() => { _host.MakeConsole(); }));
             statusBinding.Source = _host.Options;
          }
          catch (Exception ex)

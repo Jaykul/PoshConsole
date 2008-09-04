@@ -205,12 +205,12 @@ namespace Huddled.WPF.Controls
          lock (_commandContainer)
          {
             // put the text in instead
-            _current.Inlines.InsertBefore(_commandContainer, new Run(cmd + "\n"));
-            // and move the _commandContainer to the "next" paragraph
-            _current.Inlines.Remove(_commandContainer);
-            _next = new Paragraph(_commandContainer);
+            _current.Inlines.Add(new Run(cmd + "\n"));
+            //// and move the _commandContainer to the "next" paragraph
+            //_current.Inlines.Remove(_commandContainer);
+            //_next = new Paragraph(_commandContainer);
          }
-         Document.Blocks.Add(_next);
+         //Document.Blocks.Add(_next);
 
          UpdateLayout();
 

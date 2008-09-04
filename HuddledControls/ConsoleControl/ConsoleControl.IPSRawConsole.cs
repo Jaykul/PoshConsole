@@ -267,10 +267,14 @@ namespace Huddled.WPF.Controls
             {
                return ForegroundColor;
             }
-            else
+            else if (!Dispatcher.HasShutdownStarted)
             {
                return (ConsoleColor)Dispatcher.Invoke(DispatcherPriority.Normal,
                   (Func<ConsoleColor>)(() => ForegroundColor));
+            }
+            else
+            {
+               return ConsoleColor.White;
             }
          }
          set

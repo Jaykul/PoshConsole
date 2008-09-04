@@ -141,7 +141,7 @@ namespace PoshConsole.PSHost
          //}
          if (_runSpace.Version.Major >= 2)
          {
-            _runSpace.ApartmentState = ApartmentState.STA;
+            _runSpace.ApartmentState = ApartmentState.MTA;
             _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
          }
          _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
@@ -254,6 +254,17 @@ namespace PoshConsole.PSHost
       public override void ExitNestedPrompt()
       {
          throw new NotImplementedException("The ExitNestedPrompt() method is not implemented by MyHost.");
+      }
+
+
+      private void MakeConsole()
+      {
+         if (console == null)
+         {
+            console = new NativeConsole();
+            console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
+            console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
+         }
       }
 
       public void KillConsole()
@@ -413,15 +424,6 @@ namespace PoshConsole.PSHost
             });
       }
 
-      private void MakeConsole()
-      {
-         if (console == null)
-         {
-            console = new NativeConsole();
-            console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
-            console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
-         }
-      }
 
       void myRunSpace_StateChanged(object sender, RunspaceStateEventArgs e)
       {
@@ -580,9 +582,17 @@ namespace PoshConsole.PSHost
       /// <param name="exitCode"></param>
       public override void SetShouldExit(int exitCode)
       {
-         IsClosing = true;
-         // Application.Current.Shutdown(exitCode);
-         PsUi.SetShouldExit(exitCode);
+         if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
+            && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
+         {
+            _runSpace.CloseAsync();
+         }
+         if (!IsClosing)
+         {
+            IsClosing = true;
+            // Application.Current.Shutdown(exitCode);
+            PsUi.SetShouldExit(exitCode);
+         }
       }
       private List<string> buffer_TabComplete(string cmdline)
       {
