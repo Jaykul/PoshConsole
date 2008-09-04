@@ -55,21 +55,10 @@ namespace Huddled.WPF.Controls
                              IsEnabled = true,
                              Focusable = true,
                              AcceptsTab = true,
-                             /*AcceptsReturn = true, */
-                             Margin = new Thickness(0.0),
-                             Padding = new Thickness(0.0),
-                             BorderThickness = new Thickness(0.0),
-                             Background = Brushes.Transparent,
                           };
          _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
 
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
-
-
-
-         Margin = new Thickness(0.0);
-         Padding = new Thickness(5.0);
-
       }
 
 
@@ -80,6 +69,8 @@ namespace Huddled.WPF.Controls
          //// Initialize the document ...
 
          _current = new Paragraph();
+         _current.ClearFloaters = WrapDirection.Both;
+
          Document.Blocks.Add(_current);
          // We need to crush the PagePadding so that the "Width" values work...
          Document.PagePadding = new Thickness(0.0);
@@ -102,7 +93,7 @@ namespace Huddled.WPF.Controls
          BindingOperations.SetBinding(Document, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
 
          // BindingOperations.SetBinding(_commandBox, FlowDocument.BackgroundProperty, new Binding("Background") { Source = this });
-         BindingOperations.SetBinding(_commandBox, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
+         // BindingOperations.SetBinding(_commandBox, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
 
          // find the ScrollViewer
          _scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer;
@@ -312,7 +303,8 @@ namespace Huddled.WPF.Controls
                    Background = background, 
                    Foreground = foreground
                 };
-            _commandContainer.BringIntoView();
+            ScrollViewer.ScrollToBottom();
+            // _commandContainer.BringIntoView();
          });
       }
 

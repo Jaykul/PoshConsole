@@ -7,8 +7,6 @@
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:hotkeys="http://schemas.huddledmasses.org/interop/hotkeys"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
-    xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
     Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
     Visibility="Visible" Background="Transparent" AllowsTransparency="False"
@@ -37,27 +35,94 @@
         </hotkeys:HotkeyManager>
 
         <!--<PoshProps:Settings x:Key="SettingsDS" />-->
-        <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
-
-        <Style TargetType="{x:Type huddle:ConsoleControl}">
-            <!--<Style.Resources>
-                <Style x:Key="{x:Type FlowDocument}" TargetType="{x:Type FlowDocument}">
-                    <Setter Property="OverridesDefaultStyle" Value="true"/>
-                </Style>
-            </Style.Resources>-->
-            <Setter Property="MinWidth" Value="250"/>
-        </Style>
-        <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
-            <Setter Property="BorderBrush">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
-                        <GradientStop Offset="0" Color="{Binding Path=BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                        <GradientStop Offset="0.803" Color="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
-        </Style>
+      <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
+      <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
+       
+      <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
+         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+         <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+         <Setter Property="Background" Value="Transparent"/>
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                  <Grid SnapsToDevicePixels="True" Background="Transparent">
+                     <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
+                              Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                     <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
+                              HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
+                              Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                  </Grid>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
+      <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+         <!-- It turns out that setting this Background is the main way to change the cursor color too!
+            http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
+            -->
+         <Setter Property="Foreground" Value="{Binding Path=Foreground, ElementName=buffer}" />
+         <Setter Property="Background">
+            <Setter.Value>
+               <Binding Path="CaretColor" ElementName="buffer">
+                  <Binding.Converter>
+                     <huddle:ColorToBrushInverter Alpha="255" />
+                  </Binding.Converter>
+               </Binding>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="Padding" Value="1"/>
+         <Setter Property="AllowDrop" Value="true"/>
+         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type TextBox}">
+                  <!-- The textbox insertion caret color is the inverse of it's background color. 
+                  In order to give ourselves control over it, separate from changing the actual background color ...
+                  We use a template with a Border that has it's own background color which can be set manually.
+                  -->
+                  <!-- ABOUT TextBoxBase templates.  The control template for a TextBox or RichTextBox must include 
+                     an element tagged as the content host, that is, with the Name="PART_ContentHost".  
+                     Despite assurances about template iindependence, the content host element *must* be 
+                     a ScrollViewer, or an element that derives from Decorator. 
+                  -->
+                  <!--<aero:ListBoxChrome xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+                                    SnapsToDevicePixels="true" x:Name="Bd"
+                                    Background="#FF000000"
+                                    BorderThickness="20"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
+                                    RenderMouseOver="{TemplateBinding IsMouseOver}">-->
+                     <Border x:Name="Border" 
+                            BorderThickness="0"
+                            Background="{Binding Path=Background, ElementName=buffer}" 
+                            SnapsToDevicePixels="True"
+                            Padding="2">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                      Padding="0,0,0,0" />
+                     </Border>
+                  <!--</aero:ListBoxChrome>-->
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
+      <Style TargetType="{x:Type FlowDocument}">
+         <Setter Property="OverridesDefaultStyle" Value="true"/>
+      </Style>
+      <Style TargetType="{x:Type huddle:ConsoleControl}">
+         <Setter Property="MinWidth" Value="250"/>
+      </Style>
+     <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
+         <Setter Property="BorderBrush">
+             <Setter.Value>
+                 <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
+                     <GradientStop Offset="0" Color="{Binding Path=BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
+                     <GradientStop Offset="0.803" Color="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
+                 </LinearGradientBrush>
+             </Setter.Value>
+         </Setter>
+         <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
+     </Style>
     </Window.Resources>
     <!--
     xmlns:PoshControls="http://schemas.poshconsole.org/controls"
@@ -133,8 +198,9 @@
         		ForceCursor="True"
         		BackgroundColor="Black" Background="Black"
         		ForegroundColor="White" Foreground="White"
+            CaretColor="Cyan"
         		PreviewMouseWheel="OnBufferPreviewMouseWheel"
-        		Padding="0,0,0,0" Margin="0,0,0,0" BorderThickness="0,0,0,0"
+        		Padding="0" Margin="0" BorderThickness="0"
         		Title="PoshConsole"
                                         
                                         >

@@ -35,6 +35,7 @@ namespace Huddled.WPF.Controls
 
          string CurrentCommand { get; set; }
          TextBox CommandBox { get; }
+         System.Windows.Media.Color CaretColor { get; set; }
 
          // TODO: reimplement History and TabExpansion
          CommandHistory History { get; }

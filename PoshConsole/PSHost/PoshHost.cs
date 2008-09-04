@@ -822,7 +822,7 @@ namespace PoshConsole.PSHost
                {
                   // do nothing, this setting is checked each time you select
                } break;
-            // TODO: case "ScrollBarVisibility":
+            //ToDo: case "ScrollBarVisibility":
             //   {
             //      buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
             //   } break;

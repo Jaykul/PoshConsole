@@ -142,13 +142,13 @@ namespace PoshConsole.Controls
                 {
                    switch (e.Key)
                    {
-                      case Key.Tab:
-                         OnTabPressed(e, inCommand);
-                         break;
-
                       case Key.Enter:
                          OnEnterPressed(e);
                          //e.Handled = true;
+                         break;
+
+                      case Key.Tab:
+                         OnTabPressed(e, inCommand);
                          break;
 
                       case Key.F7:
@@ -176,11 +176,6 @@ namespace PoshConsole.Controls
                          OnEndPressed(e);
                          break;
 
-                      case Key.Back:
-                      case Key.Delete:
-                         OnBackspaceDeletePressed(e);
-                         break;
-
                       case Key.PageUp:
                          OnPageUpPressed(e, inCommand);
                          break;
@@ -188,6 +183,12 @@ namespace PoshConsole.Controls
                       case Key.PageDown:
                          OnPageDownPressed(e, inCommand);
                          break;
+
+                      case Key.Back:
+                      case Key.Delete:
+                         OnBackspaceDeletePressed(e);
+                         break;
+
                    }
                 });
                 

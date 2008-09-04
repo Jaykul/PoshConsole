@@ -56,7 +56,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Themes\Generic.xaml">
+    <Page Include="ConsoleControl\Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -65,6 +65,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorInverter.cs" />
     <Compile Include="ConsoleBrushes.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.BufferSize.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.ConsoleBrushes.cs" />

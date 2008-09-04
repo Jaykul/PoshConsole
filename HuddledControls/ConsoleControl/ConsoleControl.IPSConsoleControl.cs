@@ -29,7 +29,6 @@ namespace Huddled.WPF.Controls
         //public event TabCompleteHandler TabComplete;
         //public event HistoryHandler GetHistory;
        public event CommmandDelegate Command;
-        #region IPSConsoleControl Members
 
         /// <summary>
         /// Right before a prompt we want to insert a new paragraph...
@@ -82,6 +81,25 @@ namespace Huddled.WPF.Controls
            }
         }
 
-        #endregion
+        // Using a DependencyProperty as the backing store for CaretColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CaretColorProperty =
+            DependencyProperty.Register("CaretColor", typeof(Color), typeof(ConsoleControl), new UIPropertyMetadata(Colors.White));
+
+        public Color CaretColor
+        {
+           get { return (Color)GetValue(CaretColorProperty); }
+           set { SetValue(CaretColorProperty, value); }
+        }
+       
+        //, CaretColorChanged
+        //public static void CaretColorChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
+        //{
+        //   var console = source as ConsoleControl;
+        //   if (console != null)
+        //   {
+        //      Color c = (Color)args.NewValue;
+        //      console._commandBox.Background = new SolidColorBrush();
+        //   }
+        //}
     }
-}
+ }

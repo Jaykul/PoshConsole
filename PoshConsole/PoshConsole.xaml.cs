@@ -16,6 +16,7 @@ using PoshConsole.Controls;
 using PoshConsole.PSHost;
 using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 using IPSConsole=Huddled.WPF.Controls.Interfaces.IPSConsole;
+using System.Windows.Documents;
 
 namespace PoshConsole
 {
@@ -171,6 +172,54 @@ namespace PoshConsole
 
       }
 
+
+      public override void EndInit()
+      {
+         base.EndInit();
+         // LOAD the startup banner only when it's set (instead of removing it after)
+         if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
+         {
+            try
+            {
+               Paragraph banner;
+               System.Management.Automation.ErrorRecord error;
+               System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
+               if (startup.TryLoadXaml(out banner, out error))
+               {
+                  // Copy over *all* resources from the DOCUMENT to the BANNER
+                  // NOTE: be careful not to put resources in the document you're not willing to expose
+                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+                  foreach (string key in buffer.Document.Resources.Keys)
+                  {
+                     banner.Resources[key] = buffer.Document.Resources[key];
+                  }
+                  banner.Padding = new Thickness(5);
+                  buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock,banner);
+                  //_current = new Paragraph();
+                  //_current.ClearFloaters = WrapDirection.Both;
+                  //buffer.Document.Blocks.Add(_current);
+               }
+               else
+               {
+                  ((IPSConsole)buffer).Write("PoshConsole 1.0 2008.09.01");
+               }
+
+               // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+               // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
+            }
+            catch (Exception ex)
+            {
+               System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
+               buffer.Document.Blocks.Clear();
+               ((IPSConsole)buffer).Write("PoshConsole 1.0 2008.09.01");
+            }
+         }
+         else
+         {
+            ((IPSConsole)buffer).Write("PoshConsole 1.0 2008.09.01");
+         }
+      }
+	
       //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
       //{
       //    RecalculateSizes();

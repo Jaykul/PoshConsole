@@ -17,5 +17,7 @@ namespace Huddled.WPF.Controls.Utility
       {
          return keyboard.IsKeyToggled(Key.Scroll);
       }
+
+
    }
 }

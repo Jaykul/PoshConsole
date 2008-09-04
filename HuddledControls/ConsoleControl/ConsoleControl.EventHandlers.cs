@@ -97,7 +97,7 @@ namespace Huddled.WPF.Controls
       {
          if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
          {
-            Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
+            Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);            
          }
 
          base.OnPreviewMouseLeftButtonUp(e);
