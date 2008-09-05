@@ -27,6 +27,7 @@ namespace Huddled.WPF.Controls.Interfaces
       // the interface would need to return an IPSRawConsole
       // But obviously that wouldn't be helpful here, so we'll just skip it.
       IPSRawConsole RawUI { get; }
+      
       // TODO: There are additional methods, but I've un-objectively decided that these six don't belong in the console
 
       // Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions);

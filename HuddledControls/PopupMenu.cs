@@ -380,7 +380,7 @@ namespace Huddled.WPF.Controls
         /// <param name="filterDupes">if set to <c>true</c> [filter dupes].</param>
         internal void ShowTabPopup(Rect PlacementRectangle, List<string> list, string currentCommand)
         {
-            list.Sort(); // TODO: Sort this intelligently...
+            list.Sort(); // TODO: Minor: Sort this intelligently...
             // And filter it too
             _tabbing = currentCommand;
             _lastWord = _tabbing.GetLastWord();

@@ -386,12 +386,12 @@ namespace Huddled.Interop.Hotkeys
          if (value is KeyBinding)
             Add(value as KeyBinding);
          else
-            throw new NotImplementedException("The AddChild method is not implemented except for KeyBinding objects!");
+            throw new ArgumentException("The AddChild method is not implemented except for KeyBinding objects!");
       }
 
       public void AddText(string text)
       {
-         throw new NotImplementedException("The AddChild method is not implemented except for KeyBinding objects!");
+         throw new NotSupportedException("The AddText method is not implemented.");
       }
 
       #endregion

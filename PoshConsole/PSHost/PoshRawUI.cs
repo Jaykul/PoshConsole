@@ -79,13 +79,12 @@ namespace PoshConsole.PSHost
             ;  //Do nothing...
         }
         #endregion Stuff I should move into IConsoleControl
-        #region NOT IMPLEMENTED
         /// <summary>
         /// Map directly to the corresponding .NET Console property.
         /// </summary>
         public override bool KeyAvailable
         {
-           get { return false; throw new NotImplementedException("The KeyAvailable method isn't implemented."); }
+           get { return myConsole.KeyAvailable; }
         }
         /// <summary>
         /// This functionality is not currently implemented. The call fails with an exception.
@@ -109,9 +108,8 @@ namespace PoshConsole.PSHost
         /// if it is left "empty" by the move. </param>
         public override void ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
         {
-            throw new NotImplementedException("The ScrollBufferContents() method is not implemented by MyRawUserInterface.");
+           myConsole.ScrollBufferContents(source, destination, clip, fill);
         }
-        #endregion NOT IMPLEMENTED
         #region Implemented by IConsoleControl
         /// <summary>
         /// Return the host buffer size adapted from the .NET Console buffer size.

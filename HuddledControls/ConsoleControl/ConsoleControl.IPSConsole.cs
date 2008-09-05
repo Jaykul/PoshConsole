@@ -26,7 +26,6 @@ namespace Huddled.WPF.Controls
     /// </summary>
     public partial class ConsoleControl : IPSConsole  //, IPSConsole, IConsoleControlBuffered
     {
-        // ToDo: we really should consider using some alternative output method for these other output types...
         // Possibly an alternative panel that pops up and can be closed?
         #region IPSConsole Members
 
@@ -191,7 +190,7 @@ namespace Huddled.WPF.Controls
         {
            // Write is Dispatcher checked
            Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
-          // TODO: investigate whether NATIVE output needs to "SetPrompt();"
+          // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
         }
 
         void IPSConsole.WriteNativeErrorLine(string message)

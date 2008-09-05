@@ -96,11 +96,6 @@ namespace PoshConsole.Cmdlets
                case "DataTemplate":
                   {
                      ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(InputObject);
-                     //WriteError(new ErrorRecord(
-                     //    new ArgumentNullException("Template", "Automatic template choosing is not implemented yet."),
-                     //    "Must Specify a Template",
-                     //    ErrorCategory.NotImplemented,
-                     //    InputObject));
                   }
                   break;
             }

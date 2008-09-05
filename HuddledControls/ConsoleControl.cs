@@ -324,11 +324,6 @@ namespace Huddled.WPF.Controls
       }
 
 
-      protected virtual void FlushInputBuffer()
-      {
-         _commandBox.Clear();
-      }
-
 
       public string CurrentCommand
       {

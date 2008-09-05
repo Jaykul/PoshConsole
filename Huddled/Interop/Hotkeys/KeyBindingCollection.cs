@@ -65,7 +65,7 @@ namespace Huddled.Interop.Hotkeys
       }
       protected override void SetItem(int index, KeyBinding item)
       {
-         throw new NotImplementedException("KeyBindingCollection doesn't support setting items by index");
+         throw new NotSupportedException("KeyBindingCollection doesn't support setting items by index");
       }
 
       protected override void MoveItem(int oldIndex, int newIndex)

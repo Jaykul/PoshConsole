@@ -245,6 +245,7 @@ namespace PoshConsole.PSHost
       /// </summary>
       public override void EnterNestedPrompt()
       {
+         // TODO: IMPLEMENT PSHost.EnterNestedPrompt()
          throw new NotImplementedException("Cannot suspend the shell, EnterNestedPrompt() method is not implemented by MyHost.");
       }
 
@@ -253,6 +254,7 @@ namespace PoshConsole.PSHost
       /// </summary>
       public override void ExitNestedPrompt()
       {
+         // TODO: IMPLEMENT PSHost.ExitNestedPrompt()
          throw new NotImplementedException("The ExitNestedPrompt() method is not implemented by MyHost.");
       }
 
@@ -365,7 +367,6 @@ namespace PoshConsole.PSHost
       //    }
       //    catch (RuntimeException rte)
       //    {
-      //        // TODO: handle the "incomplete" commands by displaying an additional prompt?
       //        // An exception occurred that we want to display ...
       //        // We have to run another pipeline, and pass in the error record.
       //        // The runtime will bind the input to the $input variable
@@ -415,7 +416,7 @@ namespace PoshConsole.PSHost
                {
                   str.Append(obj);
                }
-               // ToDo: write the error the same as we would for a regular command...
+               // ToDo: write errors from PROMPT the same as we would for a regular command...
                //if(result.State == PipelineState.Failed ) {
                //   str.Append(result.Failure.Message);
                //   str.Append(result.Failure.Message);
@@ -601,16 +602,17 @@ namespace PoshConsole.PSHost
          string lastWord = Utilities.GetLastWord(cmdline);
 
          // Still need to do more Tab Completion
-         // TODO: Make "PowerTab" obsolete for PoshConsole users.
-         // TODO: Make each TabExpansion optional -- maybe plugins?
-         //   TODO: TabComplete Parameters
-         //   TODO: TabComplete Variables
-         //   TODO: TabComplete Aliases
-         //   TODO: TabComplete Executables in (current?) path
+         // TODO: Make PowerTab only necessariy for true POWER users.
+         // Ideally, you should be able to choose which TabExpansions you want
+         // but get them all at _compiled_ speeds ... 
+         //   TabComplete Parameters
+         //   TabComplete Variables
+         //   TabComplete Aliases
+         //   TabComplete Executables in (current?) path
 
          if (lastWord != null && lastWord.Length > 0)
          {
-            // TODO: TabComplete Cmdlets inside the pipeline
+            // TabComplete Cmdlets inside the pipeline
             foreach (RunspaceConfigurationEntry cmdlet in _runSpace.RunspaceConfiguration.Cmdlets)
             {
                if (cmdlet.Name.StartsWith(lastWord, true, null))
@@ -619,7 +621,7 @@ namespace PoshConsole.PSHost
                }
             }
 
-            // TODO: TabComplete Paths
+            // TabComplete Paths
             try
             {
                if (lastWord[0] == '$')
@@ -832,7 +834,7 @@ namespace PoshConsole.PSHost
                {
                   // do nothing, this setting is checked each time you select
                } break;
-            //ToDo: case "ScrollBarVisibility":
+            //ToDo: REIMPLEMENT case "ScrollBarVisibility":
             //   {
             //      buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
             //   } break;

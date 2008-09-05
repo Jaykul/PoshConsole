@@ -71,23 +71,27 @@ namespace PoshConsole.PSHost
 
 		public override Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
         {
+           // TODO: REIMPLEMENT PSHostUserInterface.Prompt
            throw new NotImplementedException("The Prompt method is not (yet) implemented!");
            //return myConsole.Prompt(caption, message, descriptions);
         }
 		
 		public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
         {
+           // TODO: REIMPLEMENT PSHostUserInterface.PromptForChoice
            throw new NotImplementedException("The PromptForChoice method is not (yet) implemented!");
            //return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
         }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
         {
+           // TODO: REIMPLEMENT PSHostUserInterface.PromptForCredential
            throw new NotImplementedException("The PromptForCredential method is not (yet) implemented!");
         }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
         {
+           // TODO: REIMPLEMENT PSHostUserInterface.PromptForCredential
            throw new NotImplementedException("The PromptForCredential method is not (yet) implemented!");
         }
 		
@@ -110,7 +114,8 @@ namespace PoshConsole.PSHost
 		
 		public override System.Security.SecureString ReadLineAsSecureString()
         {
-            throw new Exception("The method or operation is not implemented.");
+           // TODO: IMPLEMENT PSHostUserInterface.ReadLineAsSecureString
+           throw new NotImplementedException("The method or operation is not implemented.");
         }
 		
 		#endregion [rgn]

@@ -410,7 +410,7 @@ namespace Huddled.Interop
                }
             }
          }
-         catch (ThreadAbortException tae) { }
+         catch (ThreadAbortException) { }
          finally
          {
             NativeMethods.CloseHandle(stdOutWrite);

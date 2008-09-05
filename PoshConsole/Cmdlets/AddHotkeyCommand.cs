@@ -51,7 +51,7 @@ namespace PoshConsole.Cmdlets
          }
          catch ( Exception ex )
          {
-            ThrowTerminatingError(new ErrorRecord(ex, "Exception Thrown", ErrorCategory.NotImplemented, KeyGesture));
+            ThrowTerminatingError(new ErrorRecord(ex, "Exception Thrown", ErrorCategory.NotSpecified, KeyGesture));
          }
       }
 

@@ -40,13 +40,22 @@ namespace Huddled.WPF.Controls
       ///<returns></returns>
       KeyInfo IPSRawConsole.ReadKey(ReadKeyOptions options)
       {
+         // TODO: REIMPLEMENT PSHostRawUserInterface.ReadKey(ReadKeyOptions options)
          throw new NotImplementedException("The ReadKey method is not (yet) implemented!");
       }
+
       bool IPSRawConsole.KeyAvailable
       {
          get
          {
-            throw new NotImplementedException("The KeyAvailable property is not (yet) implemented!");
+            if (Dispatcher.CheckAccess())
+            {
+               return _commandBox.Text.Length > 0;
+            }
+            else
+            {
+               return (bool)Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _commandBox.Text.Length > 0));
+            }
          }
       }
 
@@ -55,11 +64,11 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            return 25; // ToDo: create a customizable blinking cursor
+            return 25; 
          }
          set
          {
-            /** It's currently meaningless to set our cursor **/
+            // ToDo: INVESTIGATE: can we change the caret size?
          }
       }
 
@@ -67,7 +76,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The BufferSize property getter is not (yet) implemented!");
             if (Dispatcher.CheckAccess())
             {
                return this.BufferSize;
@@ -79,8 +87,6 @@ namespace Huddled.WPF.Controls
          }
          set
          {
-            //throw new NotImplementedException("The BufferSize property setter is not (yet) implemented!");
-
             if (Dispatcher.CheckAccess())
             {
                this.BufferSize = value;
@@ -100,7 +106,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The MaxPhysicalWindowSize property getter is not (yet) implemented!");
             if (Dispatcher.CheckAccess())
             {
                return this.MaxPhysicalWindowSize;
@@ -116,7 +121,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The MaxWindowSize property getter is not (yet) implemented!");
             if (Dispatcher.CheckAccess())
             {
                return this.MaxWindowSize;
@@ -132,8 +136,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The WindowSize property getter is not (yet) implemented!");
-
             if (Dispatcher.CheckAccess())
             {
                return this.WindowSize;
@@ -145,9 +147,6 @@ namespace Huddled.WPF.Controls
          }
          set
          {
-            //throw new NotImplementedException("The WindowSize property setter is not (yet) implemented!");
-
-
             if (Dispatcher.CheckAccess())
             {
                this.WindowSize = value;
@@ -166,9 +165,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The CursorPosition property getter is not (yet) implemented!");
-
-
             if (Dispatcher.CheckAccess())
             {
                return this.CursorPosition;
@@ -181,8 +177,6 @@ namespace Huddled.WPF.Controls
          }
          set
          {
-            //throw new NotImplementedException("The CursorPosition property setter is not (yet) implemented!");
-
             if (Dispatcher.CheckAccess())
             {
                this.CursorPosition = value;
@@ -201,7 +195,6 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //throw new NotImplementedException("The WindowPosition property getter is not (yet) implemented!");
             if (Dispatcher.CheckAccess())
             {
                return this.WindowPosition;
@@ -214,7 +207,6 @@ namespace Huddled.WPF.Controls
          }
          set
          {
-            //throw new NotImplementedException("The WindowPosition property setter is not (yet) implemented!");
             if (Dispatcher.CheckAccess())
             {
                this.WindowPosition = value;
@@ -326,20 +318,19 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.FlushInputBuffer()
       {
-         //throw new NotImplementedException("The FlushInputBuffer method is not (yet) implemented!");
          if (Dispatcher.CheckAccess())
          {
-            this.FlushInputBuffer();
-            //_keyBuffer.Clear();
+            _commandBox.Clear();
          }
          else
          {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => this.FlushInputBuffer()));
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => _commandBox.Clear()));
          }
       }
 
       BufferCell[,] IPSRawConsole.GetBufferContents(Rectangle rectangle)
       {
+         // TODO: REIMPLEMENT PSHostRawUserInterface.GetBufferContents(Rectangle rectangle)
          throw new NotImplementedException("The GetBufferContents method is not (yet) implemented!");
          //if (Dispatcher.CheckAccess())
          // {
@@ -356,6 +347,7 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.SetBufferContents(Rectangle rectangle, BufferCell fill)
       {
+         // TODO: REIMPLEMENT PSHostRawUserInterface.SetBufferContents(Rectangle rectangle, BufferCell fill)
          throw new NotImplementedException("The SetBufferContents method is not (yet) implemented!");
          //if (Dispatcher.CheckAccess())
          // {
@@ -372,6 +364,7 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.SetBufferContents(Coordinates origin, BufferCell[,] contents)
       {
+         // TODO: REIMPLEMENT PSHostRawUserInterface.SetBufferContents(Coordinates origin, BufferCell[,] contents)
          throw new NotImplementedException("The SetBufferContents method is not (yet) implemented!");
          //if (Dispatcher.CheckAccess())
          // {
@@ -388,6 +381,7 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
       {
+         // TODO: REIMPLEMENT PSHostRawUserInterface.ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
          throw new NotImplementedException("The ScrollBufferContents method is not (yet) implemented!");
 
          //if (Dispatcher.CheckAccess())

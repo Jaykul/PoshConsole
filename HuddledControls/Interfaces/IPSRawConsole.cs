@@ -33,7 +33,7 @@ namespace Huddled.WPF.Controls.Interfaces
       ConsoleColor ForegroundColor { get; set; }
 
       void FlushInputBuffer();
-      // TODO: There are additional methods.
+
       KeyInfo ReadKey(ReadKeyOptions options);
       bool KeyAvailable { get; }
       BufferCell[,] GetBufferContents(Rectangle rectangle);

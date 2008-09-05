@@ -126,12 +126,10 @@
   <ItemGroup>
     <Compile Include="Cmdlets\AddHotkeyCommand.cs" />
     <Compile Include="Cmdlets\NewParagraphCommand.cs" />
-    <Compile Include="Controls\Converters.cs" />
     <Compile Include="Controls\Interop\NativeMethods.cs" />
     <Compile Include="Controls\ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\WindowImage.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="Cmdlets\OutWPFCommand.cs" />
     <Compile Include="Interop\NativeMethods.cs" />

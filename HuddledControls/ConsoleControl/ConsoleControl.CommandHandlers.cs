@@ -64,7 +64,11 @@ namespace Huddled.WPF.Controls
             args.CanExecute = true;
         }
 		
-      //private static void OnCopy(object sender, ExecutedRoutedEventArgs e)
+       // TODO: REIMPLEMENT copy, and keyboard selection shortcuts
+       // ..... Including making sure that CUT does COPY?
+       // ..... And can we optionally change the "prompt" on copy?
+
+       //private static void OnCopy(object sender, ExecutedRoutedEventArgs e)
       //  {
             
       //      ((FlowDocumentReader)sender).Copy();
@@ -76,7 +80,6 @@ namespace Huddled.WPF.Controls
       //      // Clipboard.SetText(((ConsoleControl)sender).Selection.Text);
       //      // ((ConsoleControl)sender).Selection.Text = String.Empty;
 
-      //      // TODO: allow cut when on the "command" line, otherwise copy
       //      ((ConsoleControl)sender).Copy();
       //      e.Handled = true;
       //  }

@@ -76,9 +76,8 @@ namespace Huddled.WPF.Controls
          }
          set
          {
-
-            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
             // ToDo: The "Height" of the buffer SHOULD control how much buffer history we keep, in lines...
+            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
             //this.Height = (value.Width * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - sv.ViewportHeight);
          }
       }
@@ -111,7 +110,7 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            // ToDo: should reduce the size by the difference between the viewport and the window...
+            // ToDo: should reduce the reported "max" size by the difference between the viewport and the window...
             // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
             return new System.Management.Automation.Host.Size(
                 (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)

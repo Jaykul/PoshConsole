@@ -37,12 +37,11 @@ namespace Huddled.WPF.Controls
          TextBox CommandBox { get; }
          System.Windows.Media.Color CaretColor { get; set; }
 
-         // TODO: reimplement History and TabExpansion
          CommandHistory History { get; }
          TabExpansion Expander { get; set; }
 
 
-         // TODO: reimplement scrollbar visibility options
+         // TODO: REIMPLEMENT scrollbar visibility options
          //ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
          //ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
       }
