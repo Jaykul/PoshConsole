@@ -1,9 +1,35 @@
+// Copyright (c) 2008 Joel Bennett
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+// SOFTWARE.
+
+// *****************************************************************************
+// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING LICENSES:
+// BSD:   http://opensource.org/licenses/bsd-license.php
+// MIT:   http://opensource.org/licenses/mit-license.html
+// Ms-PL: http://opensource.org/licenses/ms-pl.html
+// GPL 2: http://opensource.org/licenses/gpl-2.0.php
+
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Diagnostics;
+using System.Text;
 
 namespace Huddled.Interop
 {
@@ -19,7 +45,7 @@ namespace Huddled.Interop
       internal class NativeMethods
       {
 
-         #region [rgn] Fields (5)
+         #region  Fields (5)
 
          public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
          public const int LWA_ALPHA = 0x2;
@@ -27,9 +53,9 @@ namespace Huddled.Interop
          public const int WS_EX_LAYERED = 0x80000;
          public const int WS_EX_TRANSPARENT = 0x00000020;
 
-         #endregion [rgn]
+         #endregion
 
-         #region [rgn] Enums (3)
+         #region  Enums (3)
 
          public enum ShowState : int
          {
@@ -58,11 +84,11 @@ namespace Huddled.Interop
             ERROR_HANDLE = -12 //(DWORD)-12 	The standard error device.
          }
 
-         #endregion [rgn]
+         #endregion
 
-         #region [rgn] Methods (13)
+         #region  Methods (13)
 
-         // [rgn] Public Methods (13)
+         //  Public Methods (13)
 
          [DllImport("kernel32")]
          [return: MarshalAs(UnmanagedType.Bool)]
@@ -74,7 +100,8 @@ namespace Huddled.Interop
 
          [DllImport("kernel32.dll", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]
-         public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
+         public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, 
+                                    ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
 
          [DllImport("kernel32.dll", SetLastError = true)]
          public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
@@ -101,7 +128,8 @@ namespace Huddled.Interop
              );
 
          [DllImport("user32.dll")]
-         public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
+         public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, 
+                                                            byte bAlpha, int dwFlags);
 
          [DllImport("kernel32.dll")]
          [return: MarshalAs(UnmanagedType.Bool)]
@@ -118,7 +146,7 @@ namespace Huddled.Interop
          public static extern int WriteFile(IntPtr hFile, byte[] buffer,
            int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
 
-         #endregion [rgn]
+         #endregion
 
          [StructLayout(LayoutKind.Sequential)]
          public struct SECURITY_ATTRIBUTES
@@ -130,21 +158,37 @@ namespace Huddled.Interop
          }
       }
 
-      #region [rgn] Fields (3)
+      public class OutputEventArgs
+      {
+         public string Text;
+      }
 
+      #region Delegate and Events (3)
+      // Delegate, I changed this to be compatible with normal wpf/forms events
+      public delegate void OutputDelegate(object source, OutputEventArgs args);
+
+      // Events (2)
+      public event OutputDelegate WriteErrorLine;
+      public event OutputDelegate WriteOutputLine;
+      #endregion
+
+      #region  Private Fields (14)
       // Track whether Dispose has been called.
       private bool disposed = false;
       // A nice handle to our console window
       private IntPtr handle;
       // And our process
       private System.Diagnostics.Process process;
+      // Our two threads
+      private Thread outputThread, errorThread;
+      // and the original handles to the console
+      private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
+      // and the copy handles ...
+      private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
+      #endregion
 
-      #endregion [rgn]
-
-      #region [rgn] Constructors (2)
-
-      /// <summary>
-      /// Initializes a new instance of the <see cref="NativeConsole"/> class.
+      #region  Constructors and Destructors (2)
+      /// <summary>Initializes a new instance of the <see cref="NativeConsole"/> class.
       /// </summary>
       public NativeConsole()
       {
@@ -153,7 +197,9 @@ namespace Huddled.Interop
          // hide the window ...
          handle = NativeMethods.GetConsoleWindow();
          NativeMethods.ShowWindow(handle, NativeMethods.ShowState.SW_HIDE);
-         //NativeMethods.SetWindowLong(handle, NativeMethods.GwlIndex.ExStyle, (NativeMethods.GetWindowLong(handle, NativeMethods.GwlIndex.ExStyle) | NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TRANSPARENT));
+         //NativeMethods.SetWindowLong(handle, NativeMethods.GwlIndex.ExStyle, 
+         // (NativeMethods.GetWindowLong(handle, NativeMethods.GwlIndex.ExStyle) |
+         // NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TRANSPARENT));
          //NativeMethods.SetLayeredWindowAttributes(handle, 0, 0, NativeMethods.LWA_ALPHA);
 
          process = System.Diagnostics.Process.GetCurrentProcess();
@@ -170,8 +216,8 @@ namespace Huddled.Interop
          // The steps for redirecting STDOUT:
          // * Create anonymous pipe to be STDOUT for us.
          // * Set STDOUT of our process to be WRITE handle to the pipe.
-         // * Create a (noninheritable) duplicate of the read handle and close the inheritable read handle.
-
+         // * Create a (noninheritable) duplicate of the read handle, and...
+         // * Close the inheritable read handle.
          if (!NativeMethods.CreatePipe(out stdOutRead, out stdOutWrite, ref saAttr, 0))
          {
             System.Diagnostics.Trace.TraceError("Couldn't create the STDOUT pipe");
@@ -181,7 +227,8 @@ namespace Huddled.Interop
             System.Diagnostics.Trace.TraceError("Couldn't redirect STDOUT!");
          }
          // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdOutRead, process.Handle, out stdOutReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+         if (!NativeMethods.DuplicateHandle(process.Handle, stdOutRead, process.Handle,
+                        out stdOutReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
          {
             System.Diagnostics.Trace.TraceError("Couldn't Duplicate STDOUT Handle");
          }
@@ -195,8 +242,8 @@ namespace Huddled.Interop
          // The steps for redirecting STDERR are the same:
          // * Create anonymous pipe to be STDERR for us.
          // * Set STDERR of our process to be WRITE handle to the pipe.
-         // * Create a (noninheritable) duplicate of the read handle and close the inheritable read handle.
-
+         // * Create a (noninheritable) duplicate of the read handle and 
+         // * Close the inheritable read handle.
          if (!NativeMethods.CreatePipe(out stdErrRead, out stdErrWrite, ref saAttr, 0))
          {
             System.Diagnostics.Trace.TraceError("Couldn't create the STDERR pipe");
@@ -206,7 +253,8 @@ namespace Huddled.Interop
             System.Diagnostics.Trace.TraceError("Couldn't redirect STDERR!");
          }
          // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdErrRead, process.Handle, out stdErrReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+         if (!NativeMethods.DuplicateHandle(process.Handle, stdErrRead, process.Handle, 
+            out stdErrReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
          {
             System.Diagnostics.Trace.TraceError("Couldn't Duplicate STDERR Handle");
          }
@@ -220,7 +268,8 @@ namespace Huddled.Interop
          // The steps for redirecting STDIN:
          // * Create anonymous pipe to be STDIN for us.
          // * Set STDIN of our process to be READ handle to the pipe.
-         // * Create a (noninheritable) duplicate of the WRITE handle and close the inheritable WRITE handle.
+         // * Create a (noninheritable) duplicate of the WRITE handle and 
+         // * Close the inheritable WRITE handle.
 
          if (!NativeMethods.CreatePipe(out stdInRead, out stdInWrite, ref saAttr, 0))
          {
@@ -231,30 +280,21 @@ namespace Huddled.Interop
             System.Diagnostics.Trace.TraceError("Couldn't redirect StdIn!");
          }
          // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdInWrite, process.Handle, out stdInWriteCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+         if (!NativeMethods.DuplicateHandle(process.Handle, stdInWrite, process.Handle, 
+               out stdInWriteCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
          {
             System.Diagnostics.Trace.TraceError("Couldn't Duplicate StdIn Handle");
          }
          NativeMethods.CloseHandle(stdInWrite);
-
-
-
-         //if (!NativeMethods.CreatePipe(out stdInRead, out stdInWrite, ref saAttr, 0))
-         //{
-         //    System.Diagnostics.Trace.TraceError("Couldn't create a pipe");
-         //}
-         //buffer.WriteOutput(this.myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, System.Console.In.ReadToEnd(), true);
-         //buffer.WriteOutput(this.myUI.RawUI.ForegroundColor, myUI.RawUI.BackgroundColor, System.Console.In.ReadToEnd(), true);
-
       }
 
-      /// <summary>
-      /// Releases unmanaged resources and performs other cleanup operations before the
-      /// <see cref="Console"/> is reclaimed by garbage collection.
+      /// <summary>Releases unmanaged resources and performs other cleanup operations 
+      /// before the <see cref="Console"/> is reclaimed by garbage collection.
       /// Use C# destructor syntax for finalization code.
       /// This destructor will run only if the Dispose method does not get called.
       /// </summary>
-      /// <remarks>NOTE: Do not provide destructors in types derived from this class.</remarks>
+      /// <remarks>NOTE: Do not provide destructors in types derived from this class.
+      /// </remarks>
       ~NativeConsole()
       {
          // Instead of cleaning up in BOTH Dispose() and here ...
@@ -262,34 +302,22 @@ namespace Huddled.Interop
          Dispose(false);
       }
 
-      #endregion [rgn]
+      #endregion
 
-      #region [rgn] Delegates and Events (3)
+      #region Methods (5)
 
-      // [rgn] Delegates (1)
-
-      public delegate void OutputDelegate(string text);
-
-      // [rgn] Events (2)
-
-      public event OutputDelegate WriteErrorLine;
-
-      public event OutputDelegate WriteOutputLine;
-
-      #endregion [rgn]
-
-      #region [rgn] Methods (5)
-
-      // [rgn] Public Methods (2)
+      //  Public Methods (2)
 
       /// <summary>
       /// Implement IDisposable
-      /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+      /// Performs application-defined tasks associated with 
+      /// freeing, releasing, or resetting unmanaged resources.
       /// </summary>
       public void Dispose()
       {
-         // This object will be cleaned up by the Dispose method. Therefore, we call GC.SupressFinalize 
-         // to tell the runtime we dont' need to be finalized (we would clean up twice)
+         // This object will be cleaned up by the Dispose method.
+         // Therefore, we call GC.SupressFinalize to tell the runtime 
+         // that we dont' need to be finalized (we would clean up twice)
          GC.SuppressFinalize(this);
 
          Dispose(true);
@@ -304,14 +332,15 @@ namespace Huddled.Interop
          byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes(input);
          int written;
 
-         int hresult = NativeMethods.WriteFile(stdInWriteCopy, bytes, bytes.Length, out written, IntPtr.Zero);
+         int hresult = NativeMethods.WriteFile(stdInWriteCopy, bytes, 
+                                 bytes.Length, out written, IntPtr.Zero);
          if (hresult != 1)
          {
             throw new Exception("Error Writing to StdIn, HRESULT: " + hresult.ToString());
          }
       }
 
-      // [rgn] Private Methods (3)
+      //  Private Methods (3)
 
       /// <summary>
       /// Handles actual cleanup actions, under two different scenarios
@@ -335,12 +364,12 @@ namespace Huddled.Interop
                   outputThread.Abort();
                   //WriteInput("\n");
 
-                  byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes("\n" + (char)26); int written;
-                  if (Thread.CurrentThread.ThreadState != System.Threading.ThreadState.AbortRequested)
-                  {
-                     NativeMethods.WriteFile(stdErrWrite, bytes, bytes.Length, out written, IntPtr.Zero);
-                     NativeMethods.WriteFile(stdOutWrite, bytes, bytes.Length, out written, IntPtr.Zero);
-                  }
+                  byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes("\n" + (char)26);
+                  int written;
+                  NativeMethods.WriteFile(stdErrWrite, bytes, bytes.Length, 
+                                                      out written, IntPtr.Zero);
+                  NativeMethods.WriteFile(stdOutWrite, bytes, bytes.Length, 
+                                                      out written, IntPtr.Zero);
                   //errorThread.Join();
                   //outputThread.Join();
                }
@@ -376,11 +405,13 @@ namespace Huddled.Interop
          // consider wrapping this in a System.IO.FileStream
          try
          {
-            while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
+            while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, 
+                                                      out BytesRead, IntPtr.Zero))
             {
                if (WriteErrorLine != null)
                {
-                  WriteErrorLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                  WriteErrorLine(this, new OutputEventArgs {
+                     Text = UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead) });
                }
             }
          }
@@ -402,11 +433,13 @@ namespace Huddled.Interop
          // consider wrapping this in a System.IO.FileStream
          try
          {
-            while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, out BytesRead, IntPtr.Zero))
+            while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, 
+                                                      out BytesRead, IntPtr.Zero))
             {
                if (WriteOutputLine != null)
                {
-                  WriteOutputLine(System.Text.UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead));
+                  WriteOutputLine(this, new OutputEventArgs { 
+                     Text = UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead) });
                }
             }
          }
@@ -417,13 +450,6 @@ namespace Huddled.Interop
             NativeMethods.CloseHandle(stdOutReadCopy);
          }
       }
-
-      #endregion [rgn]
-
-      private Thread outputThread, errorThread;
-
-      private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
-      private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
-
+      #endregion
    }
 }
