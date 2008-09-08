@@ -190,13 +190,15 @@ namespace Huddled.WPF.Controls
         {
            // Write is Dispatcher checked
            Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
-          // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
+           Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
+           // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
         }
 
         void IPSConsole.WriteNativeErrorLine(string message)
         {
            // Write is Dispatcher checked
            Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n", _current);
+           Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
         }
 
         #endregion

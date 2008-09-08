@@ -61,7 +61,6 @@ namespace Huddled.WPF.Controls
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
       }
 
-
       public override void EndInit()
       {
          base.EndInit();
@@ -126,14 +125,8 @@ namespace Huddled.WPF.Controls
                Run insert = new Run(prompt);
                insert.Background = Background;
                insert.Foreground = Foreground;
-               // the problem is, the prompt might have used Write-Host
-               // so we need to move the _commandContainer to the end.
-               lock (_commandContainer)
-               {
-                  _next.Inlines.Remove(_commandContainer);
-                  _next.Inlines.Add(insert);
-                  _next.Inlines.Add(_commandContainer);
-               }
+               _next.Inlines.Add(insert);
+
                SetPrompt();
             }
          });
@@ -141,10 +134,18 @@ namespace Huddled.WPF.Controls
       }
 
       private void SetPrompt()
-      {
+      {               
+         // the problem is, the prompt might have used Write-Host
+         // so we need to move the _commandContainer to the end.
+         lock (_commandContainer)
+         {
+            _next.Inlines.Remove(_commandContainer);
+            _next.Inlines.Add(_commandContainer);
+         }
+
          UpdateLayout();
+
          _commandBox.Focus();
-         _commandContainer.BringIntoView();
       }
 
       //private void TrimOutput()

@@ -16,9 +16,9 @@ namespace Huddled.WPF.Controls
     partial class ConsoleControl
     {
         
-		#region [rgn] Methods (13)
+		#region  Methods (13)
 
-		// [rgn] Private Methods (13)
+		//  Private Methods (13)
 
 		/// <summary>
         /// A handler for the Application.Stop event...
@@ -152,7 +152,7 @@ namespace Huddled.WPF.Controls
             FontSize = Math.Max(1.0, zoom * Document.FontSize);
         }
 		
-		#endregion [rgn]
+		#endregion 
 
     }
 }

@@ -29,6 +29,7 @@ namespace Huddled.WPF.Controls
         //public event TabCompleteHandler TabComplete;
         //public event HistoryHandler GetHistory;
        public event CommmandDelegate Command;
+       private int _id = 0;
 
         /// <summary>
         /// Right before a prompt we want to insert a new paragraph...
@@ -37,11 +38,17 @@ namespace Huddled.WPF.Controls
         /// </summary>
         void IPoshConsoleControl.CommandFinished(System.Management.Automation.Runspaces.PipelineState results)
         {
+           _id++;
             //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
-                if (results != System.Management.Automation.Runspaces.PipelineState.Completed
+               //_current.Name = "Output"+_id;
+               //_current.Tag = results;
+               _current.Tag = _id;
+
+               if (results != System.Management.Automation.Runspaces.PipelineState.Completed
                     && results != System.Management.Automation.Runspaces.PipelineState.NotStarted)
                 {
+
                     ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline is: " + results);
                 }
             });

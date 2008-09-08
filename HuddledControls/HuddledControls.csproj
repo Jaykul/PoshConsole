@@ -103,7 +103,7 @@
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="Utility\OtherHelpers.cs" />
     <Compile Include="Utility\StringHelper.cs" />
-    <Compile Include="Utility\XamlHelper.cs" />
+    <Compile Include="Utility\WpfHelper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

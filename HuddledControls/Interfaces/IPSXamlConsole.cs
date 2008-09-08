@@ -1,4 +1,8 @@
 using System.Management.Automation;
+using System.Windows.Documents;
+using System.Windows;
+using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace Huddled.WPF.Controls.Interfaces
 {
@@ -13,11 +17,18 @@ namespace Huddled.WPF.Controls.Interfaces
    /// </summary>
    public interface IPSXamlConsole
    {
-      void OutXaml(System.Xml.XmlDocument template);
-      void OutXaml(System.IO.FileInfo template);
-      void OutXaml(System.Xml.XmlDocument template, PSObject data);
-      void OutXaml(System.IO.FileInfo template, PSObject data);
-      void OutXaml(PSObject data);
+      FlowDocument Document { get; }
+      Window RootWindow { get; }
+      List<Window> PopoutWindows { get; }
+      Paragraph CurrentBlock { get; }
       void NewParagraph();
+      Dispatcher Dispatcher { get; }
+
+      //void OutXaml(bool popup, System.Xml.XmlDocument template );
+      //void OutXaml(bool popup, System.IO.FileInfo template );
+      //void OutXaml(bool popup, System.Xml.XmlDocument template, params PSObject[] data);
+      //void OutXaml(bool popup, System.IO.FileInfo template, params PSObject[] data);
+      //void OutXaml(bool popup, params PSObject[] data);
+      // Block GetOutputBlock(int id);
    }
 }
