@@ -22,8 +22,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleControlDemo", "ConsoleControlDemo\ConsoleControlDemo.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "..\..\TechDemos\GeoCore.Library\Library.csproj", "{18B3C26B-5B50-4D6D-B09E-6D47FDA09084}"
-EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 8
@@ -85,16 +83,12 @@ Global
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{18B3C26B-5B50-4D6D-B09E-6D47FDA09084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{18B3C26B-5B50-4D6D-B09E-6D47FDA09084}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{18B3C26B-5B50-4D6D-B09E-6D47FDA09084}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{18B3C26B-5B50-4D6D-B09E-6D47FDA09084}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal
