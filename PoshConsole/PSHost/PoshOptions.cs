@@ -6,6 +6,8 @@ using PoshConsole.Controls;
 using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 using IPSXamlConsole=Huddled.WPF.Controls.Interfaces.IPSXamlConsole;
 using Huddled.WPF.Controls;
+using System.Windows.Documents;
+using System.Windows.Threading;
 
 namespace PoshConsole.PSHost
 {
@@ -102,7 +104,7 @@ namespace PoshConsole.PSHost
             return _host;
          }
       }
-
+      
       #endregion [rgn]
 
       #region [rgn] Delegates and Events (2)
@@ -131,36 +133,12 @@ namespace PoshConsole.PSHost
 
 
          #region IPSXamlConsole Members
-
-         public void OutXaml(System.Xml.XmlDocument template)
-         {
-            _console.OutXaml(template);
-         }
-
-         public void OutXaml(System.IO.FileInfo template)
-         {
-            _console.OutXaml(template);
-         }
-
-         public void OutXaml(System.Xml.XmlDocument template, System.Management.Automation.PSObject data)
-         {
-            _console.OutXaml(template, data);
-         }
-
-         public void OutXaml(System.IO.FileInfo template, System.Management.Automation.PSObject data)
-         {
-            _console.OutXaml(template, data);
-         }
-
-         public void OutXaml(System.Management.Automation.PSObject data)
-         {
-            _console.OutXaml(data);
-         }
-
-         public void NewParagraph()
-         {
-            _console.NewParagraph();
-         }
+         public void NewParagraph(){ _console.NewParagraph(); }
+         public FlowDocument Document { get { return _console.Document;  } }
+         public Window RootWindow { get { return _console.RootWindow; } }
+         public List<Window> PopoutWindows { get { return _console.PopoutWindows; } }
+         public Paragraph CurrentBlock { get { return _console.CurrentBlock; } }
+         public Dispatcher Dispatcher { get { return _console.Dispatcher; } }
          #endregion
       }
 

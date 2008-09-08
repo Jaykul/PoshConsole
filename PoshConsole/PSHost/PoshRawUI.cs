@@ -27,13 +27,13 @@ namespace PoshConsole.PSHost
     class PoshRawUI : PSHostRawUserInterface
     {
         
-		#region [rgn] Fields (1)
+		#region  Fields (1)
 
 		private IPSRawConsole myConsole;
 
-		#endregion [rgn]
+		#endregion 
 
-		#region [rgn] Constructors (1)
+		#region  Constructors (1)
 
 		/// <summary>
         /// Initializes a new instance of the <see cref="PoshRawUI"/> class.
@@ -44,7 +44,7 @@ namespace PoshConsole.PSHost
            myConsole = console;
         }
 		
-		#endregion [rgn]
+		#endregion 
 
         #region Stuff I should move into IConsoleControl
         /// <summary>

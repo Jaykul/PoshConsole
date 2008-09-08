@@ -2,6 +2,12 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using System.Xml;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Markup;
+using Huddled.WPF.Controls.Interfaces;
+using System.Windows.Media;
 
 namespace PoshConsole.Cmdlets
 {
@@ -33,79 +39,165 @@ namespace PoshConsole.Cmdlets
          HelpMessage = "XAML template file")]
       [Alias("Template")]
       public XmlDocument SourceTemplate { get; set; }
+
+      [Parameter(
+         Position = 2,
+         Mandatory = false,
+         ValueFromPipeline = false,
+         HelpMessage = "Show in popup window")]
+      public SwitchParameter Popup { get; set; }
       #endregion
 
-      #region [rgn] Methods (1)
+      #region Methods
 
-      // [rgn] Protected Methods (1)
+      // private Huddled.WPF.Controls.Interfaces.IPSXamlConsole xamlUI;
+      // private FlowDocument _document = null;
+      private FrameworkElement _element = null;
+      private IPSXamlConsole _xamlUI = null;
+      private ItemsControl _host = null;
+      private Window _window = null;
 
-      protected override void ProcessRecord()
+
+      protected override void BeginProcessing()
       {
-         try
+         _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
+         _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
          {
-            switch (ParameterSetName)
-            {
-               case "FileTemplate":
-                  {
-                     string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
-                     string template = null;
-                     if (FileTemplate == null)
-                     {
-                        // try to magically pick a file based on type and name....
-                        foreach (string typeName in InputObject.TypeNames)
-                        {
-                           template = Path.Combine(templates, typeName + ".psxaml");
-                           if (File.Exists(template))
-                           {
-                              FileTemplate = new FileInfo(template);
-                              break;
-                           }
-                        }
-                     }
 
-                     if (!FileTemplate.Exists)
+         if (Popup.ToBool())
+         {
+               _host = NewContainer();
+               _window = new Window
+               { 
+                  WindowStyle = WindowStyle.ToolWindow, Content = _host
+               };
+               _xamlUI.PopoutWindows.Add(_window);
+               _window.Show();
+         }
+
+         #region templates
+         switch (ParameterSetName)
+         {
+            case "FileTemplate":
+               {
+                  string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
+                  string template = null;
+
+                  if (!FileTemplate.Exists)
+                  {
+                     // try to magically resolve the file
+                     template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
+                     if (File.Exists(template))
                      {
-                        // try to magically resolve the file
-                        template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
+                        FileTemplate = new FileInfo(template);
+                     }
+                     else
+                     {
+                        template = Path.Combine(templates, FileTemplate.Name);
                         if (File.Exists(template))
                         {
                            FileTemplate = new FileInfo(template);
                         }
                         else
                         {
-                           template = Path.Combine(templates, FileTemplate.Name);
-                           if (File.Exists(template))
-                           {
-                              FileTemplate = new FileInfo(template);
-                           }
-                           else
-                           {
-                              throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
-                           }
+                           throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
                         }
                      }
+                  }
 
-                     ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(FileTemplate, InputObject);
-                  }
-                  break;
-               case "SourceTemplate":
-                  {
-                     ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(SourceTemplate, InputObject);
-                  }
-                  break;
-               case "DataTemplate":
-                  {
-                     ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.OutXaml(InputObject);
-                  }
-                  break;
-            }
+                  ErrorRecord error;
+                  if (!FileTemplate.TryLoadXaml(out _element, out error)) WriteError(error);
+               }
+               break;
+            case "SourceTemplate":
+               {
+                  ErrorRecord error;
+                  if (!SourceTemplate.TryLoadXaml(out _element, out error)) WriteError(error);
+               }
+               break;
          }
-         catch (Exception ex)
-         {
-            WriteError(new ErrorRecord(ex, "NoIdeaWhy!", ErrorCategory.InvalidData, InputObject));
-         }
+         #endregion templates
+
+         }));
+
+         base.BeginProcessing();
       }
 
-      #endregion [rgn]
+      private ItemsControl NewContainer()
+      {
+         FrameworkElementFactory factoryPanel = new FrameworkElementFactory(typeof(WrapPanel));
+         factoryPanel.SetValue(WrapPanel.IsItemsHostProperty, true);
+         factoryPanel.SetValue(WrapPanel.OrientationProperty, Orientation.Horizontal);
+         ItemsPanelTemplate template = new ItemsPanelTemplate() { VisualTree = factoryPanel };
+
+         return new ItemsControl()
+         {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            ItemsPanel = template
+         };
+      }
+
+      protected override void ProcessRecord()
+      {
+         object output = InputObject.BaseObject;
+         _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
+         {
+            if (output is Block || output is Inline)
+            {
+               Paragraph par;
+               FlowDocument doc;
+               if (_window != null)
+               {
+                  par = new Paragraph() {
+                     Background = _xamlUI.CurrentBlock.Background,
+                     Foreground = _xamlUI.CurrentBlock.Foreground
+                  };
+                   doc = new FlowDocument(par) {
+                      Background = _xamlUI.Document.Background,
+                      Foreground = _xamlUI.Document.Foreground 
+                  };
+                  _window.Content = new FlowDocumentScrollViewer { 
+                                             Document = doc, 
+                                             Width    = _window.Width, 
+                                             Height   = _window.Height, 
+                                             Margin   = new Thickness(0),
+                                             Padding  = new Thickness(0),
+                                             IsToolBarVisible = true
+                                        };
+               }
+               else
+               {
+                  par = _xamlUI.CurrentBlock;
+                  doc = _xamlUI.Document;
+               }
+               if(InputObject.BaseObject is Block) {
+                  doc.Blocks.InsertAfter(par, (Block)output);
+               } else {
+                  par.Inlines.Add((Inline)output);
+               }
+            }
+            else
+            {
+               if (_window == null)
+               {
+                  _host = NewContainer();
+                  _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer { Child = _host });
+               }
+
+               if (_element != null)
+               {
+                  var e = _element;
+                  e.DataContext = output;
+                  _host.Items.Add(e);
+               }
+               else
+               {
+                  _host.Items.Add(output);
+               }
+            }
+         }));
+      }
+
+      #endregion 
    }
 }

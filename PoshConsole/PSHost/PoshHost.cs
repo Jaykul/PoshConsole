@@ -37,7 +37,7 @@ namespace PoshConsole.PSHost
    public partial class PoshHost : System.Management.Automation.Host.PSHost, IPSBackgroundHost
    {
 
-      #region [rgn] Fields (16)
+      #region  Fields (16)
 
       /// <summary>
       /// A ConsoleRichTextBox for output
@@ -79,9 +79,9 @@ namespace PoshConsole.PSHost
       private IPSUI PsUi;
       private string savedTitle = String.Empty;
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Constructors (1)
+      #region  Constructors (1)
 
       //internal List<string> StringHistory;
       public PoshHost(IPSUI PsUi)
@@ -141,12 +141,14 @@ namespace PoshConsole.PSHost
          //}
          if (_runSpace.Version.Major >= 2)
          {
-            _runSpace.ApartmentState = ApartmentState.MTA;
+            _runSpace.ApartmentState = ApartmentState.STA;
             _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
          }
+
          _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
          _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Add-Hotkey", typeof(AddHotkeyCommand), "AddHotkeyCommand.xml"));
          _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("New-Paragraph", typeof(NewParagraphCommand), "NewParagraphCommand.xml"));
+         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Get-PoshOutput", typeof(GetPoshOutputCommand), "GetPoshOutputCommand.xml"));
 
          _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
          _runSpace.OpenAsync();
@@ -156,9 +158,9 @@ namespace PoshConsole.PSHost
          //ExecuteStartupProfile();
       }
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Properties (7)
+      #region  Properties (7)
 
       /// <summary>
       /// Return the culture info to use - this implementation just snapshots the
@@ -194,7 +196,6 @@ namespace PoshConsole.PSHost
       public override string Name
       {
          get { return "PoshConsole"; }
-
       }
 
       public override PSObject PrivateData
@@ -225,20 +226,20 @@ namespace PoshConsole.PSHost
          get { return new Version(1, 0, 2007, 7310); }
       }
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Delegates and Events (1)
+      #region  Delegates and Events (1)
 
-      // [rgn] Delegates (1)
+      //  Delegates (1)
 
       // Universal Delegates
       delegate void voidDelegate();
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Methods (14)
+      #region  Methods (14)
 
-      // [rgn] Public Methods (6)
+      //  Public Methods (6)
 
       /// <summary>
       /// Not implemented by this example class. The call fails with an exception.
@@ -263,9 +264,19 @@ namespace PoshConsole.PSHost
       {
          if (console == null)
          {
-            console = new NativeConsole();
-            console.WriteOutputLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeLine(error.TrimEnd('\n')); });
-            console.WriteErrorLine += new NativeConsole.OutputDelegate(delegate(string error) { buffer.WriteNativeErrorLine(error.TrimEnd('\n')); });
+            try
+            {
+               // don't initialize in the constructor
+               console = new NativeConsole(false);
+               // this way, we can handle (report) any exception...
+               console.Initialize();
+               console.WriteOutputLine += (source, args) => { buffer.WriteNativeLine(args.Text.TrimEnd('\n')); };
+               console.WriteErrorLine += (source, args) => { buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n')); };
+            }
+            catch (ConsoleInteropException cie)
+            {
+               buffer.WriteErrorRecord( new ErrorRecord( cie, "Couldn't initialize the Native Console", ErrorCategory.ResourceUnavailable, null));
+            }
          }
       }
 
@@ -328,7 +339,7 @@ namespace PoshConsole.PSHost
          }
       }
 
-      // [rgn] Private Methods (6)
+      //  Private Methods (6)
 
       /// <summary>
       /// Basic script execution routine - any runtime exceptions are
@@ -460,7 +471,7 @@ namespace PoshConsole.PSHost
          buffer.WriteErrorRecord(record);
       }
 
-      // [rgn] Internal Methods (2)
+      //  Internal Methods (2)
 
       /// <summary>
       /// Executes the shutdown profile(s).
@@ -572,7 +583,7 @@ namespace PoshConsole.PSHost
          }
       }
 
-      #endregion [rgn]
+      #endregion 
 
       #region ConsoleRichTextBox Event Handlers
       /// <summary>

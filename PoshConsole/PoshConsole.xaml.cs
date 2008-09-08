@@ -27,7 +27,7 @@ namespace PoshConsole
    public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
    {
 
-      #region [rgn] Fields (11)
+      #region  Fields (11)
 
       private DoubleAnimation _hideHeightAnimations = new DoubleAnimation(0.0, _lasts);
       private DoubleAnimation _hideOpacityAnimations = new DoubleAnimation(0.0, _lasts);
@@ -57,9 +57,9 @@ namespace PoshConsole
       /// </summary>
       private PoshHost _host;
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Constructors (1)
+      #region  Constructors (1)
 
       /// <summary>
       /// Initializes a new instance of the <see cref="PoshConsole"/> class.
@@ -101,9 +101,9 @@ namespace PoshConsole
 
       }
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Properties (1)
+      #region  Properties (1)
 
       public IPoshConsoleControl Console
       {
@@ -111,11 +111,11 @@ namespace PoshConsole
          set { base.SetValue(_consoleProperty, value); }
       }
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Delegates and Events (5)
+      #region  Delegates and Events (5)
 
-      // [rgn] Delegates (5)
+      //  Delegates (5)
 
       // Universal Delegates
       internal delegate void PassDelegate<T>(T input);
@@ -124,11 +124,11 @@ namespace PoshConsole
       private delegate void SettingsChangedDelegate(object sender, System.ComponentModel.PropertyChangedEventArgs e);
       private delegate void VoidVoidDelegate();
 
-      #endregion [rgn]
+      #endregion 
 
-      #region [rgn] Methods (9)
+      #region  Methods (9)
 
-      // [rgn] Protected Methods (2)
+      //  Protected Methods (2)
 
       /// <summary>
       /// Raises the <see cref="E:System.Windows.Window.Closing"></see> event, and executes the ShutdownProfile
@@ -231,7 +231,7 @@ namespace PoshConsole
          base.OnGotFocus(e);
       }
 
-      // [rgn] Private Methods (7)
+      //  Private Methods (7)
 
       /// <summary>
       /// Hides the window.
@@ -698,7 +698,7 @@ namespace PoshConsole
          }
       }
 
-      // [rgn] Internal Methods (1)
+      //  Internal Methods (1)
 
       internal void DragHandler(object sender, MouseButtonEventArgs e)
       {
@@ -710,7 +710,7 @@ namespace PoshConsole
          }
       }
 
-      #endregion [rgn]
+      #endregion 
 
 
       private void OnBufferPreviewMouseWheel(object sender, MouseWheelEventArgs e)
