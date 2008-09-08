@@ -33,6 +33,15 @@ using System.Text;
 
 namespace Huddled.Interop
 {
+   /// <summary>
+   /// A custom exception class to make it easy to trap initialization errors.
+   /// </summary>
+   public class ConsoleInteropException : ApplicationException
+   {
+      public ConsoleInteropException() : base() { }
+      public ConsoleInteropException(String message) : base(message) { }
+      public ConsoleInteropException(String message, Exception innerException) : base(message, innerException) { }
+   }
 
    /// <summary>
    /// A wrapper around AllocConsole, with some nice eventing to handle
@@ -90,7 +99,7 @@ namespace Huddled.Interop
 
          //  Public Methods (13)
 
-         [DllImport("kernel32")]
+         [DllImport("kernel32", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]
          public static extern bool AllocConsole();
 
@@ -131,7 +140,7 @@ namespace Huddled.Interop
          public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, 
                                                             byte bAlpha, int dwFlags);
 
-         [DllImport("kernel32.dll")]
+         [DllImport("kernel32.dll", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]
          public static extern bool SetStdHandle(StdHandle nStdHandle, IntPtr hHandle);
 
@@ -172,7 +181,10 @@ namespace Huddled.Interop
       public event OutputDelegate WriteOutputLine;
       #endregion
 
-      #region  Private Fields (14)
+      #region  Private Fields (16)
+      // Make sure we don't do anything until we're successfully initialized.
+      private ConsoleInteropException initializationException = null;
+      private bool initialized = false;
       // Track whether Dispose has been called.
       private bool disposed = false;
       // A nice handle to our console window
@@ -187,105 +199,165 @@ namespace Huddled.Interop
       private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
       #endregion
 
-      #region  Constructors and Destructors (2)
-      /// <summary>Initializes a new instance of the <see cref="NativeConsole"/> class.
-      /// </summary>
-      public NativeConsole()
+      #region  Constructors and Destructors (3)
+      /// <summary>Creates and initializes a new instance of the <see cref="NativeConsole"/> class.</summary>
+      public NativeConsole() : this(true) { }
+      /// <summary>Creates and a new instance of the <see cref="NativeConsole"/> class 
+      /// and optionally initializes it.</summary>
+      /// <param name="initialize">Whether to initialize the console or not</param>
+      public NativeConsole( bool initialize )
       {
-         // Make ourselves a nice console
-         NativeMethods.AllocConsole();
-         // hide the window ...
-         handle = NativeMethods.GetConsoleWindow();
-         NativeMethods.ShowWindow(handle, NativeMethods.ShowState.SW_HIDE);
-         //NativeMethods.SetWindowLong(handle, NativeMethods.GwlIndex.ExStyle, 
-         // (NativeMethods.GetWindowLong(handle, NativeMethods.GwlIndex.ExStyle) |
-         // NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TRANSPARENT));
-         //NativeMethods.SetLayeredWindowAttributes(handle, 0, 0, NativeMethods.LWA_ALPHA);
-
-         process = System.Diagnostics.Process.GetCurrentProcess();
-
-
-         NativeMethods.SECURITY_ATTRIBUTES saAttr;
-
-         // Set the bInheritHandle flag so pipe handles are inherited.
-         saAttr.nLength = Marshal.SizeOf(typeof(NativeMethods.SECURITY_ATTRIBUTES));
-         saAttr.bInheritHandle = true;
-         saAttr.lpSecurityDescriptor = IntPtr.Zero;
-
-
-         // The steps for redirecting STDOUT:
-         // * Create anonymous pipe to be STDOUT for us.
-         // * Set STDOUT of our process to be WRITE handle to the pipe.
-         // * Create a (noninheritable) duplicate of the read handle, and...
-         // * Close the inheritable read handle.
-         if (!NativeMethods.CreatePipe(out stdOutRead, out stdOutWrite, ref saAttr, 0))
+         if (initialize)
          {
-            System.Diagnostics.Trace.TraceError("Couldn't create the STDOUT pipe");
+            try
+            {
+               Initialize();
+            }
+            catch (ConsoleInteropException cie)
+            {
+               initializationException = cie;
+            }
          }
-         if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.OUTPUT_HANDLE, stdOutWrite))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't redirect STDOUT!");
-         }
-         // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdOutRead, process.Handle,
-                        out stdOutReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't Duplicate STDOUT Handle");
-         }
-         NativeMethods.CloseHandle(stdOutRead);
+      }
 
-         // For the output handles we need a thread to read them
-         outputThread = new Thread(OutputThread);
-         outputThread.SetApartmentState(ApartmentState.STA);
-         outputThread.Start();
 
-         // The steps for redirecting STDERR are the same:
-         // * Create anonymous pipe to be STDERR for us.
-         // * Set STDERR of our process to be WRITE handle to the pipe.
-         // * Create a (noninheritable) duplicate of the read handle and 
-         // * Close the inheritable read handle.
-         if (!NativeMethods.CreatePipe(out stdErrRead, out stdErrWrite, ref saAttr, 0))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't create the STDERR pipe");
-         }
-         if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.ERROR_HANDLE, stdErrWrite))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't redirect STDERR!");
-         }
-         // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdErrRead, process.Handle, 
-            out stdErrReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't Duplicate STDERR Handle");
-         }
-         NativeMethods.CloseHandle(stdErrRead);
+      /// <summary>
+      /// Hold the initialization exception 
+      /// if initialization failed during construction
+      /// otherwise, null.
+      /// </summary>
+      public ConsoleInteropException InitializationException
+      {
+         get { return initializationException; }
+      }
 
-         // For the output handles we need a thread to read them
-         errorThread = new Thread(ErrorThread);
-         errorThread.SetApartmentState(ApartmentState.STA);
-         errorThread.Start();
+      /// <summary>
+      /// Determine whether the Initialize() method has been called successfully.
+      /// </summary>
+      public bool IsInitialized
+      {
+         get { return initialized; }
+      }
 
-         // The steps for redirecting STDIN:
-         // * Create anonymous pipe to be STDIN for us.
-         // * Set STDIN of our process to be READ handle to the pipe.
-         // * Create a (noninheritable) duplicate of the WRITE handle and 
-         // * Close the inheritable WRITE handle.
+      public bool Initialize()
+      {
+         if (!initialized)
+         {
+            // Make ourselves a nice console
+            if (!NativeMethods.AllocConsole())
+            {
+               throw new ConsoleInteropException("Couldn't allocate console. You may need to FreeConsole first.",
+                 Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
 
-         if (!NativeMethods.CreatePipe(out stdInRead, out stdInWrite, ref saAttr, 0))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't create the StdIn pipe");
+            // hide the window ...
+            handle = NativeMethods.GetConsoleWindow();
+            if (handle != IntPtr.Zero)
+            {
+               NativeMethods.ShowWindow(handle, NativeMethods.ShowState.SW_HIDE);
+            }
+
+            //NativeMethods.SetWindowLong(handle, NativeMethods.GwlIndex.ExStyle, 
+            // (NativeMethods.GetWindowLong(handle, NativeMethods.GwlIndex.ExStyle) |
+            // NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TRANSPARENT));
+            //NativeMethods.SetLayeredWindowAttributes(handle, 0, 0, NativeMethods.LWA_ALPHA);
+
+            process = System.Diagnostics.Process.GetCurrentProcess();
+            NativeMethods.SECURITY_ATTRIBUTES saAttr;
+
+            // Set the bInheritHandle flag so pipe handles are inherited.
+            saAttr.nLength = Marshal.SizeOf(typeof(NativeMethods.SECURITY_ATTRIBUTES));
+            saAttr.bInheritHandle = true;
+            saAttr.lpSecurityDescriptor = IntPtr.Zero;
+
+
+            // The steps for redirecting STDOUT:
+            // * Create anonymous pipe to be STDOUT for us.
+            // * Set STDOUT of our process to be WRITE handle to the pipe.
+            // * Create a (noninheritable) duplicate of the read handle, and...
+            // * Close the inheritable read handle.
+
+            if (!NativeMethods.CreatePipe(out stdOutRead, out stdOutWrite, ref saAttr, 0))
+            {
+               throw new ConsoleInteropException("Couldn't create the STDOUT pipe",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.OUTPUT_HANDLE, stdOutWrite))
+            {
+               throw new ConsoleInteropException("Couldn't redirect STDOUT!",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            // Create noninheritable read handle and close the inheritable read handle.
+            if (!NativeMethods.DuplicateHandle(process.Handle, stdOutRead, process.Handle,
+                           out stdOutReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            {
+               throw new ConsoleInteropException("Couldn't Duplicate STDOUT Handle",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            NativeMethods.CloseHandle(stdOutRead);
+
+            // For the output handles we need a thread to read them
+            outputThread = new Thread(OutputThread);
+            outputThread.SetApartmentState(ApartmentState.STA);
+            outputThread.Start();
+
+            // The steps for redirecting STDERR are the same:
+            // * Create anonymous pipe to be STDERR for us.
+            // * Set STDERR of our process to be WRITE handle to the pipe.
+            // * Create a (noninheritable) duplicate of the read handle and 
+            // * Close the inheritable read handle.
+            if (!NativeMethods.CreatePipe(out stdErrRead, out stdErrWrite, ref saAttr, 0))
+            {
+               throw new ConsoleInteropException("Couldn't create the STDERR pipe",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.ERROR_HANDLE, stdErrWrite))
+            {
+               throw new ConsoleInteropException("Couldn't redirect STDERR!",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            // Create noninheritable read handle and close the inheritable read handle.
+            if (!NativeMethods.DuplicateHandle(process.Handle, stdErrRead, process.Handle,
+               out stdErrReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            {
+               throw new ConsoleInteropException("Couldn't Duplicate STDERR Handle",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            NativeMethods.CloseHandle(stdErrRead);
+
+            // For the output handles we need a thread to read them
+            errorThread = new Thread(ErrorThread);
+            errorThread.SetApartmentState(ApartmentState.STA);
+            errorThread.Start();
+
+            // The steps for redirecting STDIN:
+            // * Create anonymous pipe to be STDIN for us.
+            // * Set STDIN of our process to be READ handle to the pipe.
+            // * Create a (noninheritable) duplicate of the WRITE handle and 
+            // * Close the inheritable WRITE handle.
+
+            if (!NativeMethods.CreatePipe(out stdInRead, out stdInWrite, ref saAttr, 0))
+            {
+               throw new ConsoleInteropException("Couldn't create the StdIn pipe",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.INPUT_HANDLE, stdInRead))
+            {
+               throw new ConsoleInteropException("Couldn't redirect StdIn!",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            // Create noninheritable read handle and close the inheritable read handle.
+            if (!NativeMethods.DuplicateHandle(process.Handle, stdInWrite, process.Handle,
+                  out stdInWriteCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            {
+               throw new ConsoleInteropException("Couldn't Duplicate StdIn Handle",
+                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
+            }
+            NativeMethods.CloseHandle(stdInWrite);
          }
-         if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.INPUT_HANDLE, stdInRead))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't redirect StdIn!");
-         }
-         // Create noninheritable read handle and close the inheritable read handle.
-         if (!NativeMethods.DuplicateHandle(process.Handle, stdInWrite, process.Handle, 
-               out stdInWriteCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
-         {
-            System.Diagnostics.Trace.TraceError("Couldn't Duplicate StdIn Handle");
-         }
-         NativeMethods.CloseHandle(stdInWrite);
+         // declare that it worked!
+         initialized = true;
+         return initialized;
       }
 
       /// <summary>Releases unmanaged resources and performs other cleanup operations 
@@ -329,6 +401,10 @@ namespace Huddled.Interop
       /// <param name="input">The input.</param>
       public void WriteInput(string input)
       {
+         if (!initialized) { 
+            throw new InvalidOperationException("Can't write input. Must call Initialize() first.");
+         }
+
          byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes(input);
          int written;
 
