@@ -335,13 +335,23 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      private string _title;
       public string Title
       {
-         get { return _title; }
-         set { _title = value; }
+         get { return (string)GetValue(TitleProperty); }
+         set { SetValue(TitleProperty, value); }
       }
 
+      // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
+      // TODO: Check if other properties ought to be backed by dependency properties so they can be bound      
+      public static readonly DependencyProperty TitleProperty =
+          DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
 
+
+      //private string _title;
+      //public string Title
+      //{
+      //   get { return _title; }
+      //   set { _title = value; }
+      //}
    }
 }
