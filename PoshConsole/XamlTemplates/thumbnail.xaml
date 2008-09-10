@@ -1,1 +1,0 @@
-<core:ThumbnailImage WindowSource='{Binding Path=Handle}' Width='150' xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:core='http://HuddledMasses.org/wpf/core'/>

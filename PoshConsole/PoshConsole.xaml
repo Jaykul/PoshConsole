@@ -25,7 +25,13 @@
     
     hotkeys:HotkeyManager.HotkeyManager="{DynamicResource hotkeys}"
     Width="532" Height="375" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
-    >
+    ><!--
+    ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
+    Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
+    Left="{Binding Path=WindowLeft, Mode=Default, Source={StaticResource SettingsDS}}"
+    Top="{Binding Path=WindowTop, Mode=Default, Source={StaticResource SettingsDS}}"
+    Topmost="{Binding Path=AlwaysOnTop, Mode=Default, Source={StaticResource SettingsDS}}"
+    -->
     <Window.Resources>
         <hotkeys:HotkeyManager x:Key="hotkeys">
             <KeyBinding Command="hotkeys:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Win" />

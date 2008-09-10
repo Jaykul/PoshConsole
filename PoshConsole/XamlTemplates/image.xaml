@@ -1,1 +1,0 @@
-<Image Margin='2' Width='100px' Source='{Binding Path=FullName}' xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' />
