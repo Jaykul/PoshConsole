@@ -24,13 +24,15 @@ namespace PoshConsole.Cmdlets
       private Huddled.WPF.Controls.Interfaces.IPSXamlConsole _xamlUI;
       private Block _numbered;
 
-      protected override void  BeginProcessing()
+      protected override void BeginProcessing()
       {
          _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
-         _xamlUI.Dispatcher.BeginInvoke((Action)(()=> {
+         _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
+         {
             _window = _xamlUI.RootWindow;
             Block b = _xamlUI.CurrentBlock;
-            while(b.Tag == null && b.PreviousBlock != null) {
+            while (b.Tag == null && b.PreviousBlock != null)
+            {
                b = b.PreviousBlock;
             }
             if (b.Tag is int)
@@ -40,54 +42,44 @@ namespace PoshConsole.Cmdlets
             }
          }));
 
- 	      base.BeginProcessing();
+         base.BeginProcessing();
       }
 
       protected override void ProcessRecord()
       {
-          WriteObject(
-            (Block)_xamlUI.Dispatcher.Invoke((Func<Block>)(()=> {
-               Block source = null;
-               if (id == 0)
-               {
-                  _xamlUI.NewParagraph();
-                  source = _xamlUI.CurrentBlock;
-               }
-               else
-               {
-
-                  bool reverse = id < 0;
-                  id = Math.Abs(id);
-                  if (id > _id)
-                  {
-                     id = 1;
-                  }
-                  else if (reverse)
-                  {
-                     id = _id - (_id - id - 2); 
-                  }
-                  else
-                  {
-                     id = _id - id;
-                  }
+         WriteObject(
+           (Block)_xamlUI.Dispatcher.Invoke((Func<Block>)(() =>
+           {
+              Block source = null;
+              if (id == 0 || Math.Abs(id) > _id)
+              {
+                 id = 0;
+              }
+              else if (id < 0)
+              {
+                 id = Math.Abs(id) + 1;// _id - (_id - (id + 1)); 
+              }
+              else
+              {
+                 id = _id - id;
+              }
 
 
-                  source = _numbered;
-                  while (id-- > 0 && source.PreviousBlock != null)
-                  {
-                     source = source.PreviousBlock;
-                  }
-               }
-               // clone it by serializing and deserializing
-               MemoryStream stream = new MemoryStream();
-               (new TextRange(source.ContentStart, source.ContentEnd)).Save(stream, DataFormats.XamlPackage, true);
+              source = _numbered;
+              while (id-- > 0 && source.PreviousBlock != null)
+              {
+                 source = source.PreviousBlock;
+              }
+              // clone it by serializing and deserializing
+              MemoryStream stream = new MemoryStream();
+              (new TextRange(source.ContentStart, source.ContentEnd)).Save(stream, DataFormats.XamlPackage, true);
 
-               var result = new Paragraph();
-               var copy = new TextRange(result.ContentStart, result.ContentEnd);
+              var result = new Paragraph();
+              var copy = new TextRange(result.ContentStart, result.ContentEnd);
 
-               copy.Load(stream, DataFormats.XamlPackage);
-               return result;
-         })));
+              copy.Load(stream, DataFormats.XamlPackage);
+              return result;
+           })));
       }
    }
 }
