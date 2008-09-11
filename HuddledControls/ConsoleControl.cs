@@ -30,6 +30,21 @@ namespace Huddled.WPF.Controls
       static ConsoleControl()
       {
          // DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
+
+         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+             new CommandBinding(ApplicationCommands.Cut, OnExecuteCut, OnCanExecuteCut));
+
+         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+             new CommandBinding(ApplicationCommands.Paste, OnExecutePaste, OnCanExecutePaste));
+
+         //CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
+         //    new CommandBinding(ApplicationCommands.Copy,
+         //    new ExecutedRoutedEventHandler(OnCopy),
+         //    new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
+
+         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+            new CommandBinding(ApplicationCommands.Stop, OnApplicationStop));
+
       }
 
 
@@ -58,6 +73,7 @@ namespace Huddled.WPF.Controls
                           };
          _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
 
+   
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
       }
 

@@ -189,6 +189,18 @@ namespace Huddled.WPF.Controls
          //}
       }
 
+      
+
+      /// <summary>
+      /// Implement right-click the way the normal console does: paste into the prompt.
+      /// </summary>
+      /// <param name="e"></param>
+      protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+      {
+         ApplicationCommands.Paste.Execute(null, this);
+         e.Handled = true;
+      }
+
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {
          if (!_popup.IsVisible) _commandBox.Focus();

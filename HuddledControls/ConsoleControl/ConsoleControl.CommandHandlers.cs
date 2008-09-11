@@ -55,8 +55,9 @@ namespace Huddled.WPF.Controls
 		
 		private static void OnCanExecutePaste(object target, CanExecuteRoutedEventArgs args)
         {
-            ConsoleControl box = (ConsoleControl)target;
-            args.CanExecute = box._commandBox.IsEnabled && !box._commandBox.IsReadOnly && Clipboard.ContainsText();
+           args.CanExecute = true;
+            //ConsoleControl box = (ConsoleControl)target;
+            //args.CanExecute = box._commandBox.IsEnabled && !box._commandBox.IsReadOnly && Clipboard.ContainsText();
         }
 		
 		private static void OnCanIncreaseZoom(object target, CanExecuteRoutedEventArgs args)
@@ -74,15 +75,16 @@ namespace Huddled.WPF.Controls
       //      ((FlowDocumentReader)sender).Copy();
       //      e.Handled = true;
       //  }
-		
-      //private static void OnCut(object sender, ExecutedRoutedEventArgs e)
-      //  {
-      //      // Clipboard.SetText(((ConsoleControl)sender).Selection.Text);
-      //      // ((ConsoleControl)sender).Selection.Text = String.Empty;
 
-      //      ((ConsoleControl)sender).Copy();
-      //      e.Handled = true;
-      //  }
+      private static void OnExecuteCut(object sender, ExecutedRoutedEventArgs e)
+        {
+            // Clipboard.SetText(((ConsoleControl)sender).Selection.Text);
+            // ((ConsoleControl)sender).Selection.Text = String.Empty;
+            //e.Command.RoutedEvent = ApplicationCommands.Copy
+
+            ApplicationCommands.Copy.Execute(e.Parameter, ((ConsoleControl)sender)._commandBox );
+            e.Handled = true;
+        }
 		
 		private static void OnDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
         {
@@ -101,7 +103,7 @@ namespace Huddled.WPF.Controls
             ((ConsoleControl)(sender)).FontSize += 1.0;
         }
 		
-		private static void OnPaste(object sender, ExecutedRoutedEventArgs e)
+		private static void OnExecutePaste(object sender, ExecutedRoutedEventArgs e)
         {
             TextBox box = ((ConsoleControl)sender)._commandBox;
 
