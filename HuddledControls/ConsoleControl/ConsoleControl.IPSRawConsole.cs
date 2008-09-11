@@ -345,8 +345,43 @@ namespace Huddled.WPF.Controls
          // }
       }
 
+      /// <summary>
+      /// Implements the CLS command the way most command-lines do:
+      /// Scroll the window until the prompt is at the top ...
+      /// (as opposed to clearing the screen and leaving the prompt at the bottom)
+      /// </summary>        
+      public void ClearScreen()
+      {
+         if (Dispatcher.CheckAccess())
+         {
+            _current.Inlines.Remove(_commandContainer);
+            Document.Blocks.Clear();
+            //new TextRange(Document.ContentStart, Document.ContentEnd).Text = String.Empty;
+
+            _current = _next = new Paragraph(_commandContainer);
+            Document.Blocks.Add(_next);
+         }
+         else
+         {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => {
+               _current.Inlines.Remove(_commandContainer);
+               Document.Blocks.Clear();
+               //new TextRange(Document.ContentStart, Document.ContentEnd).Text = String.Empty;
+
+               _current = _next = new Paragraph(_commandContainer);
+               Document.Blocks.Add(_next);
+            }));
+         }
+      }
+
+
       void IPSRawConsole.SetBufferContents(Rectangle rectangle, BufferCell fill)
       {
+         if (rectangle.Left == -1 && rectangle.Right == -1)
+         {
+            ClearScreen();
+         } else
+
          // TODO: REIMPLEMENT PSHostRawUserInterface.SetBufferContents(Rectangle rectangle, BufferCell fill)
          throw new NotImplementedException("The SetBufferContents method is not (yet) implemented!");
          //if (Dispatcher.CheckAccess())
