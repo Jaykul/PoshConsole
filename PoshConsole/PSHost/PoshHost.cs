@@ -128,10 +128,13 @@ namespace PoshConsole.PSHost
          // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
          // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
-         
-         _runSpace = RunspaceFactory.CreateRunspace(this);
-         //_runSpace.Ap
+         //var config = RunspaceConfiguration.Create()
 
+         // ToDo: it would be nice to customize the RunspaceConfiguration ... but it's too much work for now
+         //_runSpace = RunspaceFactory.CreateRunspace(this, new PoshRunspaceConfiguration());
+         _runSpace = RunspaceFactory.CreateRunspace(this);
+
+         //((ConsoleControl)PsUi.Console).Runspace = _runSpace;
          //PSSnapInException warning;
          //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);
          //if (warning != null)
@@ -144,11 +147,6 @@ namespace PoshConsole.PSHost
             _runSpace.ApartmentState = ApartmentState.STA;
             _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
          }
-
-         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
-         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Add-Hotkey", typeof(AddHotkeyCommand), "AddHotkeyCommand.xml"));
-         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("New-Paragraph", typeof(NewParagraphCommand), "NewParagraphCommand.xml"));
-         _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry("Get-PoshOutput", typeof(GetPoshOutputCommand), "GetPoshOutputCommand.xml"));
 
          _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
          _runSpace.OpenAsync();
@@ -491,9 +489,9 @@ namespace PoshConsole.PSHost
          foreach (string path in
               new string[4] {
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
                 })
          {
             if (File.Exists(path))
@@ -539,9 +537,9 @@ namespace PoshConsole.PSHost
 
          string[] profiles = new string[4] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
                     Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
                 };
 
          // just for the sake of the profiles...
@@ -558,8 +556,11 @@ namespace PoshConsole.PSHost
          }
 
          _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-         _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
-
+         if (existing.Count > 0) {
+            _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]); 
+         } else {
+            _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length-1]);
+         }
 
          if (cmd.Length > 0)
          {

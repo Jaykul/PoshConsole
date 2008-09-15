@@ -71,16 +71,14 @@ namespace PoshConsole.PSHost
 
 		public override Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
         {
-           // TODO: REIMPLEMENT PSHostUserInterface.Prompt
-           throw new NotImplementedException("The Prompt method is not (yet) implemented!");
-           //return myConsole.Prompt(caption, message, descriptions);
+           return myConsole.Prompt(caption, message, descriptions);
         }
 		
 		public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
         {
            // TODO: REIMPLEMENT PSHostUserInterface.PromptForChoice
-           throw new NotImplementedException("The PromptForChoice method is not (yet) implemented!");
-           //return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
+           //throw new NotImplementedException("The PromptForChoice method is not (yet) implemented!");
+           return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
         }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)

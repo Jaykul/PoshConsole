@@ -60,66 +60,67 @@ namespace PoshConsole.Cmdlets
 
       protected override void BeginProcessing()
       {
+         
+
          _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
-         _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
+         ErrorRecord error = (ErrorRecord)_xamlUI.Dispatcher.Invoke((Func<ErrorRecord>)(() =>
          {
+            ErrorRecord err = null;
+            if (Popup.ToBool())
+            {
+                  _host = NewContainer();
+                  _window = new Window
+                  { 
+                     WindowStyle = WindowStyle.ToolWindow, Content = _host
+                  };
+                  _xamlUI.PopoutWindows.Add(_window);
+                  _window.Show();
+            }
 
-         if (Popup.ToBool())
-         {
-               _host = NewContainer();
-               _window = new Window
-               { 
-                  WindowStyle = WindowStyle.ToolWindow, Content = _host
-               };
-               _xamlUI.PopoutWindows.Add(_window);
-               _window.Show();
-         }
-
-         #region templates
-         switch (ParameterSetName)
-         {
-            case "FileTemplate":
-               {
-                  string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
-                  string template = null;
-
-                  if (!FileTemplate.Exists)
+            #region templates
+            switch (ParameterSetName)
+            {
+               case "FileTemplate":
                   {
-                     // try to magically resolve the file
-                     template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
-                     if (File.Exists(template))
+                     string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
+                     string template = null;
+
+                     if (!FileTemplate.Exists)
                      {
-                        FileTemplate = new FileInfo(template);
-                     }
-                     else
-                     {
-                        template = Path.Combine(templates, FileTemplate.Name);
+                        // try to magically resolve the file
+                        template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
                         if (File.Exists(template))
                         {
                            FileTemplate = new FileInfo(template);
                         }
                         else
                         {
-                           throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
+                           template = Path.Combine(templates, FileTemplate.Name);
+                           if (File.Exists(template))
+                           {
+                              FileTemplate = new FileInfo(template);
+                           }
+                           else
+                           {
+                              throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
+                           }
                         }
                      }
+
+                     FileTemplate.TryLoadXaml(out _element, out err);
                   }
+                  break;
+               case "SourceTemplate":
+                  {
+                     SourceTemplate.TryLoadXaml(out _element, out err);
+                  }
+                  break;
+            }
+            #endregion templates
 
-                  ErrorRecord error;
-                  if (!FileTemplate.TryLoadXaml(out _element, out error)) WriteError(error);
-               }
-               break;
-            case "SourceTemplate":
-               {
-                  ErrorRecord error;
-                  if (!SourceTemplate.TryLoadXaml(out _element, out error)) WriteError(error);
-               }
-               break;
-         }
-         #endregion templates
-
+            return err;
          }));
-
+         if (error != null) { WriteError(error); }
          base.BeginProcessing();
       }
 

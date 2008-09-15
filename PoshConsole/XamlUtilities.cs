@@ -64,7 +64,7 @@ namespace PoshConsole
            element = default(T1);
            try
            {
-              object loaded = XamlReader.Load(new XmlNodeReader(source));
+              var loaded = XamlReader.Load(new XmlNodeReader(source));
               if (loaded is T1)
               {
                  element = (T1)loaded;

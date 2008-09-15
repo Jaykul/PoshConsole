@@ -124,6 +124,7 @@
     <Compile Include="Converters.cs" />
     <Compile Include="Cmdlets\OutWPFCommand.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
+    <Compile Include="PSHost\PoshRunspaceConfiguration.cs" />
     <Compile Include="PSHost\ScriptCommand.cs" />
     <Compile Include="PSHost\IPSUI.cs" />
     <Compile Include="PSHost\PoshHost.InvokeHelper.cs" />

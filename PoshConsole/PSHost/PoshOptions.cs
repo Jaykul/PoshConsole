@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Management.Automation.Runspaces;
 using System.Text;
 using System.Windows;
 using PoshConsole.Controls;
@@ -139,6 +140,8 @@ namespace PoshConsole.PSHost
          public List<Window> PopoutWindows { get { return _console.PopoutWindows; } }
          public Paragraph CurrentBlock { get { return _console.CurrentBlock; } }
          public Dispatcher Dispatcher { get { return _console.Dispatcher; } }
+         //public Runspace Runspace { get { return _console.Runspace; } }
+
          #endregion
       }
 
