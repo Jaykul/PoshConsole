@@ -16,6 +16,7 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 using Huddled.WPF.Controls.Interfaces;
+using System.Management.Automation.Runspaces;
 
 namespace Huddled.WPF.Controls
 {
@@ -107,6 +108,11 @@ namespace Huddled.WPF.Controls
         //      Color c = (Color)args.NewValue;
         //      console._commandBox.Background = new SolidColorBrush();
         //   }
+        //}
+
+        //public Runspace Runspace
+        //{
+        //   get; set;
         //}
     }
  }

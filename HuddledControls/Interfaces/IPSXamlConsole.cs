@@ -1,4 +1,5 @@
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 using System.Windows.Documents;
 using System.Windows;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Huddled.WPF.Controls.Interfaces
       Paragraph CurrentBlock { get; }
       void NewParagraph();
       Dispatcher Dispatcher { get; }
+      //Runspace Runspace { get; }
 
       //void OutXaml(bool popup, System.Xml.XmlDocument template );
       //void OutXaml(bool popup, System.IO.FileInfo template );

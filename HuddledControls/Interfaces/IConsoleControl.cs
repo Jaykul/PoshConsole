@@ -5,6 +5,7 @@ using System.Xml;
 using System.IO;
 using Huddled.WPF.Controls.Interfaces;
 using System.Windows.Controls;
+using System.Management.Automation.Runspaces;
 
 namespace Huddled.WPF.Controls
 {
@@ -39,7 +40,6 @@ namespace Huddled.WPF.Controls
 
          CommandHistory History { get; }
          TabExpansion Expander { get; set; }
-
 
          // TODO: REIMPLEMENT scrollbar visibility options
          //ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }

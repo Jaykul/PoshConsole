@@ -30,8 +30,8 @@ namespace Huddled.WPF.Controls.Interfaces
       
       // TODO: There are additional methods, but I've un-objectively decided that these six don't belong in the console
 
-      // Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions);
-      // int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice);
+      Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions);
+      int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice);
       // void WriteProgress(long sourceId, ProgressRecord record);
       // PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options);
       // PSCredential PromptForCredential(string caption, string message, string userName, string targetName);
