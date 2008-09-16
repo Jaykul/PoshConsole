@@ -134,6 +134,22 @@ namespace PoshConsole.PSHost
          //_runSpace = RunspaceFactory.CreateRunspace(this, new PoshRunspaceConfiguration());
          _runSpace = RunspaceFactory.CreateRunspace(this);
 
+         foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
+         {
+            var cmdlets = t.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false) as System.Management.Automation.CmdletAttribute[];
+
+            if (cmdlets != null)
+            {
+               foreach (var cmdlet in cmdlets)
+               {
+                  _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry(
+                                    string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
+                                    string.Format("{0}.xml", t.Name)));
+               }
+            }
+         }
+
+
          //((ConsoleControl)PsUi.Console).Runspace = _runSpace;
          //PSSnapInException warning;
          //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);

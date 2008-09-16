@@ -17,41 +17,29 @@ namespace PoshConsole.PSHost
       {
          _baseConfig = RunspaceConfiguration.Create();
          // AuthorizationManager = baseConfig.AuthorizationManager;
+         // ToDo: Add the HuddledControls assembly to the Assemeblies 
          Assemblies.Append(_baseConfig.Assemblies);
-
          Cmdlets.Append(_baseConfig.Cmdlets);
-
-         //var assembly = System.Reflection.Assembly.GetCallingAssembly();
-         //var cmdlets = assembly.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false);
-
-         foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
-         {
-            var cmdlets = t.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false) as System.Management.Automation.CmdletAttribute[];
-
-            if (cmdlets != null)
-            {
-               foreach (var cmdlet in cmdlets)
-               {
-                  Cmdlets.Append(new CmdletConfigurationEntry(
-                                    string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
-                                    string.Format("{0}.xml", t.Name)));
-               }
-            }
-         }
-
-         //Cmdlets.Append(new CmdletConfigurationEntry("Out-WPF", typeof(OutWPFCommand), "OutWPFCommand.xml"));
-         //Cmdlets.Append(new CmdletConfigurationEntry("Add-PoshSnapin", typeof(AddPoshSnapinCommand), "AddPoshSnapinCommand.xml"));
-         //Cmdlets.Append(new CmdletConfigurationEntry("Add-Hotkey", typeof(AddHotkeyCommand), "AddHotkeyCommand.xml"));
-         //Cmdlets.Append(new CmdletConfigurationEntry("New-Paragraph", typeof(NewParagraphCommand), "NewParagraphCommand.xml"));
-         //Cmdlets.Append(new CmdletConfigurationEntry("Get-PoshOutput", typeof(GetPoshOutputCommand), "GetPoshOutputCommand.xml"));
-         // ToDo: Add the HoddledControls assembly to the Assemeblies 
-
          Formats.Append(_baseConfig.Formats);
          InitializationScripts.Append(_baseConfig.InitializationScripts);
          Providers.Append(_baseConfig.Providers);
          Scripts.Append(_baseConfig.Scripts);
          Types.Append(_baseConfig.Types);
 
+         // TODO: uncomment this if we start really using it
+         //foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
+         //{
+         //   var cmdlets = t.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false) as System.Management.Automation.CmdletAttribute[];
+         //   if (cmdlets != null)
+         //   {
+         //      foreach (var cmdlet in cmdlets)
+         //      {
+         //         Cmdlets.Append(new CmdletConfigurationEntry(
+         //                           string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
+         //                           string.Format("{0}.xml", t.Name)));
+         //      }
+         //   }
+         //}
 
       }
       public override System.Management.Automation.AuthorizationManager AuthorizationManager
