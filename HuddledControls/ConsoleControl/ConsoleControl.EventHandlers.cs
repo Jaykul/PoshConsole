@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Huddled.WPF.Controls.Utility;
 using System.Windows.Threading;
@@ -127,11 +128,7 @@ namespace Huddled.WPF.Controls
       {
          System.Threading.Thread.Sleep(0);
 
-         // the "EndOfOutput" marker gets stuck just before the last character of the prompt...
-         string[] cmds = new string[] { CurrentCommand };
-         // hackmode for when we're playing back buffered keystrokes 
-         cmds = CurrentCommand.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-         //if (cmd[cmd.Length - 1] == '\t') cmd = cmd.Substring(0, cmd.Length - 1);
+         string[] cmds = CurrentCommand.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
          if (!e.IsModifierOn(ModifierKeys.Control) && cmds.Length > 0)
          {
@@ -229,5 +226,29 @@ namespace Huddled.WPF.Controls
          OnCommand(cmd);
          e.Handled = true;
       }
+
+      protected override void OnDragEnter(DragEventArgs e)
+      {
+         if (e.Data.GetDataPresent(DataFormats.Text))
+         {
+            e.Effects |= DragDropEffects.Copy;
+         }
+         else
+         {
+            e.Effects = DragDropEffects.None;
+         }
+         base.OnDragEnter(e);
+      }
+      protected override void OnDrop(DragEventArgs e)
+      {
+         if (e.Data.GetDataPresent(DataFormats.Text))
+         {
+            _commandBox.Text = _commandBox.Text.Substring(0, _commandBox.CaretIndex) + ((string)e.Data.GetData(DataFormats.Text)) + _commandBox.Text.Substring(_commandBox.CaretIndex+1);
+            e.Handled = true;
+         }
+         base.OnDrop(e);
+      }
+
+   
    }
 }

@@ -29,21 +29,24 @@ namespace Huddled.WPF.Controls
 
       static ConsoleControl()
       {
-         // DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
+         InitializeCommands();
 
-         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-             new CommandBinding(ApplicationCommands.Cut, OnExecuteCut, OnCanExecuteCut));
+         DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
+      }
 
+      private static void InitializeCommands()
+      {
          CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-             new CommandBinding(ApplicationCommands.Paste, OnExecutePaste, OnCanExecutePaste));
+                                                    new CommandBinding(ApplicationCommands.Cut, OnExecuteCut, OnCanExecuteCut));
+         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+                                                    new CommandBinding(ApplicationCommands.Paste, OnExecutePaste, OnCanExecutePaste));
+         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+                                                    new CommandBinding(ApplicationCommands.Stop, OnApplicationStop));
 
          //CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
          //    new CommandBinding(ApplicationCommands.Copy,
          //    new ExecutedRoutedEventHandler(OnCopy),
          //    new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
-
-         CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-            new CommandBinding(ApplicationCommands.Stop, OnApplicationStop));
 
       }
 

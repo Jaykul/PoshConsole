@@ -24,7 +24,7 @@
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
     
     hotkeys:HotkeyManager.HotkeyManager="{DynamicResource hotkeys}"
-    Width="532" Height="375" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
+    Width="750" Height="500" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
     ><!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
@@ -61,62 +61,6 @@
                </ControlTemplate>
             </Setter.Value>
          </Setter>
-      </Style>
-      <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
-         <!-- It turns out that setting this Background is the main way to change the cursor color too!
-            http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
-            -->
-         <Setter Property="Foreground" Value="{Binding Path=Foreground, ElementName=buffer}" />
-         <Setter Property="Background">
-            <Setter.Value>
-               <Binding Path="CaretColor" ElementName="buffer">
-                  <Binding.Converter>
-                     <huddle:ColorToBrushInverter Alpha="255" />
-                  </Binding.Converter>
-               </Binding>
-            </Setter.Value>
-         </Setter>
-         <Setter Property="Padding" Value="1"/>
-         <Setter Property="AllowDrop" Value="true"/>
-         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-         <Setter Property="Template">
-            <Setter.Value>
-               <ControlTemplate TargetType="{x:Type TextBox}">
-                  <!-- The textbox insertion caret color is the inverse of it's background color. 
-                  In order to give ourselves control over it, separate from changing the actual background color ...
-                  We use a template with a Border that has it's own background color which can be set manually.
-                  -->
-                  <!-- ABOUT TextBoxBase templates.  The control template for a TextBox or RichTextBox must include 
-                     an element tagged as the content host, that is, with the Name="PART_ContentHost".  
-                     Despite assurances about template iindependence, the content host element *must* be 
-                     a ScrollViewer, or an element that derives from Decorator. 
-                  -->
-                  <!--<aero:ListBoxChrome xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-                                    SnapsToDevicePixels="true" x:Name="Bd"
-                                    Background="#FF000000"
-                                    BorderThickness="20"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
-                                    RenderMouseOver="{TemplateBinding IsMouseOver}">-->
-                     <Border x:Name="Border" 
-                            BorderThickness="0"
-                            Background="{Binding Path=Background, ElementName=buffer}" 
-                            SnapsToDevicePixels="True"
-                            Padding="2">
-                        <ScrollViewer x:Name="PART_ContentHost"
-                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                      Padding="0,0,0,0" />
-                     </Border>
-                  <!--</aero:ListBoxChrome>-->
-               </ControlTemplate>
-            </Setter.Value>
-         </Setter>
-      </Style>
-      <Style TargetType="{x:Type FlowDocument}">
-         <Setter Property="OverridesDefaultStyle" Value="true"/>
-      </Style>
-      <Style TargetType="{x:Type huddle:ConsoleControl}">
-         <Setter Property="MinWidth" Value="250"/>
       </Style>
      <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
          <Setter Property="BorderBrush">
@@ -201,57 +145,41 @@
                Grid.Row="1" Visibility="Collapsed" Width="Auto" d:LayoutOverrides="GridBox" Margin="0,0,-168,0" />
         	<huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
         		HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        		ForceCursor="True"
-        		BackgroundColor="Black" Background="Black"
-        		ForegroundColor="White" Foreground="White"
-            CaretColor="Cyan"
         		PreviewMouseWheel="OnBufferPreviewMouseWheel"
-        		Padding="0" Margin="0" BorderThickness="0"
         		Title="PoshConsole"
-                                        
-                                        >
-        		<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-        		<huddle:ConsoleControl.Resources>
-        			<Style TargetType="{x:Type Paragraph}">
-        				<Setter Property="Margin" Value="0"/>
-        			</Style>
-        		</huddle:ConsoleControl.Resources>
-        		<huddle:ConsoleControl.FontSize>
-        			<Binding Path="FontSize" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-        		</huddle:ConsoleControl.FontSize>
-        		<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-        		<huddle:ConsoleControl.FontFamily>
-        			<Binding Path="FontFamily" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
-        		</huddle:ConsoleControl.FontFamily>
-        		<huddle:ConsoleControl.ContextMenu>
-        			<ContextMenu/>
-        		</huddle:ConsoleControl.ContextMenu>
-        		<FlowDocument>
-        			<FlowDocument.Resources>
-        				<!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-        				<Style x:Key="POSHFont">
-        					<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
-        				</Style>
-        				<Style x:Key="ConsoleFont">
-        					<Setter Property="TextElement.FontSize" Value="12" />
-        					<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-        				</Style>
-        				<Style x:Key="BannerFont">
-        					<Setter Property="TextElement.FontSize" Value="20" />
-        					<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-        					<Setter Property="Typography.ContextualSwashes" Value="1" />
-        				</Style>
-        				<Style x:Key="SigFont">
-        					<Setter Property="TextElement.FontSize" Value="20" />
-        					<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-        					<Setter Property="Typography.ContextualSwashes" Value="1" />
-        				</Style>
-        			</FlowDocument.Resources>
-        			<Paragraph ClearFloaters="Both" />
-        		</FlowDocument>
-
-        	</huddle:ConsoleControl>
-        	<StatusBar Grid.Row="2" Padding="0,2,0,0" x:Name="status" OpacityMask="#FE000000"
+         >
+            <huddle:ConsoleControl.FontSize>
+               <Binding Path="FontSize" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
+            </huddle:ConsoleControl.FontSize>
+            <huddle:ConsoleControl.FontFamily>
+               <Binding Path="FontFamily" Mode="OneWay" Source="{StaticResource SettingsDS}"/>
+            </huddle:ConsoleControl.FontFamily>
+            <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+            <FlowDocument>
+               <FlowDocument.Resources>
+                  <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
+                  <Style x:Key="POSHFont">
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
+                  </Style>
+                  <Style x:Key="ConsoleFont">
+                     <Setter Property="TextElement.FontSize" Value="12" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
+                  </Style>
+                  <Style x:Key="BannerFont">
+                     <Setter Property="TextElement.FontSize" Value="20" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
+                     <Setter Property="Typography.ContextualSwashes" Value="1" />
+                  </Style>
+                  <Style x:Key="SigFont">
+                     <Setter Property="TextElement.FontSize" Value="20" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
+                     <Setter Property="Typography.ContextualSwashes" Value="1" />
+                  </Style>
+               </FlowDocument.Resources>
+               <Paragraph ClearFloaters="Both" />
+            </FlowDocument>
+         </huddle:ConsoleControl>
+         <StatusBar Grid.Row="2" Padding="0,2,0,0" x:Name="status" OpacityMask="#FE000000"
         		Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
         		Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}"
             BorderBrush="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"  BorderThickness="0,1,0,0"
