@@ -41,7 +41,7 @@ namespace PoshConsole.PSHost
       private Pipeline CreatePipeline(Command[] commands)
       {
          Pipeline pipeline = _runSpace.CreatePipeline();
-         pipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
+         //pipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
 
          foreach (Command cmd in commands)
          {
@@ -51,20 +51,23 @@ namespace PoshConsole.PSHost
          return pipeline;
       }
 
-      private PipelineState _state = PipelineState.NotStarted;
-      void pipeline_StateChanged(object sender, PipelineStateEventArgs e)
-      {
-         _state = e.PipelineStateInfo.State;
-      }
 
       private Pipeline CreatePipelineOutDefault(string command, bool addToHistory)
       {
          Pipeline pipe = _runSpace.CreatePipeline(command, addToHistory);
-         pipe.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
+         //pipe.StateChanged += new EventHandler<PipelineStateEventArgs>(pipeline_StateChanged);
          pipe.Commands.Add(outDefault);
 
          return pipe;
       }
+
+
+      //private PipelineState _state = PipelineState.NotStarted;
+      //void pipeline_StateChanged(object sender, PipelineStateEventArgs e)
+      //{
+      //   _state = e.PipelineStateInfo.State;
+      //}
+
 
       private void ExecutePipeline(Command command, PipelineOutputHandler callback)
       {
@@ -84,10 +87,7 @@ namespace PoshConsole.PSHost
       private void ExecutePipeline(Command[] commands, IEnumerable input, PipelineOutputHandler callback)
       {
          var runner = new BackgroundWorker();
-         runner.DoWork += (a, b) =>
-            {
-               ExecutePipeline(CreatePipeline(commands), input, callback);
-            };
+         runner.DoWork += (a, b) => ExecutePipeline(CreatePipeline(commands), input, callback);
          runner.RunWorkerAsync();
       }
 
@@ -144,17 +144,17 @@ namespace PoshConsole.PSHost
 
       private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
       {
-         ExecutePipelineOutDefault(command, EmptyArray, addToHistory, callback);
+         ExecutePipelineOutDefault( command, EmptyArray, addToHistory, callback);
       }
 
       private void ExecutePipelineOutDefault(string command, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
       {
-         var runner = new BackgroundWorker();
-         runner.DoWork += (a, b) =>
-            {
-               ExecutePipeline(CreatePipelineOutDefault(command, addToHistory), input, callback);
-            };
-         runner.RunWorkerAsync();
+         if (_runSpace.RunspaceStateInfo.State == RunspaceState.Opened)
+         {
+            var runner = new BackgroundWorker();
+            runner.DoWork += (a, b) => ExecutePipeline( CreatePipelineOutDefault(command, addToHistory), input, callback);
+            runner.RunWorkerAsync();
+         }
       }
 
 
@@ -168,20 +168,12 @@ namespace PoshConsole.PSHost
          PipelineExecutionResult result = new PipelineExecutionResult();
          AutoResetEvent syncRoot = new AutoResetEvent(false);
 
-         ExecutePipeline(cmd, input, (PipelineOutputHandler)delegate(PipelineExecutionResult r)
+         ExecutePipeline(cmd, input, (r)=> 
          {
             result = r;
             syncRoot.Set();
-            //lock (syncRoot)
-            //{
-            //  Monitor.Pulse(syncRoot);
-            //}
          });
 
-         //lock (syncRoot)
-         //{
-         //  Monitor.Wait(syncRoot);
-         //}
          syncRoot.WaitOne();
 
          return result;

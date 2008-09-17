@@ -7,6 +7,7 @@
 // PARTICULAR PURPOSE.
 //
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Management.Automation;
@@ -78,6 +79,7 @@ namespace PoshConsole.PSHost
       private CultureInfo originalUICultureInfo = System.Threading.Thread.CurrentThread.CurrentUICulture;
       private IPSUI PsUi;
       private string savedTitle = String.Empty;
+      private readonly Command outDefault;
 
       #endregion 
 
@@ -150,6 +152,7 @@ namespace PoshConsole.PSHost
             }
          }
 
+         _runSpace.RunspaceConfiguration.Scripts.Append(new ScriptConfigurationEntry("prompt", "Write-Host 'Hello: '"));
 
          //((ConsoleControl)PsUi.Console).Runspace = _runSpace;
          //PSSnapInException warning;
@@ -165,7 +168,7 @@ namespace PoshConsole.PSHost
             _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
          }
 
-         _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(myRunSpace_StateChanged);
+         _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(runSpace_StateChanged);
          _runSpace.OpenAsync();
          MakeConsole();
 
@@ -452,11 +455,16 @@ namespace PoshConsole.PSHost
       }
 
 
-      void myRunSpace_StateChanged(object sender, RunspaceStateEventArgs e)
+      void runSpace_StateChanged(object sender, RunspaceStateEventArgs e)
       {
          if (e.RunspaceStateInfo.State == RunspaceState.Opened)
          {
+            PsUi.Console.CommandBox.IsEnabled = true;
             ExecuteStartupProfile();
+         } 
+         else
+         {
+            PsUi.Console.CommandBox.IsEnabled = false;
          }
       }
 
@@ -554,8 +562,7 @@ namespace PoshConsole.PSHost
          //  This profile applies only to the current user, but affects all shells.
          //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
          //  This profile applies only to the current user and the Microsoft.PowerShell shell.
-
-
+         
          string[] profiles = new string[4] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
                     // Put this back if we can get our custom runspace working again.
@@ -587,21 +594,9 @@ namespace PoshConsole.PSHost
             _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length-1]);
          }
 
-         if (cmd.Length > 0)
+         if (cmd.Length > 0 )
          {
             ExecutePipelineOutDefault(cmd.ToString(), false, result => ExecutePromptFunction(result.State));
-
-            //try
-            //{
-            //    ExecutePipelineOutDefault(cmd.ToString(), null, false);
-            //}
-            //catch (RuntimeException rte)
-            //{
-            //    // An exception occurred that we want to display ...
-            //    // We have to run another pipeline, and pass in the error record.
-            //    // The runtime will bind the input to the $input variable
-            //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-            //}
          }
          else
          {
@@ -782,7 +777,6 @@ namespace PoshConsole.PSHost
       //    }
       //    return output;
       //}
-      Command outDefault;
       ///// <summary>
       ///// A helper method which builds and executes a pipeline that writes to the default output.
       ///// Any exceptions that are thrown are just passed to the caller. 
