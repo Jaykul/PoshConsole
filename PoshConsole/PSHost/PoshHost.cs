@@ -128,12 +128,13 @@ namespace PoshConsole.PSHost
          // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
          // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
-         //var config = RunspaceConfiguration.Create()
-
          // ToDo: it would be nice to customize the RunspaceConfiguration ... but it's too much work for now
          //_runSpace = RunspaceFactory.CreateRunspace(this, new PoshRunspaceConfiguration());
          _runSpace = RunspaceFactory.CreateRunspace(this);
-
+         // Set the default runspace, so that event handlers can run in the same runspace as commands.
+         // We _could_ hypothetically make this a different runspace, but it would probably cause issues.
+         System.Management.Automation.Runspaces.Runspace.DefaultRunspace = _runSpace;
+         
          foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
          {
             var cmdlets = t.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false) as System.Management.Automation.CmdletAttribute[];
@@ -505,9 +506,13 @@ namespace PoshConsole.PSHost
          foreach (string path in
               new string[4] {
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    // Put this back if we can get our custom runspace working again.
+                    // System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
                     System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    // Put this back if we can get our custom runspace working again.
+                    // System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
                 })
          {
             if (File.Exists(path))
@@ -553,9 +558,13 @@ namespace PoshConsole.PSHost
 
          string[] profiles = new string[4] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
+                    // Put this back if we can get our custom runspace working again.
+                    // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
                     Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
+                    // Put this back if we can get our custom runspace working again.
+                    // Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
                 };
 
          // just for the sake of the profiles...
@@ -573,7 +582,7 @@ namespace PoshConsole.PSHost
 
          _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
          if (existing.Count > 0) {
-            _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]); 
+         _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
          } else {
             _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length-1]);
          }
