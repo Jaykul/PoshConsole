@@ -60,7 +60,7 @@ namespace PoshConsole.Cmdlets
 
       protected override void BeginProcessing()
       {
-         
+
 
          _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
          ErrorRecord error = (ErrorRecord)_xamlUI.Dispatcher.Invoke((Func<ErrorRecord>)(() =>
@@ -68,13 +68,14 @@ namespace PoshConsole.Cmdlets
             ErrorRecord err = null;
             if (Popup.ToBool())
             {
-                  _host = NewContainer();
-                  _window = new Window
-                  { 
-                     WindowStyle = WindowStyle.ToolWindow, Content = _host
-                  };
-                  _xamlUI.PopoutWindows.Add(_window);
-                  _window.Show();
+               _host = NewContainer();
+               _window = new Window
+               {
+                  WindowStyle = WindowStyle.ToolWindow,
+                  Content = _host
+               };
+               _xamlUI.PopoutWindows.Add(_window);
+               _window.Show();
             }
 
             #region templates
@@ -149,31 +150,37 @@ namespace PoshConsole.Cmdlets
                FlowDocument doc;
                if (_window != null)
                {
-                  par = new Paragraph() {
+                  par = new Paragraph()
+                  {
                      Background = _xamlUI.CurrentBlock.Background,
                      Foreground = _xamlUI.CurrentBlock.Foreground
                   };
-                   doc = new FlowDocument(par) {
-                      Background = _xamlUI.Document.Background,
-                      Foreground = _xamlUI.Document.Foreground 
+                  doc = new FlowDocument(par)
+                  {
+                     Background = _xamlUI.Document.Background,
+                     Foreground = _xamlUI.Document.Foreground
                   };
-                  _window.Content = new FlowDocumentScrollViewer { 
-                                             Document = doc, 
-                                             Width    = _window.Width, 
-                                             Height   = _window.Height, 
-                                             Margin   = new Thickness(0),
-                                             Padding  = new Thickness(0),
-                                             IsToolBarVisible = true
-                                        };
+                  _window.Content = new FlowDocumentScrollViewer
+                  {
+                     Document = doc,
+                     Width = _window.Width,
+                     Height = _window.Height,
+                     Margin = new Thickness(0),
+                     Padding = new Thickness(0),
+                     IsToolBarVisible = true
+                  };
                }
                else
                {
                   par = _xamlUI.CurrentBlock;
                   doc = _xamlUI.Document;
                }
-               if(InputObject.BaseObject is Block) {
+               if (InputObject.BaseObject is Block)
+               {
                   doc.Blocks.InsertAfter(par, (Block)output);
-               } else {
+               }
+               else
+               {
                   par.Inlines.Add((Inline)output);
                }
             }
@@ -182,7 +189,7 @@ namespace PoshConsole.Cmdlets
                if (_window == null)
                {
                   _host = NewContainer();
-                  _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer { Child = _host });
+                  _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_host));
                }
 
                if (_element != null)
@@ -199,6 +206,6 @@ namespace PoshConsole.Cmdlets
          }));
       }
 
-      #endregion 
+      #endregion
    }
 }
