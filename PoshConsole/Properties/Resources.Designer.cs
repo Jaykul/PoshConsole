@@ -61,16 +61,16 @@ namespace PoshConsole.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # FIRST, make a note if there was an error in the previous command
+        ///   Looks up a localized string similar to function global:prompt {
+        ///   # FIRST, make a note if there was an error in the previous command
         ///   $err = !$?
         ///
         ///   # Make sure Windows and .Net know where we are (they can only handle the FileSystem)
         ///   [Environment]::CurrentDirectory = (Get-Location -PSProvider FileSystem).ProviderPath
         ///   # Also, put the path in the title ... (don&apos;t restrict this to the FileSystem
-        ///   $Host.UI.RawUI.WindowTitle = &quot;{0} ({1})&quot; -f $pwd.Path,$pwd.Provider.Name
+        ///   $Host.UI.RawUI.WindowTitle = &quot;PoSh - {0} ({1})&quot; -f $pwd.Path,$pwd.Provider.Name
         ///   
-        ///   # Determine what nesting level we are at (if any)
-        ///   $Nesting = &quot;$([char]0xB7)&quot; *  [rest of string was truncated]&quot;;.
+        ///   # Determine what nesting level we are at (if an [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Prompt {
             get {

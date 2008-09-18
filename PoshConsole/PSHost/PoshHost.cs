@@ -567,7 +567,7 @@ namespace PoshConsole.PSHost
          //  This profile applies only to the current user and the Microsoft.PowerShell shell.
          
 
-         ExecutePipelineOutDefault(PoshConsole.Properties.Resources.Prompt, false, result => ExecutePromptFunction(result.State));
+         ExecutePipelineOutDefault(PoshConsole.Properties.Resources.Prompt, false, result => { });
 
          string[] profiles = new string[4] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),

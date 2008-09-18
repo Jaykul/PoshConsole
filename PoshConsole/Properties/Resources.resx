@@ -118,13 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Prompt" xml:space="preserve">
-    <value># FIRST, make a note if there was an error in the previous command
+    <value>function global:prompt {
+   # FIRST, make a note if there was an error in the previous command
    $err = !$?
 
    # Make sure Windows and .Net know where we are (they can only handle the FileSystem)
    [Environment]::CurrentDirectory = (Get-Location -PSProvider FileSystem).ProviderPath
    # Also, put the path in the title ... (don't restrict this to the FileSystem
-   $Host.UI.RawUI.WindowTitle = "{0} ({1})" -f $pwd.Path,$pwd.Provider.Name
+   $Host.UI.RawUI.WindowTitle = "PoSh - {0} ({1})" -f $pwd.Path,$pwd.Provider.Name
    
    # Determine what nesting level we are at (if any)
    $Nesting = "$([char]0xB7)" * $NestedPromptLevel
@@ -142,6 +143,7 @@
    # Notice: no angle brackets, makes it easy to paste my buffer to the web
    Write-Host "[${Nesting}${nextCommandId}${Stack}]:" -NoNewLine -Fore $fg
    
-   return " "</value>
+   return " "
+}</value>
   </data>
 </root>
