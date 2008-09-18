@@ -198,6 +198,12 @@ namespace Huddled.WPF.Controls
          e.Handled = true;
       }
 
+      protected override void OnPreviewKeyDown(KeyEventArgs e)
+      {
+         if ((Keyboard.Modifiers & ModifierKeys.None) == 0) _commandBox.Focus();
+         base.OnPreviewKeyDown(e);
+      }
+
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {
          if (!_popup.IsVisible) _commandBox.Focus();

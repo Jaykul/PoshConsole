@@ -117,33 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="prompt" xml:space="preserve">
-    <value># Set-Prompt.ps1 (Dot-Source from your profile)
-###################################################
-# This should go OUTSIDE the prompt function, it doesn't need re-evaluation
-# We're going to calculate a prefix for the window title
-# Our basic title is "PoSh - C:\Your\Path\Here" showing the current path
-if(!$global:WindowTitlePrefix) {
-   # But if you're running "elevated" on vista, we want to show that ...
-   if( ([System.Environment]::OSVersion.Version.Major -gt 5) -and ( # Vista and ...
-         new-object Security.Principal.WindowsPrincipal (
-            [Security.Principal.WindowsIdentity]::GetCurrent()) # current user is admin
-            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) )
-   {
-      $global:WindowTitlePrefix = "PoSh (ADMIN)"
-   } else {
-      $global:WindowTitlePrefix = "PoSh"
-   }
-}
-
-function prompt {
-   # FIRST, make a note if there was an error in the previous command
+  <data name="Prompt" xml:space="preserve">
+    <value># FIRST, make a note if there was an error in the previous command
    $err = !$?
 
    # Make sure Windows and .Net know where we are (they can only handle the FileSystem)
    [Environment]::CurrentDirectory = (Get-Location -PSProvider FileSystem).ProviderPath
    # Also, put the path in the title ... (don't restrict this to the FileSystem
-   $Host.UI.RawUI.WindowTitle = "{0} - {1} ({2})" -f $global:WindowTitlePrefix,$pwd.Path,$pwd.Provider.Name
+   $Host.UI.RawUI.WindowTitle = "{0} ({1})" -f $pwd.Path,$pwd.Provider.Name
    
    # Determine what nesting level we are at (if any)
    $Nesting = "$([char]0xB7)" * $NestedPromptLevel
@@ -161,7 +142,6 @@ function prompt {
    # Notice: no angle brackets, makes it easy to paste my buffer to the web
    Write-Host "[${Nesting}${nextCommandId}${Stack}]:" -NoNewLine -Fore $fg
    
-   return " "
-}</value>
+   return " "</value>
   </data>
 </root>
