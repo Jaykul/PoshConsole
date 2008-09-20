@@ -7,27 +7,21 @@
 // PARTICULAR PURPOSE.
 //
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
-using System.Globalization;
-using System.Windows.Input;
+using System.Text;
 using System.Threading;
-using System.Collections.ObjectModel;
 using System.Windows;
-using System.IO;
+using System.Windows.Input;
 using System.Windows.Threading;
-using Huddled.WPF.Controls;
-using Huddled.WPF.Controls.Interfaces;
-using PoshConsole.Controls;
-using PoshConsole.Interop;
-using PoshConsole.Cmdlets;
 using Huddled.Interop;
-using ConsoleScrollBarVisibility=Huddled.WPF.Controls.Interfaces.ConsoleScrollBarVisibility;
-using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
+using Huddled.WPF.Controls;
+using IPoshConsoleControl = Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 
 namespace PoshConsole.PSHost
 {
@@ -44,61 +38,57 @@ namespace PoshConsole.PSHost
       /// <summary>
       /// A ConsoleRichTextBox for output
       /// </summary>
-      private IPoshConsoleControl buffer;
+      private readonly IPoshConsoleControl _buffer;
       /// <summary>
       /// A Console window wrapper that hides the console
       /// </summary>
-      private NativeConsole console = null;
+      private NativeConsole console;
       /// <summary>
       /// The currently executing pipeline 
       /// (So it can be stopped by Control-C or Break).
       /// </summary>
       private Pipeline _pipeline;
-      private static Guid instanceId = Guid.NewGuid();
-      /// <summary>
-      /// Used to serialize access to instance data...
-      /// </summary>
-      private object instanceLock = new object();
-      public bool IsClosing = false;
+      private static readonly Guid instanceId = Guid.NewGuid();
+      public bool IsClosing;
       protected int MaxBufferLength = 500;
-      private PoshRawUI myRawUI;
+      private readonly PoshRawUI myRawUI;
       /// <summary>
       /// The runspace for this interpeter.
       /// </summary>
-      private Runspace _runSpace;
+      private readonly Runspace _runSpace;
       /// <summary>
       /// The PSHostUserInterface implementation
       /// </summary>
-      private PoshUI myUI;
+      private readonly PoshUI myUI;
       /// <summary>
       /// This API is called before an external application process is started.
       /// </summary>
-      int native = 0;
+      int native;
       //private IInput inputHandler = null; 
       internal PoshOptions Options;
-      private CultureInfo originalCultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
-      private CultureInfo originalUICultureInfo = System.Threading.Thread.CurrentThread.CurrentUICulture;
-      private IPSUI PsUi;
+      private readonly CultureInfo originalCultureInfo = Thread.CurrentThread.CurrentCulture;
+      private readonly CultureInfo originalUICultureInfo = Thread.CurrentThread.CurrentUICulture;
+      private readonly IPSUI PsUi;
       private string savedTitle = String.Empty;
       private readonly Command outDefault;
 
-      #endregion 
+      #endregion
 
       #region  Constructors (1)
 
       //internal List<string> StringHistory;
       public PoshHost(IPSUI PsUi)
       {
-         this.buffer = PsUi.Console;
+         _buffer = PsUi.Console;
          //StringHistory = new List<string>();
-         Options = new PoshOptions(this, buffer);
+         Options = new PoshOptions(this, _buffer);
          this.PsUi = PsUi;
 
          try
          {
             // we have to be careful here, because this is an interface member ...
-            // but in the current implementation, buffer.RawUI returns buffer
-            myRawUI = new PoshRawUI(buffer.RawUI);
+            // but in the current implementation, _buffer.RawUI returns _buffer
+            myRawUI = new PoshRawUI(_buffer.RawUI);
             myUI = new PoshUI(myRawUI, PsUi);
 
             // pre-create this
@@ -112,12 +102,12 @@ namespace PoshConsole.PSHost
             MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" + ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
             throw;
          }
-         buffer.CommandBox.IsEnabled = false;
-         buffer.Expander.TabComplete += new TabExpansionLister(buffer_TabComplete);
-         buffer.Command += new CommmandDelegate(OnGotUserInput);
-         //buffer.CommandEntered +=new ConsoleRichTextBox.CommandHandler(buffer_CommandEntered);
+         _buffer.CommandBox.IsEnabled = false;
+         _buffer.Expander.TabComplete += buffer_TabComplete;
+         _buffer.Command += OnGotUserInput;
+         //_buffer.CommandEntered +=new ConsoleRichTextBox.CommandHandler(buffer_CommandEntered);
 
-         //buffer.GetHistory +=new ConsoleRichTextBox.HistoryHandler(buffer_GetHistory);
+         //_buffer.GetHistory +=new ConsoleRichTextBox.HistoryHandler(buffer_GetHistory);
 
          // this.ShouldExit += new ExitHandler(WeShouldExit);
          //myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
@@ -127,7 +117,7 @@ namespace PoshConsole.PSHost
          //myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
 
          // Some delegates we think we can get away with making only once...
-         Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
+         Properties.Settings.Default.PropertyChanged += SettingsPropertyChanged;
          // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
          // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
 
@@ -136,11 +126,11 @@ namespace PoshConsole.PSHost
          _runSpace = RunspaceFactory.CreateRunspace(this);
          // Set the default runspace, so that event handlers can run in the same runspace as commands.
          // We _could_ hypothetically make this a different runspace, but it would probably cause issues.
-         System.Management.Automation.Runspaces.Runspace.DefaultRunspace = _runSpace;
-         
+         Runspace.DefaultRunspace = _runSpace;
+
          foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
          {
-            var cmdlets = t.GetCustomAttributes(typeof(System.Management.Automation.CmdletAttribute), false) as System.Management.Automation.CmdletAttribute[];
+            var cmdlets = t.GetCustomAttributes(typeof(CmdletAttribute), false) as CmdletAttribute[];
 
             if (cmdlets != null)
             {
@@ -160,8 +150,8 @@ namespace PoshConsole.PSHost
          //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);
          //if (warning != null)
          //{
-         //    buffer.WriteErrorLine("Couldn't load PoshSnapin, it's probably not registered.");
-         //    buffer.WriteErrorLine(warning.Message);
+         //    _buffer.WriteErrorLine("Couldn't load PoshSnapin, it's probably not registered.");
+         //    _buffer.WriteErrorLine(warning.Message);
          //}
          if (_runSpace.Version.Major >= 2)
          {
@@ -169,7 +159,7 @@ namespace PoshConsole.PSHost
             _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
          }
 
-         _runSpace.StateChanged += new EventHandler<RunspaceStateEventArgs>(runSpace_StateChanged);
+         _runSpace.StateChanged += runSpace_StateChanged;
          _runSpace.OpenAsync();
          MakeConsole();
 
@@ -177,7 +167,7 @@ namespace PoshConsole.PSHost
          //ExecuteStartupProfile();
       }
 
-      #endregion 
+      #endregion
 
       #region  Properties (7)
 
@@ -245,16 +235,7 @@ namespace PoshConsole.PSHost
          get { return new Version(1, 0, 2007, 7310); }
       }
 
-      #endregion 
-
-      #region  Delegates and Events (1)
-
-      //  Delegates (1)
-
-      // Universal Delegates
-      delegate void voidDelegate();
-
-      #endregion 
+      #endregion
 
       #region  Methods (14)
 
@@ -289,12 +270,12 @@ namespace PoshConsole.PSHost
                console = new NativeConsole(false);
                // this way, we can handle (report) any exception...
                console.Initialize();
-               console.WriteOutputLine += (source, args) => { buffer.WriteNativeLine(args.Text.TrimEnd('\n')); };
-               console.WriteErrorLine += (source, args) => { buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n')); };
+               console.WriteOutputLine += (source, args) => _buffer.WriteNativeLine(args.Text.TrimEnd('\n'));
+               console.WriteErrorLine += (source, args) => _buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n'));
             }
             catch (ConsoleInteropException cie)
             {
-               buffer.WriteErrorRecord( new ErrorRecord( cie, "Couldn't initialize the Native Console", ErrorCategory.ResourceUnavailable, null));
+               _buffer.WriteErrorRecord(new ErrorRecord(cie, "Couldn't initialize the Native Console", ErrorCategory.ResourceUnavailable, null));
             }
          }
       }
@@ -329,8 +310,13 @@ namespace PoshConsole.PSHost
       /// pipeline Stop() method to stop execution. If any exceptions occur,
       /// they are printed to the console; otherwise they are ignored.
       /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
+      public void StopPipeline()
+      {
+         if (_pipeline != null && _pipeline.PipelineStateInfo.State == PipelineState.Running)
+         {
+            _pipeline.StopAsync();
+         }
+      }
       //public void StopPipeline()
       //{
       //    lock (instanceLock)
@@ -347,16 +333,9 @@ namespace PoshConsole.PSHost
       //            }
       //        }
       //        //else
-      //        //    ApplicationCommands.Copy.Execute(null, buffer);
+      //        //    ApplicationCommands.Copy.Execute(null, _buffer);
       //    }
       //}
-      public void StopPipeline()
-      {
-         if (_pipeline != null && _pipeline.PipelineStateInfo.State == PipelineState.Running)
-         {
-            _pipeline.StopAsync();
-         }
-      }
 
       //  Private Methods (6)
 
@@ -431,14 +410,14 @@ namespace PoshConsole.PSHost
       //    }
       //    finally
       //    {
-      //        buffer.Prompt(sb.ToString());
+      //        _buffer.Prompt(sb.ToString());
       //    }
       //}
       private void ExecutePromptFunction(PipelineState lastState)
       {
-         buffer.CommandFinished(lastState);
+         _buffer.CommandFinished(lastState);
          // It is IMPERATIVE that we call "New-Paragraph" before Prompt
-         ExecutePipeline(new Command[] {new Command("New-Paragraph"),new Command("Prompt")}, result =>
+         ExecutePipeline(new Command[] { new Command("New-Paragraph"), new Command("Prompt") }, result =>
             {
                StringBuilder str = new StringBuilder();
 
@@ -451,7 +430,7 @@ namespace PoshConsole.PSHost
                //   str.Append(result.Failure.Message);
                //   str.Append(result.Failure.Message);
 
-               buffer.Prompt(str.ToString());
+               _buffer.Prompt(str.ToString());
             });
       }
 
@@ -460,13 +439,13 @@ namespace PoshConsole.PSHost
       {
          if (e.RunspaceStateInfo.State == RunspaceState.Opened)
          {
-            buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+            _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
                                                  (Action)(() => PsUi.Console.CommandBox.IsEnabled = true));
             ExecuteStartupProfile();
-         } 
+         }
          else
          {
-            buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+            _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
                                                  (Action)(() => PsUi.Console.CommandBox.IsEnabled = false));
          }
       }
@@ -474,6 +453,7 @@ namespace PoshConsole.PSHost
       /// <summary>
       /// Handler for the IInput.GotUserInput event.
       /// </summary>
+      /// <param name="source">Source control</param>
       /// <param name="command">The command line.</param>
       void OnGotUserInput(Object source, CommandEventArgs command)
       {
@@ -494,7 +474,7 @@ namespace PoshConsole.PSHost
 
       private void WriteErrorRecord(ErrorRecord record)
       {
-         buffer.WriteErrorRecord(record);
+         _buffer.WriteErrorRecord(record);
       }
 
       //  Internal Methods (2)
@@ -515,15 +495,15 @@ namespace PoshConsole.PSHost
 
          StringBuilder cmd = new StringBuilder();
          foreach (string path in
-              new string[4] {
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
+              new[] {
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
                     // Put this back if we can get our custom runspace working again.
-                    // System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
+                    // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
                     // Put this back if we can get our custom runspace working again.
-                    // System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
-                    System.IO.Path.GetFullPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
+                    // Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
                 })
          {
             if (File.Exists(path))
@@ -565,11 +545,11 @@ namespace PoshConsole.PSHost
          //  This profile applies only to the current user, but affects all shells.
          //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
          //  This profile applies only to the current user and the Microsoft.PowerShell shell.
-         
 
-         ExecutePipelineOutDefault(PoshConsole.Properties.Resources.Prompt, false, result => { });
 
-         string[] profiles = new string[4] {
+         ExecutePipelineOutDefault(Properties.Resources.Prompt, false, result => { });
+
+         var profiles = new[] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
                     // Put this back if we can get our custom runspace working again.
                     // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
@@ -594,13 +574,16 @@ namespace PoshConsole.PSHost
          }
 
          _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-         if (existing.Count > 0) {
-         _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
-         } else {
-            _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length-1]);
+         if (existing.Count > 0)
+         {
+            _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
+         }
+         else
+         {
+            _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length - 1]);
          }
 
-         if (cmd.Length > 0 )
+         if (cmd.Length > 0)
          {
             ExecutePipelineOutDefault(cmd.ToString(), false, result => ExecutePromptFunction(result.State));
          }
@@ -610,7 +593,7 @@ namespace PoshConsole.PSHost
          }
       }
 
-      #endregion 
+      #endregion
 
       #region ConsoleRichTextBox Event Handlers
       /// <summary>
@@ -648,10 +631,10 @@ namespace PoshConsole.PSHost
          //   TabComplete Aliases
          //   TabComplete Executables in (current?) path
 
-         if (lastWord != null && lastWord.Length > 0)
+         if (!string.IsNullOrEmpty(lastWord))
          {
             // TabComplete Cmdlets inside the pipeline
-            foreach (RunspaceConfigurationEntry cmdlet in _runSpace.RunspaceConfiguration.Cmdlets)
+            foreach (CmdletConfigurationEntry cmdlet in _runSpace.RunspaceConfiguration.Cmdlets)
             {
                if (cmdlet.Name.StartsWith(lastWord, true, null))
                {
@@ -679,10 +662,10 @@ namespace PoshConsole.PSHost
                }
             }// hide the error
             catch (RuntimeException) { }
-            finally
-            {
-               set = null;
-            }
+            //finally
+            //{
+            //   set = null;
+            //}
 
 
             try
@@ -702,10 +685,10 @@ namespace PoshConsole.PSHost
                }
             }// hide the error
             catch (RuntimeException) { }
-            finally
-            {
-               set = null;
-            }
+            //finally
+            //{
+            //   set = null;
+            //}
 
             // Finally, call the TabExpansion string
             try
@@ -854,15 +837,15 @@ namespace PoshConsole.PSHost
       //    }
       //    else
       //    {
-      //        buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
+      //        _buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
       //    }
       //}
       #endregion ConsoleRichTextBox Event Handlers
       #region Settings
-      void SettingsSettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
-      {
-         //e.SettingClass
-      }
+      //void SettingsSettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
+      //{
+      //   //e.SettingClass
+      //}
       void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
       {
          switch (e.PropertyName)
@@ -873,7 +856,7 @@ namespace PoshConsole.PSHost
                } break;
             //ToDo: REIMPLEMENT case "ScrollBarVisibility":
             //   {
-            //      buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
+            //      _buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
             //   } break;
             default:
                break;
@@ -887,18 +870,17 @@ namespace PoshConsole.PSHost
 
       public bool RegisterHotkey(KeyGesture key, ScriptBlock script)
       {
-         return (bool)(PsUi as UIElement).Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (Func<bool>)delegate
+         return (bool)((UIElement)PsUi).Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() =>
          {
             try
             {
-               KeyBinding binding = new KeyBinding(new ScriptCommand((CommmandDelegate)OnGotUserInput, script), key);
                // so now we can ask which keys are still unregistered.
                Huddled.Interop.Hotkeys.HotkeyManager hk = Huddled.Interop.Hotkeys.HotkeyManager.GetHotkeyManager(PsUi as UIElement);
-               hk.Add(binding);
+               hk.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
                return true;
             }
             catch { return false; }
-         });
+         }));
 
       }
 

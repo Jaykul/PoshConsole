@@ -265,24 +265,24 @@ namespace Huddled.WPF.Controls
         void IPSConsole.WriteDebugLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), _current);
+           Write(ConsoleBrushes.DebugForeground, ConsoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), _current);
         }
 
        void IPSConsole.WriteDebugLine(string message, Block target)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.DebugForeground, _consoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
+           Write(ConsoleBrushes.DebugForeground, ConsoleBrushes.DebugBackground, String.Format("DEBUG: {0}\n", message), target);
         }
 
 
         void IPSConsole.WriteErrorRecord(ErrorRecord errorRecord)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, errorRecord + "\n", _current);
+           Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, errorRecord + "\n", _current);
             if (errorRecord.InvocationInfo != null)
             {
                // Write is Dispatcher checked
-               Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n", _current);
+               Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n", _current);
             }
         }
 
@@ -290,25 +290,25 @@ namespace Huddled.WPF.Controls
         void IPSConsole.WriteErrorLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.ErrorForeground, _consoleBrushes.ErrorBackground, message + "\n", _current);
+           Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, message + "\n", _current);
         }
 
         void IPSConsole.WriteVerboseLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.VerboseForeground, _consoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
+           Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message), _current);
         }
 
         void IPSConsole.WriteWarningLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.WarningForeground, _consoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
+           Write(ConsoleBrushes.WarningForeground, ConsoleBrushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
         }
 
         void IPSConsole.WriteNativeLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.NativeOutputForeground, _consoleBrushes.NativeOutputBackground, message + "\n", _current);
+           Write(ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message + "\n", _current);
            Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
            // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
         }
@@ -316,7 +316,7 @@ namespace Huddled.WPF.Controls
         void IPSConsole.WriteNativeErrorLine(string message)
         {
            // Write is Dispatcher checked
-           Write(_consoleBrushes.NativeErrorForeground, _consoleBrushes.NativeErrorBackground, message + "\n", _current);
+           Write(ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message + "\n", _current);
            Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
         }
 

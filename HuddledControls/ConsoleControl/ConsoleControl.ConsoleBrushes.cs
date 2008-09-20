@@ -17,52 +17,52 @@ namespace Huddled.WPF.Controls
              switch (e.PropertyName)
              {
                 case "Black":
-                   _consoleBrushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
+                   ConsoleBrushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
                    goto case "ConsoleColors";
                 case "Blue":
-                   _consoleBrushes.Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
+                   ConsoleBrushes.Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
                    goto case "ConsoleColors";
                 case "Cyan":
-                   _consoleBrushes.Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
+                   ConsoleBrushes.Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
                    goto case "ConsoleColors";
                 case "DarkBlue":
-                   _consoleBrushes.DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
+                   ConsoleBrushes.DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
                    goto case "ConsoleColors";
                 case "DarkCyan":
-                   _consoleBrushes.DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
+                   ConsoleBrushes.DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
                    goto case "ConsoleColors";
                 case "DarkGray":
-                   _consoleBrushes.DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
+                   ConsoleBrushes.DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
                    goto case "ConsoleColors";
                 case "DarkGreen":
-                   _consoleBrushes.DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
+                   ConsoleBrushes.DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
                    goto case "ConsoleColors";
                 case "DarkMagenta":
-                   _consoleBrushes.DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
+                   ConsoleBrushes.DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
                    goto case "ConsoleColors";
                 case "DarkRed":
-                   _consoleBrushes.DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
+                   ConsoleBrushes.DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
                    goto case "ConsoleColors";
                 case "DarkYellow":
-                   _consoleBrushes.DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
+                   ConsoleBrushes.DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
                    goto case "ConsoleColors";
                 case "Gray":
-                   _consoleBrushes.Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
+                   ConsoleBrushes.Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
                    goto case "ConsoleColors";
                 case "Green":
-                   _consoleBrushes.Green = new SolidColorBrush(Properties.Colors.Default.Green);
+                   ConsoleBrushes.Green = new SolidColorBrush(Properties.Colors.Default.Green);
                    goto case "ConsoleColors";
                 case "Magenta":
-                   _consoleBrushes.Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
+                   ConsoleBrushes.Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
                    goto case "ConsoleColors";
                 case "Red":
-                   _consoleBrushes.Red = new SolidColorBrush(Properties.Colors.Default.Red);
+                   ConsoleBrushes.Red = new SolidColorBrush(Properties.Colors.Default.Red);
                    goto case "ConsoleColors";
                 case "White":
-                   _consoleBrushes.White = new SolidColorBrush(Properties.Colors.Default.White);
+                   ConsoleBrushes.White = new SolidColorBrush(Properties.Colors.Default.White);
                    goto case "ConsoleColors";
                 case "Yellow":
-                   _consoleBrushes.Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+                   ConsoleBrushes.Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
                    goto case "ConsoleColors";
 
                 case "ConsoleColors":
@@ -72,11 +72,11 @@ namespace Huddled.WPF.Controls
                       // Then we need to update the brush!
                       if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).ForegroundColor).Equals(e.PropertyName))
                       {
-                         Foreground = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                         Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
                       }
                       if (Enum.GetName(typeof(ConsoleColor), ((IPSRawConsole)this).BackgroundColor).Equals(e.PropertyName))
                       {
-                         Background = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                         Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
                       }
 
                    } break;
@@ -90,51 +90,51 @@ namespace Huddled.WPF.Controls
                    } break;
                 case "DebugBackground":
                    {
-                      _consoleBrushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+                      ConsoleBrushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
                    } break;
                 case "DebugForeground":
                    {
-                      _consoleBrushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+                      ConsoleBrushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
                    } break;
                 case "ErrorBackground":
                    {
-                      _consoleBrushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+                      ConsoleBrushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
                    } break;
                 case "ErrorForeground":
                    {
-                      _consoleBrushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+                      ConsoleBrushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
                    } break;
                 case "VerboseBackground":
                    {
-                      _consoleBrushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+                      ConsoleBrushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
                    } break;
                 case "VerboseForeground":
                    {
-                      _consoleBrushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+                      ConsoleBrushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
                    } break;
                 case "WarningBackground":
                    {
-                      _consoleBrushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+                      ConsoleBrushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
                    } break;
                 case "WarningForeground":
                    {
-                      _consoleBrushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+                      ConsoleBrushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
                    } break;
                 case "NativeOutputForeground":
                    {
-                      _consoleBrushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+                      ConsoleBrushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
                    } break;
                 case "NativeOutputBackground":
                    {
-                      _consoleBrushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+                      ConsoleBrushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
                    } break;
                 case "NativeErrorForeground":
                    {
-                      _consoleBrushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+                      ConsoleBrushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
                    } break;
                 case "NativeErrorBackground":
                    {
-                      _consoleBrushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+                      ConsoleBrushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
                    } break;
 
              }

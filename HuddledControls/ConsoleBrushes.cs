@@ -3,43 +3,43 @@ using System.Windows.Media;
 
 namespace Huddled.WPF.Controls
 {
-   public class ConsoleBrushes
+   public static class ConsoleBrushes
    {
-      public Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
-      public Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
-      public Brush Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
-      public Brush DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
-      public Brush DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
-      public Brush DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
-      public Brush DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
-      public Brush DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
-      public Brush DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
-      public Brush DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
-      public Brush Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
-      public Brush Green = new SolidColorBrush(Properties.Colors.Default.Green);
-      public Brush Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
-      public Brush Red = new SolidColorBrush(Properties.Colors.Default.Red);
-      public Brush White = new SolidColorBrush(Properties.Colors.Default.White);
-      public Brush Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+      public static Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
+      public static Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
+      public static Brush Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
+      public static Brush DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
+      public static Brush DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
+      public static Brush DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
+      public static Brush DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
+      public static Brush DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
+      public static Brush DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
+      public static Brush DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
+      public static Brush Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
+      public static Brush Green = new SolidColorBrush(Properties.Colors.Default.Green);
+      public static Brush Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
+      public static Brush Red = new SolidColorBrush(Properties.Colors.Default.Red);
+      public static Brush White = new SolidColorBrush(Properties.Colors.Default.White);
+      public static Brush Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
 
-      public Brush Transparent = Brushes.Transparent;
+      public static Brush Transparent = Brushes.Transparent;
 
-      public Brush DefaultBackground = null;
-      public Brush DefaultForeground = null;
-      public Brush DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
-      public Brush DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
-      public Brush ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
-      public Brush ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
-      public Brush VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
-      public Brush VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
-      public Brush WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
-      public Brush WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
-      public Brush NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
-      public Brush NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
-      public Brush NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
-      public Brush NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+      public static Brush DefaultBackground = null;
+      public static Brush DefaultForeground = null;
+      public static Brush DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+      public static Brush DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+      public static Brush ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+      public static Brush ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+      public static Brush VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+      public static Brush VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+      public static Brush WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+      public static Brush WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+      public static Brush NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+      public static Brush NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+      public static Brush NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+      public static Brush NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
 
-      public ConsoleBrushes()
+      static ConsoleBrushes()
       {
          DefaultBackground = BrushFromConsoleColor(Properties.Colors.Default.DefaultBackground);
          DefaultForeground = BrushFromConsoleColor(Properties.Colors.Default.DefaultForeground);
@@ -50,7 +50,7 @@ namespace Huddled.WPF.Controls
       /// </summary>
       /// <param name="color">The <see cref="ConsoleColor"/> to get a brush for</param>
       /// <returns>A <see cref="Brush"/></returns>
-      public Brush BrushFromConsoleColor(ConsoleColor? color)
+      public static Brush BrushFromConsoleColor(ConsoleColor? color)
       {
          switch (color)
          {
@@ -96,43 +96,42 @@ namespace Huddled.WPF.Controls
       ///  </summary>
       /// <param name="color">The <see cref="Brush"/> you want to know the color of</param>
       /// <returns>The corresponding <see cref="System.ConsoleColor"/>, if the <see cref="Brush"/> is one of ours, or White otherwise</returns>
-      public ConsoleColor ConsoleColorFromBrush(Brush color)
+      public static ConsoleColor ConsoleColorFromBrush(Brush color)
       {
          if (color == Black)
             return ConsoleColor.Black;
-         else if (color == Blue)
+         if (color == Blue)
             return ConsoleColor.Blue;
-         else if (color == Cyan)
+         if (color == Cyan)
             return ConsoleColor.Cyan;
-         else if (color == DarkBlue)
+         if (color == DarkBlue)
             return ConsoleColor.DarkBlue;
-         else if (color == DarkCyan)
+         if (color == DarkCyan)
             return ConsoleColor.DarkCyan;
-         else if (color == DarkGray)
+         if (color == DarkGray)
             return ConsoleColor.DarkGray;
-         else if (color == DarkGreen)
+         if (color == DarkGreen)
             return ConsoleColor.DarkGreen;
-         else if (color == DarkMagenta)
+         if (color == DarkMagenta)
             return ConsoleColor.DarkMagenta;
-         else if (color == DarkRed)
+         if (color == DarkRed)
             return ConsoleColor.DarkRed;
-         else if (color == DarkYellow)
+         if (color == DarkYellow)
             return ConsoleColor.DarkYellow;
-         else if (color == Gray)
+         if (color == Gray)
             return ConsoleColor.Gray;
-         else if (color == Green)
+         if (color == Green)
             return ConsoleColor.Green;
-         else if (color == Magenta)
+         if (color == Magenta)
             return ConsoleColor.Magenta;
-         else if (color == Red)
+         if (color == Red)
             return ConsoleColor.Red;
-         else if (color == White)
+         if (color == White)
             return ConsoleColor.White;
-         else if (color == Yellow)
+         if (color == Yellow)
             return ConsoleColor.Yellow;
-         else
-            return ConsoleColor.White;
+         
+         return ConsoleColor.White;
       }
-
    }
 }

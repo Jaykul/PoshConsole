@@ -25,7 +25,7 @@ namespace Huddled.WPF.Controls
    /// </summary>
    public partial class ConsoleControl : FlowDocumentScrollViewer
    {
-      static readonly ConsoleBrushes _consoleBrushes = new ConsoleBrushes();
+      //static readonly ConsoleBrushes ConsoleBrushes = new ConsoleBrushes();
 
       static ConsoleControl()
       {
@@ -232,7 +232,7 @@ namespace Huddled.WPF.Controls
          ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
          if (ConsoleControlObj != null)
          {
-            ConsoleControlObj.Background = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            ConsoleControlObj.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
          }
       }
 
@@ -264,7 +264,7 @@ namespace Huddled.WPF.Controls
          ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
          if (ConsoleControlObj != null)
          {
-            ConsoleControlObj.Foreground = _consoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            ConsoleControlObj.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
          }
       }
 
@@ -336,8 +336,8 @@ namespace Huddled.WPF.Controls
 
             new Run(text, target.ContentEnd)
             {
-               Background = _consoleBrushes.BrushFromConsoleColor(background),
-               Foreground = _consoleBrushes.BrushFromConsoleColor(foreground)
+               Background = ConsoleBrushes.BrushFromConsoleColor(background),
+               Foreground = ConsoleBrushes.BrushFromConsoleColor(foreground)
             };
             _commandContainer.BringIntoView();
          });
