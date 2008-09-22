@@ -76,8 +76,6 @@ namespace PoshConsole.PSHost
 		
 		public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
         {
-           // TODO: REIMPLEMENT PSHostUserInterface.PromptForChoice
-           //throw new NotImplementedException("The PromptForChoice method is not (yet) implemented!");
            return myConsole.PromptForChoice(caption, message, choices, defaultChoice);
         }
 		

@@ -31,7 +31,6 @@ namespace Huddled.WPF.Controls
       #region IPSRawConsole Members
 
       bool _waitingForKey = false;
-      ReadKeyOptions _readKeyOptions;
       LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
       readonly Queue<KeyInfo> _inputBuffer = new Queue<KeyInfo>();
 
@@ -50,8 +49,10 @@ namespace Huddled.WPF.Controls
          {
             if (_inputBuffer.Count == 0)
             {
+               _waitingForKey = true;
                _gotInput.Reset();
                _gotInput.WaitOne();
+               _waitingForKey = false;
             }
             else
             {

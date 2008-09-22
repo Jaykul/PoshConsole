@@ -25,39 +25,41 @@ namespace Huddled.WPF.Controls
 
          //Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
          //{
-         switch (e.Key)
-         {
-            case Key.Enter:
-               OnEnterPressed(e);
-               break;
+         if (!_waitingForKey) 
+            switch (e.Key)
+            {
+               case Key.Enter:
+                  OnEnterPressed(e);
+                  break;
 
-            case Key.Tab:
-               OnTabPressed(e);
-               break;
+               case Key.Tab:
+                  OnTabPressed(e);
+                  break;
 
-            case Key.F7:
-               OnHistoryMenu(e);
-               break;
+               case Key.F7:
+                  OnHistoryMenu(e);
+                  break;
 
-            case Key.Up:
-               OnUpPressed(e);
-               break;
+               case Key.Up:
+                  OnUpPressed(e);
+                  break;
 
-            case Key.Down:
-               OnDownPressed(e);
-               break;
+               case Key.Down:
+                  OnDownPressed(e);
+                  break;
 
-            case Key.PageUp:
-               OnPageUpPressed(e);
-               break;
+               case Key.PageUp:
+                  OnPageUpPressed(e);
+                  break;
 
-            case Key.PageDown:
-               OnPageDownPressed(e);
-               break;
-            default:
-               _expansion.Reset();
-               break;
-         }
+               case Key.PageDown:
+                  OnPageDownPressed(e);
+                  break;
+               default:
+                  _expansion.Reset();
+                  _cmdHistory.Reset();
+                  break;
+            }
       }
 
       private void OnDownPressed(KeyEventArgs e)
@@ -245,8 +247,6 @@ namespace Huddled.WPF.Controls
          Document.Blocks.Add(_next);
 
          UpdateLayout();
-
-         // ALWAYS clear input buffer OnCommand
          OnCommand(cmd);
 
          e.Handled = true;
