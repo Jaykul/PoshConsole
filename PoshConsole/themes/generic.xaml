@@ -4,5 +4,4 @@
     xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
     xmlns:local="clr-namespace:PoshConsole"
     >
-
 </ResourceDictionary>

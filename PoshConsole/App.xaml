@@ -4,13 +4,10 @@
     StartupUri="PoshConsole.xaml"
     >
     <Application.Resources>
-         
-    	<ResourceDictionary>
-    		<ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/>
-            <ResourceDictionary Source="Controls\PoshLook.xaml"/>
-         </ResourceDictionary.MergedDictionaries>
-    	</ResourceDictionary>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

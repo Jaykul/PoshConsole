@@ -335,17 +335,17 @@ namespace PoshConsole
          {
             if (record.RecordType == ProgressRecordType.Completed)
             {
-               progress.Visibility = Visibility.Collapsed;
+               progress1.Visibility = Visibility.Collapsed;
             }
             else
             {
-               progress.Visibility = Visibility.Visible;
+               progress1.Visibility = Visibility.Visible;
 
-               progress.Activity = record.Activity;
-               progress.Status = record.StatusDescription;
-               progress.Operation = record.CurrentOperation;
-               progress.PercentComplete = record.PercentComplete;
-               progress.TimeRemaining = TimeSpan.FromSeconds(record.SecondsRemaining);
+               progress1.Activity = record.Activity;
+               progress1.Status = record.StatusDescription;
+               progress1.Operation = record.CurrentOperation;
+               progress1.PercentComplete = record.PercentComplete;
+               progress1.TimeRemaining = TimeSpan.FromSeconds(record.SecondsRemaining);
             }
          }
       }
