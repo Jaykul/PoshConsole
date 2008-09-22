@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -46,6 +46,10 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Reference Assemblies\Microsoft\WindowsPowerShell\v2.0CTP2\System.Management.Automation.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
@@ -54,6 +58,7 @@
     <Compile Include="Interop\Hotkeys\HotkeyManager.cs" />
     <Compile Include="Interop\Hotkeys\KeyBindingCollection.cs" />
     <Compile Include="Interop\Hotkeys\NativeMethods.cs" />
+    <Compile Include="Interop\Keyboard.cs" />
     <Compile Include="Interop\NativeConsole.cs" />
     <Compile Include="Interop\Vista\Glass.cs" />
     <Compile Include="Interop\Vista\WindowImage.cs" />

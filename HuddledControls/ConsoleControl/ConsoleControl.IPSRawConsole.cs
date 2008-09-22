@@ -15,6 +15,7 @@ using System.Management.Automation;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
+using Huddled.Interop;
 using Huddled.WPF.Controls.Interfaces;
 using Size = System.Management.Automation.Host.Size;
 
@@ -32,7 +33,7 @@ namespace Huddled.WPF.Controls
       bool _waitingForKey = false;
       ReadKeyOptions _readKeyOptions;
       LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
-      Queue<KeyInfo> _reInputBuffer;
+      readonly Queue<KeyInfo> _inputBuffer = new Queue<KeyInfo>();
 
       ///<summary>
       ///Provides a way for scripts to request user input ...
@@ -40,9 +41,64 @@ namespace Huddled.WPF.Controls
       ///<returns></returns>
       KeyInfo IPSRawConsole.ReadKey(ReadKeyOptions options)
       {
-         // TODO: REIMPLEMENT PSHostRawUserInterface.ReadKey(ReadKeyOptions options)
-         throw new NotImplementedException("The ReadKey method is not (yet) implemented!");
+         if((options & (ReadKeyOptions.IncludeKeyUp| ReadKeyOptions.IncludeKeyDown)) == 0)
+         {
+            throw new MethodInvocationException("Cannot read key options. To read options either IncludeKeyDown, IncludeKeyUp or both must be set."); 
+         }
+
+         while (true)
+         {
+            if (_inputBuffer.Count == 0)
+            {
+               _gotInput.Reset();
+               _gotInput.WaitOne();
+            }
+            else
+            {
+
+               var ki = _inputBuffer.Dequeue();
+               if (ki.Character != 0)
+               {
+                  Dispatcher.BeginInvoke(
+                     (Action) (() => ShouldEcho(ki.Character, (options & ReadKeyOptions.NoEcho) == 0)));
+               }
+
+               if ((((options & ReadKeyOptions.IncludeKeyDown) > 0) && ki.KeyDown) ||
+                   (((options & ReadKeyOptions.IncludeKeyUp) > 0) && !ki.KeyDown))
+               {
+                  return ki;
+               }
+            }
+         }
       }
+
+      private void ShouldEcho(char ch, bool echo)
+      {
+         if (_commandBox.Text.Length > 0)
+         {         
+            if (ch == _commandBox.Text[0])
+            {
+               // emulate NoEcho by UN-echoing...
+               if (_commandBox.Text.Length > 1)
+               {
+                  _commandBox.Text = _commandBox.Text.Substring(1);
+               }
+               else
+               {
+                  _commandBox.Text = "";
+               }
+               // if we're NOT NoEcho, then re-echo it:
+               if (echo)
+               {
+                  Write(null, null, new string(ch, 1));
+               }
+            }
+         }
+      }
+
+
+
+      private int _keyIndex = 0;
 
       bool IPSRawConsole.KeyAvailable
       {
@@ -50,11 +106,11 @@ namespace Huddled.WPF.Controls
          {
             if (Dispatcher.CheckAccess())
             {
-               return _commandBox.Text.Length > 0;
+               return _commandBox.Text.Length > _keyIndex;
             }
             else
             {
-               return (bool)Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _commandBox.Text.Length > 0));
+               return (bool)Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _commandBox.Text.Length > _keyIndex));
             }
          }
       }

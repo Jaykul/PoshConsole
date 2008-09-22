@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -17,9 +18,11 @@ namespace Huddled.WPF.Controls
       /// <summary>
       /// Lets us intercept special keys for the control
       /// </summary>
+      /// <param name="sender"></param>
       /// <param name="e"></param>
       void _commandBox_PreviewKeyDown(object sender, KeyEventArgs e)
       {
+
          //Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
          //{
          switch (e.Key)
@@ -55,7 +58,6 @@ namespace Huddled.WPF.Controls
                _expansion.Reset();
                break;
          }
-
       }
 
       private void OnDownPressed(KeyEventArgs e)
@@ -198,8 +200,23 @@ namespace Huddled.WPF.Controls
          e.Handled = true;
       }
 
+      protected override void OnPreviewKeyUp(KeyEventArgs e)
+      {
+         Trace.WriteLine(string.Format("Preview KeyUp, queueing KeyInfo: {0} ({1})", e.Key, e.Handled));
+         // NOTE: if it's empty, it must have been CLEARed during the KeyDown, 
+         //       so we don't want to count the KeyUp either
+         if (_inputBuffer.Count > 0)
+         {
+            _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
+           _gotInput.Set();
+         }
+         base.OnPreviewKeyUp(e);
+      }
+
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
+         Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
+         _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
          if ((Keyboard.Modifiers & ModifierKeys.None) == 0) _commandBox.Focus();
          base.OnPreviewKeyDown(e);
       }
@@ -229,7 +246,9 @@ namespace Huddled.WPF.Controls
 
          UpdateLayout();
 
+         // ALWAYS clear input buffer OnCommand
          OnCommand(cmd);
+
          e.Handled = true;
       }
 

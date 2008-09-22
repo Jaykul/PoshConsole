@@ -200,7 +200,9 @@ namespace Huddled.WPF.Controls
             else if(Command != null)
             {
                Command(this, new CommandEventArgs{Command = command, OutputBlock = _current } );
-               _cmdHistory.Add(command); 
+               _cmdHistory.Add(command);
+               _inputBuffer.Clear();
+               Trace.WriteLine("OnCommand, clearing KeyInfo queue.");
             }
         }
 

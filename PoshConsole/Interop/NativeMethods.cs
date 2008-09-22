@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation.Host;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 
 namespace PoshConsole.Interop
 {
-    public partial class NativeMethods
+    public static partial class NativeMethods
     {
         [DllImport("user32.dll")]
         public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
@@ -104,5 +106,8 @@ namespace PoshConsole.Interop
             /// <remarks></remarks>
             MAPVK_VK_TO_VSC_EX = 0x4,
         }
+
+
+
     }
 }

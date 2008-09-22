@@ -546,9 +546,6 @@ namespace PoshConsole.PSHost
          //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
          //  This profile applies only to the current user and the Microsoft.PowerShell shell.
 
-
-         ExecutePipelineOutDefault(Properties.Resources.Prompt, false, result => { });
-
          var profiles = new[] {
                     Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
                     // Put this back if we can get our custom runspace working again.
@@ -582,6 +579,8 @@ namespace PoshConsole.PSHost
          {
             _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length - 1]);
          }
+
+         ExecutePipelineOutDefault(Properties.Resources.Prompt, false, result => { });
 
          if (cmd.Length > 0)
          {
