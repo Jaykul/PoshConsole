@@ -52,27 +52,6 @@ namespace Huddled.Interop
          MAPVK_VK_TO_VSC_EX = 0x4,
       }
 
-      [DllImport("user32.dll")]
-      public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
-
-      /// <summary>
-      /// The ToAscii function translates the specified virtual-key code and keyboard state 
-      /// to the corresponding character or characters. The function translates the code using 
-      /// the input language and physical keyboard layout identified by the keyboard layout handle.
-      /// </summary>
-      /// <param name="uVirtKey">Specifies the virtual-key code to be translated.</param>
-      /// <param name="uScanCode">Specifies the hardware scan code of the key to be translated. 
-      /// The high-order bit of this value is set if the key is up (not pressed). </param>
-      /// <param name="lpKeyState">Pointer to a 256-byte array that contains the current keyboard state. 
-      /// Each element (byte) in the array contains the state of one key. If the high-order bit of a byte is set, 
-      /// the key is down (pressed). The low bit, if set, indicates that the key is toggled on. In this function, 
-      /// only the toggle bit of the CAPS LOCK key is relevant. The toggle state of the NUM LOCK and SCROLL LOCK keys is ignored.</param>
-      /// <param name="lpChar">Pointer to the buffer that receives the translated character or characters.</param>
-      /// <param name="uFlags">Specifies whether a menu is active. This parameter must be 1 if a menu is active, or 0 otherwise.</param>
-      /// <returns></returns>
-      [DllImport("user32.dll")]
-      public static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags);
-
       /// <summary>
       /// The ToUnicode function translates the specified virtual-key code and keyboard state 
       /// to the corresponding Unicode character or characters. To specify a handle to the keyboard layout 
@@ -108,43 +87,24 @@ namespace Huddled.Interop
       public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
 
 
-
-      public static KeyInfo ToKeyInfo(this Key k)
-      {
-         var xConverter = new KeyConverter();
-         char xChar = xConverter.ConvertToString(k)[0];
-         return new KeyInfo(KeyInterop.VirtualKeyFromKey(k), xChar, ControlKeyStates.NumLockOn, false);
-      }
-
-
-      public static KeyInfo ToKeyInfo(this char c)
-      {
-         var kConverter = new KeyConverter();
-         Key xKey = (Key)kConverter.ConvertFromString(new string(c, 1));
-         return new KeyInfo(KeyInterop.VirtualKeyFromKey(xKey), c, ControlKeyStates.NumLockOn, false);
-      }
-
       /// <summary>
-      /// Create a KeyInfo from a character, specifying whether it's up or down
+      /// Create a KeyInfo from a <see cref="KeyEventArgs"/>
       /// </summary>
-      /// <param name="c">Alphanumeric characters only...</param>
-      /// <param name="keyDown">True for key down</param>
-      /// <returns>A KeyInfo object</returns>
-      public static KeyInfo ToKeyInfo(this char c, bool keyDown)
-      {
-         var kConverter = new KeyConverter();
-         Key xKey = (Key)kConverter.ConvertFromString(new string(c, 1));
-         return new KeyInfo(KeyInterop.VirtualKeyFromKey(xKey), c, ControlKeyStates.NumLockOn, keyDown);
-      }
-
+      /// <param name="e">The KeyEventArgs</param>
+      /// <returns>A KeyInfo struct</returns>
       public static KeyInfo ToKeyInfo(this KeyEventArgs e)
       {
          int vk = KeyInterop.VirtualKeyFromKey(e.Key);
-         char c = GetChar(vk, e.KeyboardDevice.IsKeyToggled(Key.CapsLock));
+         char c = GetChar(vk);
          return new KeyInfo(vk, c, e.KeyboardDevice.GetControlKeyStates(), e.IsDown);
       }
 
-      private static char GetChar(int vk, bool capsLock)
+      /// <summary>
+      /// Get the char from a VirtualKey -- MUST be called within the keyboard event handler.
+      /// </summary>
+      /// <param name="vk">VirtualKey code</param>
+      /// <returns>the character represented by the VirtualKey</returns>
+      private static char GetChar(int vk)
       {
          var ks = new byte[256];
          GetKeyboardState(ks);
@@ -152,7 +112,8 @@ namespace Huddled.Interop
          var sc = MapVirtualKey((uint)vk, MapType.MAPVK_VK_TO_VSC);
          var sb = new StringBuilder(2);
          var ch = (char)0;
-         switch (ToUnicode((uint)vk, sc, ks, sb, sb.Capacity, (uint)(capsLock ? 1 : 0)))
+
+         switch (ToUnicode((uint)vk, sc, ks, sb, sb.Capacity, 0))
          {
             case -1: break;
             case 0: break;
@@ -208,6 +169,62 @@ namespace Huddled.Interop
          }
          return controlStates;
       }
+
+
+      //// we didn't need these, but I'm saving them anyway
+      //private static int VK_CAPITAL = 0x14;
+      //private static byte TOGGLED = 0x01;
+      //private static byte PRESSED = 0x80;
+      // System.Diagnostics.Trace.WriteLine(string.Format("CapsLock: {0}",((ks[VK_CAPITAL] & TOGGLED)>0)));
+
+
+      //// These overloads are only PARTIALLY correct
+      //public static KeyInfo ToKeyInfo(this Key k)
+      //{
+      //   var xConverter = new KeyConverter();
+      //   char xChar = xConverter.ConvertToString(k)[0];
+      //   return new KeyInfo(KeyInterop.VirtualKeyFromKey(k), xChar, ControlKeyStates.NumLockOn, false);
+      //}
+
+      //public static KeyInfo ToKeyInfo(this char c)
+      //{
+      //   var kConverter = new KeyConverter();
+      //   Key xKey = (Key)kConverter.ConvertFromString(new string(c, 1));
+      //   return new KeyInfo(KeyInterop.VirtualKeyFromKey(xKey), c, ControlKeyStates.NumLockOn, false);
+      //}
+
+      ///// <summary>
+      ///// Create a KeyInfo from a character, specifying whether it's up or down
+      ///// </summary>
+      ///// <param name="c">Alphanumeric characters only...</param>
+      ///// <param name="keyDown">True for key down</param>
+      ///// <returns>A KeyInfo object</returns>
+      //public static KeyInfo ToKeyInfo(this char c, bool keyDown)
+      //{
+      //   var kConverter = new KeyConverter();
+      //   Key xKey = (Key)kConverter.ConvertFromString(new string(c, 1));
+      //   return new KeyInfo(KeyInterop.VirtualKeyFromKey(xKey), c, ControlKeyStates.NumLockOn, keyDown);
+      //}
+      [DllImport("user32.dll")]
+      public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
+
+      /// <summary>
+      /// The ToAscii function translates the specified virtual-key code and keyboard state 
+      /// to the corresponding character or characters. The function translates the code using 
+      /// the input language and physical keyboard layout identified by the keyboard layout handle.
+      /// </summary>
+      /// <param name="uVirtKey">Specifies the virtual-key code to be translated.</param>
+      /// <param name="uScanCode">Specifies the hardware scan code of the key to be translated. 
+      /// The high-order bit of this value is set if the key is up (not pressed). </param>
+      /// <param name="lpKeyState">Pointer to a 256-byte array that contains the current keyboard state. 
+      /// Each element (byte) in the array contains the state of one key. If the high-order bit of a byte is set, 
+      /// the key is down (pressed). The low bit, if set, indicates that the key is toggled on. In this function, 
+      /// only the toggle bit of the CAPS LOCK key is relevant. The toggle state of the NUM LOCK and SCROLL LOCK keys is ignored.</param>
+      /// <param name="lpChar">Pointer to the buffer that receives the translated character or characters.</param>
+      /// <param name="uFlags">Specifies whether a menu is active. This parameter must be 1 if a menu is active, or 0 otherwise.</param>
+      /// <returns></returns>
+      [DllImport("user32.dll")]
+      public static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags);
 
    }
 }
