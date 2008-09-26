@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Security;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +34,22 @@ namespace Huddled.WPF.Controls
        //[DllImport("credui", EntryPoint="CredUIPromptForCredentialsW", CharSet=CharSet.Unicode)]
        //private static extern CredUIReturnCodes CredUIPromptForCredentials(ref CREDUI_INFO pUiInfo, string pszTargetName, IntPtr Reserved, int dwAuthError, StringBuilder pszUserName, int ulUserNameMaxChars, StringBuilder pszPassword, int ulPasswordMaxChars, ref int pfSave, CREDUI_FLAGS dwFlags);
 
+
+      private PSInvalidCastException TryConvertTo(Type type, string input, out object output)
+      {
+         // default to string, that seems to be what PowerShell does
+            output = input;
+            try {
+               output = LanguagePrimitives.ConvertTo(input, type, CultureInfo.InvariantCulture);
+               return null;
+            } 
+            catch(PSInvalidCastException ice)
+            {
+               // Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, ice.Message );
+               return ice;
+            }
+      }
+
       // Possibly an alternative panel that pops up and can be closed?
       #region IPSConsole Members
 
@@ -44,45 +61,105 @@ namespace Huddled.WPF.Controls
          var results = new Dictionary<string, PSObject>();
          foreach (var fd in descriptions)
          {
-            var label = GetHotkeyAndLabel(fd.Label);
+            Type type = Type.GetType(fd.ParameterAssemblyFullName);
 
-            // TODO: Only show the help message if they ... something.
-            if (!String.IsNullOrEmpty(fd.HelpMessage)) ((IPSConsole)this).WriteLine(fd.HelpMessage);
-            if (!String.IsNullOrEmpty(fd.Name)) ((IPSConsole)this).Write(String.Format("\n{0}: ", fd.Name));
-
-            //((IPSConsole)this).WriteLine(ConsoleColor.Blue, ConsoleColor.Black, );
-
-            if (!fd.ParameterTypeFullName.Equals("System.Security.SecureString"))
+            if (type.IsArray)
             {
-               if (fd.DefaultValue != null)
+               type = type.GetElementType();
+               List<PSObject> output = new List<PSObject>();
+               int count = 0;
+               do
+               {
+                  PSObject single = GetSingle(  caption, message, 
+                                                string.Format("{0}[{1}]", fd.Name, count++), 
+                                                fd.HelpMessage, fd.DefaultValue, type);
+                  if(single == null) break;
+
+                  if(!(single.BaseObject is string) || ((string)single.BaseObject).Length > 0)
+                  {
+                     output.Add(single);
+                  } else break;
+               } while (true);
+
+               results[fd.Name] = PSObject.AsPSObject(output.ToArray());
+            } else
+            {
+               results[fd.Name] = GetSingle(caption, message, fd.Name, fd.HelpMessage, fd.DefaultValue, type);
+            }
+
+         }
+         return results;
+      }
+
+      private PSObject GetSingle(string caption, string message, string prompt, string help, PSObject psDefault, Type type)
+      {
+         if (null != type && type.Equals(typeof(PSCredential)))
+         {
+            return PSObject.AsPSObject(((IPSConsole)this).PromptForCredential(caption, message, String.Empty, prompt));
+         }
+
+
+         while(true)
+         {
+            // TODO: Only show the help message if they ... something.
+            if (!String.IsNullOrEmpty(help))
+               Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, help + "\n");
+
+            ((IPSConsole) this).Write(String.Format("\n{0}: ", prompt));
+
+            if (null != type && type.Equals(typeof (System.Security.SecureString)))
+            {
+               var userData = ((IPSConsole) this).ReadLineAsSecureString();
+               if (userData == null) userData = new SecureString();
+               return PSObject.AsPSObject(userData);
+            } // Note: This doesn't look the way it does in PowerShell, but it should work :)
+            else
+            {
+               if (psDefault != null)
                {
                   if (Dispatcher.CheckAccess())
                   {
-                     _commandBox.Text = fd.DefaultValue.ToString();
+                     _commandBox.Text = psDefault.ToString();
+                     _commandBox.SelectAll();
                   }
                   else
                   {
-                     Dispatcher.BeginInvoke(DispatcherPriority.Input,
-                                            (Action<string>)((def) =>
-                                                                 {
-                                                                    _commandBox.Text = def;
-                                                                    _commandBox.SelectAll();
-                                                                 }), fd.DefaultValue.ToString());
+                     Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action<string>) ((def) =>
+                                                                                           {
+                                                                                              _commandBox.Text = def;
+                                                                                              _commandBox.SelectAll();
+                                                                                           }), psDefault.ToString());
                   }
                }
-               var userData = ((IPSConsole)this).ReadLine();
-               if (userData == null) userData = ""; // return null;
-               results[fd.Name] = PSObject.AsPSObject(userData);
-            }
-            else
-            {
 
-               var userData = ((IPSConsole)this).ReadLineAsSecureString();
-               if (userData == null) userData = new SecureString();
-               results[fd.Name] = PSObject.AsPSObject(userData);
+               var userData = ((IPSConsole) this).ReadLine();
+
+               if (type != null && userData.Length > 0)
+               {
+                  object output;
+                  var ice = TryConvertTo(type, userData, out output);
+                  // Special exceptions that happen when casting to numbers and such ...
+                  if (ice == null)
+                  {
+                     return PSObject.AsPSObject(output);
+                  } 
+                  else if ((ice.InnerException is FormatException) || (ice.InnerException is OverflowException))
+                  {
+                     ((IPSConsole)this).WriteErrorLine(
+                        String.Format( @"Cannot recognize ""{0}"" as a {1} due to a format error.", userData, type.FullName )
+                        );
+                  }
+                  else
+                  {
+                     return PSObject.AsPSObject(String.Empty);
+                  }
+               } 
+               else if (userData.Length == 0)
+               {
+                      return PSObject.AsPSObject(String.Empty);
+               } else return PSObject.AsPSObject(userData);
             }
-         }
-         return results;
+         } 
       }
 
       int IPSConsole.PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
@@ -278,7 +355,7 @@ namespace Huddled.WPF.Controls
          _gotInputLine.WaitOne();
          _waitingForInput = false;
 
-         return _lastInputString;
+         return _lastInputString ?? String.Empty;
       }
 
       SecureString IPSConsole.ReadLineAsSecureString()
@@ -307,17 +384,9 @@ namespace Huddled.WPF.Controls
       PSCredential IPSConsole.PromptForCredential(string caption, string message, string userName, string targetName, 
          PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
       {
-         var user = new FieldDescription("User Name");
-         user.SetParameterType(typeof(string));
-         user.DefaultValue = PSObject.AsPSObject(userName);
-         user.IsMandatory = true;
 
-
-         var pass = new FieldDescription("Password");
-         pass.SetParameterType(typeof(SecureString));
-         pass.IsMandatory = true;
          Collection<FieldDescription> fields;
-         Dictionary<string, PSObject> login;
+         Dictionary<string, PSObject> login, password;
 
          // NOTE: I'm not sure this is the right action for the PromptForCredential targetName
          if (!String.IsNullOrEmpty(targetName))
@@ -325,25 +394,32 @@ namespace Huddled.WPF.Controls
             caption = string.Format("Credential for {0}\n\n{1}", targetName, caption);
          }
 
-         if ((options & PSCredentialUIOptions.ReadOnlyUserName) != PSCredentialUIOptions.Default )
+         if ((options & PSCredentialUIOptions.ReadOnlyUserName) == PSCredentialUIOptions.Default )
          {
-            fields = new Collection<FieldDescription>(new[] { pass });
-            login = ((IPSConsole)this).Prompt(caption, message, fields);
-            login["User Name"] = PSObject.AsPSObject(userName);
+            var user = new FieldDescription("User Name");
+            user.SetParameterType(typeof(string));
+            user.DefaultValue = PSObject.AsPSObject(userName);
+            user.IsMandatory = true;
+
+            do
+            {
+               fields = new Collection<FieldDescription>(new[] {user});
+               login = ((IPSConsole) this).Prompt(caption, message, fields);
+               userName = login["User Name"].BaseObject as string;
+            } while ( userName != null && userName.Length == 0);
          }
-         else
-         {
-            fields = new Collection<FieldDescription>(new[] {user, pass});
-            login = ((IPSConsole)this).Prompt( caption, message, fields);
-         }
+         
+         var pass = new FieldDescription("Password");
+         pass.SetParameterType(typeof(SecureString));
+         pass.IsMandatory = true;
+
+         fields = new Collection<FieldDescription>(new[] { pass });
+         password = ((IPSConsole)this).Prompt("", "", fields);
 
          // TODO: I can't figure out what to do with the PromptForCredential allowedCredentialTypes
          // TODO: I can't figure out what to do with the PromptForCredential options
 
-
-         return new PSCredential(
-            (string)login["User Name"].BaseObject,
-            (SecureString)login["Password"].BaseObject);
+         return new PSCredential(userName, (SecureString)password["Password"].BaseObject);
       }
 
       PSCredential IPSConsole.PromptForCredential(string caption, string message, string userName, string targetName)
