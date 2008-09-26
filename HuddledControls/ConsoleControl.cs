@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,14 +53,16 @@ namespace Huddled.WPF.Controls
 
 
       private readonly TextBox _commandBox;
+      private readonly PasswordBox _passwordBox;
       private readonly InlineUIContainer _commandContainer;
       protected Paragraph _current;
       protected Paragraph _next;
-     
+
+
 
       public ConsoleControl()
       {
-         _popup = new PopupMenu( this );
+         _popup = new PopupMenu(this);
          // Add the popup to the logical branch of the console so keystrokes can be
          // processed from the popup by the console for the tab-complete scenario.
          // E.G.: $Host.Pri[tab].  => "$Host.PrivateData." instead of swallowing the period.
@@ -74,11 +77,18 @@ namespace Huddled.WPF.Controls
                              Focusable = true,
                              AcceptsTab = true,
                           };
+         _passwordBox = new PasswordBox()
+                           {
+                              IsEnabled = true,
+                              Focusable = true
+                           };
          _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
+         _passwordBox.PreviewKeyDown += new KeyEventHandler(_passwordBox_PreviewKeyDown);
 
-   
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
       }
+
+
 
       public override void EndInit()
       {
@@ -126,13 +136,13 @@ namespace Huddled.WPF.Controls
             {
                _scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer;
             }
-            return _scrollViewer; 
+            return _scrollViewer;
          }
       }
 
       //private void NewParagraph()
       //{
-         
+
       //}
       public void Prompt(string prompt)
       {
@@ -153,7 +163,7 @@ namespace Huddled.WPF.Controls
       }
 
       private void SetPrompt()
-      {               
+      {
          // the problem is, the prompt might have used Write-Host
          // so we need to move the _commandContainer to the end.
          lock (_commandContainer)
@@ -163,8 +173,8 @@ namespace Huddled.WPF.Controls
          }
 
          UpdateLayout();
-
-         _commandBox.Focus();
+         ScrollViewer.ScrollToBottom();
+         _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
       }
 
       //private void TrimOutput()
@@ -320,7 +330,7 @@ namespace Huddled.WPF.Controls
 
             new Run(text, target.ContentEnd)
                 {
-                   Background = background, 
+                   Background = background,
                    Foreground = foreground
                 };
             ScrollViewer.ScrollToBottom();
@@ -339,7 +349,7 @@ namespace Huddled.WPF.Controls
                Background = ConsoleBrushes.BrushFromConsoleColor(background),
                Foreground = ConsoleBrushes.BrushFromConsoleColor(foreground)
             };
-            _commandContainer.BringIntoView();
+            ScrollViewer.ScrollToBottom();
          });
       }
 
@@ -348,7 +358,8 @@ namespace Huddled.WPF.Controls
       public string CurrentCommand
       {
          get { return _commandBox.Text; }
-         set { 
+         set
+         {
             _commandBox.Text = value;
             _commandBox.CaretIndex = value.Length;
          }
@@ -364,6 +375,7 @@ namespace Huddled.WPF.Controls
       // TODO: Check if other properties ought to be backed by dependency properties so they can be bound      
       public static readonly DependencyProperty TitleProperty =
           DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
+
 
 
       //private string _title;

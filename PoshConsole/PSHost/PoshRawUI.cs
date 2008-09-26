@@ -73,10 +73,10 @@ namespace PoshConsole.PSHost
         }
         /// <summary>
         /// This functionality is not currently implemented. The call simple returns silently.
-        /// </summary>
+        /// </summary
         public override void FlushInputBuffer()
         {
-            ;  //Do nothing...
+            myConsole.FlushInputBuffer();
         }
         #endregion Stuff I should move into IConsoleControl
         /// <summary>

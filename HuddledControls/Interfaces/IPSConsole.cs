@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Host;
+using System.Security;
 using System.Windows.Documents;
 
 namespace Huddled.WPF.Controls.Interfaces
@@ -33,9 +34,9 @@ namespace Huddled.WPF.Controls.Interfaces
       Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions);
       int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice);
       // void WriteProgress(long sourceId, ProgressRecord record);
-      // PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options);
-      // PSCredential PromptForCredential(string caption, string message, string userName, string targetName);
-      // SecureString ReadLineAsSecureString();
+      PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options);
+      PSCredential PromptForCredential(string caption, string message, string userName, string targetName);
+      SecureString ReadLineAsSecureString();
       string ReadLine();
       void Write(string value);
       void Write(string value, Block target);

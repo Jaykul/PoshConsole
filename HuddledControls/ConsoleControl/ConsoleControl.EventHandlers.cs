@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Huddled.WPF.Controls.Interfaces;
 using Huddled.WPF.Controls.Utility;
 using System.Windows.Threading;
 using System.Windows.Documents;
@@ -14,6 +15,36 @@ namespace Huddled.WPF.Controls
 {
    public partial class ConsoleControl
    {
+
+      void _passwordBox_PreviewKeyDown(object sender, KeyEventArgs e)
+      {
+         if (_waitingForInput)
+            switch (e.Key)
+            {
+               case Key.Enter:
+                  {
+                     // get the command
+                     _lastPassword = _passwordBox.SecurePassword;
+                     // clear the box
+                     ((IPSRawConsole)this).FlushInputBuffer();
+                     
+                     lock (_commandContainer)
+                     {
+                        // put the text in instead
+                        _current.Inlines.Add( new string( _passwordBox.PasswordChar, _lastPassword.Length) + "\n");
+                        // and move the _commandContainer to the "next" paragraph
+                        _current.Inlines.Remove(_commandContainer);
+                        _next = new Paragraph(_commandContainer);
+                     }
+                     Document.Blocks.Add(_next);
+                     // Wait until here to set the event, because we don't want to mess with that _commandContainer
+                     _gotInputLine.Set();
+                     UpdateLayout();
+                     e.Handled = true;
+                  }
+                  break;
+            }
+      }
 
       /// <summary>
       /// Lets us intercept special keys for the control
@@ -25,7 +56,7 @@ namespace Huddled.WPF.Controls
 
          //Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
          //{
-         if (!_waitingForKey) 
+         if (!_waitingForKey)
             switch (e.Key)
             {
                case Key.Enter:
@@ -102,7 +133,7 @@ namespace Huddled.WPF.Controls
       {
          if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
          {
-            Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);            
+            Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
          }
 
          base.OnPreviewMouseLeftButtonUp(e);
@@ -125,8 +156,6 @@ namespace Huddled.WPF.Controls
          }
          base.OnPreviewMouseWheel(e);
       }
-
-
 
       private void OnTabPressed(KeyEventArgs e)
       {
@@ -190,8 +219,6 @@ namespace Huddled.WPF.Controls
          //}
       }
 
-      
-
       /// <summary>
       /// Implement right-click the way the normal console does: paste into the prompt.
       /// </summary>
@@ -210,7 +237,7 @@ namespace Huddled.WPF.Controls
          if (_inputBuffer.Count > 0)
          {
             _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
-           _gotInput.Set();
+            _gotInputKey.Set();
          }
          base.OnPreviewKeyUp(e);
       }
@@ -219,13 +246,14 @@ namespace Huddled.WPF.Controls
       {
          Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
          _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
-         if ((Keyboard.Modifiers & ModifierKeys.None) == 0) _commandBox.Focus();
+         if ((Keyboard.Modifiers & ModifierKeys.None) == 0) 
+            _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          base.OnPreviewKeyDown(e);
       }
 
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {
-         if (!_popup.IsVisible) _commandBox.Focus();
+         if (!_popup.IsVisible) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          //_commandBox.RaiseEvent(e);
          base.OnPreviewTextInput(e);
       }
@@ -235,7 +263,7 @@ namespace Huddled.WPF.Controls
          // get the command
          string cmd = _commandBox.Text;
          // clear the box
-         _commandBox.Text = "";
+         ((IPSRawConsole)this).FlushInputBuffer();
          lock (_commandContainer)
          {
             // put the text in instead
@@ -245,7 +273,6 @@ namespace Huddled.WPF.Controls
             _next = new Paragraph(_commandContainer);
          }
          Document.Blocks.Add(_next);
-
          UpdateLayout();
          OnCommand(cmd);
 
@@ -268,12 +295,12 @@ namespace Huddled.WPF.Controls
       {
          if (e.Data.GetDataPresent(DataFormats.Text))
          {
-            _commandBox.Text = _commandBox.Text.Substring(0, _commandBox.CaretIndex) + ((string)e.Data.GetData(DataFormats.Text)) + _commandBox.Text.Substring(_commandBox.CaretIndex+1);
+            _commandBox.Text = _commandBox.Text.Substring(0, _commandBox.CaretIndex) + ((string)e.Data.GetData(DataFormats.Text)) + _commandBox.Text.Substring(_commandBox.CaretIndex + 1);
             e.Handled = true;
          }
          base.OnDrop(e);
       }
 
-   
+
    }
 }

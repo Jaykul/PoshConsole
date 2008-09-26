@@ -50,8 +50,8 @@ namespace Huddled.WPF.Controls
             if (_inputBuffer.Count == 0)
             {
                _waitingForKey = true;
-               _gotInput.Reset();
-               _gotInput.WaitOne();
+               _gotInputKey.Reset();
+               _gotInputKey.WaitOne();
                _waitingForKey = false;
             }
             else
@@ -378,10 +378,12 @@ namespace Huddled.WPF.Controls
          if (Dispatcher.CheckAccess())
          {
             _commandBox.Clear();
+            _passwordBox.Clear();
+            _inputBuffer.Clear();
          }
          else
          {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => _commandBox.Clear()));
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => { _commandBox.Clear(); _inputBuffer.Clear(); }));
          }
       }
 

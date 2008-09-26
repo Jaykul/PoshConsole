@@ -50,7 +50,6 @@ namespace PoshConsole.PSHost
       private Pipeline _pipeline;
       private static readonly Guid instanceId = Guid.NewGuid();
       public bool IsClosing;
-      protected int MaxBufferLength = 500;
       private readonly PoshRawUI myRawUI;
       /// <summary>
       /// The runspace for this interpeter.
@@ -622,7 +621,7 @@ namespace PoshConsole.PSHost
          string lastWord = Utilities.GetLastWord(cmdline);
 
          // Still need to do more Tab Completion
-         // TODO: Make PowerTab only necessariy for true POWER users.
+         // WishList: Make PowerTab only necessariy for true POWER users.
          // Ideally, you should be able to choose which TabExpansions you want
          // but get them all at _compiled_ speeds ... 
          //   TabComplete Parameters

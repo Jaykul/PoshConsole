@@ -81,14 +81,12 @@ namespace PoshConsole.PSHost
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
         {
-           // TODO: REIMPLEMENT PSHostUserInterface.PromptForCredential
-           throw new NotImplementedException("The PromptForCredential method is not (yet) implemented!");
-        }
+		   return myConsole.PromptForCredential(caption, message, userName, targetName, allowedCredentialTypes, options);
+      }
 		
 		public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
         {
-           // TODO: REIMPLEMENT PSHostUserInterface.PromptForCredential
-           throw new NotImplementedException("The PromptForCredential method is not (yet) implemented!");
+           return myConsole.PromptForCredential(caption, message, userName, targetName);
         }
 		
 		///// <summary>
@@ -110,8 +108,7 @@ namespace PoshConsole.PSHost
 		
 		public override System.Security.SecureString ReadLineAsSecureString()
         {
-           // TODO: IMPLEMENT PSHostUserInterface.ReadLineAsSecureString
-           throw new NotImplementedException("The method or operation is not implemented.");
+		   return myConsole.ReadLineAsSecureString();
         }
 		
 		#endregion [rgn]
