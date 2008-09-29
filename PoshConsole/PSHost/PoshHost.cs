@@ -481,7 +481,7 @@ namespace PoshConsole.PSHost
       /// <summary>
       /// Executes the shutdown profile(s).
       /// </summary>
-      internal void ExecuteShutdownProfile()
+      internal void ExecuteShutdownProfile( int exitCode )
       {
          //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
          //  This profile applies to all users and all shells.
@@ -512,7 +512,24 @@ namespace PoshConsole.PSHost
          }
          if (cmd.Length > 0)
          {
-            ExecutePipeline(new Command(cmd.ToString(), true, false), null);
+            ExecutePipeline(new Command(cmd.ToString(), true, false), result =>
+            {
+               if (result.Failure != null)
+               {
+                  // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
+                  WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+               }
+
+               if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
+                && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
+               {
+                  _runSpace.CloseAsync();
+               }
+
+               PsUi.SetShouldExit(exitCode);
+            });
+
+
             //try
             //{
             //    ExecuteHelper(cmd.ToString(), null, false);
@@ -525,6 +542,8 @@ namespace PoshConsole.PSHost
             //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
             //}
          }
+
+
          //else
          //{
          //   ExecutePromptFunction();
@@ -602,16 +621,15 @@ namespace PoshConsole.PSHost
       /// <param name="exitCode"></param>
       public override void SetShouldExit(int exitCode)
       {
-         if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
-            && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
-         {
-            _runSpace.CloseAsync();
-         }
          if (!IsClosing)
          {
             IsClosing = true;
-            // Application.Current.Shutdown(exitCode);
-            PsUi.SetShouldExit(exitCode);
+            //((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
+            ExecuteShutdownProfile(exitCode);
+            //((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
+         } else {
+         // Application.Current.Shutdown(exitCode);
+         // PsUi.SetShouldExit(exitCode);
          }
       }
       private List<string> buffer_TabComplete(string cmdline)

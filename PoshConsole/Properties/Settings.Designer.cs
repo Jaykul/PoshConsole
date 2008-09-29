@@ -37,7 +37,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("SingleBorderWindow")]
+        [global::System.Configuration.DefaultSettingValueAttribute("None")]
         public global::System.Windows.WindowStyle WindowStyle {
             get {
                 return ((global::System.Windows.WindowStyle)(this["WindowStyle"]));
@@ -121,7 +121,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool SnapToScreenEdge {
             get {
                 return ((bool)(this["SnapToScreenEdge"]));
@@ -145,7 +145,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool AlwaysOnTop {
             get {
                 return ((bool)(this["AlwaysOnTop"]));
@@ -193,7 +193,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4,8,4,4")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0,0,0,5")]
         public global::System.Windows.Thickness BorderThickness {
             get {
                 return ((global::System.Windows.Thickness)(this["BorderThickness"]));
@@ -205,7 +205,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool AutoHide {
             get {
                 return ((bool)(this["AutoHide"]));

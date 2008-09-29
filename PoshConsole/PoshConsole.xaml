@@ -106,18 +106,16 @@
         <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
         <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
 
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.0" Key="D0" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.1" Key="D1" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.2" Key="D2" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.3" Key="D3" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.4" Key="D4" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="1.5" Key="D5" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.6" Key="D6" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.7" Key="D7" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.8" Key="D8" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="0.9" Key="D9" Modifiers="Control" />
-
-
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
     </Window.InputBindings>
     <Window.ShowInTaskbar>
         <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>

@@ -136,9 +136,6 @@ namespace PoshConsole
       /// <param name="e">A <see cref="T:System.ComponentModel.CancelEventArgs"></see> that contains the event data.</param>
       protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
       {
-         ((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
-         if (_host != null) _host.ExecuteShutdownProfile();
-         ((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
          // // This doesn't fix the COM RCW problem
          // Dispatcher.Invoke((Action)(() => { _host.KillConsole(); }));
          _host.KillConsole();
@@ -267,7 +264,8 @@ namespace PoshConsole
 
       void IPSUI.SetShouldExit(int exitCode)
       {
-         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (Action)(() => Application.Current.Shutdown(exitCode)));
+         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,
+            (Action)(() => Application.Current.Shutdown(exitCode)));
       }
 
       ///// <summary>
@@ -724,25 +722,20 @@ namespace PoshConsole
 
       void OnHandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
       {
-         buffer.FontSize -= 1;
+         buffer.Zoom--;
       }
 
       void OnHandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
       {
-         buffer.FontSize += 1;
+         buffer.Zoom++;
       }
 
       void OnHandleSetZoom(object sender, ExecutedRoutedEventArgs e)
       {
          double zoom;
-         if (e.Parameter is double)
+         if (double.TryParse(e.Parameter.ToString(), out zoom))
          {
-            zoom = (double)e.Parameter;
-            buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
-         }
-         else if (e.Parameter is string && double.TryParse(e.Parameter.ToString(), out zoom))
-         {
-            buffer.FontSize = zoom * Properties.Settings.Default.FontSize;
+            buffer.Zoom = zoom;
          }
       }
 

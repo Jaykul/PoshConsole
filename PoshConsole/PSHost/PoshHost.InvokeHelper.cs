@@ -84,25 +84,66 @@ namespace PoshConsole.PSHost
          ExecutePipeline(commands, EmptyArray, callback);
       }
 
+      private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
+      {
+         ExecutePipelineOutDefault( command, EmptyArray, addToHistory, callback);
+      }
+
+      private void ExecutePipelineOutDefault(string command, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
+      {
+         ExecutePipeline( CreatePipelineOutDefault(command, addToHistory), input, callback);
+      }
+
+
       private void ExecutePipeline(Command[] commands, IEnumerable input, PipelineOutputHandler callback)
       {
-         var runner = new BackgroundWorker();
-         runner.DoWork += (a, b) => ExecutePipeline(CreatePipeline(commands), input, callback);
-         runner.RunWorkerAsync();
+         ExecutePipeline(CreatePipeline(commands), input, callback);
       }
 
 
       ManualResetEvent _ready = new ManualResetEvent(true);
-      // The PowerShell runspace isn't threaded, so it can't INVOKE a pipeline while there's another one open...
-      object _runspaceLock = new object();
-
       private void ExecutePipeline(Pipeline pipeline, IEnumerable input, PipelineOutputHandler callback)
+      {
+         // TODO: Solve the threading problem without breaking COM
+         // The PowerShell runspace isn't threaded, so it can't INVOKE a pipeline while there's another one open...
+         // having a bunch of BackgroundWorkers "magically" solved this for me, but ...
+         // apparently causes COM's RCW(Runtime Callable Wrapper) to be disposed (or abandoned in another thread)
+         // It seems the best way to multithread the UI is to have a persistent background worker thread
+         // which would pull the pipeline and input objects out and run them as fast as it could, 
+         // while the front end queues them up as fast as it *wants* to.
+         var _executeWorker = new BackgroundWorker();
+         if (_runSpace.RunspaceStateInfo.State == RunspaceState.Opened)
+         {
+            _executeWorker.DoWork += (a, b) =>
+                                        {
+                                           AttachCallback(pipeline, callback);
+
+                                           if (_pipeline != null)
+                                           {
+                                              System.Diagnostics.Trace.WriteLine(_ready.WaitOne(), "Runspace Unready");
+                                           }
+
+                                           _ready.Reset();
+                                           pipeline.InvokeAsync();
+                                           pipeline.Input.Write(input, true);
+                                           pipeline.Input.Close();
+                                           _pipeline = pipeline;
+                                        };
+            _executeWorker.RunWorkerAsync();
+         }
+      }
+
+      private void AttachCallback(Pipeline pipeline, PipelineOutputHandler callback)
       {
          // This is a dynamic anonymous delegate so that it can access the callback parameter
          pipeline.StateChanged += (EventHandler<PipelineStateEventArgs>)delegate(object sender, PipelineStateEventArgs e) // =>
          {
+            System.Diagnostics.Trace.WriteLine("Pipeline is " + e.PipelineStateInfo.State.ToString());
+
             if (e.PipelineStateInfo.IsDone())
             {
+               System.Diagnostics.Trace.WriteLine("Pipeline is Done");
+
                Pipeline completed = (Pipeline)Interlocked.Exchange(ref _pipeline, null);
                if (completed != null)
                {
@@ -124,37 +165,9 @@ namespace PoshConsole.PSHost
                      callback(new PipelineExecutionResult(results, errors, failure, e.PipelineStateInfo.State));
                   }
                }
+
             }
          };
-
-         lock (_runspaceLock)
-         {  
-            if(_pipeline != null)
-            {
-               System.Diagnostics.Trace.WriteLine(_ready.WaitOne(), "Runspace Unready");
-            }
-
-            _ready.Reset();
-            pipeline.InvokeAsync();
-            pipeline.Input.Write(input, true);
-            pipeline.Input.Close();
-            _pipeline = pipeline;
-         }
-      }
-
-      private void ExecutePipelineOutDefault(string command, bool addToHistory, PipelineOutputHandler callback)
-      {
-         ExecutePipelineOutDefault( command, EmptyArray, addToHistory, callback);
-      }
-
-      private void ExecutePipelineOutDefault(string command, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
-      {
-         if (_runSpace.RunspaceStateInfo.State == RunspaceState.Opened)
-         {
-            var runner = new BackgroundWorker();
-            runner.DoWork += (a, b) => ExecutePipeline( CreatePipelineOutDefault(command, addToHistory), input, callback);
-            runner.RunWorkerAsync();
-         }
       }
 
 

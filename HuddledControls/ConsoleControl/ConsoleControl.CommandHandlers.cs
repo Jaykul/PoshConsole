@@ -37,15 +37,32 @@ namespace Huddled.WPF.Controls
             ApplicationCommands.Stop.Execute(null, (IInputElement)control.Parent);
         }
 		
-		private static void OnCanDecreaseZoom(object target, CanExecuteRoutedEventArgs args)
-        {
-            args.CanExecute = ((ConsoleControl)(target)).FontSize > 1;
-        }
+      //private static void OnCanDecreaseZoom(object target, CanExecuteRoutedEventArgs args)
+      //  {
+      //      args.CanExecute = ((ConsoleControl)(target)).FontSize > 1;
+      //  }
+
 		
-		private static void OnCanExecuteCopy(object target, CanExecuteRoutedEventArgs args)
-        {
-            args.CanExecute = ((TextBoxBase)(target)).IsEnabled;
-        }
+      //private static void OnCanIncreaseZoom(object target, CanExecuteRoutedEventArgs args)
+      //  {
+      //      args.CanExecute = true;
+      //  }
+		
+       // TODO: REIMPLEMENT copy, and keyboard selection shortcuts
+       // ..... Including making sure that CUT does COPY?
+       // ..... And can we optionally change the "prompt" on copy?
+
+       //private static void OnCopy(object sender, ExecutedRoutedEventArgs e)
+      //  {
+            
+      //      ((FlowDocumentReader)sender).Copy();
+      //      e.Handled = true;
+      //  }
+		
+      //private static void OnCanExecuteCopy(object target, CanExecuteRoutedEventArgs args)
+      //  {
+      //      args.CanExecute = ((TextBoxBase)(target)).IsEnabled;
+      //  }
 		
 		private static void OnCanExecuteCut(object target, CanExecuteRoutedEventArgs args)
         {
@@ -59,23 +76,6 @@ namespace Huddled.WPF.Controls
             //ConsoleControl box = (ConsoleControl)target;
             //args.CanExecute = box._commandBox.IsEnabled && !box._commandBox.IsReadOnly && Clipboard.ContainsText();
         }
-		
-		private static void OnCanIncreaseZoom(object target, CanExecuteRoutedEventArgs args)
-        {
-            args.CanExecute = true;
-        }
-		
-       // TODO: REIMPLEMENT copy, and keyboard selection shortcuts
-       // ..... Including making sure that CUT does COPY?
-       // ..... And can we optionally change the "prompt" on copy?
-
-       //private static void OnCopy(object sender, ExecutedRoutedEventArgs e)
-      //  {
-            
-      //      ((FlowDocumentReader)sender).Copy();
-      //      e.Handled = true;
-      //  }
-
       private static void OnExecuteCut(object sender, ExecutedRoutedEventArgs e)
         {
             // Clipboard.SetText(((ConsoleControl)sender).Selection.Text);
@@ -86,22 +86,22 @@ namespace Huddled.WPF.Controls
             e.Handled = true;
         }
 		
-		private static void OnDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
-        {
-            ConsoleControl box = ((ConsoleControl)(sender));
+      //private static void OnDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
+      //  {
+      //      ConsoleControl box = ((ConsoleControl)(sender));
 
-            if (box.FontSize > 1)
-            {
-                box.FontSize -= 1.0;
-            }
+      //      if (box.FontSize > 1)
+      //      {
+      //          box.FontSize -= 1.0;
+      //      }
 
-            e.Handled = true;
-        }
+      //      e.Handled = true;
+      //  }
 		
-		private static void OnIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
-        {
-            ((ConsoleControl)(sender)).FontSize += 1.0;
-        }
+      //private static void OnIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
+      //  {
+      //      ((ConsoleControl)(sender)).FontSize += 1.0;
+      //  }
 		
 		private static void OnExecutePaste(object sender, ExecutedRoutedEventArgs e)
         {
@@ -129,30 +129,30 @@ namespace Huddled.WPF.Controls
             e.Handled = true;
         }
 		
-		private static void OnZoom(object sender, ExecutedRoutedEventArgs e)
-        {
-            ConsoleControl control = (ConsoleControl)sender;
+      //private static void OnZoom(object sender, ExecutedRoutedEventArgs e)
+      //  {
+      //      ConsoleControl control = (ConsoleControl)sender;
 
-            if (e.Parameter is double)
-            {
-                control.SetZoomFactor((double)(e.Parameter));
-                return;
-            }
+      //      if (e.Parameter is double)
+      //      {
+      //          control.SetZoomFactor((double)(e.Parameter));
+      //          return;
+      //      }
 
-            string parameter = e.Parameter as string;
-            double zoom = 1.0;
+      //      string parameter = e.Parameter as string;
+      //      double zoom = 1.0;
 
-            if (parameter != null && double.TryParse(parameter, out zoom))
-            {
-                control.SetZoomFactor(zoom);
-                return;
-            }
-        }
+      //      if (parameter != null && double.TryParse(parameter, out zoom))
+      //      {
+      //          control.SetZoomFactor(zoom);
+      //          return;
+      //      }
+      //  }
 		
-		private void SetZoomFactor(double zoom)
-        {            
-            FontSize = Math.Max(1.0, zoom * Document.FontSize);
-        }
+      //private void SetZoomFactor(double zoom)
+      //  {            
+      //      FontSize = Math.Max(1.0, zoom * Document.FontSize);
+      //  }
 		
 		#endregion 
 

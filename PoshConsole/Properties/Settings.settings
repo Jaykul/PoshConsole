@@ -6,7 +6,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">SingleBorderWindow</Value>
+      <Value Profile="(Default)">None</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -27,13 +27,13 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SnapToScreenEdge" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SnapDistance" Type="System.Double" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="AlwaysOnTop" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="Opacity" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
@@ -45,10 +45,10 @@
       <Value Profile="(Default)">#FF104C85</Value>
     </Setting>
     <Setting Name="BorderThickness" Type="System.Windows.Thickness" Scope="User">
-      <Value Profile="(Default)">4,8,4,4</Value>
+      <Value Profile="(Default)">0,0,0,5</Value>
     </Setting>
     <Setting Name="AutoHide" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="StartupBanner" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
