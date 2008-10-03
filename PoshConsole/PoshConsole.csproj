@@ -118,6 +118,7 @@
     <Compile Include="Cmdlets\AddHotkeyCommand.cs" />
     <Compile Include="Cmdlets\GetPoshOutputCommand.cs" />
     <Compile Include="Cmdlets\NewParagraphCommand.cs" />
+    <Compile Include="Cmdlets\ToggleWindowCommand.cs" />
     <Compile Include="Controls\Interop\NativeMethods.cs" />
     <Compile Include="Controls\ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
