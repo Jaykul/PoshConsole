@@ -48,7 +48,7 @@
       <Value Profile="(Default)">0,0,0,5</Value>
     </Setting>
     <Setting Name="AutoHide" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="StartupBanner" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -60,7 +60,7 @@
       <Value Profile="(Default)">12</Value>
     </Setting>
     <Setting Name="ScrollBarVisibility" Type="System.Windows.Controls.ScrollBarVisibility" Scope="User">
-      <Value Profile="(Default)">Auto</Value>
+      <Value Profile="(Default)">Visible</Value>
     </Setting>
     <Setting Name="StatusBar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

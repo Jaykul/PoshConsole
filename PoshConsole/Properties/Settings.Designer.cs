@@ -205,7 +205,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool AutoHide {
             get {
                 return ((bool)(this["AutoHide"]));
@@ -253,7 +253,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Auto")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Visible")]
         public global::System.Windows.Controls.ScrollBarVisibility ScrollBarVisibility {
             get {
                 return ((global::System.Windows.Controls.ScrollBarVisibility)(this["ScrollBarVisibility"]));

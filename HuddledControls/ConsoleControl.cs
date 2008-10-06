@@ -164,6 +164,7 @@ namespace Huddled.WPF.Controls
 
       private void SetPrompt()
       {
+         Dispatcher.VerifyAccess();
          // the problem is, the prompt might have used Write-Host
          // so we need to move the _commandContainer to the end.
          lock (_commandContainer)
@@ -173,46 +174,10 @@ namespace Huddled.WPF.Controls
          }
 
          UpdateLayout();
-         ScrollViewer.ScrollToBottom();
+         //ScrollViewer.ScrollToBottom();
          _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
       }
 
-      //private void TrimOutput()
-      //{
-      //   if (_current != null)
-      //   {
-      //      // and extra lines too...
-      //      // if the paragraph has content
-      //      if (_current.Inlines.Count > 0)
-      //      {
-      //         // trim from the end until we run out of inlines or hit some non-whitespace
-      //         Inline ln = _current.Inlines.LastInline;
-      //         while (ln != null)
-      //         {
-      //            Run run = ln as Run;
-      //            if (run != null)
-      //            {
-      //               run.Text = run.Text.TrimEnd();
-      //               // if there's text in this run, stop trimming!!!
-      //               if (run.Text.Length > 0) break;
-      //               ln = ln.PreviousInline;
-      //               _current.Inlines.Remove(run);
-      //            }
-      //            else if (ln is LineBreak)
-      //            {
-      //               Inline tmp = ln;
-      //               ln = ln.PreviousInline;
-      //               _current.Inlines.Remove(tmp);
-      //            }
-      //            else break;
-      //         }
-      //      }
-      //   }
-      //   //// paragraph break before each prompt ensure the command and it's output are in a paragraph on their own
-      //   //// This means that the paragraph select key (and triple-clicking) gets you a command and all it's output
-      //   // _current.ContentEnd.InsertParagraphBreak();
-      //   _current = _next;
-      //}
 
       #region Color Dependency Properties
       /// <summary>
@@ -311,6 +276,7 @@ namespace Huddled.WPF.Controls
       {
          Write(foreground, background, text, _current);
       }
+
       private void Write(ConsoleColor foreground, ConsoleColor background, string text)
       {
          Write(foreground, background, text, _current);

@@ -1,11 +1,3 @@
-//
-// Copyright (c) 2006 Microsoft Corporation. All rights reserved.
-// 
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF 
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A 
-// PARTICULAR PURPOSE.
-//
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,18 +35,9 @@ namespace PoshConsole.PSHost
       /// A Console window wrapper that hides the console
       /// </summary>
       private NativeConsole console;
-      /// <summary>
-      /// The currently executing pipeline 
-      /// (So it can be stopped by Control-C or Break).
-      /// </summary>
-      private Pipeline _pipeline;
       private static readonly Guid instanceId = Guid.NewGuid();
       public bool IsClosing;
       private readonly PoshRawUI myRawUI;
-      /// <summary>
-      /// The runspace for this interpeter.
-      /// </summary>
-      private readonly Runspace _runSpace;
       /// <summary>
       /// The PSHostUserInterface implementation
       /// </summary>
@@ -70,6 +53,7 @@ namespace PoshConsole.PSHost
       private readonly IPSUI PsUi;
       private string savedTitle = String.Empty;
       private readonly Command outDefault;
+      private readonly CommandRunner _runner;
 
       #endregion
 
@@ -79,6 +63,9 @@ namespace PoshConsole.PSHost
       public PoshHost(IPSUI PsUi)
       {
          _buffer = PsUi.Console;
+
+         MakeConsole();
+
          //StringHistory = new List<string>();
          Options = new PoshOptions(this, _buffer);
          this.PsUi = PsUi;
@@ -98,7 +85,9 @@ namespace PoshConsole.PSHost
          }
          catch (Exception ex)
          {
-            MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" + ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
+            MessageBox.Show(
+               "Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" +
+               ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
             throw;
          }
          _buffer.CommandBox.IsEnabled = false;
@@ -119,52 +108,19 @@ namespace PoshConsole.PSHost
          Properties.Settings.Default.PropertyChanged += SettingsPropertyChanged;
          // Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(SettingsSettingChanging);
          // Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
+         _runner = new CommandRunner(this);
+         _runner.RunspaceReady += (source, args) => _buffer.Dispatcher.BeginInvoke((Action) (() => {
+            _buffer.CommandBox.IsEnabled = true;
+            ExecutePromptFunction(PipelineState.Completed);
+         }));
 
-         // ToDo: it would be nice to customize the RunspaceConfiguration ... but it's too much work for now
-         //_runSpace = RunspaceFactory.CreateRunspace(this, new PoshRunspaceConfiguration());
-         _runSpace = RunspaceFactory.CreateRunspace(this);
-         // Set the default runspace, so that event handlers can run in the same runspace as commands.
-         // We _could_ hypothetically make this a different runspace, but it would probably cause issues.
-         Runspace.DefaultRunspace = _runSpace;
 
-         foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
-         {
-            var cmdlets = t.GetCustomAttributes(typeof(CmdletAttribute), false) as CmdletAttribute[];
-
-            if (cmdlets != null)
-            {
-               foreach (var cmdlet in cmdlets)
-               {
-                  _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry(
-                                    string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
-                                    string.Format("{0}.xml", t.Name)));
-               }
-            }
-         }
-
-         _runSpace.RunspaceConfiguration.Scripts.Append(new ScriptConfigurationEntry("prompt", "Write-Host 'Hello: '"));
-
-         //((ConsoleControl)PsUi.Console).Runspace = _runSpace;
-         //PSSnapInException warning;
-         //PSSnapInInfo pssii = myRunSpace.RunspaceConfiguration.AddPSSnapIn("PoshSnapin", out warning);
-         //if (warning != null)
-         //{
-         //    _buffer.WriteErrorLine("Couldn't load PoshSnapin, it's probably not registered.");
-         //    _buffer.WriteErrorLine(warning.Message);
-         //}
-         if (_runSpace.Version.Major >= 2)
-         {
-            _runSpace.ApartmentState = ApartmentState.STA;
-            _runSpace.ThreadOptions = PSThreadOptions.UseNewThread;
-         }
-
-         _runSpace.StateChanged += runSpace_StateChanged;
-         _runSpace.OpenAsync();
-         MakeConsole();
+         _runner.ShouldExit += (source, args) => SetShouldExit(args);
 
          //// Finally, STARTUP!
          //ExecuteStartupProfile();
       }
+
 
       #endregion
 
@@ -281,7 +237,11 @@ namespace PoshConsole.PSHost
 
       public void KillConsole()
       {
-         if (console != null) console.Dispose();
+         if (console != null)
+         {
+            console.Dispose();
+            _runner.Dispose();
+         }
          console = null;
       }
 
@@ -311,10 +271,7 @@ namespace PoshConsole.PSHost
       /// </summary>
       public void StopPipeline()
       {
-         if (_pipeline != null && _pipeline.PipelineStateInfo.State == PipelineState.Running)
-         {
-            _pipeline.StopAsync();
-         }
+         _runner.StopPipeline();
       }
       //public void StopPipeline()
       //{
@@ -370,15 +327,15 @@ namespace PoshConsole.PSHost
       //{
       //    try
       //    {
-      //        // execute the command with no input...
+      //        // execute the command with no Input...
       //        ExecuteHelper(cmd, null, true);
       //    }
       //    catch (RuntimeException rte)
       //    {
       //        // An exception occurred that we want to display ...
       //        // We have to run another pipeline, and pass in the error record.
-      //        // The runtime will bind the input to the $input variable
-      //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+      //        // The runtime will bind the Input to the $Input variable
+      //        ExecuteHelper("write-host ($Input | out-string) -fore darkyellow", rte.ErrorRecord, false);
       //    }
       //}
       ///// <summary>
@@ -402,9 +359,9 @@ namespace PoshConsole.PSHost
       //    {
       //        // An exception occurred that we want to display ...
       //        // We have to run another pipeline, and pass in the error record.
-      //        // The runtime will bind the input to the $input variable
+      //        // The runtime will bind the Input to the $Input variable
       //        ExecuteHelper("write-host \"ERROR: Your prompt function crashed!\n\" -fore darkyellow", null, false);
-      //        ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
+      //        ExecuteHelper("write-host ($Input | out-string) -fore darkyellow", rte.ErrorRecord, false);
       //        sb.Append("\n> ");
       //    }
       //    finally
@@ -416,38 +373,38 @@ namespace PoshConsole.PSHost
       {
          _buffer.CommandFinished(lastState);
          // It is IMPERATIVE that we call "New-Paragraph" before Prompt
-         ExecutePipeline(new Command[] { new Command("New-Paragraph"), new Command("Prompt") }, result =>
-            {
-               StringBuilder str = new StringBuilder();
+         _runner.Enqueue(new InputBoundCommand(new[] {"New-Paragraph", "Prompt"}, EmptyArray, result =>
+             {
+                StringBuilder str = new StringBuilder();
 
-               foreach (PSObject obj in result.Output)
-               {
-                  str.Append(obj);
-               }
-               // ToDo: write errors from PROMPT the same as we would for a regular command...
-               //if(result.State == PipelineState.Failed ) {
-               //   str.Append(result.Failure.Message);
-               //   str.Append(result.Failure.Message);
+                foreach(PSObject obj in result.Output)
+                {
+                   str.Append(obj);
+                }
+                // ToDo: write errors from PROMPT the same as we would for a regular command...
+                //if(result.State == PipelineState.Failed ) {
+                //   str.Append(result.Failure.Message);
+                //   str.Append(result.Failure.Message);
 
-               _buffer.Prompt(str.ToString());
-            });
+                _buffer.Prompt(str.ToString());
+             }){AddToHistory = false, RunAsScript = false, DefaultOutput = false});
       }
 
 
-      void runSpace_StateChanged(object sender, RunspaceStateEventArgs e)
-      {
-         if (e.RunspaceStateInfo.State == RunspaceState.Opened)
-         {
-            _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
-                                                 (Action)(() => PsUi.Console.CommandBox.IsEnabled = true));
-            ExecuteStartupProfile();
-         }
-         else
-         {
-            _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
-                                                 (Action)(() => PsUi.Console.CommandBox.IsEnabled = false));
-         }
-      }
+      //void runSpace_StateChanged(object sender, RunspaceStateEventArgs e)
+      //{
+      //   if (e.RunspaceStateInfo.State == RunspaceState.Opened)
+      //   {
+      //      _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+      //                                           (Action)(() => PsUi.Console.CommandBox.IsEnabled = true));
+      //      ExecuteStartupProfile();
+      //   }
+      //   else
+      //   {
+      //      _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+      //                                           (Action)(() => PsUi.Console.CommandBox.IsEnabled = false));
+      //   }
+      //}
 
       /// <summary>
       /// Handler for the IInput.GotUserInput event.
@@ -478,137 +435,6 @@ namespace PoshConsole.PSHost
 
       //  Internal Methods (2)
 
-      /// <summary>
-      /// Executes the shutdown profile(s).
-      /// </summary>
-      internal void ExecuteShutdownProfile( int exitCode )
-      {
-         //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
-         //  This profile applies to all users and all shells.
-         //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1
-         //  This profile applies to all users, but only to the PoshConsole shell.
-         //* %UserProfile%\My Documents\WindowsPowerShell\profile_exit.ps1
-         //  This profile applies only to the current user, but affects all shells.
-         //* %UserProfile%\\My Documents\WindowsPowerShell\PoshConsole_profile_exit.ps1
-         //  This profile applies only to the current user and the PoshConsole shell.
-
-         StringBuilder cmd = new StringBuilder();
-         foreach (string path in
-              new[] {
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile_exit.ps1")),
-                    // Put this back if we can get our custom runspace working again.
-                    // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")),
-                    // Put this back if we can get our custom runspace working again.
-                    // Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
-                })
-         {
-            if (File.Exists(path))
-            {
-               cmd.AppendFormat(". \"{0}\";", path);
-            }
-         }
-         if (cmd.Length > 0)
-         {
-            ExecutePipeline(new Command(cmd.ToString(), true, false), result =>
-            {
-               if (result.Failure != null)
-               {
-                  // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                  WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
-               }
-
-               if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
-                && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
-               {
-                  _runSpace.CloseAsync();
-               }
-
-               PsUi.SetShouldExit(exitCode);
-            });
-
-
-            //try
-            //{
-            //    ExecuteHelper(cmd.ToString(), null, false);
-            //}
-            //catch (RuntimeException rte)
-            //{
-            //    // An exception occurred that we want to display ...
-            //    // We have to run another pipeline, and pass in the error record.
-            //    // The runtime will bind the input to the $input variable
-            //    ExecuteHelper("write-host ($input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-            //}
-         }
-
-
-         //else
-         //{
-         //   ExecutePromptFunction();
-         //}
-      }
-
-      /// <summary>
-      /// Executes the startup profile(s).
-      /// </summary>
-      internal void ExecuteStartupProfile()
-      {
-         //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
-         //  This profile applies to all users and all shells.
-         //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile.ps1
-         //  This profile applies to all users, but only to the Microsoft.PowerShell shell.
-         //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
-         //  This profile applies only to the current user, but affects all shells.
-         //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
-         //  This profile applies only to the current user and the Microsoft.PowerShell shell.
-
-         var profiles = new[] {
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\profile.ps1")),
-                    // Put this back if we can get our custom runspace working again.
-                    // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\PoshConsole_profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile.ps1")),
-                    // Put this back if we can get our custom runspace working again.
-                    // Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile.ps1")),
-                    Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile.ps1")),
-                };
-
-         // just for the sake of the profiles...
-         List<string> existing = new List<string>(4);
-
-         StringBuilder cmd = new StringBuilder();
-         foreach (string path in profiles)
-         {
-            if (File.Exists(path))
-            {
-               existing.Add(path);
-               cmd.AppendFormat(". \"{0}\";\n", path);
-            }
-         }
-
-         _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-         if (existing.Count > 0)
-         {
-            _runSpace.SessionStateProxy.SetVariable("profile", existing[existing.Count - 1]);
-         }
-         else
-         {
-            _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length - 1]);
-         }
-
-         ExecutePipelineOutDefault(Properties.Resources.Prompt, false, result => { });
-
-         if (cmd.Length > 0)
-         {
-            ExecutePipelineOutDefault(cmd.ToString(), false, result => ExecutePromptFunction(result.State));
-         }
-         else
-         {
-            ExecutePromptFunction(PipelineState.NotStarted);
-         }
-      }
 
       #endregion
 
@@ -625,13 +451,15 @@ namespace PoshConsole.PSHost
          {
             IsClosing = true;
             //((IPSConsole)buffer).WriteVerboseLine("Running Exit Scripts...");
-            ExecuteShutdownProfile(exitCode);
+            _runner.ExecuteShutdownProfile(exitCode);
             //((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
          } else {
-         // Application.Current.Shutdown(exitCode);
-         // PsUi.SetShouldExit(exitCode);
+          //Application.Current.Shutdown(exitCode);
+          PsUi.SetShouldExit(exitCode);
          }
+
       }
+
       private List<string> buffer_TabComplete(string cmdline)
       {
          List<string> completions = new List<string>();
@@ -650,7 +478,7 @@ namespace PoshConsole.PSHost
          if (!string.IsNullOrEmpty(lastWord))
          {
             // TabComplete Cmdlets inside the pipeline
-            foreach (CmdletConfigurationEntry cmdlet in _runSpace.RunspaceConfiguration.Cmdlets)
+            foreach (CmdletConfigurationEntry cmdlet in _runner.RunspaceConfiguration.Cmdlets)
             {
                if (cmdlet.Name.StartsWith(lastWord, true, null))
                {
@@ -731,8 +559,8 @@ namespace PoshConsole.PSHost
       ///// A helper method which builds and executes a pipeline that returns it's output.
       ///// </summary>
       ///// <param name="cmd">The script to run</param>
-      ///// <param name="input">Any input arguments to pass to the script.</param>
-      //public Collection<PSObject> InvokeHelper(string cmd, object input)
+      ///// <param name="Input">Any Input arguments to pass to the script.</param>
+      //public Collection<PSObject> InvokeHelper(string cmd, object Input)
       //{
       //    Collection<PSObject> output = new Collection<PSObject>();
       //    if (_ready.WaitOne(10000, true))
@@ -756,10 +584,10 @@ namespace PoshConsole.PSHost
       //        {
       //            // currentPipeline.Commands[0].MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
 
-      //            // If there was any input specified, pass it in, and execute the pipeline.
-      //            if (input != null)
+      //            // If there was any Input specified, pass it in, and execute the pipeline.
+      //            if (Input != null)
       //            {
-      //                output = currentPipeline.Invoke(new object[] { input });
+      //                output = currentPipeline.Invoke(new object[] { Input });
       //            }
       //            else
       //            {
@@ -788,8 +616,8 @@ namespace PoshConsole.PSHost
       ///// Since all output goes to the default output, this method won't return anything.
       ///// </summary>
       ///// <param name="cmd">The script to run</param>
-      ///// <param name="input">Any input arguments to pass to the script.</param>
-      //void ExecuteHelper(string cmd, object input, bool history)
+      ///// <param name="Input">Any Input arguments to pass to the script.</param>
+      //void ExecuteHelper(string cmd, object Input, bool history)
       //{
       //    //// Ignore empty command lines.
       //    if (String.IsNullOrEmpty(cmd))
@@ -832,9 +660,9 @@ namespace PoshConsole.PSHost
       //            currentPipeline.Commands.Add( outDefault );
 
       //            currentPipeline.InvokeAsync();
-      //            if (input != null)
+      //            if (Input != null)
       //            {
-      //                currentPipeline.Input.Write(input);
+      //                currentPipeline.Input.Write(Input);
       //            }
       //            currentPipeline.Input.Close();
 

@@ -16,7 +16,7 @@ namespace PoshConsole.Interop
         /// <summary>
         /// The ToAscii function translates the specified virtual-key code and keyboard state 
         /// to the corresponding character or characters. The function translates the code using 
-        /// the input language and physical keyboard layout identified by the keyboard layout handle.
+        /// the Input language and physical keyboard layout identified by the keyboard layout handle.
         /// </summary>
         /// <param name="uVirtKey">Specifies the virtual-key code to be translated.</param>
         /// <param name="uScanCode">Specifies the hardware scan code of the key to be translated. 

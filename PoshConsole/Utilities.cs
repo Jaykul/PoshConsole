@@ -71,11 +71,11 @@ namespace PoshConsole
 
 		// [rgn] Public Methods (7)
 
-        //public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>( this IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
+        //public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>( this IEnumerable<TInput> Input, Converter<TInput, TOutput> converter)
         //{
-        //    if (input != null)
+        //    if (Input != null)
         //    {
-        //        foreach (TInput item in input)
+        //        foreach (TInput item in Input)
         //        {
         //            yield return converter(item);
         //        }
@@ -87,11 +87,11 @@ namespace PoshConsole
         //    return (T)collection[0];
         //}
 		
-        //public static void ForEach<T>(IEnumerable<T> input, Action<T> action)
+        //public static void ForEach<T>(IEnumerable<T> Input, Action<T> action)
         //{
-        //    if (input.fo != null)
+        //    if (Input.fo != null)
         //    {
-        //        foreach (T item in input)
+        //        foreach (T item in Input)
         //        {
         //            action(item);
         //        }
