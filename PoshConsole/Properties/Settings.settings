@@ -6,7 +6,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">None</Value>
+      <Value Profile="(Default)">ThreeDBorderWindow</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="AlwaysOnTop" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="Opacity" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>

@@ -272,6 +272,7 @@ namespace PoshConsole.PSHost
       public void StopPipeline()
       {
          _runner.StopPipeline();
+         if (_buffer.CurrentCommand.Length > 0) { _buffer.CurrentCommand = ""; }
       }
       //public void StopPipeline()
       //{

@@ -13,7 +13,7 @@
         <Setter Property="Margin" Value="0" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="AllowDrop" Value="True" />
-        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
         <!--<Setter Property="MinWidth" Value="250"/>-->
 

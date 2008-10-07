@@ -114,25 +114,15 @@ namespace PoshConsole.PSHost
          PipelineExecutionResult result = new PipelineExecutionResult();
          AutoResetEvent syncRoot = new AutoResetEvent(false);
 
-         ExecutePipeline(new[]{cmd}, EmptyArray, (r)=> 
+         _runner.Enqueue(new InputBoundCommand(new[]{cmd}, EmptyArray, (r)=> 
             {
                result = r;
                syncRoot.Set();
-            });
+            }){AddToHistory = false, DefaultOutput = false});
 
          syncRoot.WaitOne();
 
          return result.Output;
-
-         //PipelineExecutionResult result = ExecutePipelineSync(cmd);
-
-         //if (result.Failure != null)
-         //{
-         //   throw result.Failure;
-         //}
-
-         //errors = result.Errors;
-         //return result.Output;
       }
 
       //private T InvokePipelineSelectFirst<T>(Command cmd)
