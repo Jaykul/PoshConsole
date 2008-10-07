@@ -514,7 +514,10 @@ namespace PoshConsole
          Enqueue(new InputBoundCommand(new[] {Properties.Resources.Prompt}, new object[0], null));
          //existing.Add("New-Paragraph");
          existing.TrimExcess();
-         Enqueue(new InputBoundCommand(existing.ToArray(), new object[0], ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)));
+         Enqueue(new InputBoundCommand(new[] { ". \"" + string.Join("\";. \"", existing.ToArray())+"\";" }, 
+                                       new object[0], 
+                                       ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)
+                                       ));
       }
 
          //existing.Add();

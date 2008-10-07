@@ -51,7 +51,7 @@ namespace Huddled.WPF.Controls
 
       }
 
-
+      private readonly ConsoleBrushes _brushes;
       private readonly TextBox _commandBox;
       private readonly PasswordBox _passwordBox;
       private readonly InlineUIContainer _commandContainer;
@@ -62,6 +62,7 @@ namespace Huddled.WPF.Controls
 
       public ConsoleControl()
       {
+         _brushes = new ConsoleBrushes();
          _popup = new PopupMenu(this);
          // Add the popup to the logical branch of the console so keystrokes can be
          // processed from the popup by the console for the tab-complete scenario.
@@ -207,7 +208,7 @@ namespace Huddled.WPF.Controls
          ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
          if (ConsoleControlObj != null)
          {
-            ConsoleControlObj.Background = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            ConsoleControlObj.Background = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
          }
       }
 
@@ -239,7 +240,7 @@ namespace Huddled.WPF.Controls
          ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
          if (ConsoleControlObj != null)
          {
-            ConsoleControlObj.Foreground = ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            ConsoleControlObj.Foreground = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
          }
       }
 
@@ -312,8 +313,8 @@ namespace Huddled.WPF.Controls
 
             new Run(text, target.ContentEnd)
             {
-               Background = ConsoleBrushes.BrushFromConsoleColor(background),
-               Foreground = ConsoleBrushes.BrushFromConsoleColor(foreground)
+               Background = _brushes.BrushFromConsoleColor(background),
+               Foreground = _brushes.BrushFromConsoleColor(foreground)
             };
             ScrollViewer.ScrollToBottom();
          });
