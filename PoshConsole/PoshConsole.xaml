@@ -11,7 +11,7 @@
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
     Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
     Visibility="Visible"
-    AllowsTransparency="True"
+    AllowsTransparency="False"
     
     ResizeMode="CanResizeWithGrip"
     SnapsToDevicePixels="True"
@@ -29,7 +29,7 @@
     >
    <!--Background="{DynamicResource SolidBorderBrush}"-->
    <extensions:WindowChrome.WindowChrome>
-      <extensions:WindowChrome CornerRadius="20,0,5,5" CaptionElementName="Caption" UseGlassFrame="True" />
+      <extensions:WindowChrome CornerRadius="20,0,5,5" UseGlassFrame="True" /> <!--CaptionElementName="Caption"-->
    </extensions:WindowChrome.WindowChrome>
    <hotkeys:HotkeyManager.HotkeyManager>
       <hotkeys:HotkeyManager>
@@ -149,7 +149,8 @@
                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="2.75,0,0,0">
-               <huddle:ImageToggleButton x:Name="ElevatedButton" DefaultImage="pack://application:,,,/Artwork/information.png"
+               <huddle:ImageToggleButton x:Name="ElevatedButton" extensions:WindowChrome.HitTestable="True"
+                      DefaultImage="pack://application:,,,/Artwork/information.png"
          			    CheckedImage="pack://application:,,,/Artwork/exclamation.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnAdminToggle"
@@ -159,20 +160,27 @@
          				<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
          			</TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
             <StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-               <huddle:ImageButton x:Name="ToggleGlass" Click="OnToggleGlassClick" 
+               <huddle:ImageButton x:Name="ToggleGlass" extensions:WindowChrome.HitTestable="True"
+                                   Click="OnToggleGlassClick" 
                        Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
                        ToolTip="Toggle Vista Glass" Image="pack://application:,,,/Artwork/AppLightning.png" Width="Auto" Height="Auto" />
-               <huddle:ImageToggleButton x:Name="OnTopWindow" DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
+               <huddle:ImageToggleButton x:Name="OnTopWindow" extensions:WindowChrome.HitTestable="True"
+                                         DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnTopmost" Unchecked="OnUnTopmost"
          			    ToolTip="Toggle Always On Top" />
-               <huddle:ImageToggleButton x:Name="MaximizeButton" DefaultImage="pack://application:,,,/Artwork/AppMax.png"
+               <huddle:ImageToggleButton x:Name="MaximizeButton" extensions:WindowChrome.HitTestable="True"
+                                         DefaultImage="pack://application:,,,/Artwork/AppMax.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppRestore.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnMaximize" Unchecked="OnRestore"
          			    ToolTip="Maximize" />
-               <huddle:ImageButton x:Name="CloseButton" Click="OnCloseButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}" Image="pack://application:,,,/Artwork/AppClose.png" />
+               <huddle:ImageButton x:Name="CloseButton" extensions:WindowChrome.HitTestable="True"
+                                   Click="OnCloseButtonClick" 
+                                   Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  
+                                   ToolTip="Close" Foreground="{x:Null}" 
+                                   Image="pack://application:,,,/Artwork/AppClose.png" />
             </StackPanel>
 
          </Grid>

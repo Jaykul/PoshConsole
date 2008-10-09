@@ -63,46 +63,9 @@ namespace System.Windows.Extensions
             };
         }
 
-        //// TODO:
-        //// Verify that this really is sufficient.  There are DWMWINDOWATTRIBUTEs as well, so this may
-        //// be able to be turned off on a per-HWND basis, but I never see comments about that online...
-        //private static bool _IsCompositionEnabled
-        //{
-        //    get
-        //    {
-        //        if (!_OnVista)
-        //        {
-        //            return false;
-        //        }
-
-        //        return NativeMethods.DwmIsCompositionEnabled();
-        //    }
-        //}
-
-        /// <summary>Display the system menu at a specified location.</summary>
-        /// <param name="screenLocation">The location to display the system menu, in logical screen coordinates.</param>
-        public void ShowSystemMenu(Point screenLocation)
-        {
-            Point physicalScreenLocation = DpiHelper.LogicalPixelsToDevice(screenLocation);
-            _ShowSystemMenu(physicalScreenLocation);
-        }
-
-        private void _ShowSystemMenu(Point physicalScreenLocation)
-        {
-            const uint TPM_RETURNCMD = 0x0100;
-            const uint TPM_LEFTBUTTON = 0x0;
-
-            IntPtr hmenu = NativeMethods.GetSystemMenu(_hwnd, false);
-
-            uint cmd = NativeMethods.TrackPopupMenuEx(hmenu, TPM_LEFTBUTTON | TPM_RETURNCMD, (int)physicalScreenLocation.X, (int)physicalScreenLocation.Y, _hwnd, IntPtr.Zero);
-            if (0 != cmd)
-            {
-                NativeMethods.PostMessage(_hwnd, WM.SYSCOMMAND, new IntPtr(cmd), IntPtr.Zero);
-            }
-        }
-
         #region Attached Properties and support methods.
 
+        #region WindowChrome Attached Dependency Property
         public static readonly DependencyProperty WindowChromeProperty = DependencyProperty.RegisterAttached(
             "WindowChrome",
             typeof(WindowChrome),
@@ -176,7 +139,9 @@ namespace System.Windows.Extensions
 
             window.SetValue(WindowChromeProperty, chrome);
         }
+        #endregion WindowChrome Attached Dependency Property
 
+        #region HitTestable Attached Dependency Property
         public static readonly DependencyProperty HitTestableProperty = DependencyProperty.RegisterAttached(
             "HitTestable",
             typeof(bool),
@@ -204,10 +169,11 @@ namespace System.Windows.Extensions
 
             element.SetValue(HitTestableProperty, hitTestVisible);
         }
-
+        #endregion HitTestable Attached Dependency Property
         #endregion
 
         #region Dependency Properties and support methods.
+
 
         /// <summary>
         /// Generic DP callback.
@@ -241,6 +207,8 @@ namespace System.Windows.Extensions
             return value;
         }
 
+
+        #region UseGlassFrame Dependency Property
         public static readonly DependencyProperty UseGlassFrameProperty = DependencyProperty.Register(
             "UseGlassFrame",
             typeof(bool),
@@ -255,7 +223,9 @@ namespace System.Windows.Extensions
             get { return (bool)GetValue(UseGlassFrameProperty); }
             set { SetValue(UseGlassFrameProperty, value); }
         }
+        #endregion UseGlassFrame Dependency Property
 
+        #region IsGlassEnabled Dependency Property
         private static readonly DependencyPropertyKey IsGlassEnabledPropertyKey = DependencyProperty.RegisterReadOnly(
             "IsGlassEnabled",
             typeof(bool),
@@ -272,7 +242,9 @@ namespace System.Windows.Extensions
             get { return (bool)GetValue(IsGlassEnabledProperty); }
             private set { SetValue(IsGlassEnabledPropertyKey, value); }
         }
+        #endregion IsGlassEnabled Dependency Property
 
+        #region CaptionHeight Dependency Property
         public static readonly DependencyProperty CaptionHeightProperty = DependencyProperty.Register(
             "CaptionHeight",
             typeof(double),
@@ -285,45 +257,50 @@ namespace System.Windows.Extensions
             get { return (double)GetValue(CaptionHeightProperty); }
             set { SetValue(CaptionHeightProperty, value); }
         }
-
-        private FrameworkElement _CaptionElement;
-
-
-        public static readonly DependencyProperty CaptionElementNameProperty = DependencyProperty.Register(
-            "CaptionElementName",
-            typeof(string), 
-            typeof(WindowChrome),
-            new UIPropertyMetadata(null, _OnCaptionElementNameChanged, null, true));
-
-        private static void _OnCaptionElementNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-       {
-          var chrome = (WindowChrome)d;
-          if (chrome == null) throw new ArgumentNullException("d");
-          var window = chrome._window;
-          if (window != null)
-          {
-             if (string.IsNullOrEmpty((string) e.NewValue))
-             {
-                chrome._CaptionElement = null;
-             }
-             else
-             {
-                chrome._CaptionElement = window.FindName((string) e.NewValue) as FrameworkElement;
-             }
-          }
-       }
+        #endregion CaptionHeight Dependency Property
 
 
+       // #region CaptionElement Dependency Property
+       // private FrameworkElement _CaptionElement;
 
-       public string CaptionElementName
-        {
-           get { return (string)GetValue(CaptionElementNameProperty); }
-           set { SetValue(CaptionElementNameProperty, value); }
-        }
+
+       // public static readonly DependencyProperty CaptionElementNameProperty = DependencyProperty.Register(
+       //     "CaptionElementName",
+       //     typeof(string), 
+       //     typeof(WindowChrome),
+       //     new UIPropertyMetadata(null, _OnCaptionElementNameChanged, null, true));
+
+       // private static void _OnCaptionElementNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+       //{
+       //   var chrome = (WindowChrome)d;
+       //   if (chrome == null) throw new ArgumentNullException("d");
+       //   var window = chrome._window;
+       //   if (window != null)
+       //   {
+       //      if (string.IsNullOrEmpty((string) e.NewValue))
+       //      {
+       //         chrome._CaptionElement = null;
+       //      }
+       //      else
+       //      {
+       //         chrome._CaptionElement = window.FindName((string) e.NewValue) as FrameworkElement;
+       //      }
+       //   }
+       //}
 
 
 
-        // Not exposing a public setter for this property as it would have surprising results to the end-user.
+       //public string CaptionElementName
+       // {
+       //    get { return (string)GetValue(CaptionElementNameProperty); }
+       //    set { SetValue(CaptionElementNameProperty, value); }
+       // }
+
+       //#endregion CaptionElement Dependency Property
+
+       #region ResizeBorder Dependency Property
+
+       // Not exposing a public setter for this property as it would have surprising results to the end-user.
         private static readonly DependencyPropertyKey ResizeBorderPropertyKey = DependencyProperty.RegisterReadOnly(
             "ResizeBorder",
             typeof(Thickness),
@@ -343,6 +320,9 @@ namespace System.Windows.Extensions
             get { return (Thickness)GetValue(ResizeBorderProperty); }
             // private set { SetValue(ResizeBorderPropertyKey, value); }
         }
+        #endregion ResizeBorder Dependency Property
+
+        #region ClientBorderThickness Dependency Property
 
         // TODO: The WPF SystemParameters class is wrong on Vista.  Need to P/Invoke to get the right data.
         // There's the additional iPaddedBorderWidth field on NONCLIENTMETRICS structure that's not being accounted for.
@@ -373,6 +353,9 @@ namespace System.Windows.Extensions
             get { return (Thickness)GetValue(ClientBorderThicknessProperty); }
             set { SetValue(ClientBorderThicknessProperty, value); }
         }
+        #endregion ClientBorderThickness Dependency Property
+
+        #region CornerRadius Dependency Property
 
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
             "CornerRadius",
@@ -406,8 +389,51 @@ namespace System.Windows.Extensions
             get { return (CornerRadius)GetValue(CornerRadiusProperty); }
             set { SetValue(CornerRadiusProperty, value); }
         }
+        #endregion CornerRadius Dependency Property
+
 
         #endregion
+
+
+
+        //// TODO:
+        //// Verify that this really is sufficient.  There are DWMWINDOWATTRIBUTEs as well, so this may
+        //// be able to be turned off on a per-HWND basis, but I never see comments about that online...
+        //private static bool _IsCompositionEnabled
+        //{
+        //    get
+        //    {
+        //        if (!_OnVista)
+        //        {
+        //            return false;
+        //        }
+
+        //        return NativeMethods.DwmIsCompositionEnabled();
+        //    }
+        //}
+
+        /// <summary>Display the system menu at a specified location.</summary>
+        /// <param name="screenLocation">The location to display the system menu, in logical screen coordinates.</param>
+        public void ShowSystemMenu(Point screenLocation)
+        {
+           Point physicalScreenLocation = DpiHelper.LogicalPixelsToDevice(screenLocation);
+           _ShowSystemMenu(physicalScreenLocation);
+        }
+
+        private void _ShowSystemMenu(Point physicalScreenLocation)
+        {
+           const uint TPM_RETURNCMD = 0x0100;
+           const uint TPM_LEFTBUTTON = 0x0;
+
+           IntPtr hmenu = NativeMethods.GetSystemMenu(_hwnd, false);
+
+           uint cmd = NativeMethods.TrackPopupMenuEx(hmenu, TPM_LEFTBUTTON | TPM_RETURNCMD, (int)physicalScreenLocation.X, (int)physicalScreenLocation.Y, _hwnd, IntPtr.Zero);
+           if (0 != cmd)
+           {
+              NativeMethods.PostMessage(_hwnd, WM.SYSCOMMAND, new IntPtr(cmd), IntPtr.Zero);
+           }
+        }
+
 
         private void _SetWindow(Window window)
         {
@@ -416,17 +442,17 @@ namespace System.Windows.Extensions
 
             _window = window;
 
-           if(_CaptionElement == null && !string.IsNullOrEmpty(CaptionElementName))
-           {
-              if (!_window.IsLoaded)
-              {
-                 _window.SourceInitialized +=
-                    (sender, e) => _CaptionElement = _window.FindName(CaptionElementName) as FrameworkElement;
-              } else
-              {
-                 _CaptionElement = _window.FindName(CaptionElementName) as FrameworkElement;
-              }
-           }
+           //if(_CaptionElement == null && !string.IsNullOrEmpty(CaptionElementName))
+           //{
+           //   if (!_window.IsLoaded)
+           //   {
+           //      _window.SourceInitialized +=
+           //         (sender, e) => _CaptionElement = _window.FindName(CaptionElementName) as FrameworkElement;
+           //   } else
+           //   {
+           //      _CaptionElement = _window.FindName(CaptionElementName) as FrameworkElement;
+           //   }
+           //}
 
             var resourceLocater = new Uri("/" + Assembly.GetExecutingAssembly().GetName().Name + ";component/ChromelessWindowTemplate.xaml", System.UriKind.Relative);
             _template = (ControlTemplate)Application.LoadComponent(resourceLocater);
@@ -954,27 +980,27 @@ namespace System.Windows.Extensions
             bool onResizeBorder = false;
 
 
-            if (_CaptionElement != null)
-            {
-               var captionCheck = _CaptionElement.PointFromScreen(mousePosition);
-               if (captionCheck.X > 0 &&
-                  captionCheck.Y > 0 &&
-                  captionCheck.Y < _CaptionElement.ActualHeight &&
-                  captionCheck.X < _CaptionElement.ActualWidth)
-               {
-                  return HT.CAPTION;
-               } else Trace.Write( String.Format("({0},{1})", captionCheck.X, captionCheck.Y) );
-            }                                             
+            //if (_CaptionElement != null)
+            //{
+            //   var captionCheck = _CaptionElement.PointFromScreen(mousePosition);
+            //   if (captionCheck.X > 0 &&
+            //      captionCheck.Y > 0 &&
+            //      captionCheck.Y < _CaptionElement.ActualHeight &&
+            //      captionCheck.X < _CaptionElement.ActualWidth)
+            //   {
+            //      return HT.CAPTION;
+            //   } else Trace.Write( String.Format("({0},{1})", captionCheck.X, captionCheck.Y) );
+            //}                                             
 
             // Determine if the point is at the top or bottom of the window.
             if (mousePosition.Y >= windowPosition.Top && mousePosition.Y < windowPosition.Top + ResizeBorder.Top + CaptionHeight)
             {
                   onResizeBorder = (mousePosition.Y < (windowPosition.Top + ResizeBorder.Top));
-                  if (!onResizeBorder && (_CaptionElement != null))
-                  {
-                     Trace.WriteLine(String.Format("[{0},{1}]", mousePosition.X, mousePosition.Y));
-                     return HT.NOWHERE;
-                  }
+                  //if (!onResizeBorder && (_CaptionElement != null))
+                  //{
+                  //   Trace.WriteLine(String.Format("[{0},{1}]", mousePosition.X, mousePosition.Y));
+                  //   return HT.NOWHERE;
+                  //}
                   uRow = 0; // top (caption or resize border)
             }
             else if (mousePosition.Y < windowPosition.Bottom && mousePosition.Y >= windowPosition.Bottom - (int)ResizeBorder.Bottom)
