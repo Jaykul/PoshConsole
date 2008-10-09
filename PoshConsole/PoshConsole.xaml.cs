@@ -756,6 +756,17 @@ namespace PoshConsole
          WindowState = WindowState.Normal;
          ((ButtonBase)sender).ToolTip = "Maximize";
       }
+      private void OnCloseButtonClick(object sender, RoutedEventArgs e)
+      {
+         Close();
+      }
+
+      private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
+      {
+         WindowState = WindowState.Minimized;
+      }
+
+
       private void OnTopmost(object sender, RoutedEventArgs e)
       {
          Settings.Default.AlwaysOnTop = true;
@@ -765,18 +776,6 @@ namespace PoshConsole
          Settings.Default.AlwaysOnTop = false;
       }
 
-      private void OnCloseButtonClick(object sender, RoutedEventArgs e)
-      {
-         Close();
-      }
-
-      private void Search_PreviewTextInput(object sender, TextCompositionEventArgs e)
-      {
-         if(e.Text.Contains("\n"))
-         {
-            
-         }
-      }
 
       private void OnFindButtonClick(object sender, RoutedEventArgs e)
       {

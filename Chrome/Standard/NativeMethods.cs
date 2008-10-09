@@ -423,13 +423,20 @@ namespace Standard
     [Serializable, StructLayout(LayoutKind.Sequential)]
     struct MARGINS
     {
+       /// <summary>
+       /// Create a Device MARGINS struct from a (DPI-aware) Logical Thickness
+       /// </summary>
+       /// <param name="t">The Thickness to convert</param>
        public MARGINS(System.Windows.Thickness t)
        {
-          Left = (int)t.Left;
-          Right = (int)t.Right;
-          Top = (int)t.Top;
-          Bottom = (int)t.Bottom;
+          t = DpiHelper.LogicalPixelsToDevice(t);
+
+          Left = (int)Math.Ceiling(t.Left);
+          Right = (int)Math.Ceiling(t.Right);
+          Top = (int)Math.Ceiling(t.Top);
+          Bottom = (int)Math.Ceiling(t.Bottom);
        }
+
        public int Left;
        public int Right;
        public int Top;

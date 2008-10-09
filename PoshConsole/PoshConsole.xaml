@@ -24,13 +24,12 @@
     LocationChanged="OnWindowLocationChanged"
     SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
-    Width="750" Height="500" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
-    BorderBrush="{x:Null}" Background="{DynamicResource SolidBorderBrush}" BorderThickness="8,8,8,8"
+    Width="750" Height="500" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d" Background="{DynamicResource SolidBorderBrush}" BorderBrush="{DynamicResource SolidBorderBrush}" BorderThickness="0.1,0,0,0"
     >
-   <!--Background="{DynamicResource SolidBorderBrush}"-->
    <extensions:WindowChrome.WindowChrome>
-      <extensions:WindowChrome CornerRadius="20,0,5,5" UseGlassFrame="True" /> <!--CaptionElementName="Caption"-->
+      <extensions:WindowChrome CornerRadius="20,0,5,5" />
    </extensions:WindowChrome.WindowChrome>
+   
    <hotkeys:HotkeyManager.HotkeyManager>
       <hotkeys:HotkeyManager>
          <KeyBinding Command="hotkeys:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
@@ -51,6 +50,15 @@
       <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
       <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
 
+	    <Style TargetType="{x:Type ButtonBase}" x:Key="CaptionButtonStyle">
+	      <Setter Property="Visibility" Value="Visible"/>
+	      <Setter Property="extensions:WindowChrome.HitTestable" Value="True"/>
+	      <Style.Triggers>
+	        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(extensions:WindowChrome.WindowChrome).IsGlassEnabled}" Value="True">
+	          <Setter Property="Visibility" Value="Hidden"/>
+	        </DataTrigger>
+	      </Style.Triggers>
+	    </Style>
       <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
          <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
          <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
@@ -81,11 +89,6 @@
          <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
       </Style>
    </Window.Resources>
-   <!--
-    xmlns:PoshControls="http://schemas.poshconsole.org/controls"
-    xmlns:PoshInterop="http://schemas.poshconsole.org/interop"
-    xmlns:Properties="http://schemas.poshconsole.org/properties"
-    -->
    <Window.CommandBindings>
       <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
       <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
@@ -100,8 +103,7 @@
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
 
-      <!-- Default Binding 
-        -->
+      <!-- Default Binding -->
       <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
       <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
       <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
@@ -139,16 +141,16 @@
    <Window.Topmost>
       <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
    </Window.Topmost>
-   <Border x:Name="border" CornerRadius="20,0,5,5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}" BorderBrush="{Binding Path=BorderBrush, ElementName=window, Mode=Default}" Background="{Binding Path=Background, ElementName=window, Mode=Default}">
+   <Border x:Name="border" CornerRadius="20,0,5,5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderBrush="{Binding Path=Background, ElementName=window, Mode=Default}" Background="{Binding Path=Background, ElementName=window, Mode=Default}"><!--Mode=Default, Source={StaticResource SettingsDS}}"-->
       <DockPanel d:LayoutOverrides="HorizontalAlignment, VerticalAlignment, GridBox" Margin="0,0,0,0" Grid.Column="1" Grid.Row="1" LastChildFill="True">
-         <Grid Cursor="Arrow" d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="#FF000000" DockPanel.Dock="Top">
+         <Grid Cursor="Arrow" d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Height="25" DockPanel.Dock="Top" Background="{x:Null}">
             <Grid.ColumnDefinitions>
-               <ColumnDefinition MinWidth="40" Width="42.25"/>
+               <ColumnDefinition MinWidth="45" Width="50"/>
                <ColumnDefinition Width="Auto" MinWidth="20"/>
                <ColumnDefinition Width="*"/>
                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="2.75,0,0,0">
+            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0">
                <huddle:ImageToggleButton x:Name="ElevatedButton" extensions:WindowChrome.HitTestable="True"
                       DefaultImage="pack://application:,,,/Artwork/information.png"
          			    CheckedImage="pack://application:,,,/Artwork/exclamation.png"
@@ -163,52 +165,65 @@
                <huddle:ImageButton x:Name="ToggleGlass" extensions:WindowChrome.HitTestable="True"
                                    Click="OnToggleGlassClick" 
                        Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-                       ToolTip="Toggle Vista Glass" Image="pack://application:,,,/Artwork/AppLightning.png" Width="Auto" Height="Auto" />
+                       ToolTip="Toggle Vista Glass" Image="pack://application:,,,/Artwork/AppLightning.png" Width="25" Height="Auto" />
                <huddle:ImageToggleButton x:Name="OnTopWindow" extensions:WindowChrome.HitTestable="True"
                                          DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnTopmost" Unchecked="OnUnTopmost"
-         			    ToolTip="Toggle Always On Top" />
+         			    ToolTip="Toggle Always On Top" Width="25" />
+               <huddle:ImageButton x:Name="MinimizeButton" 
+			   			extensions:WindowChrome.HitTestable="True"
+			   			Style="{StaticResource CaptionButtonStyle}"
+                        Click="OnMinimizeButtonClick" 
+                       Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+                       ToolTip="Minimize" Image="pack://application:,,,/Artwork/AppHide.png" Width="25" Height="Auto" />
                <huddle:ImageToggleButton x:Name="MaximizeButton" extensions:WindowChrome.HitTestable="True"
+			   Style="{StaticResource CaptionButtonStyle}"
                                          DefaultImage="pack://application:,,,/Artwork/AppMax.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppRestore.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnMaximize" Unchecked="OnRestore"
-         			    ToolTip="Maximize" />
+         			    ToolTip="Maximize" Height="Auto" Width="25" />
                <huddle:ImageButton x:Name="CloseButton" extensions:WindowChrome.HitTestable="True"
+			   Style="{StaticResource CaptionButtonStyle}"
                                    Click="OnCloseButtonClick" 
                                    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  
                                    ToolTip="Close" Foreground="{x:Null}" 
-                                   Image="pack://application:,,,/Artwork/AppClose.png" />
+                                   Image="pack://application:,,,/Artwork/AppClose.png" Width="50" Margin="0,0,0,0" />
             </StackPanel>
 
          </Grid>
-         <StackPanel Cursor="Arrow" d:LayoutOverrides="GridBox" VerticalAlignment="Center" Height="25" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top" Margin="0,0,0,0" Width="Auto" >
-            <Grid d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top">
-               <Grid.ColumnDefinitions>
-                  <ColumnDefinition MinWidth="40" Width="45"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="5*"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-               </Grid.ColumnDefinitions>
-               <!--<StatusBar.BitmapEffect>
+         <Grid d:LayoutOverrides="GridBox" Height="25" DockPanel.Dock="Top" Width="Auto">
+         	<Grid.ColumnDefinitions>
+               <ColumnDefinition MinWidth="45" Width="52"/>
+               <ColumnDefinition Width="*"/>
+               <ColumnDefinition Width="Auto"/>
+         		<!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+         	</Grid.ColumnDefinitions>
+         	<!--<StatusBar.BitmapEffect>
         			<BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		</StatusBar.BitmapEffect>-->
-               <TextBlock Grid.Column="2"  x:Name="title" Padding="4,0,4,0" DockPanel.Dock="Left" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Left" VerticalAlignment="Bottom" >
-					<TextBlock.BitmapEffect>
-						<DropShadowBitmapEffect/>
-					</TextBlock.BitmapEffect>
-               </TextBlock>
-               <StackPanel x:Name="DocumentTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-                  <Button x:Name="FindButton" Click="OnFindButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}">
-                     <Image Source="pack://application:,,,/Artwork/Find.png" />
-                  </Button>
-               </StackPanel>
+         	<TextBox Grid.Column="1"  x:Name="title" Padding="4,0,4,0" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Stretch" VerticalAlignment="Center" d:LayoutOverrides="Width" Margin="0,0,0,0" >
+         		<TextBox.BitmapEffect>
+         			<DropShadowBitmapEffect/>
+         		</TextBox.BitmapEffect>
+         	</TextBox>
+         	<GridSplitter Grid.Column="1"/>
+         	<StackPanel x:Name="DocumentTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right" Margin="5,0,0,0">
+			               <huddle:ImageButton x:Name="FindButton" 
+                                   Click="OnFindButtonClick" 
+                       Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+                       ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="25" Height="Auto" />
 
-            </Grid>
-         </StackPanel>
+         		<TextBox x:Name="Search" Padding="4,0,4,0" Text="Search" HorizontalAlignment="Stretch" VerticalAlignment="Center" d:LayoutOverrides="Width" Margin="0,0,0,0" MinWidth="150" >
+         		<TextBox.BitmapEffect>
+         			<DropShadowBitmapEffect/>
+         		</TextBox.BitmapEffect>
+         	</TextBox>
+         	</StackPanel>
+
+         </Grid>
          <Grid>
             <Grid.ColumnDefinitions>
                <ColumnDefinition Width="0*"/>
@@ -255,7 +270,7 @@
                   <Paragraph ClearFloaters="Both" />
                </FlowDocument>
             </huddle:ConsoleControl>
-            <Ellipse HorizontalAlignment="Left" Margin="-5,-50,0,0" Width="45.083" Height="44.667" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top">
+            <Ellipse HorizontalAlignment="Left" Margin="0,-50,0,0" Width="45.083" Height="44.667" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top">
                <Ellipse.BitmapEffect>
                   <DropShadowBitmapEffect/>
                </Ellipse.BitmapEffect>
@@ -275,7 +290,7 @@
                   </LinearGradientBrush>
                </Ellipse.Fill>
             </Ellipse>
-            <Button Style="{DynamicResource SuperButton}" Margin="3,-44.666,0,0" Width="34.25" Height="32.25" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left"/>
+            <Button Style="{DynamicResource SuperButton}" Margin="8,-44.666,0,0" Width="34.25" Height="32.25" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left"/>
          </Grid>
 
       </DockPanel>

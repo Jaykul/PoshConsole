@@ -47,6 +47,15 @@ namespace Standard
             return _transformToDevice.Transform(logicalPoint);
         }
 
+        public static Thickness LogicalPixelsToDevice(Thickness logicalThickness)
+        {
+           Point deviceTopLeft = _transformToDevice.Transform(new Point(logicalThickness.Left, logicalThickness.Top));
+           Point deviceBottomRight = _transformToDevice.Transform(new Point(logicalThickness.Right, logicalThickness.Bottom));
+
+           return new Thickness(deviceTopLeft.X, deviceTopLeft.Y, deviceBottomRight.X, deviceBottomRight.Y);
+        }
+
+
         /// <summary>
         /// Convert a point in system coordinates to a point in device independent pixels (1/96").
         /// </summary>

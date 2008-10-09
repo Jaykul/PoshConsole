@@ -370,10 +370,7 @@ namespace System.Windows.Extensions
            {
               return value;
            }
-
-
            return value;
-
         }
 
         /// <summary>
@@ -943,20 +940,20 @@ namespace System.Windows.Extensions
                //    // Apply the transparent background to the HWND
                //    hwndSource.CompositionTarget.BackgroundColor = Colors.Transparent;
 
-               //    // Thickness is going to be DIPs, need to convert to system coordinates.
-               //    Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Left, ClientBorderThickness.Top));
-               //    Point deviceBottomRight = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Right, ClientBorderThickness.Bottom));
+                // Thickness is going to be DIPs, need to convert to system coordinates.
+                //Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Left, ClientBorderThickness.Top));
+                //Point deviceBottomRight = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Right, ClientBorderThickness.Bottom));
 
-               //    var dwmMargin = new MARGINS
-               //    {
-               //        // err on the side of pushing in glass an extra pixel.
-               //        cxLeftWidth = (int)Math.Ceiling(deviceTopLeft.X),
-               //        cxRightWidth = (int)Math.Ceiling(deviceBottomRight.X),
-               //        cyTopHeight = (int)Math.Ceiling(deviceTopLeft.Y),
-               //        cyBottomHeight = (int)Math.Ceiling(deviceBottomRight.Y),
-               //    };
+                //var dwmMargin = new MARGINS
+                //{
+                //    // err on the side of pushing in glass an extra pixel.
+                //    cxLeftWidth = (int)Math.Ceiling(deviceTopLeft.X),
+                //    cxRightWidth = (int)Math.Ceiling(deviceBottomRight.X),
+                //    cyTopHeight = (int)Math.Ceiling(deviceTopLeft.Y),
+                //    cyBottomHeight = (int)Math.Ceiling(deviceBottomRight.Y),
+                //};
                _window.Background = Brushes.Transparent;
-               NativeMethods.ExtendFrameIntoClientArea(_hwnd, new Thickness(-1));
+               NativeMethods.ExtendFrameIntoClientArea(_hwnd, ClientBorderThickness);
             }
 
         }
