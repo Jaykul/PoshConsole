@@ -10,8 +10,9 @@
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
     Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
-    Visibility="Visible" Background="Transparent" AllowsTransparency="False"
-    BorderThickness="0"
+    Visibility="Visible"
+    AllowsTransparency="True"
+    
     ResizeMode="CanResizeWithGrip"
     SnapsToDevicePixels="True"
 
@@ -24,249 +25,251 @@
     SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
     Width="750" Height="500" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
+    BorderBrush="{x:Null}" Background="{DynamicResource SolidBorderBrush}" BorderThickness="8,8,8,8"
     >
-    <extensions:WindowChrome.WindowChrome>
-        <extensions:WindowChrome CornerRadius="20,0,5,5" CaptionElementName="Caption" UseGlassFrame="True"/>
-    </extensions:WindowChrome.WindowChrome>
-    <hotkeys:HotkeyManager.HotkeyManager>
-        <hotkeys:HotkeyManager>
-            <KeyBinding Command="hotkeys:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
-            <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
-            <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
-            <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-        </hotkeys:HotkeyManager>
-    </hotkeys:HotkeyManager.HotkeyManager>
-    <!--
+   <!--Background="{DynamicResource SolidBorderBrush}"-->
+   <extensions:WindowChrome.WindowChrome>
+      <extensions:WindowChrome CornerRadius="20,0,5,5" CaptionElementName="Caption" UseGlassFrame="True" />
+   </extensions:WindowChrome.WindowChrome>
+   <hotkeys:HotkeyManager.HotkeyManager>
+      <hotkeys:HotkeyManager>
+         <KeyBinding Command="hotkeys:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
+         <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
+         <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
+         <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
+      </hotkeys:HotkeyManager>
+   </hotkeys:HotkeyManager.HotkeyManager>
+   <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
     Left="{Binding Path=WindowLeft, Mode=Default, Source={StaticResource SettingsDS}}"
     Top="{Binding Path=WindowTop, Mode=Default, Source={StaticResource SettingsDS}}"
     Topmost="{Binding Path=AlwaysOnTop, Mode=Default, Source={StaticResource SettingsDS}}"
     -->
-    <Window.Resources>
-        <!--<PoshProps:Settings x:Key="SettingsDS" />-->
-        <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
-        <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
+   <Window.Resources>
+      <!--<PoshProps:Settings x:Key="SettingsDS" />-->
+      <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
+      <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
 
-        <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
-            <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
-            <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ResizeGrip}">
-                        <Grid SnapsToDevicePixels="True" Background="Transparent">
-                            <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
+      <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
+         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+         <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+         <Setter Property="Background" Value="Transparent"/>
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                  <Grid SnapsToDevicePixels="True" Background="Transparent">
+                     <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
                               Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                            <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
+                     <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
                               HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
                               Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
-            <Setter Property="BorderBrush">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
-                        <GradientStop Offset="0" Color="{Binding Path=BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                        <GradientStop Offset="0.803" Color="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
-        </Style>
-    </Window.Resources>
-    <!--
+                  </Grid>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
+      <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
+         <Setter Property="BorderBrush">
+            <Setter.Value>
+               <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
+                  <GradientStop Offset="0" Color="{Binding Path=BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
+                  <GradientStop Offset="0.803" Color="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
+               </LinearGradientBrush>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
+      </Style>
+   </Window.Resources>
+   <!--
     xmlns:PoshControls="http://schemas.poshconsole.org/controls"
     xmlns:PoshInterop="http://schemas.poshconsole.org/interop"
     xmlns:Properties="http://schemas.poshconsole.org/properties"
     -->
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
-        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
+   <Window.CommandBindings>
+      <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
+      <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
 
-        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
-        <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
-        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
-        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
-    </Window.CommandBindings>
-    <Window.InputBindings>
-        <!-- 
+      <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
+      <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
+      <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
+      <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
+   </Window.CommandBindings>
+   <Window.InputBindings>
+      <!-- 
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
 
-        <!-- Default Binding 
+      <!-- Default Binding 
         -->
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
-        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
+      <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+      <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
 
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
 
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
-    </Window.InputBindings>
-    <Window.ShowInTaskbar>
-        <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.ShowInTaskbar>
-    <Window.Opacity>
-        <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Opacity>
-    <Window.Left>
-        <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Left>
-    <Window.Top>
-        <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Top>
-    <Window.Topmost>
-        <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Topmost>
-    <Border x:Name="border" CornerRadius="20,0,5,5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}" BorderBrush="{DynamicResource SolidBorderBrush}">
-        <DockPanel d:LayoutOverrides="HorizontalAlignment, VerticalAlignment, GridBox" Margin="0,0,0,0" Grid.Column="1" Grid.Row="1" LastChildFill="True">
-            <Grid d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="40" Width="42.25"/>
-                    <ColumnDefinition Width="Auto" MinWidth="20"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="2.75,0,0,0">
-                    <huddle:ImageToggleButton x:Name="ElevatedButton" DefaultImage="pack://application:,,,/Artwork/information.png"
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
+   </Window.InputBindings>
+   <Window.ShowInTaskbar>
+      <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.ShowInTaskbar>
+   <Window.Opacity>
+      <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Opacity>
+   <Window.Left>
+      <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Left>
+   <Window.Top>
+      <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Top>
+   <Window.Topmost>
+      <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Topmost>
+   <Border x:Name="border" CornerRadius="20,0,5,5" Style="{DynamicResource WindowBorder}" Visibility="Visible" BorderThickness="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}" BorderBrush="{Binding Path=BorderBrush, ElementName=window, Mode=Default}" Background="{Binding Path=Background, ElementName=window, Mode=Default}">
+      <DockPanel d:LayoutOverrides="HorizontalAlignment, VerticalAlignment, GridBox" Margin="0,0,0,0" Grid.Column="1" Grid.Row="1" LastChildFill="True">
+         <Grid Cursor="Arrow" d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="#FF000000" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+               <ColumnDefinition MinWidth="40" Width="42.25"/>
+               <ColumnDefinition Width="Auto" MinWidth="20"/>
+               <ColumnDefinition Width="*"/>
+               <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="2.75,0,0,0">
+               <huddle:ImageToggleButton x:Name="ElevatedButton" DefaultImage="pack://application:,,,/Artwork/information.png"
          			    CheckedImage="pack://application:,,,/Artwork/exclamation.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnAdminToggle"
          			    ToolTip="Click to re-start as administrator" />
-                </StackPanel>
-                <TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption"><TextBlock.BitmapEffect>
+            </StackPanel>
+            <TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption"><TextBlock.BitmapEffect>
          				<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
          			</TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
-                <StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-
-                    <huddle:ImageToggleButton x:Name="OnTopWindow" DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
+            <StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
+               <huddle:ImageButton x:Name="ToggleGlass" Click="OnToggleGlassClick" 
+                       Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+                       ToolTip="Toggle Vista Glass" Image="pack://application:,,,/Artwork/AppLightning.png" Width="Auto" Height="Auto" />
+               <huddle:ImageToggleButton x:Name="OnTopWindow" DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnTopmost" Unchecked="OnUnTopmost"
          			    ToolTip="Toggle Always On Top" />
-                    <huddle:ImageToggleButton x:Name="MaximizeButton" DefaultImage="pack://application:,,,/Artwork/AppMax.png"
+               <huddle:ImageToggleButton x:Name="MaximizeButton" DefaultImage="pack://application:,,,/Artwork/AppMax.png"
          			    CheckedImage="pack://application:,,,/Artwork/AppRestore.png"
          			    Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"
          			    Checked="OnMaximize" Unchecked="OnRestore"
          			    ToolTip="Maximize" />
-                    <Button x:Name="CloseButton" Click="OnCloseButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}">
-                        <Image Source="pack://application:,,,/Artwork/AppClose.png" />
-                    </Button>
-                </StackPanel>
+               <huddle:ImageButton x:Name="CloseButton" Click="OnCloseButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}" Image="pack://application:,,,/Artwork/AppClose.png" />
+            </StackPanel>
 
-            </Grid>
-            <StackPanel d:LayoutOverrides="GridBox" VerticalAlignment="Center" Height="25" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top" Margin="0,0,0,0" Width="Auto" >
-                <Grid d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MinWidth="40" Width="45"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="5*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-                    </Grid.ColumnDefinitions>
-                    <!--<StatusBar.BitmapEffect>
+         </Grid>
+         <StackPanel Cursor="Arrow" d:LayoutOverrides="GridBox" VerticalAlignment="Center" Height="25" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top" Margin="0,0,0,0" Width="Auto" >
+            <Grid d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="5,0,0,0" VerticalAlignment="Top" Height="20" Background="{DynamicResource SolidBorderBrush}" DockPanel.Dock="Top">
+               <Grid.ColumnDefinitions>
+                  <ColumnDefinition MinWidth="40" Width="45"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="5*"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+               </Grid.ColumnDefinitions>
+               <!--<StatusBar.BitmapEffect>
         			<BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		</StatusBar.BitmapEffect>-->
-                    <TextBlock Grid.Column="2"  x:Name="title" Padding="4,0,4,0" DockPanel.Dock="Left" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Left" VerticalAlignment="Bottom" >
+               <TextBlock Grid.Column="2"  x:Name="title" Padding="4,0,4,0" DockPanel.Dock="Left" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Left" VerticalAlignment="Bottom" >
 					<TextBlock.BitmapEffect>
 						<DropShadowBitmapEffect/>
 					</TextBlock.BitmapEffect>
-                    </TextBlock>
-                    <StackPanel x:Name="DocumentTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-                        <Button x:Name="FindButton" Click="OnFindButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}">
-                            <Image Source="pack://application:,,,/Artwork/Find.png" />
-                        </Button>
-                    </StackPanel>
+               </TextBlock>
+               <StackPanel x:Name="DocumentTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
+                  <Button x:Name="FindButton" Click="OnFindButtonClick" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  ToolTip="Close" Foreground="{x:Null}">
+                     <Image Source="pack://application:,,,/Artwork/Find.png" />
+                  </Button>
+               </StackPanel>
 
-                </Grid>
-            </StackPanel>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
-                </Grid.RowDefinitions>
-                <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
+            </Grid>
+         </StackPanel>
+         <Grid>
+            <Grid.ColumnDefinitions>
+               <ColumnDefinition Width="0*"/>
+               <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+               <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
+               <RowDefinition Height="*"/>
+               <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
          			Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
          			Opacity="0.9" Orientation="Vertical" Background="{x:Null}" Grid.Column="1" >
-                    <PoshControls:ProgressPanel x:Name="progress1" Width="Auto" Margin="0,0,0,0" Visibility="Collapsed" Background="{Binding Path=Background, ElementName=buffer, Mode=Default}" Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" />
-                </StackPanel>
-                <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
+               <PoshControls:ProgressPanel x:Name="progress1" Width="Auto" Margin="0,0,0,0" Visibility="Collapsed" Background="{Binding Path=Background, ElementName=buffer, Mode=Default}" Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" />
+            </StackPanel>
+            <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
          			HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
          			PreviewMouseWheel="OnBufferPreviewMouseWheel"
          			Title="PoshConsole" Grid.Column="1"
          FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
          >
-                    <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                    <FlowDocument>
-                        <FlowDocument.Resources>
-                            <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-                            <Style x:Key="POSHFont">
-                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
-                            </Style>
-                            <Style x:Key="ConsoleFont">
-                                <Setter Property="TextElement.FontSize" Value="12" />
-                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-                            </Style>
-                            <Style x:Key="BannerFont">
-                                <Setter Property="TextElement.FontSize" Value="20" />
-                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-                                <Setter Property="Typography.ContextualSwashes" Value="1" />
-                            </Style>
-                            <Style x:Key="SigFont">
-                                <Setter Property="TextElement.FontSize" Value="20" />
-                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-                                <Setter Property="Typography.ContextualSwashes" Value="1" />
-                            </Style>
-                        </FlowDocument.Resources>
-                        <Paragraph ClearFloaters="Both" />
-                    </FlowDocument>
-                </huddle:ConsoleControl>
-                <Ellipse HorizontalAlignment="Left" Margin="-5.5,-50,0,0" Width="46.75" Height="46" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top">
-                    <Ellipse.BitmapEffect>
-                        <DropShadowBitmapEffect/>
-                    </Ellipse.BitmapEffect>
-                    <Ellipse.LayoutTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            <SkewTransform AngleX="0" AngleY="0"/>
-                            <RotateTransform Angle="0"/>
-                            <TranslateTransform X="0" Y="0"/>
-                        </TransformGroup>
-                    </Ellipse.LayoutTransform>
-                    <Ellipse.Fill>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FF99989F" Offset="0.013"/>
-                            <GradientStop Color="#FFB2B6BF" Offset="0.339"/>
-                            <GradientStop Color="#FF6D6B7C" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <Button Style="{DynamicResource SuperButton}" Margin="2.25,-44.5,0,0" Width="35.75" Height="33.25" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left"/>
-            </Grid>
+               <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+               <FlowDocument>
+                  <FlowDocument.Resources>
+                     <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
+                     <Style x:Key="POSHFont">
+                        <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
+                     </Style>
+                     <Style x:Key="ConsoleFont">
+                        <Setter Property="TextElement.FontSize" Value="12" />
+                        <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
+                     </Style>
+                     <Style x:Key="BannerFont">
+                        <Setter Property="TextElement.FontSize" Value="20" />
+                        <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
+                        <Setter Property="Typography.ContextualSwashes" Value="1" />
+                     </Style>
+                     <Style x:Key="SigFont">
+                        <Setter Property="TextElement.FontSize" Value="20" />
+                        <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
+                        <Setter Property="Typography.ContextualSwashes" Value="1" />
+                     </Style>
+                  </FlowDocument.Resources>
+                  <Paragraph ClearFloaters="Both" />
+               </FlowDocument>
+            </huddle:ConsoleControl>
+            <Ellipse HorizontalAlignment="Left" Margin="-5,-50,0,0" Width="45.083" Height="44.667" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top">
+               <Ellipse.BitmapEffect>
+                  <DropShadowBitmapEffect/>
+               </Ellipse.BitmapEffect>
+               <Ellipse.LayoutTransform>
+                  <TransformGroup>
+                     <ScaleTransform ScaleX="1" ScaleY="1"/>
+                     <SkewTransform AngleX="0" AngleY="0"/>
+                     <RotateTransform Angle="0"/>
+                     <TranslateTransform X="0" Y="0"/>
+                  </TransformGroup>
+               </Ellipse.LayoutTransform>
+               <Ellipse.Fill>
+                  <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                     <GradientStop Color="#FF99989F" Offset="0.013"/>
+                     <GradientStop Color="#FFB2B6BF" Offset="0.339"/>
+                     <GradientStop Color="#FF6D6B7C" Offset="1"/>
+                  </LinearGradientBrush>
+               </Ellipse.Fill>
+            </Ellipse>
+            <Button Style="{DynamicResource SuperButton}" Margin="3,-44.666,0,0" Width="34.25" Height="32.25" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left"/>
+         </Grid>
 
-        </DockPanel>
-    </Border>
+      </DockPanel>
+   </Border>
 </Window>

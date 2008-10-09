@@ -44,11 +44,9 @@
                 <Run>PoshConsole: A smarter PowerShell Console</Run>
                 <LineBreak/>
                 <Run>brought to you by</Run>
-                <Run Style="{DynamicResource SigFont}">Joel "</Run
-                >
-                <Run Style="{DynamicResource SigFont}" FontStyle="Italic">Jaykul</Run
-                >
-                <Run Style="{DynamicResource SigFont}">" Bennett</Run>
+                <Run Style="{DynamicResource SigFont}">Joel </Run
+                ><Run Style="{DynamicResource SigFont}" FontStyle="Italic">"Jaykul"</Run
+                ><Run Style="{DynamicResource SigFont}">  Bennett</Run>
             </Paragraph>
             <Paragraph Padding="5,5,5,5" TextAlignment="Center" Style="{DynamicResource BannerFont}">
                 <Hyperlink FontSize="18" Foreground="#FF178EC8" NavigateUri="http://HuddledMasses.org" >

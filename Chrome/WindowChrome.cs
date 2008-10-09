@@ -23,7 +23,7 @@ namespace System.Windows.Extensions
         #region Fields
 
         private const SWP _SwpFlags = SWP.FRAMECHANGED | SWP.NOSIZE | SWP.NOMOVE | SWP.NOZORDER | SWP.NOOWNERZORDER | SWP.NOACTIVATE;
-        private static readonly bool _OnVista = Environment.OSVersion.Version.Major >= 6;
+//        private static readonly bool _OnVista = Environment.OSVersion.Version.Major >= 6;
 
         private readonly List<HANDLE_MESSAGE> _messageTable;
 
@@ -63,21 +63,21 @@ namespace System.Windows.Extensions
             };
         }
 
-        // TODO:
-        // Verify that this really is sufficient.  There are DWMWINDOWATTRIBUTEs as well, so this may
-        // be able to be turned off on a per-HWND basis, but I never see comments about that online...
-        private static bool _IsCompositionEnabled
-        {
-            get
-            {
-                if (!_OnVista)
-                {
-                    return false;
-                }
+        //// TODO:
+        //// Verify that this really is sufficient.  There are DWMWINDOWATTRIBUTEs as well, so this may
+        //// be able to be turned off on a per-HWND basis, but I never see comments about that online...
+        //private static bool _IsCompositionEnabled
+        //{
+        //    get
+        //    {
+        //        if (!_OnVista)
+        //        {
+        //            return false;
+        //        }
 
-                return NativeMethods.DwmIsCompositionEnabled();
-            }
-        }
+        //        return NativeMethods.DwmIsCompositionEnabled();
+        //    }
+        //}
 
         /// <summary>Display the system menu at a specified location.</summary>
         /// <param name="screenLocation">The location to display the system menu, in logical screen coordinates.</param>
@@ -245,7 +245,7 @@ namespace System.Windows.Extensions
             "UseGlassFrame",
             typeof(bool),
             typeof(WindowChrome),
-            new PropertyMetadata(true, _OnPropertyChangedThatRequiresRepaint));
+            new PropertyMetadata(false, _OnPropertyChangedThatRequiresRepaint));
        
         /// <summary>
         /// Get or set whether to use the glass frame if it's available.
@@ -537,7 +537,7 @@ namespace System.Windows.Extensions
             handled = false;
 
             // Give DWM a chance at this first.
-            if (_OnVista && UseGlassFrame)
+            if (NativeMethods.IsCompositionEnabled && UseGlassFrame)
             {
                 // If we're on Vista, give the DWM a chance to handle the message first.
                 handled = NativeMethods.DwmDefWindowProc(_hwnd, uMsg, wParam, lParam, out lRet);
@@ -773,7 +773,7 @@ namespace System.Windows.Extensions
                 return;
             }
 
-            bool frameState = _IsCompositionEnabled;
+            bool frameState = NativeMethods.IsCompositionEnabled;
             if (force || frameState != IsGlassEnabled)
             {
                 IsGlassEnabled = frameState && UseGlassFrame;
@@ -868,22 +868,22 @@ namespace System.Windows.Extensions
                if (maxCorner > 0)
                 {
                    Point radius = DpiHelper.LogicalPixelsToDevice(new Point(maxCorner, maxCorner));
-                   hrgn = NativeMethods.CreateRoundRectRgn(0, 0, width, height, (int)radius.X, (int)radius.Y);
+                   hrgn = NativeMethods.CreateRoundRectRgn(0, 0, width, height, (int)radius.X * 2, (int)radius.Y * 2);
 
                    radius = DpiHelper.LogicalPixelsToDevice(new Point(CornerRadius.TopLeft, CornerRadius.TopLeft));
-                   IntPtr corner = NativeMethods.CreateRoundRectRgn(0, 0, width / 2, height / 2, (int)radius.X, (int)radius.Y);
+                   IntPtr corner = NativeMethods.CreateRoundRectRgn(0, 0, width / 2, height / 2, (int)radius.X * 2, (int)radius.Y * 2);
                    hrgn = NativeMethods.OrRgn(hrgn, corner);
 
                    radius = DpiHelper.LogicalPixelsToDevice(new Point(CornerRadius.TopRight, CornerRadius.TopRight));
-                   corner = NativeMethods.CreateRoundRectRgn(width/2, 0, width / 2, height / 2, (int)radius.X, (int)radius.Y);
+                   corner = NativeMethods.CreateRoundRectRgn(width / 2, 0, width, height / 2, (int)radius.X * 2, (int)radius.Y * 2);
                    hrgn = NativeMethods.OrRgn(hrgn, corner);
 
                    radius = DpiHelper.LogicalPixelsToDevice(new Point(CornerRadius.BottomLeft, CornerRadius.BottomLeft));
-                    corner = NativeMethods.CreateRoundRectRgn(0, height/2, width / 2, height / 2, (int)radius.X, (int)radius.Y);
+                   corner = NativeMethods.CreateRoundRectRgn(0, height / 2, width / 2, height, (int)radius.X * 2, (int)radius.Y * 2);
                     hrgn = NativeMethods.OrRgn(hrgn, corner);
 
                     radius = DpiHelper.LogicalPixelsToDevice(new Point(CornerRadius.BottomRight, CornerRadius.BottomRight));
-                    corner = NativeMethods.CreateRoundRectRgn(width/2, height/2, width / 2, height / 2, (int)radius.X, (int)radius.Y);
+                    corner = NativeMethods.CreateRoundRectRgn(width / 2, height / 2, width, height, (int)radius.X * 2, (int)radius.Y * 2);
                     hrgn = NativeMethods.OrRgn(hrgn, corner);
 
                }
@@ -901,46 +901,38 @@ namespace System.Windows.Extensions
             Debug.Assert(null != _window);
 
             // Expect that this might be called on OSes other than Vista.
-            if (!_OnVista)
+            // Not an error.  Just not on Vista so we're not going to get glass.
+            if (!NativeMethods.IsCompositionEnabled) return;
+
+            // Can't do anything with this call until the Window has been shown.
+            if (IntPtr.Zero == _hwnd) return;
+
+
+            //HwndSource hwndSource = HwndSource.FromHwnd(_hwnd);
+
+            //// The Window's Background property is handled by _UpdateFrameState.
+            //// The Border/Background part of the template is made invisible when glass is on.
+            if (NativeMethods.IsCompositionEnabled)
             {
-                // Not an error.  Just not on Vista so we're not going to get glass.
-                return;
+               //    // Apply the transparent background to the HWND
+               //    hwndSource.CompositionTarget.BackgroundColor = Colors.Transparent;
+
+               //    // Thickness is going to be DIPs, need to convert to system coordinates.
+               //    Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Left, ClientBorderThickness.Top));
+               //    Point deviceBottomRight = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Right, ClientBorderThickness.Bottom));
+
+               //    var dwmMargin = new MARGINS
+               //    {
+               //        // err on the side of pushing in glass an extra pixel.
+               //        cxLeftWidth = (int)Math.Ceiling(deviceTopLeft.X),
+               //        cxRightWidth = (int)Math.Ceiling(deviceBottomRight.X),
+               //        cyTopHeight = (int)Math.Ceiling(deviceTopLeft.Y),
+               //        cyBottomHeight = (int)Math.Ceiling(deviceBottomRight.Y),
+               //    };
+               _window.Background = Brushes.Transparent;
+               NativeMethods.ExtendFrameIntoClientArea(_hwnd, new Thickness(-1));
             }
 
-            if (IntPtr.Zero == _hwnd)
-            {
-                // Can't do anything with this call until the Window has been shown.
-                return;
-            }
-
-            HwndSource hwndSource = HwndSource.FromHwnd(_hwnd);
-
-            // The Window's Background property is handled by _UpdateFrameState.
-            // The Border/Background part of the template is made invisible when glass is on.
-            if (!_IsCompositionEnabled)
-            {
-                hwndSource.CompositionTarget.BackgroundColor = SystemColors.WindowColor;
-            }
-            else
-            {
-                // Apply the transparent background to the HWND
-                hwndSource.CompositionTarget.BackgroundColor = Colors.Transparent;
-
-                // Thickness is going to be DIPs, need to convert to system coordinates.
-                Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Left, ClientBorderThickness.Top));
-                Point deviceBottomRight = DpiHelper.LogicalPixelsToDevice(new Point(ClientBorderThickness.Right, ClientBorderThickness.Bottom));
-
-                var dwmMargin = new MARGINS
-                {
-                    // err on the side of pushing in glass an extra pixel.
-                    cxLeftWidth = (int)Math.Ceiling(deviceTopLeft.X),
-                    cxRightWidth = (int)Math.Ceiling(deviceBottomRight.X),
-                    cyTopHeight = (int)Math.Ceiling(deviceTopLeft.Y),
-                    cyBottomHeight = (int)Math.Ceiling(deviceBottomRight.Y),
-                };
-
-                NativeMethods.DwmExtendFrameIntoClientArea(_hwnd, ref dwmMargin);
-            }
         }
 
         /// <summary>
@@ -971,13 +963,18 @@ namespace System.Windows.Extensions
                   captionCheck.X < _CaptionElement.ActualWidth)
                {
                   return HT.CAPTION;
-               }
-            }
+               } else Trace.Write( String.Format("({0},{1})", captionCheck.X, captionCheck.Y) );
+            }                                             
 
             // Determine if the point is at the top or bottom of the window.
             if (mousePosition.Y >= windowPosition.Top && mousePosition.Y < windowPosition.Top + ResizeBorder.Top + CaptionHeight)
             {
-                  onResizeBorder = _CaptionElement == null && (mousePosition.Y < (windowPosition.Top + ResizeBorder.Top));
+                  onResizeBorder = (mousePosition.Y < (windowPosition.Top + ResizeBorder.Top));
+                  if (!onResizeBorder && (_CaptionElement != null))
+                  {
+                     Trace.WriteLine(String.Format("[{0},{1}]", mousePosition.X, mousePosition.Y));
+                     return HT.NOWHERE;
+                  }
                   uRow = 0; // top (caption or resize border)
             }
             else if (mousePosition.Y < windowPosition.Bottom && mousePosition.Y >= windowPosition.Bottom - (int)ResizeBorder.Bottom)

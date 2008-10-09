@@ -418,18 +418,23 @@ namespace Standard
         public WTNCA dwMask;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct MARGINS
+    /// <summary>A Win32 Margins structure for the DWM api calls.
+    /// </summary>
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    struct MARGINS
     {
-        /// <summary>Width of left border that retains its size.</summary>
-        public int cxLeftWidth;
-        /// <summary>Width of right border that retains its size.</summary>
-        public int cxRightWidth;
-        /// <summary>Height of top border that retains its size.</summary>
-        public int cyTopHeight;
-        /// <summary>Height of bottom border that retains its size.</summary>
-        public int cyBottomHeight;
-    };
+       public MARGINS(System.Windows.Thickness t)
+       {
+          Left = (int)t.Left;
+          Right = (int)t.Right;
+          Top = (int)t.Top;
+          Bottom = (int)t.Bottom;
+       }
+       public int Left;
+       public int Right;
+       public int Top;
+       public int Bottom;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     internal class MONITORINFO
@@ -487,6 +492,20 @@ namespace Standard
         public int flags;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public class DWM_BLURBEHIND
+    {
+       public uint dwFlags;
+       [MarshalAs(UnmanagedType.Bool)]
+       public bool fEnable;
+       public IntPtr hRegionBlur;
+       [MarshalAs(UnmanagedType.Bool)]
+       public bool fTransitionOnMaximized;
+
+       public const uint DWM_BB_ENABLE = 0x00000001;
+       public const uint DWM_BB_BLURREGION = 0x00000002;
+       public const uint DWM_BB_TRANSITIONONMAXIMIZED = 0x00000004;
+    }
     #endregion
 
     // Some native methods are shimmed through public versions that handle converting failures into thrown exceptions.
@@ -559,6 +578,7 @@ namespace Standard
 
 
 
+
        [DllImport("gdi32.dll", EntryPoint = "CombineRgn", SetLastError = true)]
        private static extern CombineRgnResult _CombineRgn([Out] IntPtr hrgnDest, [In] IntPtr hrgnSrc1, [In] IntPtr hrgnSrc2, CombineRgnStyles fnCombineMode);
 
@@ -579,17 +599,58 @@ namespace Standard
         public static extern IntPtr DefWindowProc(IntPtr hWnd, WM Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS pMarInset);
+        private static extern void DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS pMarInset);
 
-        [DllImport("dwmapi.dll", EntryPoint="DwmIsCompositionEnabled", PreserveSig = false)]
-        private static extern void _DwmIsCompositionEnabled([Out, MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
+        [DllImport("dwmapi.dll", PreserveSig = false)]
+        private static extern bool DwmIsCompositionEnabled();
 
-        public static bool DwmIsCompositionEnabled()
+        [DllImport("dwmapi.dll", PreserveSig = false)]
+        private static extern void DwmEnableBlurBehindWindow( IntPtr hWnd, DWM_BLURBEHIND pBlurBehind);
+        /// <summary>Extends the frame into client area.
+        /// </summary>
+        /// <param name="window">The window.</param>
+        /// <param name="margin">The margin.</param>
+        /// <returns><c>True</c> if the function succeeded, <c>False</c> otherwise.</returns>
+        public static void ExtendFrameIntoClientArea(IntPtr hwnd, System.Windows.Thickness margin)
         {
-            bool composited;
-            _DwmIsCompositionEnabled(out composited);
-            return composited;
+           if (!IsCompositionEnabled)
+              throw new InvalidOperationException("Composition is not enabled. Glass cannot be extended.");
+
+           if (hwnd == IntPtr.Zero)
+              throw new ArgumentOutOfRangeException("hwnd");
+
+           // Set the background to transparent to get the full Glass effect
+           System.Windows.Interop.HwndSource.FromHwnd(hwnd).CompositionTarget.BackgroundColor = System.Windows.Media.Colors.Transparent;
+
+           MARGINS margins = new MARGINS(margin);
+           NativeMethods.DwmExtendFrameIntoClientArea(hwnd, ref margins);
         }
+
+        /// <summary>
+        /// Gets a value indicating whether Window Composition is enabled.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if composition is enabled; otherwise, <c>false</c>.
+        /// </value>
+        public static bool IsCompositionEnabled
+        {
+           get
+           {
+              return Environment.OSVersion.Platform == PlatformID.Win32NT
+                  && Environment.OSVersion.Version.Major >= 6
+                  && DwmIsCompositionEnabled();
+           }
+        }
+
+        //[DllImport("dwmapi.dll", EntryPoint="DwmIsCompositionEnabled", PreserveSig = false)]
+        //private static extern void _DwmIsCompositionEnabled([Out, MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
+
+        //public static bool DwmIsCompositionEnabled()
+        //{
+        //    bool composited;
+        //    _DwmIsCompositionEnabled(out composited);
+        //    return composited;
+        //}
 
         [DllImport("dwmapi.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

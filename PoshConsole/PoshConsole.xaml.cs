@@ -469,53 +469,56 @@ namespace PoshConsole
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       private void OnWindowLocationChanged(object sender, EventArgs e)
       {
-         //System.Windows.SystemParameters.VirtualScreenHeight
-         if (Properties.Settings.Default.SnapToScreenEdge)
+         if (WindowState == WindowState.Normal)
          {
-            CornerRadius radi = new CornerRadius(20, 0, 5, 5);
+            //System.Windows.SystemParameters.VirtualScreenHeight
+            if (Properties.Settings.Default.SnapToScreenEdge)
+            {
+               CornerRadius radi = new CornerRadius(20, 0, 5, 5);
 
-            Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
-                                      SystemParameters.VirtualScreenTop,
-                                      SystemParameters.VirtualScreenWidth,
-                                      SystemParameters.VirtualScreenHeight);
+               Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
+                                         SystemParameters.VirtualScreenTop,
+                                         SystemParameters.VirtualScreenWidth,
+                                         SystemParameters.VirtualScreenHeight);
 
-            if (Properties.Settings.Default.SnapDistance > 0)
-            {
-               if (this.Left - workarea.Left < Properties.Settings.Default.SnapDistance) this.Left = workarea.Left;
-               if (this.Top - workarea.Top < Properties.Settings.Default.SnapDistance) this.Top = workarea.Top;
-               if (workarea.Right - this.RestoreBounds.Right < Properties.Settings.Default.SnapDistance) this.Left = workarea.Right - this.RestoreBounds.Width;
-               if (workarea.Bottom - this.RestoreBounds.Bottom < Properties.Settings.Default.SnapDistance) this.Top = workarea.Bottom - this.RestoreBounds.Height;
-            }
+               if (Properties.Settings.Default.SnapDistance > 0)
+               {
+                  if (this.Left - workarea.Left < Properties.Settings.Default.SnapDistance) this.Left = workarea.Left;
+                  if (this.Top - workarea.Top < Properties.Settings.Default.SnapDistance) this.Top = workarea.Top;
+                  if (workarea.Right - this.RestoreBounds.Right < Properties.Settings.Default.SnapDistance) this.Left = workarea.Right - this.RestoreBounds.Width;
+                  if (workarea.Bottom - this.RestoreBounds.Bottom < Properties.Settings.Default.SnapDistance) this.Top = workarea.Bottom - this.RestoreBounds.Height;
+               }
 
-            if (this.Left <= workarea.Left)
-            {
-               radi.BottomLeft = 0.0;
-               radi.TopLeft = 0.0;
-               this.Left = workarea.Left;
-            }
-            if (this.Top <= workarea.Top)
-            {
-               radi.TopLeft = 0.0;
-               radi.TopRight = 0.0;
-               this.Top = workarea.Top;
-            }
-            if (this.RestoreBounds.Right >= workarea.Right)
-            {
-               radi.TopRight = 0.0;
-               radi.BottomRight = 0.0;
-               this.Left = workarea.Right - this.RestoreBounds.Width;
-            }
-            if (this.RestoreBounds.Bottom >= workarea.Bottom)
-            {
-               radi.BottomRight = 0.0;
-               radi.BottomLeft = 0.0;
-               this.Top = workarea.Bottom - this.RestoreBounds.Height;
-            }
+               if (this.Left <= workarea.Left)
+               {
+                  radi.BottomLeft = 0.0;
+                  radi.TopLeft = 0.0;
+                  this.Left = workarea.Left;
+               }
+               if (this.Top <= workarea.Top)
+               {
+                  radi.TopLeft = 0.0;
+                  radi.TopRight = 0.0;
+                  this.Top = workarea.Top;
+               }
+               if (this.RestoreBounds.Right >= workarea.Right)
+               {
+                  radi.TopRight = 0.0;
+                  radi.BottomRight = 0.0;
+                  this.Left = workarea.Right - this.RestoreBounds.Width;
+               }
+               if (this.RestoreBounds.Bottom >= workarea.Bottom)
+               {
+                  radi.BottomRight = 0.0;
+                  radi.BottomLeft = 0.0;
+                  this.Top = workarea.Bottom - this.RestoreBounds.Height;
+               }
 
-            border.CornerRadius = radi;
+               border.CornerRadius = radi;
+            }
+            Properties.Settings.Default.WindowLeft = Left;
+            Properties.Settings.Default.WindowTop = Top;
          }
-         Properties.Settings.Default.WindowLeft = Left;
-         Properties.Settings.Default.WindowTop = Top;
       }
 
       /// <summary>
