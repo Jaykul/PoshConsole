@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Input;
@@ -13,7 +14,7 @@ namespace Huddled.Interop.Hotkeys
 {
    [ContentProperty("Hotkeys")]
    [Serializable]
-   public class HotkeyManager : FrameworkElement, IDisposable, ISupportInitialize, IList<KeyBinding>, IAddChild //, DependencyObject, , , IAddChild, UserControl
+   public class HotkeyManager : DependencyObject, IDisposable, IList<KeyBinding>, IAddChild //ISupportInitialize, DependencyObject, , , IAddChild, UserControl
    {
       // public event HotkeyEventHandler HotkeyPressed = (HotkeyEventHandler)delegate(object sender, HotkeyEventArgs e) { };
 
@@ -30,32 +31,58 @@ namespace Huddled.Interop.Hotkeys
       // The HotkeyManager only works when it's attached to a window
       // The attached property "Changed" event is what allows us to find the window to set all the hotkeys on!
 
-      public static DependencyProperty HotkeysProperty =
+      public static readonly DependencyProperty HotkeyManagerProperty =
           DependencyProperty.RegisterAttached("HotkeyManager",
          //            typeof(KeyBindingCollection),
              typeof(HotkeyManager),
              typeof(HotkeyManager),
-             new FrameworkPropertyMetadata(
-            //                new KeyBindingCollection(),
-            //                new HotkeyManager(),
-                 null,
-                 FrameworkPropertyMetadataOptions.SubPropertiesDoNotAffectRender,
-                 new PropertyChangedCallback(HotkeyManagerChanged)));
-      public static void SetHotkeyManager(UIElement element, HotkeyManager value)
+             new PropertyMetadata( null, HotkeyManagerChanged, CoerceHotkeyManager));
+
+      [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+      public static void SetHotkeyManager(Window window, HotkeyManager hotkeys)
       {
-         element.SetValue(HotkeysProperty, value);
-      }
-      public static HotkeyManager GetHotkeyManager(UIElement element)
-      {
-         return (HotkeyManager)element.GetValue(HotkeysProperty);
+         if (window == null)
+         {
+            throw new ArgumentNullException("window");
+         }
+         window.SetValue(HotkeyManagerProperty, hotkeys);
       }
 
-      public static void HotkeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
+      [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+      public static HotkeyManager GetHotkeyManager(Window window)
       {
-         if (!(source is Window) && !(System.ComponentModel.DesignerProperties.GetIsInDesignMode(source)))
+         if (window == null)
          {
-            throw new InvalidOperationException("The HotkeyManager can only be attached to a Window!");
+            throw new ArgumentNullException("window");
          }
+         return (HotkeyManager)window.GetValue(HotkeyManagerProperty);
+      }
+
+      private static object CoerceHotkeyManager(DependencyObject source, object value)
+      {
+         if (DesignerProperties.GetIsInDesignMode(source)) return value;
+         
+         var w = (Window)source;
+         var hk = (HotkeyManager) value;
+
+         if(w == null) throw new ArgumentNullException("source");
+         if(hk == null) throw new ArgumentNullException("value");
+
+         if(hk.Window != null)
+         {
+            throw new NotSupportedException("You can't move a HotkeyManager to a new window");
+         }
+
+         w.VerifyAccess();
+
+         return hk;
+      }
+
+      private static void HotkeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
+      {
+         if (DesignerProperties.GetIsInDesignMode(source)) return;
+
+         var w = (Window) source;
 
          HotkeyManager hotkeys = args.OldValue as HotkeyManager;
          if (hotkeys != null)
@@ -63,7 +90,7 @@ namespace Huddled.Interop.Hotkeys
 
          hotkeys = args.NewValue as HotkeyManager;
          if (hotkeys != null)
-            hotkeys.Window = source as Window;
+            hotkeys.Window = w;
 
       }
 

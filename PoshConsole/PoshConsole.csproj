@@ -88,6 +88,10 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
+    <Page Include="Controls\ControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="XamlTemplates\PipelineObjectTypes.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -195,6 +199,10 @@
     <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Chrome\Chrome.csproj">
+      <Project>{6E840110-C9E8-4C86-A061-4ED8F3438F12}</Project>
+      <Name>Chrome</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FontLibrary\FontLibrary.csproj">
       <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
       <Name>FontLibrary</Name>
@@ -229,6 +237,54 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\exclamation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\bug.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\bug_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppClose.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppRestore.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppMax.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppHide.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppOnTop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppOffTop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\BufferSearch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\BufferClear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\BufferScreenshot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\find.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppPin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppLightning.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\Themes\" />

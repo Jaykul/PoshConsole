@@ -37,7 +37,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ThreeDBorderWindow")]
+        [global::System.Configuration.DefaultSettingValueAttribute("None")]
         public global::System.Windows.WindowStyle WindowStyle {
             get {
                 return ((global::System.Windows.WindowStyle)(this["WindowStyle"]));
@@ -193,7 +193,7 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0,0,0,5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5,5,5,5")]
         public global::System.Windows.Thickness BorderThickness {
             get {
                 return ((global::System.Windows.Thickness)(this["BorderThickness"]));

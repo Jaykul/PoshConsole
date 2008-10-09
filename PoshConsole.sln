@@ -22,9 +22,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleControlDemo", "ConsoleControlDemo\ConsoleControlDemo.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrome", "Chrome\Chrome.csproj", "{6E840110-C9E8-4C86-A061-4ED8F3438F12}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 8
+		SccNumberOfProjects = 9
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -49,6 +51,9 @@ Global
 		SccProjectUniqueName7 = ConsoleControlDemo\\ConsoleControlDemo.csproj
 		SccProjectName7 = ConsoleControlDemo
 		SccLocalPath7 = ConsoleControlDemo
+		SccProjectUniqueName8 = Chrome\\Chrome.csproj
+		SccProjectName8 = Chrome
+		SccLocalPath8 = Chrome
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,12 +88,16 @@ Global
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 EndGlobal

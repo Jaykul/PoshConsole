@@ -1,0 +1,116 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" >
+    <!-- Resource dictionary entries should be defined here. -->
+    <Style x:Key="SuperButton" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Path Margin="0,0,7.64,0.46" Fill="#FFFFFFFF" Stretch="Fill" Stroke="{DynamicResource PoshConsoleIconBrush}" Data="M70.500001,0 L99.000001,0 128.5,0 199,0 199,70.5 199,157.5 199,228 157,228 128.5,228 99.000001,228 70.500001,228 0,228 0,157.5 0,114 0,70.5 C1.4305115E-06,68.066498 0.12329801,65.661789 0.36398399,63.291786 0.60467196,60.92178 0.9627493,58.586479 1.43231,56.29179 1.9018724,53.997101 2.482918,51.743019 3.169539,49.535458 3.8561656,47.327892 4.6483674,45.166843 5.5402389,43.05822 6.4321146,40.949593 7.4236598,38.893391 8.5089707,36.895512 9.5942817,34.89764 10.773358,32.958092 12.040292,31.082779 13.30723,29.207468 14.662025,27.396389 16.098772,25.655453 17.535522,23.914516 19.054224,22.243721&#xa;20.648971,20.648972 22.243722,19.054222 23.914518,17.535521 25.655452,16.098772 27.39639,14.662024 29.207469,13.307229 31.08278,12.040293 32.958093,10.773356 34.897642,9.5942802 36.895513,8.5089712 38.893392,7.4236584 40.949594,6.4321132 43.058218,5.5402389 45.166845,4.648366 47.327894,3.8561642 49.535459,3.169539 51.743021,2.4829166 53.997102,1.901871 56.291791,1.43231 58.586481,0.96274787 60.921781,0.60467052 63.291788,0.36398399 65.66179,0.12329658&#xa;68.066499,0 70.500001,0 z" d:LayoutOverrides="HorizontalAlignment"/>
+                        <Path Margin="0.909,1,8.974,1.46" Stretch="Fill" Stroke="#FFFFFFFF" Data="M70.500001,0 L99.000001,0 128.5,0 199,0 199,70.5 199,157.5 199,228 157,228 128.5,228 99.000001,228 70.500001,228 0,228 0,157.5 0,114 0,70.5 C1.4305115E-06,68.066498 0.12329801,65.661789 0.36398399,63.291786 0.60467196,60.92178 0.9627493,58.586479 1.43231,56.29179 1.9018724,53.997101 2.482918,51.743019 3.169539,49.535458 3.8561656,47.327892 4.6483674,45.166843 5.5402389,43.05822 6.4321146,40.949593 7.4236598,38.893391 8.5089707,36.895512 9.5942817,34.89764 10.773358,32.958092 12.040292,31.082779 13.30723,29.207468 14.662025,27.396389 16.098772,25.655453 17.535522,23.914516 19.054224,22.243721&#xa;20.648971,20.648972 22.243722,19.054222 23.914518,17.535521 25.655452,16.098772 27.39639,14.662024 29.207469,13.307229 31.08278,12.040293 32.958093,10.773356 34.897642,9.5942802 36.895513,8.5089712 38.893392,7.4236584 40.949594,6.4321132 43.058218,5.5402389 45.166845,4.648366 47.327894,3.8561642 49.535459,3.169539 51.743021,2.4829166 53.997102,1.901871 56.291791,1.43231 58.586481,0.96274787 60.921781,0.60467052 63.291788,0.36398399 65.66179,0.12329658&#xa;68.066499,0 70.500001,0 z" StrokeThickness="1" RenderTransformOrigin="0.575,0.533" d:LayoutOverrides="HorizontalAlignment">
+                            <Path.Fill>
+                                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                    <GradientStop Color="#FF295582" Offset="0"/>
+                                    <GradientStop Color="#FF122537" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path RenderTransformOrigin="0.5,0.5" Margin="12.356,12.892,0,0" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="0.5">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.96" ScaleY="1.038"/>
+                                    <SkewTransform AngleX="-8.574" AngleY="1.068"/>
+                                    <RotateTransform Angle="0"/>
+                                    <TranslateTransform X="-2.959" Y="0.355"/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                            <Path.Fill>
+                                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                    <GradientStop Color="#FF4591DF" Offset="0"/>
+                                    <GradientStop Color="#FF122537" Offset="1"/>
+                                    <GradientStop Color="#FF577EA4" Offset="0.455"/>
+                                    <GradientStop Color="#FF47698A" Offset="0.446"/>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure IsClosed="True" StartPoint="0.25,3.782">
+                                        <BezierSegment Point1="0.25,1.83133026359764" Point2="1.83133026359764,0.25" Point3="3.782,0.25" IsSmoothJoin="True"/>
+                                        <LineSegment Point="35.818,0.25" IsSmoothJoin="True"/>
+                                        <BezierSegment Point1="37.7686697364024,0.25" Point2="39.35,1.83133026359764" Point3="39.35,3.782" IsSmoothJoin="True"/>
+                                        <LineSegment Point="39.35,33.357" IsSmoothJoin="True"/>
+                                        <BezierSegment Point1="39.35,35.3076697364024" Point2="37.7686697364024,36.889" Point3="35.818,36.889" IsSmoothJoin="True"/>
+                                        <LineSegment Point="3.782,36.889" IsSmoothJoin="True"/>
+                                        <BezierSegment Point1="1.83133026359764,36.889" Point2="0.25,35.3076697364024" Point3="0.25,33.357" IsSmoothJoin="True"/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                        <Path RenderTransformOrigin="1.56905731483294E-05,-3.5312070562298E-05" Margin="14.772,13.395,9.12,4.868" Fill="#FFFFFFFF" Stretch="Fill" Data="M6.1559091,28.611933 L29.616524,28.611933 29.91491,32.363933 6.4542931,32.363933 6.1559091,28.611933 z M0.15869093,0.031742096 C0.26448441,-0.010580063 0.35969877,-0.010580063 0.44433451,0.031742096 L23.898835,12.505198 C24.046946,12.589832 24.121001,12.674476 24.121001,12.75911 L24.121001,14.853889 C24.121001,14.980846 24.046946,15.065485 23.898835,15.107802 L0.44433451,27.581259 C0.35969877,27.623581 0.26448441,27.623581 0.15869093,27.581259 0.0528965,27.538938 0,27.454303 0,27.327347 L0,24.724743 C0,24.640104 0.063476563,24.555469 0.19042921,24.47083 L20.53459,13.8065 0.19042921,3.14217 C0.063476563,3.0575352 0,2.9728928 0,2.888258 L0,0.28565407 C0,0.15869713 0.0528965,0.074062347 0.15869093,0.031742096 z">
+                            <Path.BitmapEffect>
+                                <OuterGlowBitmapEffect GlowColor="#FFFFFFFF" GlowSize="2"/>
+                            </Path.BitmapEffect>
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1" ScaleY="0.99"/>
+                                    <SkewTransform AngleX="-4.593" AngleY="6.822"/>
+                                    <RotateTransform Angle="0"/>
+                                    <TranslateTransform X="2.197" Y="0.263"/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <Trigger Property="IsPressed" Value="True"/>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+	<Style x:Key="SearchBoxStyle" TargetType="{x:Type TextBox}">
+		<Style.BasedOn>
+			<Style TargetType="{x:Type TextBox}">
+				<Setter Property="BorderBrush">
+					<Setter.Value>
+						<SolidColorBrush/>
+					</Setter.Value>
+				</Setter>
+				<Setter Property="BorderThickness" Value="2,2,2,2"/>
+				<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+				<Setter Property="Padding" Value="1,1,1,1"/>
+				<Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+				<Setter Property="HorizontalContentAlignment" Value="Left"/>
+				<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+				<Setter Property="AllowDrop" Value="True"/>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="{x:Type TextBoxBase}">
+							<Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                                <Grid>
+                                    <Image Source="pack://application:,,,/Artwork/Find.png" Height="16px" Width="16px" HorizontalAlignment="Left" />
+                                    <ScrollViewer x:Name="PART_ContentHost" Padding="18,0,0,0"/>
+                                    </Grid>
+							</Border>
+							<ControlTemplate.Triggers>
+								<Trigger Property="IsEnabled" Value="False">
+									<Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+									<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+								</Trigger>
+							</ControlTemplate.Triggers>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</Style.BasedOn>
+	</Style>
+</ResourceDictionary>

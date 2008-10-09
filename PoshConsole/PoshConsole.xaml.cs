@@ -13,6 +13,7 @@ using Huddled.Interop.Hotkeys;
 using Huddled.WPF.Controls;
 //using PoshConsole.Controls;
 using PoshConsole.Controls;
+using PoshConsole.Properties;
 using PoshConsole.PSHost;
 using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 using IPSConsole=Huddled.WPF.Controls.Interfaces.IPSConsole;
@@ -291,35 +292,6 @@ namespace PoshConsole
       //        }
       //    }
       //}
-      private void OnAdminMouseDoubleClick(object sender, MouseButtonEventArgs e)
-      {
-         if (!PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
-         {
-            Process current = Process.GetCurrentProcess();
-
-            Process proc = new Process();
-            proc.StartInfo = new ProcessStartInfo();
-            //proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.Verb = "RunAs";
-            proc.StartInfo.FileName = current.MainModule.FileName;
-            proc.StartInfo.Arguments = current.StartInfo.Arguments;
-            try
-            {
-               if (proc.Start())
-               {
-                  this._host.SetShouldExit(0);
-               }
-            }
-            catch (System.ComponentModel.Win32Exception we)
-            {
-               // if( w32.Message == "The operation was canceled by the user" )
-               // if( w32.NativeErrorCode == 1223 ) {
-               ((IPSConsole)buffer).WriteErrorLine("Error Starting new instance:" + we.Message);
-               // myHost.Prompt();
-            }
-         }
-      }
 
       #region IPSUI Members
 
@@ -456,13 +428,11 @@ namespace PoshConsole
       private void OnWindowLoaded(object sender, RoutedEventArgs e)
       {
          //buffer.Document.IsColumnWidthFlexible = false;
-         Binding statusBinding = new Binding("StatusText");
          try
          {
             _host = new PoshHost((IPSUI)this);
             // // This doesn't actually solve the COM RCW problem
             // Dispatcher.Invoke((Action)(() => { _host.MakeConsole(); }));
-            statusBinding.Source = _host.Options;
          }
          catch (Exception ex)
          {
@@ -470,24 +440,26 @@ namespace PoshConsole
             Application.Current.Shutdown(1);
          }
 
-         // StatusBarItems:: Title, Separator, Admin, Separator, Status
-         StatusBarItem el = status.Items[status.Items.Count - 1] as StatusBarItem;
-         if (el != null)
-         {
-            el.SetBinding(StatusBarItem.ContentProperty, statusBinding);
-         }
+         // TODO: put back the (extra) user-settable object ...
+         // note that it ought to just be an "object" so you could set it to anything
+         //Binding statusBinding = new Binding("StatusText"){ Source = _host.Options };
+         //statusTextBlock.SetBinding(TextBlock.TextProperty, statusBinding);
+         
 
          if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
          {
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
-            el = status.Items[2] as StatusBarItem;
-            if (el != null)
-            {
-               el.Content = "Elevated!";
-               el.Foreground = new SolidColorBrush(Color.FromRgb((byte)204, (byte)119, (byte)17));
-               el.ToolTip = "PoshConsole is running as Administrator";
-               el.Cursor = this.Cursor;
-            }
+            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
+            ElevatedButton.IsEnabled = false;
+            ElevatedButton.IsChecked = true;
+            //el = status.Items[2] as StatusBarItem;
+            //if (el != null)
+            //{
+            //   el.Content = "Elevated!";
+            //   el.Foreground = new SolidColorBrush(Color.FromRgb((byte)204, (byte)119, (byte)17));
+            //   el.ToolTip = "PoshConsole is running as Administrator";
+            //   el.Cursor = this.Cursor;
+            //}
          }
          Cursor = Cursors.IBeam;
       }
@@ -500,7 +472,7 @@ namespace PoshConsole
          //System.Windows.SystemParameters.VirtualScreenHeight
          if (Properties.Settings.Default.SnapToScreenEdge)
          {
-            CornerRadius radi = new CornerRadius(5.0);
+            CornerRadius radi = new CornerRadius(20, 0, 5, 5);
 
             Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
                                       SystemParameters.VirtualScreenTop,
@@ -610,10 +582,11 @@ namespace PoshConsole
                {
                   this.ShowInTaskbar = Properties.Settings.Default.ShowInTaskbar;
                } break;
-            case "StatusBar":
-               {
-                  status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
-               } break;
+            // TODO: let the new top-toolbars be hidden
+            //case "StatusBar":
+            //   {
+            //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
+            //   } break;
             case "WindowHeight":
                {
                   this.Height = Properties.Settings.Default.WindowHeight;
@@ -739,9 +712,78 @@ namespace PoshConsole
          }
       }
 
+      private void OnAdminToggle(object sender, RoutedEventArgs e)
+      {
+         if (!PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
+         {
+            Process current = Process.GetCurrentProcess();
+
+            Process proc = new Process();
+            proc.StartInfo = new ProcessStartInfo();
+            //proc.StartInfo.CreateNoWindow = true;
+            proc.StartInfo.UseShellExecute = true;
+            proc.StartInfo.Verb = "RunAs";
+            proc.StartInfo.FileName = current.MainModule.FileName;
+            proc.StartInfo.Arguments = current.StartInfo.Arguments;
+            try
+            {
+               if (proc.Start())
+               {
+                  this._host.SetShouldExit(0);
+               }
+            }
+            catch (System.ComponentModel.Win32Exception we)
+            {
+               // if( w32.Message == "The operation was canceled by the user" )
+               // if( w32.NativeErrorCode == 1223 ) {
+               ((IPSConsole)buffer).WriteErrorLine("Error Starting new instance:" + we.Message);
+               // myHost.Prompt();
+            }
+         }
+      }
 
 
+      private void OnMaximize(object sender, RoutedEventArgs e)
+      {
+         WindowState = WindowState.Maximized;
+         ((ButtonBase)sender).ToolTip = "Restore Down";
+      }
+      private void OnRestore(object sender, RoutedEventArgs e)
+      {
+         WindowState = WindowState.Normal;
+         ((ButtonBase)sender).ToolTip = "Maximize";
+      }
+      private void OnTopmost(object sender, RoutedEventArgs e)
+      {
+         Settings.Default.AlwaysOnTop = true;
+      }
+      private void OnUnTopmost(object sender, RoutedEventArgs e)
+      {
+         Settings.Default.AlwaysOnTop = false;
+      }
 
+      private void OnCloseButtonClick(object sender, RoutedEventArgs e)
+      {
+         Close();
+      }
 
+      private void Search_PreviewTextInput(object sender, TextCompositionEventArgs e)
+      {
+         if(e.Text.Contains("\n"))
+         {
+            
+         }
+      }
+
+      private void OnFindButtonClick(object sender, RoutedEventArgs e)
+      {
+         buffer.Find();
+      }
+
+      private void OnToggleGlassClick(object sender, RoutedEventArgs e)
+      {
+         var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
+         chrome.UseGlassFrame = !chrome.UseGlassFrame;
+      }
    }
 }

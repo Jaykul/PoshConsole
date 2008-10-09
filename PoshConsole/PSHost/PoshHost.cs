@@ -720,7 +720,7 @@ namespace PoshConsole.PSHost
             try
             {
                // so now we can ask which keys are still unregistered.
-               Huddled.Interop.Hotkeys.HotkeyManager hk = Huddled.Interop.Hotkeys.HotkeyManager.GetHotkeyManager(PsUi as UIElement);
+               Huddled.Interop.Hotkeys.HotkeyManager hk = Huddled.Interop.Hotkeys.HotkeyManager.GetHotkeyManager(PsUi as Window);
                hk.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
                return true;
             }

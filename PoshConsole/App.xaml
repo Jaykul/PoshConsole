@@ -9,7 +9,12 @@
                 <ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/>
                 <ResourceDictionary Source="themes\ScrollBarColors.xaml"/>
                 <ResourceDictionary Source="themes\ScrollBar.xaml"/>
+                <ResourceDictionary Source="Controls\ControlStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+        	<LinearGradientBrush x:Key="PoshConsoleIconBrush" EndPoint="0,1" StartPoint="0,0">
+        		<GradientStop Color="#FF336699" Offset="0"/>
+        		<GradientStop Color="#FF000000" Offset="1"/>
+        	</LinearGradientBrush>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
