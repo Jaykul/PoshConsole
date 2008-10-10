@@ -1,0 +1,27 @@
+﻿<ControlTemplate 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    TargetType="{x:Type Window}">
+   <Border Background="{TemplateBinding Background}" 
+           BorderBrush="{TemplateBinding BorderBrush}" 
+           BorderThickness="{TemplateBinding BorderThickness}">
+      <Grid>
+         <AdornerDecorator>
+            <ContentPresenter 
+               Content="{TemplateBinding Content}" 
+               ContentStringFormat="{TemplateBinding ContentStringFormat}" 
+               ContentTemplate="{TemplateBinding ContentTemplate}"/>
+         </AdornerDecorator>
+         <ResizeGrip Visibility="Collapsed" IsTabStop="False" HorizontalAlignment="Right" x:Name="WindowResizeGrip" VerticalAlignment="Bottom"/>
+      </Grid>
+   </Border>
+   <ControlTemplate.Triggers>
+      <MultiTrigger>
+         <MultiTrigger.Conditions>
+            <Condition Property="ResizeMode" Value="CanResizeWithGrip"/>
+            <Condition Property="WindowState" Value="Normal"/>
+         </MultiTrigger.Conditions>
+         <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
+      </MultiTrigger>
+   </ControlTemplate.Triggers>
+</ControlTemplate>

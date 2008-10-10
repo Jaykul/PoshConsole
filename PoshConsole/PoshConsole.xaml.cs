@@ -33,12 +33,15 @@ namespace PoshConsole
       private DoubleAnimation _hideHeightAnimations = new DoubleAnimation(0.0, _lasts);
       private DoubleAnimation _hideOpacityAnimations = new DoubleAnimation(0.0, _lasts);
       private bool _isHiding = false;
-      private static Duration _lasts = Duration.Automatic;
       private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
       private DoubleAnimation _showOpacityAnimation = new DoubleAnimation(1.0, _lasts);
+      private CornerRadius _defaultCornerRadius;
+
+      private static Duration _lasts = Duration.Automatic;
       private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
       private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
       private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
+
 
       private static DependencyProperty _consoleProperty;
       static PoshConsoleWindow()
@@ -82,6 +85,10 @@ namespace PoshConsole
          // before we start animating, set the animation endpoints to the current values.
          _hideOpacityAnimations.From = _showOpacityAnimation.To = Opacity;
          _hideHeightAnimations.From = _showHeightAnimation.To = this.Height;
+         var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
+         if (chrome != null) {
+            _defaultCornerRadius = chrome.CornerRadius;
+         }
 
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
@@ -96,7 +103,7 @@ namespace PoshConsole
          else
          {
             // we ignore the border if the windowstyle isn't "None"
-            border.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
+            this.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
             ResizeMode = ResizeMode.CanResize;
          }
 
@@ -471,53 +478,70 @@ namespace PoshConsole
       {
          if (WindowState == WindowState.Normal)
          {
-            //System.Windows.SystemParameters.VirtualScreenHeight
+         //   //System.Windows.SystemParameters.VirtualScreenHeight
             if (Properties.Settings.Default.SnapToScreenEdge)
             {
-               CornerRadius radi = new CornerRadius(20, 0, 5, 5);
+               Debug.WriteLine(string.Format("Start TopLeft: {0},{1}", Top, Left));
 
-               Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
+         //      //CornerRadius _defaultCornerRadius = new CornerRadius(20, 0, 5, 5);
+
+                Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
                                          SystemParameters.VirtualScreenTop,
                                          SystemParameters.VirtualScreenWidth,
                                          SystemParameters.VirtualScreenHeight);
 
+               Debug.WriteLine(string.Format("Current 1 TopLeft: {0},{1}", Top, Left));
+
+               
                if (Properties.Settings.Default.SnapDistance > 0)
                {
-                  if (this.Left - workarea.Left < Properties.Settings.Default.SnapDistance) this.Left = workarea.Left;
-                  if (this.Top - workarea.Top < Properties.Settings.Default.SnapDistance) this.Top = workarea.Top;
-                  if (workarea.Right - this.RestoreBounds.Right < Properties.Settings.Default.SnapDistance) this.Left = workarea.Right - this.RestoreBounds.Width;
-                  if (workarea.Bottom - this.RestoreBounds.Bottom < Properties.Settings.Default.SnapDistance) this.Top = workarea.Bottom - this.RestoreBounds.Height;
+         //         if (this.Left - workarea.Left < Properties.Settings.Default.SnapDistance) this.Left = workarea.Left;
+         //         if (this.Top - workarea.Top < Properties.Settings.Default.SnapDistance) this.Top = workarea.Top;
+         //         if (workarea.Right - this.RestoreBounds.Right < Properties.Settings.Default.SnapDistance) this.Left = workarea.Right - this.RestoreBounds.Width;
+                  if (workarea.Bottom - RestoreBounds.Bottom < Settings.Default.SnapDistance)
+                  {
+                     Top = workarea.Bottom - RestoreBounds.Height;
+                  }
                }
+               Debug.WriteLine(string.Format("Current 2 TopLeft: {0},{1}", Top, Left));
 
-               if (this.Left <= workarea.Left)
-               {
-                  radi.BottomLeft = 0.0;
-                  radi.TopLeft = 0.0;
-                  this.Left = workarea.Left;
-               }
-               if (this.Top <= workarea.Top)
-               {
-                  radi.TopLeft = 0.0;
-                  radi.TopRight = 0.0;
-                  this.Top = workarea.Top;
-               }
-               if (this.RestoreBounds.Right >= workarea.Right)
-               {
-                  radi.TopRight = 0.0;
-                  radi.BottomRight = 0.0;
-                  this.Left = workarea.Right - this.RestoreBounds.Width;
-               }
-               if (this.RestoreBounds.Bottom >= workarea.Bottom)
-               {
-                  radi.BottomRight = 0.0;
-                  radi.BottomLeft = 0.0;
-                  this.Top = workarea.Bottom - this.RestoreBounds.Height;
-               }
+         //      if (this.Left <= workarea.Left)
+         //      {
+         //         _defaultCornerRadius.BottomLeft = 0.0;
+         //         _defaultCornerRadius.TopLeft = 0.0;
+         //         this.Left = workarea.Left;
+         //      }
+         //      if (this.Top <= workarea.Top)
+         //      {
+         //         _defaultCornerRadius.TopLeft = 0.0;
+         //         _defaultCornerRadius.TopRight = 0.0;
+         //         this.Top = workarea.Top;
+         //      }
+         //      if (this.RestoreBounds.Right >= workarea.Right)
+         //      {
+         //         _defaultCornerRadius.TopRight = 0.0;
+         //         _defaultCornerRadius.BottomRight = 0.0;
+         //         this.Left = workarea.Right - this.RestoreBounds.Width;
+         //      }
+         //      if (this.RestoreBounds.Bottom >= workarea.Bottom)
+         //      {
+         //         _defaultCornerRadius.BottomRight = 0.0;
+         //         _defaultCornerRadius.BottomLeft = 0.0;
+         //         this.Top = workarea.Bottom - this.RestoreBounds.Height;
+         //      }
 
-               border.CornerRadius = radi;
+         //      var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
+         //      if (chrome != null) chrome.CornerRadius = _defaultCornerRadius;
             }
-            Properties.Settings.Default.WindowLeft = Left;
-            Properties.Settings.Default.WindowTop = Top;
+
+            Debug.WriteLine(string.Format("New TopLeft: {0},{1}", Top, Left));
+         //   //Properties.Settings.Default.WindowLeft = Left;
+         //   //Properties.Settings.Default.WindowTop = Top;
+         }
+         else
+         {
+            var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
+            if (chrome != null) chrome.CornerRadius = new CornerRadius();
          }
       }
 
@@ -549,10 +573,10 @@ namespace PoshConsole
          Huddled.Interop.Vista.Glass.ExtendGlassFrame(this, new Thickness(-1));
 
          // hook mousedown and call DragMove() to make the whole window a drag handle
-         MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
-         progress.PreviewMouseLeftButtonDown += mbeh;
-         border.PreviewMouseLeftButtonDown += mbeh;
-         buffer.PreviewMouseLeftButtonDown += mbeh;
+         //MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
+         progress.PreviewMouseLeftButtonDown += DragHandler;
+         //border.PreviewMouseLeftButtonDown += mbeh;
+         buffer.PreviewMouseLeftButtonDown += DragHandler;
 
          // hkManager = new WPFHotkeyManager(this);
          // hkManager.HotkeyPressed += new WPFHotkeyManager.HotkeyPressedEvent(Hotkey_Pressed);
@@ -640,21 +664,21 @@ namespace PoshConsole
                } break;
             case "BorderColorTopLeft":
                {
-                  if (border.BorderBrush is LinearGradientBrush)
+                  if (BorderBrush is LinearGradientBrush)
                   {
-                     ((LinearGradientBrush)border.BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
+                     ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
                   }
                } break;
             case "BorderColorBottomRight":
                {
-                  if (border.BorderBrush is LinearGradientBrush)
+                  if (BorderBrush is LinearGradientBrush)
                   {
-                     ((LinearGradientBrush)border.BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
+                     ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
                   }
                } break;
             case "BorderThickness":
                {
-                  border.BorderThickness = Properties.Settings.Default.BorderThickness;
+                  BorderThickness = Properties.Settings.Default.BorderThickness;
                } break;
             case "FocusKey":
                {
@@ -771,11 +795,11 @@ namespace PoshConsole
       {
          Settings.Default.AlwaysOnTop = true;
       }
+
       private void OnUnTopmost(object sender, RoutedEventArgs e)
       {
          Settings.Default.AlwaysOnTop = false;
       }
-
 
       private void OnFindButtonClick(object sender, RoutedEventArgs e)
       {
@@ -785,7 +809,7 @@ namespace PoshConsole
       private void OnToggleGlassClick(object sender, RoutedEventArgs e)
       {
          var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
-         chrome.UseGlassFrame = !chrome.UseGlassFrame;
+         if(chrome != null) chrome.UseGlassFrame = !chrome.UseGlassFrame;
       }
    }
 }

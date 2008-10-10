@@ -476,6 +476,16 @@ namespace Standard
         }
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    internal struct NCCALCSIZE_PARAMS
+    {
+       internal RECT r1;
+       internal RECT r2;
+
+       internal RECT r3;
+       internal WINDOWPOS lppos; //pointer to windowpos
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     internal class WINDOWPLACEMENT
     {
@@ -519,10 +529,6 @@ namespace Standard
     [SuppressUnmanagedCodeSecurity]
     internal static class NativeMethods
     {
-        /// <summary>
-        /// Delegate declaration that matches WndProc signatures.
-        /// </summary>
-        public delegate IntPtr MessageHandler(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled);
 
         [DllImport("gdi32.dll", EntryPoint="CreateRoundRectRgn", SetLastError=true)]
         private static extern IntPtr _CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);

@@ -9,7 +9,8 @@
   <!-- Create the Canvas with dimensions that span the full size of the Window. -->
   <Canvas x:Name="PART_RootCanvas"
           Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
-          Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}">
+          Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
+          Background="Transparent">
     <Border x:Name="PART_BackgroundBorder"
             Background="{TemplateBinding Background}"
             BorderBrush="{TemplateBinding BorderBrush}"
