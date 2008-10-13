@@ -1,36 +1,44 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Input;
-using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Markup;
-using System.Windows.Data;
-using System.Collections.ObjectModel;
+using Huddled.Interop.Keyboard;
 
-namespace Huddled.Interop.Hotkeys
+namespace Huddled.Wpf
 {
-   [ContentProperty("Hotkeys")]
-   [Serializable]
+   /// <summary>
+   /// HotkeyManager is the core class of Huddled Hotkeys, and should be attached to a Window
+   /// </summary>
+   [Serializable, ContentProperty("Hotkeys")]
    public class HotkeyManager : DependencyObject, IDisposable, IList<KeyBinding>, IAddChild //ISupportInitialize, DependencyObject, , , IAddChild, UserControl
    {
-      // public event HotkeyEventHandler HotkeyPressed = (HotkeyEventHandler)delegate(object sender, HotkeyEventArgs e) { };
-
-      #region [rgn] Fields (7)
-      // private readonly Dictionary<Int32, HotkeyEntry> _entries;
-      private IntPtr _hwnd;
+      /// <summary>
+      /// The Window Handle for the Window we're managing
+      /// </summary>
+      private IntPtr _windowHandle;
+      /// <summary>
+      /// The Hwnd Presentation source fo the Window we're managing
+      /// </summary>
       private HwndSource _hwndSource;
-      //private Window _window;
+      /// <summary>
+      /// The collection of registered hotkeys
+      /// </summary>
       private KeyBindingCollection _entries;
+      /// <summary>
+      /// The collection of hotkeys that are waiting to be registered
+      /// </summary>
       private List<KeyBinding> _keysPending;
-      #endregion [rgn]
 
       #region DependencyProperties - where the magic happens
-      // The HotkeyManager only works when it's attached to a window
-      // The attached property "Changed" event is what allows us to find the window to set all the hotkeys on!
+      // The HotkeyManager only works when it's attached to a Window
+      // The attached property "Changed" event is what allows us to find the Window to set all the hotkeys on!
 
+      /// <summary>
+      /// The HotkeyManager attached property lets you attach a HotkeyManager to a Window
+      /// </summary>
       public static readonly DependencyProperty HotkeyManagerProperty =
           DependencyProperty.RegisterAttached("HotkeyManager",
          //            typeof(KeyBindingCollection),
@@ -38,7 +46,11 @@ namespace Huddled.Interop.Hotkeys
              typeof(HotkeyManager),
              new PropertyMetadata( null, HotkeyManagerChanged, CoerceHotkeyManager));
 
-      [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+      /// <summary>
+      /// Sets the hotkey manager.
+      /// </summary>
+      /// <param name="window">The Window.</param>
+      /// <param name="hotkeys">The hotkeys.</param>
       public static void SetHotkeyManager(Window window, HotkeyManager hotkeys)
       {
          if (window == null)
@@ -48,7 +60,11 @@ namespace Huddled.Interop.Hotkeys
          window.SetValue(HotkeyManagerProperty, hotkeys);
       }
 
-      [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+      /// <summary>
+      /// Gets the hotkey manager.
+      /// </summary>
+      /// <param name="window">The Window.</param>
+      /// <returns></returns>
       public static HotkeyManager GetHotkeyManager(Window window)
       {
          if (window == null)
@@ -58,31 +74,42 @@ namespace Huddled.Interop.Hotkeys
          return (HotkeyManager)window.GetValue(HotkeyManagerProperty);
       }
 
+      /// <summary>
+      /// Coerces a value to be a hotkey manager.
+      /// </summary>
+      /// <param name="source">The source.</param>
+      /// <param name="value">The value.</param>
+      /// <returns></returns>
       private static object CoerceHotkeyManager(DependencyObject source, object value)
       {
          if (DesignerProperties.GetIsInDesignMode(source)) return value;
          
-         var w = (Window)source;
-         var hk = (HotkeyManager) value;
+         var window = (Window)source;
+         var hotkeyManager = (HotkeyManager) value;
 
-         if(w == null) throw new ArgumentNullException("source");
-         if(hk == null) throw new ArgumentNullException("value");
+         if(window == null) throw new ArgumentNullException("source");
+         if(hotkeyManager == null) throw new ArgumentNullException("value");
 
-         if(hk.Window != null)
+         if(hotkeyManager.Window != null)
          {
-            throw new NotSupportedException("You can't move a HotkeyManager to a new window");
+            throw new NotSupportedException("You can't move a HotkeyManager to a new Window");
          }
 
-         w.VerifyAccess();
+         window.VerifyAccess();
 
-         return hk;
+         return hotkeyManager;
       }
 
+      /// <summary>
+      /// Handles the case where a new HotkeyManager is assigned to a Window
+      /// </summary>
+      /// <param name="source">The source.</param>
+      /// <param name="args">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
       private static void HotkeyManagerChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
       {
          if (DesignerProperties.GetIsInDesignMode(source)) return;
 
-         var w = (Window) source;
+         var window = (Window) source;
 
          HotkeyManager hotkeys = args.OldValue as HotkeyManager;
          if (hotkeys != null)
@@ -90,29 +117,42 @@ namespace Huddled.Interop.Hotkeys
 
          hotkeys = args.NewValue as HotkeyManager;
          if (hotkeys != null)
-            hotkeys.Window = w;
+            hotkeys.Window = window;
 
       }
 
+      /// <summary>
+      /// The Window this <see cref="HotkeyManager"/> is managing
+      /// </summary>
       public static DependencyProperty WindowProperty =
           DependencyProperty.Register("Window",
           typeof(Window), typeof(HotkeyManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(WindowChanged)));
 
+      /// <summary>
+      /// Gets or sets the Window this <see cref="HotkeyManager"/>  is managing.
+      /// </summary>
+      /// <value>The Window.</value>
       public Window Window
       {
          get { return (base.GetValue(WindowProperty) as Window); }
          set { base.SetValue(WindowProperty, value); }
       }
 
+      /// <summary>
+      /// Handle the initial setting of the Window. This property can only be called once.
+      /// If it's called again after the Window is initialized, it will throw <see cref="InvalidOperationException"/>.
+      /// </summary>
+      /// <param name="source">The source.</param>
+      /// <param name="args">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
       private static void WindowChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
       {
          HotkeyManager manager = source as HotkeyManager;
 
          if (manager.Handle != IntPtr.Zero)
          {
-            throw new InvalidOperationException("The window property cannot be changed once it is set.");
+            throw new InvalidOperationException("The Window property cannot be changed once it is set.");
          }
-         // store the new window
+         // store the new Window
          Window window = (Window)args.NewValue;
          // get the handle from it
          manager.Handle = new WindowInteropHelper(window).Handle;
@@ -126,14 +166,22 @@ namespace Huddled.Interop.Hotkeys
             window.SourceInitialized += manager.OnWindowInitialized;
          }
       }
-      #endregion
+      #endregion DependencyProperties - where the magic happens
 
+      /// <summary>
+      /// Gets or sets the Window handle.
+      /// </summary>
+      /// <value>The handle.</value>
       private IntPtr Handle
       {
-         get { return _hwnd; }
-         set { _hwnd = value; }
+         get { return _windowHandle; }
+         set { _windowHandle = value; }
       }
 
+      /// <summary>
+      /// Gets a value indicating whether this instance is ready.
+      /// </summary>
+      /// <value><c>true</c> if this instance is ready; otherwise, <c>false</c>.</value>
       internal bool IsReady
       {
          get
@@ -142,6 +190,10 @@ namespace Huddled.Interop.Hotkeys
          }
       }
 
+      /// <summary>
+      /// Gets the unregistered keys.
+      /// </summary>
+      /// <value>The unregistered keys.</value>
       public List<KeyBinding> UnregisteredKeys
       {
          get
@@ -151,42 +203,20 @@ namespace Huddled.Interop.Hotkeys
       }
 
 
-      #region [rgn] Constructors (2)
 
-      //public HotkeyManager(Window window) : this()
-      //{
-      //    _window = window;
-      //    _hwnd = new WindowInteropHelper(_window).Handle;
-
-
-      //    if (_hwnd != IntPtr.Zero)
-      //    {
-      //        OnWindowInitialized(_window, EventArgs.Empty);
-      //    }
-      //    else
-      //    {
-      //        window.SourceInitialized += OnWindowInitialized;
-      //    }
-      //}
-      //protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
-      //{
-      //    base.OnPropertyChanged(e);
-      //}
-
+      /// <summary>
+      /// Initializes a new instance of the <see cref="HotkeyManager"/> class, with no <see cref="Window"/> and an empty <see cref="Hotkeys"/> collection.
+      /// </summary>
       public HotkeyManager()
       {
-         //_window = null;
-         _hwnd = IntPtr.Zero;
+         //Window = null;
+         _windowHandle = IntPtr.Zero;
 
-         _entries = new KeyBindingCollection(this);//  ObservableCollection<KeyBinding>();
-         // _entries.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(OnHotkeysChanged);
+         _entries = new KeyBindingCollection(this);
 
          _keysPending = new List<KeyBinding>();
-         _hwnd = IntPtr.Zero;
+         _windowHandle = IntPtr.Zero;
       }
-      #endregion [rgn]
-
-      #region [rgn] Methods (9)
 
       public static ModifierKeys FindUnsetModifier(ModifierKeys mk)
       {
@@ -212,21 +242,27 @@ namespace Huddled.Interop.Hotkeys
          }
       }
 
-      // [rgn] Public Methods (1)
-
+      /// <summary>
+      /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+      /// </summary>
       public void Dispose()
       {
-         if (_hwnd == IntPtr.Zero)
+         if (_windowHandle == IntPtr.Zero)
          {
             return;
          }
 
          Window.Dispatcher.VerifyAccess();
          _entries.Clear();
-         _hwnd = IntPtr.Zero;
+         _windowHandle = IntPtr.Zero;
       }
 
       bool _registered = false;
+      /// <summary>
+      /// Handles the SourceInitialized event of the Window to perform registration of hotkeys.
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       private void OnWindowInitialized(object sender, EventArgs e)
       {
          lock (_entries)
@@ -234,8 +270,8 @@ namespace Huddled.Interop.Hotkeys
             if (!_registered)
             {
 
-               _hwnd = new WindowInteropHelper(Window).Handle;
-               _hwndSource = HwndSource.FromHwnd(_hwnd);
+               _windowHandle = new WindowInteropHelper(Window).Handle;
+               _hwndSource = HwndSource.FromHwnd(_windowHandle);
                _hwndSource.AddHook(WndProc);
 
                //_keysPending.AddRange(_entries);
@@ -250,6 +286,11 @@ namespace Huddled.Interop.Hotkeys
          //_keysPending.Clear();
       }
 
+      /// <summary>
+      /// Registers the <see cref="KeyBinding"/> as a global hotkey.
+      /// </summary>
+      /// <param name="key">The key.</param>
+      /// <returns></returns>
       internal bool RegisterHotkey(KeyBinding key)
       {
          if (key.Command is WindowCommand)
@@ -266,19 +307,30 @@ namespace Huddled.Interop.Hotkeys
          // unecessary // key.CommandTarget = this.Window;
       }
 
+      /// <summary>
+      /// Registers the <see cref="Key"/> and <see cref="ModifierKeys"/> as a global hotkey
+      /// </summary>
+      /// <param name="id">The id.</param>
+      /// <param name="key">The key.</param>
+      /// <param name="modifiers">The modifiers.</param>
+      /// <returns></returns>
       private bool RegisterHotkey(int id, Key key, ModifierKeys modifiers)
       {
-         if (_hwnd == IntPtr.Zero)
+         if (_windowHandle == IntPtr.Zero)
          {
             return false;
          }
          else
          {
             int virtualkey = KeyInterop.VirtualKeyFromKey(key);
-            return NativeMethods.RegisterHotKey(_hwnd, id, (int)(modifiers), virtualkey);
+            return NativeMethods.RegisterHotKey(_windowHandle, id, (int)(modifiers), virtualkey);
          }
       }
 
+      /// <summary>
+      /// Unregisters the specified <see cref="KeyBinding"/>.
+      /// </summary>
+      /// <param name="key">The key.</param>
       internal void UnregisterHotkey(KeyBinding key)
       {
          if (_keysPending.Contains(key))
@@ -291,11 +343,25 @@ namespace Huddled.Interop.Hotkeys
          }
       }
 
+      /// <summary>
+      /// Unregisters the <see cref="KeyBinding"/> by id.
+      /// </summary>
+      /// <param name="nativeId">The native id.</param>
+      /// <returns></returns>
       private bool UnregisterHotkey(int nativeId)
       {
-         return NativeMethods.UnregisterHotKey(_hwnd, nativeId);
+         return NativeMethods.UnregisterHotKey(_windowHandle, nativeId);
       }
 
+      /// <summary>
+      /// A WndProc we attach to the Window to handle the WM_HOTKEY event
+      /// </summary>
+      /// <param name="hwnd">The Window Handle.</param>
+      /// <param name="msg">The Message (we only handly WM_Hotkey).</param>
+      /// <param name="wParam">The wParam.</param>
+      /// <param name="lParam">The lParam.</param>
+      /// <param name="handled">if set to <c>true</c> [handled].</param>
+      /// <returns></returns>
       [System.Diagnostics.DebuggerHidden]
       private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
       {
@@ -322,34 +388,12 @@ namespace Huddled.Interop.Hotkeys
          return IntPtr.Zero;
       }
 
-      #endregion [rgn]
 
 
-      //#region Hotkeys as an Attribute
-      //public static DependencyProperty HotkeysProperty =
-      //    DependencyProperty.RegisterAttached("Hotkeys",
-      //    typeof(HotkeyCollection), typeof(HotkeyManager));
-
-      //public HotkeyCollection Hotkeys
-      //{
-      //    get { return ((HotkeyCollection)base.GetValue(HotkeysProperty)); }
-      //    set { base.SetValue(HotkeysProperty, value); }
-      //}
-
-
-      //public class HotkeyCollection : IList<KeyBinding>
-      //{
-
-
-      //private IntPtr _hwnd;
-
-      //public HotkeyCollection()
-      //{
-      //    _entries = new List<KeyBinding>();
-      //    _keysPending = new List<KeyBinding>();
-      //    _hwnd = IntPtr.Zero;
-      //}
-
+      /// <summary>
+      /// Gets the hotkeys.
+      /// </summary>
+      /// <value>The hotkeys.</value>
       [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
       public KeyBindingCollection Hotkeys
       {
@@ -357,19 +401,6 @@ namespace Huddled.Interop.Hotkeys
          {
             return _entries;
          }
-         //get
-         //{
-         //   base.VerifyAccess();
-         //   if (this._entries == null)
-         //   {
-         //      this._entries = new KeyBindingCollection();
-         //      if (this._sealed)
-         //      {
-         //         this._entries.Seal();
-         //      }
-         //   }
-         //   return this._entries;
-         //}
       }
 
       #region IList<KeyBinding> Members
@@ -487,29 +518,5 @@ namespace Huddled.Interop.Hotkeys
          return _entries.GetEnumerator();
       }
       #endregion
-
-      //}
-      //#endregion Hotkeys as an Attribute
-
-      #region Stuff we need when we're NOT a control
-      //#region ISupportInitialize Members
-      //public void BeginInit()
-      //{
-      //    System.Diagnostics.Debug.WriteLine("BEGIN");
-
-      //    // throw new Exception("The method or operation is not implemented.");
-      //}
-
-      //public void EndInit()
-      //{
-      //    System.Diagnostics.Debug.WriteLine("END");
-
-      //    // throw new Exception("The method or operation is not implemented.");
-      //}
-      //#endregion
-      #endregion
-
-
    }
-
 }

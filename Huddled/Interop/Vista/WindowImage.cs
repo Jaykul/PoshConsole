@@ -1,20 +1,40 @@
+// Copyright (c) 2008 Joel Bennett
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+// SOFTWARE.
+// *****************************************************************************
+// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
+// PERMISSIVE LICENSES:
+// BSD:	 http://www.opensource.org/licenses/bsd-license.php
+// MIT:   http://www.opensource.org/licenses/mit-license.html
+// Ms-PL: http://www.opensource.org/licenses/ms-pl.html
+// RECIPROCAL LICENSES:
+// Ms-RL: http://www.opensource.org/licenses/ms-rl.html
+// GPL 2: http://www.gnu.org/copyleft/gpl.html
+// *****************************************************************************
+// LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-//using System.Windows.Shapes;
-
-using System.Windows.Navigation;
 using System.Windows.Interop;
-using System.Runtime.InteropServices;
+using System.Windows.Media;
 
 namespace Huddled.Interop.Vista
 {
@@ -128,9 +148,9 @@ namespace Huddled.Interop.Vista
 
       #region [rgn] Properties (3)
 
-      /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole window.
+      /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole Window.
       /// </summary>
-      /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole window, chrome and all.</value>
+      /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole Window, chrome and all.</value>
       public bool ClientAreaOnly
       {
          get { return (bool)this.GetValue(ClientAreaOnlyProperty); }
@@ -149,9 +169,9 @@ namespace Huddled.Interop.Vista
          set { this.SetValue(OpacityProperty, value); }
       }
 
-      /// <summary>Gets or sets the window source
+      /// <summary>Gets or sets the Window source
       /// </summary>
-      /// <value>The window source.</value>
+      /// <value>The Window source.</value>
       public IntPtr WindowSource
       {
          get { return (IntPtr)this.GetValue(WindowSourceProperty); }

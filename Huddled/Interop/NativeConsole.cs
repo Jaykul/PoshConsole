@@ -17,13 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 // SOFTWARE.
-
 // *****************************************************************************
-// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING LICENSES:
-// BSD:   http://opensource.org/licenses/bsd-license.php
-// MIT:   http://opensource.org/licenses/mit-license.html
-// Ms-PL: http://opensource.org/licenses/ms-pl.html
-// GPL 2: http://opensource.org/licenses/gpl-2.0.php
+// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
+// PERMISSIVE LICENSES:
+// BSD:	 http://www.opensource.org/licenses/bsd-license.php
+// MIT:   http://www.opensource.org/licenses/mit-license.html
+// Ms-PL: http://www.opensource.org/licenses/ms-pl.html
+// RECIPROCAL LICENSES:
+// Ms-RL: http://www.opensource.org/licenses/ms-rl.html
+// GPL 2: http://www.gnu.org/copyleft/gpl.html
+// *****************************************************************************
+// LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 
 using System;
 using System.Diagnostics;
@@ -187,7 +191,7 @@ namespace Huddled.Interop
       private bool initialized = false;
       // Track whether Dispose has been called.
       private bool disposed = false;
-      // A nice handle to our console window
+      // A nice handle to our console Window
       private IntPtr handle;
       // And our process
       private System.Diagnostics.Process process;
@@ -250,7 +254,7 @@ namespace Huddled.Interop
                  Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
 
-            // hide the window ...
+            // hide the Window ...
             handle = NativeMethods.GetConsoleWindow();
             if (handle != IntPtr.Zero)
             {
