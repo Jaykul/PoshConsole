@@ -11,17 +11,21 @@
           Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
           Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
           Background="Transparent">
-    <Border x:Name="PART_BackgroundBorder"
+   <!--<Grid Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
+          Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
+          Background="Transparent" Margin="0,0,0,0">-->
+      <Border x:Name="PART_BackgroundBorder"
             Background="{TemplateBinding Background}"
             BorderBrush="{TemplateBinding BorderBrush}"
             BorderThickness="{TemplateBinding BorderThickness}"
             Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Height}"
             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Width}"/>
-    <AdornerDecorator x:Name="PART_Adorner"
+         <AdornerDecorator x:Name="PART_Adorner"
             Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Height}"
             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Width}">
-      <ContentPresenter/>
-    </AdornerDecorator>
-    <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" IsTabStop="False"/>
-  </Canvas>
+            <ContentPresenter/>
+         </AdornerDecorator>
+         <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" IsTabStop="False"/>
+   </Canvas>
+   <!--</Grid>-->
 </ControlTemplate>

@@ -68,7 +68,7 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"></see>�attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Extensions.PreviewKeyDown"></see>�attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
       /// </summary>
       /// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
       protected override void OnPreviewKeyDown(KeyEventArgs e)

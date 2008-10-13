@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Huddled.Interop.Hotkeys;
-using System.Management.Automation;
-using PoshConsole.Controls;
+﻿using System.Management.Automation;
+using Huddled.Wpf;
 using Huddled.WPF.Controls;
 
 namespace PoshConsole.PSHost
 {
    /// <summary>
-   /// A <see cref="WindowCommand"/> which toggles the visibility of the window
+   /// A <see cref="WindowCommand"/> which toggles the visibility of the Window
    /// </summary>
    public class ScriptCommand : WindowCommand
    {

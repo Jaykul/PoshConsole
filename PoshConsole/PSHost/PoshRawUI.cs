@@ -155,7 +155,7 @@ namespace PoshConsole.PSHost
             myConsole.SetBufferContents(rectangle, fill);
         }
         /// <summary>
-        /// Return the window position adapted from the Console window position information.
+        /// Return the Window position adapted from the Console Window position information.
         /// </summary>
         public override Coordinates WindowPosition
         {
@@ -163,7 +163,7 @@ namespace PoshConsole.PSHost
             set { myConsole.WindowPosition = value; }
         }
         /// <summary>
-        /// Return the window size adapted from the corresponding .NET Console calls.
+        /// Return the Window size adapted from the corresponding .NET Console calls.
         /// </summary>
         public override Size WindowSize
         {

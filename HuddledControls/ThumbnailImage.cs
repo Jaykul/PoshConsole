@@ -145,18 +145,18 @@ namespace Huddled.WPF.Controls
       }
 
 
-      /// <summary>Gets or sets the window source
+      /// <summary>Gets or sets the Window source
       /// </summary>
-      /// <value>The window source.</value>
+      /// <value>The Window source.</value>
       public IntPtr WindowSource
       {
          get { return (IntPtr)this.GetValue(WindowSourceProperty); }
          set { this.SetValue(WindowSourceProperty, value); }
       }
 
-      /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole window.
+      /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole Window.
       /// </summary>
-      /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole window, chrome and all.</value>
+      /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole Window, chrome and all.</value>
       public bool ClientAreaOnly
       {
          get { return (bool)this.GetValue(ClientAreaOnlyProperty); }

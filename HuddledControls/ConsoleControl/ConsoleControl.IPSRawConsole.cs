@@ -406,7 +406,7 @@ namespace Huddled.WPF.Controls
 
       /// <summary>
       /// Implements the CLS command the way most command-lines do:
-      /// Scroll the window until the prompt is at the top ...
+      /// Scroll the Window until the prompt is at the top ...
       /// (as opposed to clearing the screen and leaving the prompt at the bottom)
       /// </summary>        
       public void ClearScreen()

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
@@ -12,6 +11,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Huddled.Interop;
+using Huddled.Wpf;
 using Huddled.WPF.Controls;
 using IPoshConsoleControl = Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 
@@ -32,7 +32,7 @@ namespace PoshConsole.PSHost
       /// </summary>
       private readonly IPoshConsoleControl _buffer;
       /// <summary>
-      /// A Console window wrapper that hides the console
+      /// A Console Window wrapper that hides the console
       /// </summary>
       private NativeConsole console;
       private static readonly Guid instanceId = Guid.NewGuid();
@@ -720,7 +720,7 @@ namespace PoshConsole.PSHost
             try
             {
                // so now we can ask which keys are still unregistered.
-               Huddled.Interop.Hotkeys.HotkeyManager hk = Huddled.Interop.Hotkeys.HotkeyManager.GetHotkeyManager(PsUi as Window);
+               HotkeyManager hk = HotkeyManager.GetHotkeyManager(PsUi as Window);
                hk.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
                return true;
             }

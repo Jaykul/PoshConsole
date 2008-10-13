@@ -401,21 +401,6 @@ namespace System.Windows.Extensions
 
 
 
-      //// TODO:
-      //// Verify that this really is sufficient.  There are DWMWINDOWATTRIBUTEs as well, so this may
-      //// be able to be turned off on a per-HWND basis, but I never see comments about that online...
-      //private static bool _IsCompositionEnabled
-      //{
-      //    get
-      //    {
-      //        if (!_OnVista)
-      //        {
-      //            return false;
-      //        }
-
-      //        return NativeMethods.DwmIsCompositionEnabled();
-      //    }
-      //}
 
       /// <summary>Display the system menu at a specified location.</summary>
       /// <param name="screenLocation">The location to display the system menu, in logical screen coordinates.</param>
@@ -555,6 +540,7 @@ namespace System.Windows.Extensions
 
       private IntPtr _HandleNCCalcSize(WM uMsg, IntPtr wParam, IntPtr lParam, ref bool handled)
       {
+         int result = 0;
          // lParam is an [in, out] that can be either a RECT* (wParam == 0) or an NCCALCSIZE_PARAMS*.
          // Since the first field of NCCALCSIZE_PARAMS is a RECT and is the only field we care about
          // we can unconditionally treat it as a RECT.
@@ -572,24 +558,29 @@ namespace System.Windows.Extensions
          // destination rectangle, and the third rectangle contains the valid source rectangle. The last
          // two rectangles are used in conjunction with the return value of the WM_NCCALCSIZE message to
          // determine the area of the window to be preserved. 
+         //if (wParam.ToInt32() == 1)
+         //{
+         //   NCCALCSIZE_PARAMS ncParam = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, typeof(NCCALCSIZE_PARAMS));
 
-         NCCALCSIZE_PARAMS ncParam = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, typeof(NCCALCSIZE_PARAMS));
-
-         RECT r = new RECT()
-                     {
-                        top = ncParam.r3.top + (ncParam.r2.top - ncParam.r1.top),
-                        left = ncParam.r3.left + (ncParam.r2.left - ncParam.r1.left),
-                        bottom = ncParam.r3.bottom + (ncParam.r2.bottom - ncParam.r1.bottom),
-                        right = ncParam.r3.right + (ncParam.r2.right - ncParam.r1.right),
-                     };
-         ncParam.r3 = ncParam.r1;
-         ncParam.r2 = ncParam.r1;
-         //ncParam.r1 = r;
-
-         Marshal.StructureToPtr(ncParam, lParam, true);
-
+         //   RECT r = new RECT()
+         //               {
+         //                  top = ncParam.r3.top + (ncParam.r1.top - ncParam.r2.top),
+         //                  left = ncParam.r3.left + (ncParam.r1.left - ncParam.r2.left),
+         //                  bottom = ncParam.r3.bottom + (ncParam.r1.bottom - ncParam.r2.bottom),
+         //                  right = ncParam.r3.right + (ncParam.r1.right - ncParam.r2.right),
+         //               };
+         //   ncParam.r3 = ncParam.r2;
+         //   ncParam.r2 = ncParam.r1;
+         //   //ncParam.r1 = r;
+         //   result = (int)NCCALCSIZE_Results.ValidRects;
+         //   Marshal.StructureToPtr(ncParam, lParam, true);
+         //}
+         //else
+         //{
+         //   result = 0;
+         //}
          handled = true;
-         return IntPtr.Zero;
+         return new IntPtr(result);
       }
 
       private IntPtr _HandleNCHitTest(WM uMsg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -994,7 +985,7 @@ namespace System.Windows.Extensions
             //};
 
             _window.Background = Brushes.Transparent;
-            NativeMethods.ExtendFrameIntoClientArea(_hwnd, ClientBorderThickness);
+            NativeMethods.ExtendFrameIntoClientArea(_hwnd, ClientBorderThickness); //
          }
 
       }

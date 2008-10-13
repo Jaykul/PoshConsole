@@ -11,7 +11,7 @@ namespace PoshConsole.PSHost
    /// <summary>
    /// <para>This interface wraps up the methods of PSHost which are not particularly console-oriented.
    /// They may be implemented on the console, or they may be implemented elswhere.</para>
-   /// <para>In PoshConsole, they are implemented as part of the main window class.</para>
+   /// <para>In PoshConsole, they are implemented as part of the main Window class.</para>
    /// </summary>
    public interface IPSUI
    {

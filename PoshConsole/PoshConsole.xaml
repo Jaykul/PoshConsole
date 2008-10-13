@@ -25,23 +25,29 @@
     SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
     Width="750" Height="500" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d" 
+    mc:Ignorable="d" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:huddled="http://schemas.huddledmasses.org/wpf" 
+    
     Background="{DynamicResource SolidBorderBrush}" 
     BorderBrush="{DynamicResource SolidBorderBrush}" 
-    BorderThickness="8,8,8,8" Margin="0,0,0,0"
+    BorderThickness="5,5,5,5" Margin="0,0,0,0"
     >
+   <huddled:Behaviors.Behaviors>
+      <huddled:SnappingWindow SnapDistance="20,20,20,80" />
+   </huddled:Behaviors.Behaviors>
    <extensions:WindowChrome.WindowChrome>
-      <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,58,10,10" UseGlassFrame="True" />
+      <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
    </extensions:WindowChrome.WindowChrome>
    
-   <hotkeys:HotkeyManager.HotkeyManager>
-      <hotkeys:HotkeyManager>
-         <KeyBinding Command="hotkeys:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
-         <KeyBinding Command="hotkeys:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
-         <KeyBinding Command="hotkeys:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
-         <KeyBinding Command="hotkeys:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-      </hotkeys:HotkeyManager>
-   </hotkeys:HotkeyManager.HotkeyManager>
+   <huddled:HotkeyManager.HotkeyManager>
+      <huddled:HotkeyManager>
+         <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
+         <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
+         <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
+         <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
+      </huddled:HotkeyManager>
+   </huddled:HotkeyManager.HotkeyManager>
    <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
@@ -151,7 +157,7 @@
    <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
 	<DockPanel x:Name="LayoutRoot" LastChildFill="True" 
 	Width="Auto" Height="Auto"  Margin="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(extensions:WindowChrome.WindowChrome).ResizeBorder}" >
-		<Grid Cursor="Arrow" d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="0,-8,0,0" VerticalAlignment="Top" Height="25" DockPanel.Dock="Top" Background="Transparent">
+		<Grid Cursor="Arrow" d:LayoutOverrides="GridBox" HorizontalAlignment="Stretch" Margin="0,-0,0,0" VerticalAlignment="Top" Height="25" DockPanel.Dock="Top" Background="Transparent">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition MinWidth="45" Width="50"/>
 				<ColumnDefinition Width="Auto" MinWidth="20"/>
@@ -202,7 +208,7 @@
 			</StackPanel>
 
 		</Grid>
-		<Grid d:LayoutOverrides="GridBox" Height="25" DockPanel.Dock="Top" Width="Auto" Background="Transparent" Margin="0,0,5,0">
+		<Grid d:LayoutOverrides="GridBox" Height="25" DockPanel.Dock="Top" Width="Auto" Background="Transparent" Margin="0,0,0,0">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition MinWidth="45" Width="52"/>
 				<ColumnDefinition Width="*"/>
@@ -267,7 +273,7 @@
 					<Paragraph ClearFloaters="Both" />
 				</FlowDocument>
 			</huddle:ConsoleControl>
-			<Ellipse HorizontalAlignment="Left" Margin="-8,-50,0,0" Width="45.083" Height="44.667" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top">
+			<Ellipse HorizontalAlignment="Left" Margin="-0,-50,0,0" Width="45.083" Height="44.667" Stroke="#FF000000" Grid.Column="1" VerticalAlignment="Top" Visibility="Hidden">
 				<Ellipse.BitmapEffect>
 					<DropShadowBitmapEffect/>
 				</Ellipse.BitmapEffect>
@@ -287,7 +293,7 @@
 					</LinearGradientBrush>
 				</Ellipse.Fill>
 			</Ellipse>
-			<Button Style="{DynamicResource SuperButton}" Margin="0,-44.666,0,0" Width="34.25" Height="32.25" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left"/>
+			<Button Style="{DynamicResource SuperButton}" Margin="3,-50,0,0" Width="45" Height="45" Grid.Column="1" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment" HorizontalAlignment="Left" BorderThickness="8,3,3,3"/>
 		</Grid>
 
 	</DockPanel>

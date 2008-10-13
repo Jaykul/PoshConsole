@@ -83,9 +83,9 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Gets or sets the size of the window.
+      /// Gets or sets the size of the Window.
       /// </summary>
-      /// <value>The size of the window.</value>
+      /// <value>The size of the Window.</value>
       public System.Management.Automation.Host.Size WindowSize
       {
          get
@@ -103,14 +103,14 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Gets or sets the size of the max window.
+      /// Gets or sets the size of the max Window.
       /// </summary>
-      /// <value>The size of the max window.</value>
+      /// <value>The size of the max Window.</value>
       public System.Management.Automation.Host.Size MaxWindowSize
       {
          get
          {
-            // ToDo: should reduce the reported "max" size by the difference between the viewport and the window...
+            // ToDo: should reduce the reported "max" size by the difference between the viewport and the Window...
             // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
             return new System.Management.Automation.Host.Size(
                 (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)
@@ -123,9 +123,9 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Gets or sets the size of the max physical window.
+      /// Gets or sets the size of the max physical Window.
       /// </summary>
-      /// <value>The size of the max physical window.</value>
+      /// <value>The size of the max physical Window.</value>
       public System.Management.Automation.Host.Size MaxPhysicalWindowSize
       {
          get { return MaxWindowSize; }

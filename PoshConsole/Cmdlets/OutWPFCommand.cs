@@ -44,7 +44,7 @@ namespace PoshConsole.Cmdlets
          Position = 2,
          Mandatory = false,
          ValueFromPipeline = false,
-         HelpMessage = "Show in popup window")]
+         HelpMessage = "Show in popup Window")]
       public SwitchParameter Popup { get; set; }
       #endregion
 

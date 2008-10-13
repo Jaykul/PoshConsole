@@ -486,6 +486,20 @@ namespace Standard
        internal WINDOWPOS lppos; //pointer to windowpos
     }
 
+   [Flags]
+   internal enum NCCALCSIZE_Results : int
+   {
+      AlignTop = 0x0010,
+      AlignLeft = 0x0020,
+      AlignBottom = 0x0040,
+      AlignRight = 0x0080,
+      HRedraw = 0x0100,
+      VRedraw = 0x0200,
+      Redraw = (HRedraw | VRedraw),
+      ValidRects = 0x0400,      
+   }
+
+
     [StructLayout(LayoutKind.Sequential)]
     internal class WINDOWPLACEMENT
     {

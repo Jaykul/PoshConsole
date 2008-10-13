@@ -6,10 +6,12 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Huddled.Interop.Keyboard;
 using Huddled.WPF.Controls.Interfaces;
 using Huddled.WPF.Controls.Utility;
 using System.Windows.Threading;
 using System.Windows.Documents;
+using Keyboard=System.Windows.Input.Keyboard;
 
 namespace Huddled.WPF.Controls
 {
@@ -236,7 +238,7 @@ namespace Huddled.WPF.Controls
          //       so we don't want to count the KeyUp either
          if (_inputBuffer.Count > 0)
          {
-            _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
+            _inputBuffer.Enqueue(e.ToKeyInfo());
             _gotInputKey.Set();
          }
          base.OnPreviewKeyUp(e);
@@ -245,7 +247,7 @@ namespace Huddled.WPF.Controls
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
          Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
-         _inputBuffer.Enqueue(Interop.Keyboard.ToKeyInfo(e));
+         _inputBuffer.Enqueue(e.ToKeyInfo());
          if ((Keyboard.Modifiers & ModifierKeys.None) == 0) 
             _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          base.OnPreviewKeyDown(e);
