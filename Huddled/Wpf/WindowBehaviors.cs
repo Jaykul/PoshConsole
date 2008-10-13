@@ -11,13 +11,17 @@ namespace Huddled.Wpf
 {
 
    /// <summary>A behavior based on hooking a window message</summary>
-   public abstract class Behavior : DependencyObject
+   public abstract class NativeBehavior : DependencyObject
    {
       /// <summary>
-      /// Called when this behavior is initially hooked up to a <see cref="System.Windows.Window"/>
+      /// Called when this behavior is initially hooked up to an initialized <see cref="System.Windows.Window"/>
       /// <see cref="Behavior"/> implementations may override this to perfom actions
       /// on the actual window (the Chrome behavior uses this to change the template)
       /// </summary>
+      /// <remarks>Implementations should NOT depend on this being exectued before 
+      /// the Window is SourceInitialized, and should use a WeakReference if they need 
+      /// to keep track of the window object...
+      /// </remarks>
       /// <param name="window"></param>
       virtual public void AddTo(Window window) { }
 
@@ -38,7 +42,7 @@ namespace Huddled.Wpf
    }
 
    /// <summary>A collection of <see cref="Behavior"/>s</summary>
-   public class WindowBehaviors : ObservableCollection<Behavior>
+   public class WindowBehaviors : ObservableCollection<NativeBehavior>
    {
       private WeakReference _owner;
       protected IntPtr WindowHandle;
@@ -77,6 +81,7 @@ namespace Huddled.Wpf
             // Use whether we can get an HWND to determine if the Window has been loaded.
             WindowHandle = new WindowInteropHelper(value).Handle;
 
+
             if (IntPtr.Zero == WindowHandle)
             {
                value.SourceInitialized += (sender, e) =>
@@ -98,7 +103,7 @@ namespace Huddled.Wpf
       /// <value>The handlers.</value>
       public List<MessageMapping> Handlers { get; private set; }
 
-      protected override void InsertItem(int index, Behavior item)
+      protected override void InsertItem(int index, NativeBehavior item)
       {
          base.InsertItem(index, item);
       }
@@ -128,6 +133,5 @@ namespace Huddled.Wpf
          return IntPtr.Zero;
       }
    }
-
 
 }

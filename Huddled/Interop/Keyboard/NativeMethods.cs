@@ -6,7 +6,7 @@ using System.Runtime.ConstrainedExecution;
 
 namespace Huddled.Interop.Keyboard
 {
-    public partial class NativeMethods
+    public static partial class NativeMethods
     {
         #region user32!RegisterHotKey
         [return: MarshalAs(UnmanagedType.Bool)]

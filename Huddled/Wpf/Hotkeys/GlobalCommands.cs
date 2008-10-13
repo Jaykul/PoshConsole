@@ -46,7 +46,6 @@ namespace Huddled.Wpf
     /// </summary>
     public abstract class WindowCommand : ICommand
     {
-
         /// <summary>
         /// EventArgs class for the Execute events 
         /// </summary>
@@ -62,9 +61,39 @@ namespace Huddled.Wpf
                 Parameter = parameter;
             }
             /// <summary>
-            /// The Window this command is for
+            /// A reference to the Window this command is for
             /// </summary>
-            public Window Window;
+            private WeakReference _window;
+
+            /// <summary>Gets or sets the Window that is the target of this command
+            /// </summary>
+            /// <value>The Window.</value>
+            public Window Window
+            {
+               get
+               {
+                  if (_window == null)
+                  {
+                     return null;
+                  }
+                  else
+                  {
+                     return _window.Target as Window;
+                  }
+               }
+               set
+               {
+                  if (value == null)
+                  {
+                     _window = null;
+                  }
+                  else
+                  {
+                     _window = new WeakReference(value);
+                  }
+               }
+            }
+
             /// <summary>
             /// The provided parameters, if there are any (null otherwise)
             /// </summary>
@@ -104,9 +133,9 @@ namespace Huddled.Wpf
         /// <summary>Initializes a new instance of the <see cref="WindowCommand"/> class.
         /// </summary>
         /// <param name="window">The Window.</param>
-        public WindowCommand(Window window) { _window = window; }
+        public WindowCommand(Window window) { Window = window; }
 
-        private Window _window;
+        private WeakReference _window;
 
         /// <summary>Gets or sets the Window that is the target of this command
         /// </summary>
@@ -114,8 +143,28 @@ namespace Huddled.Wpf
         
         public Window Window
         {
-            get { return _window; }
-            set { _window = value; }
+           get
+           {
+              if (_window == null)
+              {
+                 return null;
+              }
+              else
+              {
+                 return _window.Target as Window;
+              }
+           }
+           set
+           {
+              if (value == null)
+              {
+                 _window = null;
+              }
+              else
+              {
+                 _window = new WeakReference(value);
+              }
+           }
         }
 
         #region ICommand Members
@@ -140,7 +189,7 @@ namespace Huddled.Wpf
 
         public bool CanExecute(object parameter)
         {
-            WindowCanExecuteArgs args = new WindowCanExecuteArgs((parameter as Window) ?? _window, parameter);
+            WindowCanExecuteArgs args = new WindowCanExecuteArgs((parameter as Window) ?? Window, parameter);
 
             if (args.Window != null)
             {
@@ -159,7 +208,7 @@ namespace Huddled.Wpf
 
         public void Execute(object parameter)
         {
-            WindowOnExecuteArgs args = new WindowOnExecuteArgs((parameter as Window) ?? _window, parameter);
+            WindowOnExecuteArgs args = new WindowOnExecuteArgs((parameter as Window) ?? Window, parameter);
 
             if (args.Window != null)
             {

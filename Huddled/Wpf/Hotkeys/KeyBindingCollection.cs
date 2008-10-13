@@ -7,9 +7,9 @@ namespace Huddled.Wpf
    [Serializable]
    public class KeyBindingCollection : ObservableCollection<KeyBinding>
    {
-      private HotkeyManager _manager;
+      private HotkeyBehavior _manager;
 
-      public KeyBindingCollection(HotkeyManager manager)
+      public KeyBindingCollection(HotkeyBehavior manager)
       {
          _manager = manager;
       }
@@ -22,7 +22,7 @@ namespace Huddled.Wpf
       /// Gets or sets the manager.
       /// </summary>
       /// <value>The manager.</value>
-      public HotkeyManager Manager
+      public HotkeyBehavior Manager
       {
          get { return _manager; }
          set { _manager = value; }
@@ -36,7 +36,7 @@ namespace Huddled.Wpf
       protected override void InsertItem(int index, KeyBinding item)
       {
          base.InsertItem(index, item);
-         if (Manager.IsReady)
+         if (Manager.IsInitialized)
          {
             Manager.RegisterHotkey(item);
          }
@@ -48,7 +48,7 @@ namespace Huddled.Wpf
       /// <param name="index">The zero-based index of the element to remove.</param>
       protected override void RemoveItem(int index)
       {
-         if (Manager.IsReady)
+         if (Manager.IsInitialized)
          {
             Manager.UnregisterHotkey(this[index]);
          }

@@ -19,10 +19,7 @@ namespace Huddled.Wpf
       /// The Window Handle for the Window we're managing
       /// </summary>
       private IntPtr _windowHandle;
-      /// <summary>
-      /// The Hwnd Presentation source fo the Window we're managing
-      /// </summary>
-      private HwndSource _hwndSource;
+
       /// <summary>
       /// The collection of registered hotkeys
       /// </summary>
@@ -209,13 +206,9 @@ namespace Huddled.Wpf
       /// </summary>
       public HotkeyManager()
       {
-         //Window = null;
-         _windowHandle = IntPtr.Zero;
-
-         _entries = new KeyBindingCollection(this);
-
+         throw new InvalidProgramException();
+         _entries = new KeyBindingCollection(null);
          _keysPending = new List<KeyBinding>();
-         _windowHandle = IntPtr.Zero;
       }
 
       public static ModifierKeys FindUnsetModifier(ModifierKeys mk)
@@ -271,8 +264,7 @@ namespace Huddled.Wpf
             {
 
                _windowHandle = new WindowInteropHelper(Window).Handle;
-               _hwndSource = HwndSource.FromHwnd(_windowHandle);
-               _hwndSource.AddHook(WndProc);
+               HwndSource.FromHwnd(_windowHandle).AddHook(WndProc);
 
                //_keysPending.AddRange(_entries);
                //_entries.Clear();

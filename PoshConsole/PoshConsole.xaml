@@ -33,9 +33,9 @@
     BorderBrush="{DynamicResource SolidBorderBrush}" 
     BorderThickness="5,5,5,5" Margin="0,0,0,0"
     >
-   <huddled:Behaviors.Behaviors>
-      <huddled:SnappingWindow SnapDistance="20,20,20,80" />
-   </huddled:Behaviors.Behaviors>
+   <huddled:Native.Behaviors>
+      <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
+   </huddled:Native.Behaviors>
    <extensions:WindowChrome.WindowChrome>
       <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
    </extensions:WindowChrome.WindowChrome>

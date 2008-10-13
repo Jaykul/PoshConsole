@@ -4,20 +4,18 @@
     xmlns:huddled="http://schemas.huddledmasses.org/wpf"
     Title="GlobalHotkeys" Height="300" Width="300"
     >
-   <huddled:Behaviors.Behaviors>
-      <huddled:SnappingWindow SnapDistance="20,20,20,80" />
-   </huddled:Behaviors.Behaviors>
-   <huddled:HotkeyManager.HotkeyManager>
-      <huddled:HotkeyManager>         
-         <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="S"  Modifiers="Win" />
-         <!-- the next two will cause a conflict, because they use the same key :) (this is a demo) -->
-         <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="S"  Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win" />
-      </huddled:HotkeyManager>
-   </huddled:HotkeyManager.HotkeyManager>
+    <huddled:Native.Behaviors>
+        <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
+        <huddled:HotkeyBehavior>
+            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="S"  Modifiers="Win" />
+            <!-- the next two should cause conflicts for the sake of the demo -->
+            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="H"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="H"  Modifiers="Win+Shift" />
+        </huddled:HotkeyBehavior>
+    </huddled:Native.Behaviors>
     <Grid>
-        <RichTextBox Name="richTextBox1" />
+        <Label Content="Drag this window near the screen edges"/>
     </Grid>
 </Window>
