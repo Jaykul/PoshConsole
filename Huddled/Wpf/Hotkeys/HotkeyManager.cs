@@ -1,3 +1,33 @@
+// Copyright (c) 2008 Joel Bennett
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+// SOFTWARE.
+// *****************************************************************************
+// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
+// PERMISSIVE LICENSES:
+// BSD:	 http://www.opensource.org/licenses/bsd-license.php
+// MIT:   http://www.opensource.org/licenses/mit-license.html
+// Ms-PL: http://www.opensource.org/licenses/ms-pl.html
+// RECIPROCAL LICENSES:
+// Ms-RL: http://www.opensource.org/licenses/ms-rl.html
+// GPL 2: http://www.gnu.org/copyleft/gpl.html
+// *****************************************************************************
+// LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -206,8 +236,8 @@ namespace Huddled.Wpf
       /// </summary>
       public HotkeyManager()
       {
-         throw new InvalidProgramException();
-         _entries = new KeyBindingCollection(null);
+         //throw new InvalidProgramException();
+         _entries = new KeyBindingCollection(this);
          _keysPending = new List<KeyBinding>();
       }
 
