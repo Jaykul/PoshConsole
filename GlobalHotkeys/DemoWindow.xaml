@@ -12,7 +12,7 @@
             <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="S"  Modifiers="Win" />
             <!-- the next two should cause conflicts for the sake of the demo -->
             <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="H"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="H"  Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="H"  Modifiers="Win" />
         </huddled:HotkeyBehavior>
     </huddled:Native.Behaviors>
     <Grid>

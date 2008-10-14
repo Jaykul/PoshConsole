@@ -151,25 +151,36 @@ namespace PoshConsole
       {
          base.OnSourceInitialized(e);
 
-         // so now we can ask which keys are still unregistered.
-         HotkeyManager hk = HotkeyManager.GetHotkeyManager(this);
-         int k = -1;
-         while (++k < hk.UnregisteredKeys.Count)
-         {
-            KeyBinding key = hk.UnregisteredKeys[k];
-            // TODO: A GUI for changing the hotkeys... 
 
-            // but you could try modifying them yourself ...
-            ModifierKeys mk = HotkeyManager.FindUnsetModifier(key.Modifiers);
-            if (mk != ModifierKeys.None)
+         // so now we can ask which keys are still unregistered.
+         foreach (var behavior in Native.GetBehaviors(this))
+         {
+            if (behavior is HotkeyBehavior)
             {
-               MessageBox.Show(string.Format("Unable to register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
-               key.Modifiers |= mk;
-               hk.Add(key);
-            }
-            else
-            {
-               MessageBox.Show(string.Format("Failed to register the hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command));
+
+               HotkeyBehavior hk = behavior as HotkeyBehavior;
+               int k = -1;
+               int count = hk.UnregisteredKeys.Count;
+               while (++k < count)
+               {
+                  KeyBinding key = hk.UnregisteredKeys[k];
+                  // hypothetically, you would show them a GUI for changing the hotkeys... 
+
+                  // but you could try modifying them yourself ...
+                  ModifierKeys mk = HotkeyBehavior.AddModifier(key.Modifiers);
+                  if (mk != ModifierKeys.None)
+                  {
+                     MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
+                     key.Modifiers |= mk;
+                     hk.Hotkeys.Add(key);
+                  }
+                  else
+                  {
+                     MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
+                     //key.Modifiers |= mk;
+                     //hk.Add(key);
+                  }
+               }
             }
          }
       }

@@ -54,9 +54,8 @@
     <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Wpf\HotkeyBehavior.cs" />
+    <Compile Include="Wpf\Hotkeys\HotkeyBehavior.cs" />
     <Compile Include="Wpf\Hotkeys\GlobalCommands.cs" />
-    <Compile Include="Wpf\Hotkeys\KeyBindingCollection.cs" />
     <Compile Include="Interop\Keyboard\NativeMethods.cs" />
     <Compile Include="Interop\Keyboard\Extensions.cs" />
     <Compile Include="Interop\NativeConsole.cs" />

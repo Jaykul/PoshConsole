@@ -29,10 +29,9 @@
 // *****************************************************************************
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 using System;
-using System.Text;
-using System.Windows.Interop;
-using System.Runtime.InteropServices;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Huddled.Interop.Keyboard
 {

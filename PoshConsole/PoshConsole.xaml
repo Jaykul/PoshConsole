@@ -35,19 +35,17 @@
     >
    <huddled:Native.Behaviors>
       <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
-   </huddled:Native.Behaviors>
-   <extensions:WindowChrome.WindowChrome>
-      <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
-   </extensions:WindowChrome.WindowChrome>
-   
-   <huddled:HotkeyManager.HotkeyManager>
-      <huddled:HotkeyManager>
+      <huddled:HotkeyBehavior>
          <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
          <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
          <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
          <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-      </huddled:HotkeyManager>
-   </huddled:HotkeyManager.HotkeyManager>
+      </huddled:HotkeyBehavior>
+   </huddled:Native.Behaviors>
+   <extensions:WindowChrome.WindowChrome>
+      <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
+   </extensions:WindowChrome.WindowChrome>
+
    <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"

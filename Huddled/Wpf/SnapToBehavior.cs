@@ -40,7 +40,6 @@ namespace Huddled.Wpf
 {
    public class SnapToBehavior : NativeBehavior
    {
-
       /// <summary>
       /// Gets the <see cref="MessageMapping"/>s for this behavior:
       /// A single mapping of a handler for WM_WINDOWPOSCHANGING.

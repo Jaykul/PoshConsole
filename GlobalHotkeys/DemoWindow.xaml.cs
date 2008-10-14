@@ -43,9 +43,8 @@ namespace GlobalHotkeys
                      ModifierKeys mk = HotkeyBehavior.AddModifier(key.Modifiers);
                      if (mk != ModifierKeys.None)
                      {
-                        MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
-                        key.Modifiers |= mk;
-                        hk.Hotkeys.Add(key);
+                        MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}, {0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
+                        hk.Hotkeys.Add(new KeyBinding(key.Command,key.Key, key.Modifiers | mk));
                      }
                      else
                      {

@@ -713,20 +713,26 @@ namespace PoshConsole.PSHost
 
       #region IPSBackgroundHost Members
 
+
       public bool RegisterHotkey(KeyGesture key, ScriptBlock script)
       {
          return (bool)((UIElement)PsUi).Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() =>
          {
             try
             {
-               // so now we can ask which keys are still unregistered.
-               HotkeyManager hk = HotkeyManager.GetHotkeyManager(PsUi as Window);
-               hk.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
-               return true;
+               foreach (var behavior in Native.GetBehaviors(PsUi as Window))
+               {
+                  if (behavior is HotkeyBehavior)
+                  {
+                     HotkeyBehavior hk = behavior as HotkeyBehavior;
+                     hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
+                     return true;
+                  }
+               }
+               return false;
             }
             catch { return false; }
          }));
-
       }
 
       #endregion
