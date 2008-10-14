@@ -56,7 +56,6 @@
   <ItemGroup>
     <Compile Include="Wpf\HotkeyBehavior.cs" />
     <Compile Include="Wpf\Hotkeys\GlobalCommands.cs" />
-    <Compile Include="Wpf\Hotkeys\HotkeyManager.cs" />
     <Compile Include="Wpf\Hotkeys\KeyBindingCollection.cs" />
     <Compile Include="Interop\Keyboard\NativeMethods.cs" />
     <Compile Include="Interop\Keyboard\Extensions.cs" />
@@ -66,10 +65,12 @@
     <Compile Include="Interop\Windows\WindowSwitcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Wpf\SnapToBehavior.cs" />
-    <Compile Include="Utility\EnumHelper.cs" />
     <Compile Include="Interop\Windows\NativeMethods.cs" />
     <Compile Include="Wpf\NativeBehaviors.cs" />
     <Compile Include="Wpf\WindowBehaviors.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utility\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

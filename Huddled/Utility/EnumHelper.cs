@@ -35,9 +35,20 @@ using System.ComponentModel;
 
 namespace Huddled.Utility
 {
-    class EnumHelper
+   /// <summary>
+   /// A helper class for working with <see cref="Enum"/>s
+   /// </summary>
+    public static class EnumHelper
     {
-        public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>(IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
+       /// <summary>
+       /// Converts all the values in a collection
+       /// </summary>
+       /// <typeparam name="TInput">The type of the input.</typeparam>
+       /// <typeparam name="TOutput">The type of the output.</typeparam>
+       /// <param name="input">The input collection.</param>
+       /// <param name="converter">The converter function.</param>
+       /// <returns>An enumerable collection of the output type.</returns>
+        public static IEnumerable<TOutput> ConvertAll<TInput, TOutput>(this IEnumerable<TInput> input, Converter<TInput, TOutput> converter)
         {
             if (input != null)
             {
@@ -48,11 +59,23 @@ namespace Huddled.Utility
             }
         }
 
+        /// <summary>
+        /// Gets the first item from a generic collection.
+        /// </summary>
+        /// <typeparam name="T">The type of the collection</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <returns>The first item of the collection</returns>
         public static T First<T>(System.Collections.ObjectModel.Collection<T> collection)
         {
             return (T)collection[0];
         }
 
+        /// <summary>
+        /// Fors the each.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input">The input.</param>
+        /// <param name="action">The action.</param>
         public static void ForEach<T>(IEnumerable<T> input, Action<T> action)
         {
             if (input != null)

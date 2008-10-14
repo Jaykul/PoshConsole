@@ -35,9 +35,11 @@ using System.Windows.Input;
 
 namespace Huddled.Interop.Keyboard
 {
+   /// <summary>
+   /// Extension methods for working with Keyboards and KeyEvents
+   /// </summary>
    public static class Extensions
    {
-
       /// <summary>Create a KeyInfo from a <see cref="KeyEventArgs"/>
       /// </summary>
       /// <param name="e">The KeyEventArgs</param>
@@ -80,6 +82,11 @@ namespace Huddled.Interop.Keyboard
          return ch;
       }
 
+      /// <summary>
+      /// Gets the control key states.
+      /// </summary>
+      /// <param name="kb">The <see cref="KeyboardDevice"/>.</param>
+      /// <returns>The <see cref="ControlKeyStates"/> flags</returns>
       private static ControlKeyStates GetControlKeyStates( this KeyboardDevice kb)
       {
          ControlKeyStates controlStates = default(ControlKeyStates);
@@ -120,7 +127,7 @@ namespace Huddled.Interop.Keyboard
       }
 
 
-      #region We didn't need these, but I'm saving them anyway
+      #region We didn't end up needing these, but I'm saving them anyway
       //private static int VK_CAPITAL = 0x14;
       //private static byte TOGGLED = 0x01;
       //private static byte PRESSED = 0x80;
@@ -154,8 +161,7 @@ namespace Huddled.Interop.Keyboard
       //   Key xKey = (Key)kConverter.ConvertFromString(new string(c, 1));
       //   return new KeyInfo(KeyInterop.VirtualKeyFromKey(xKey), c, ControlKeyStates.NumLockOn, keyDown);
       //}
-      #endregion We didn't need these, but I'm saving them anyway
-
+      #endregion We didn't end up needing these, but I'm saving them anyway
 
    }
 }

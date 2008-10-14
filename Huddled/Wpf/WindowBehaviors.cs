@@ -1,4 +1,35 @@
-﻿using System;
+﻿// Copyright (c) 2008 Joel Bennett
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+// SOFTWARE.
+// *****************************************************************************
+// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
+// PERMISSIVE LICENSES:
+// BSD:	 http://www.opensource.org/licenses/bsd-license.php
+// MIT:   http://www.opensource.org/licenses/mit-license.html
+// Ms-PL: http://www.opensource.org/licenses/ms-pl.html
+// RECIPROCAL LICENSES:
+// Ms-RL: http://www.opensource.org/licenses/ms-rl.html
+// GPL 2: http://www.gnu.org/copyleft/gpl.html
+// *****************************************************************************
+// LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -15,7 +46,7 @@ namespace Huddled.Wpf
    {
       /// <summary>
       /// Called when this behavior is initially hooked up to an initialized <see cref="System.Windows.Window"/>
-      /// <see cref="Behavior"/> implementations may override this to perfom actions
+      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
       /// on the actual window (the Chrome behavior uses this to change the template)
       /// </summary>
       /// <remarks>Implementations should NOT depend on this being exectued before 
@@ -27,7 +58,7 @@ namespace Huddled.Wpf
 
       /// <summary>
       /// Called when this behavior is unhooked from a <see cref="System.Windows.Window"/>
-      /// <see cref="Behavior"/> implementations may override this to perfom actions
+      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
       /// on the actual window.
       /// </summary>
       /// <param name="window"></param>
@@ -41,10 +72,10 @@ namespace Huddled.Wpf
       public abstract IEnumerable<MessageMapping> GetHandlers();
    }
 
-   /// <summary>A collection of <see cref="Behavior"/>s</summary>
+   /// <summary>A collection of <see cref="NativeBehavior"/>s</summary>
    public class WindowBehaviors : ObservableCollection<NativeBehavior>
    {
-      private WeakReference _owner;
+      private WeakReference _target;
       protected IntPtr WindowHandle;
 
       /// <summary>
@@ -55,28 +86,29 @@ namespace Huddled.Wpf
          Handlers = new List<MessageMapping>();
       }
 
+
       /// <summary>
-      /// Gets the owner window
+      /// Gets or sets the target <see cref="Window"/>
       /// </summary>
-      /// <value>The owner.</value>
-      public Window Window
+      /// <value>The Window being altered by this behavior.</value>
+      public Window Target
       {
          get
          {
-            if (_owner != null)
+            if (_target != null)
             {
-               return _owner.Target as Window;
+               return _target.Target as Window;
             } else return null;
          }
          set
          {
-            if (_owner != null && WindowHandle != IntPtr.Zero)
+            if (_target != null && WindowHandle != IntPtr.Zero)
             {
                HwndSource.FromHwnd(WindowHandle).RemoveHook(WndProc);
             }
 
             Debug.Assert(null != value);
-            _owner = new WeakReference(value);
+            _target = new WeakReference(value);
 
             // Use whether we can get an HWND to determine if the Window has been loaded.
             WindowHandle = new WindowInteropHelper(value).Handle;
@@ -103,10 +135,6 @@ namespace Huddled.Wpf
       /// <value>The handlers.</value>
       public List<MessageMapping> Handlers { get; private set; }
 
-      protected override void InsertItem(int index, NativeBehavior item)
-      {
-         base.InsertItem(index, item);
-      }
       /// <summary>
       /// A WndProc handler which processes all the registered message mappings
       /// </summary>
@@ -119,8 +147,7 @@ namespace Huddled.Wpf
       [DebuggerNonUserCode]
       private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
       {
-         // Only expecting messages for our cached HWND.
-         Debug.Assert(hwnd == WindowHandle);
+         Debug.Assert(hwnd == WindowHandle); // Only expecting messages for our cached HWND.
          var message = (NativeMethods.WindowMessage)msg;
 
          foreach (var handlePair in Handlers)

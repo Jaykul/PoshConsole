@@ -38,45 +38,14 @@ using System.Windows.Media;
 
 namespace Huddled.Interop.Vista
 {
-   /// <summary>
-   /// ========================================
-   /// .NET Framework 3.0 Custom Control
-   /// ========================================
-   ///
-   /// Follow steps 1a or 1b and then 2 to use this custom control in a XAML file.
-   ///
-   /// Step 1a) Using this custom control in a XAML file that exists in the current project.
-   /// Add this XmlNamespace attribute to the root element of the markup file where it is 
-   /// to be used:
-   ///
-   ///     xmlns:MyNamespace="clr-namespace:Thumbnailer"
-   ///
-   ///
-   /// Step 1b) Using this custom control in a XAML file that exists in a different project.
-   /// Add this XmlNamespace attribute to the root element of the markup file where it is 
-   /// to be used:
-   ///
-   ///     xmlns:MyNamespace="clr-namespace:Thumbnailer;assembly=Thumbnailer"
-   ///
-   /// You will also need to add a project reference from the project where the XAML file lives
-   /// to this project and Rebuild to avoid compilation errors:
-   ///
-   ///     Right click on the target project in the Solution Explorer and
-   ///     "Add Reference"->"Projects"->[Browse to and select this project]
-   ///
-   ///
-   /// Step 2)
-   /// Go ahead and use your control in the XAML file. Note that Intellisense in the
-   /// XML editor does not currently work on custom controls and its child elements.
-   ///
-   ///     <MyNamespace:ThumbnailButton/>
-   ///
-   /// </summary>
 
-   public partial class ThumbnailImage : Image
+   /// <summary>
+   /// A DWM Thumbnail packaged as an Image control
+   /// </summary>
+   public class ThumbnailImage : Image
    {
 
-      #region [rgn] Fields (4)
+      #region Fields
 
       public static DependencyProperty ClientAreaOnlyProperty = DependencyProperty.Register(
                 "ClientAreaOnly",                                              // name
@@ -99,9 +68,9 @@ namespace Huddled.Interop.Vista
 
       #endregion [rgn]
 
-      #region [rgn] Constructors (3)
+      #region Constructors
 
-      /// <summary>Initializes a new instance of the <see cref="ThumbnailButton"/> class.
+      /// <summary>Initializes a new instance of the <see cref="ThumbnailImage"/> class.
       /// </summary>
       public ThumbnailImage(IntPtr source)
          : this()
@@ -110,7 +79,7 @@ namespace Huddled.Interop.Vista
          InitialiseThumbnail(source);
       }
 
-      /// <summary>Initializes the <see cref="ThumbnailButton"/> class.
+      /// <summary>Initializes the <see cref="ThumbnailImage"/> class.
       /// </summary>
       static ThumbnailImage()
       {
@@ -182,8 +151,6 @@ namespace Huddled.Interop.Vista
 
       #region [rgn] Methods (9)
 
-      // [rgn] Protected Methods (2)
-
       /// <summary>Positions elements and determines a size for the ThumbnailImage
       /// </summary>
       /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
@@ -228,8 +195,6 @@ namespace Huddled.Interop.Vista
 
          return new Size(size.Width * scale, size.Height * scale); ;
       }
-
-      // [rgn] Private Methods (7)
 
       /// <summary>Initialises the thumbnail image
       /// </summary>

@@ -29,11 +29,8 @@
 // *****************************************************************************
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 
 namespace Huddled.Interop.Windows
 {
@@ -149,7 +146,7 @@ namespace Huddled.Interop.Windows
          Popup = 6
       }
 
-      // It looks like the function is in shell32.dll - just not exported pre XP SP1. 
+      // It looks like this function is in shell32.dll in Win2k and XP - but not exported pre XP SP1. 
       // We could hypothetically reference it by ordinal number -- should work from Win2K SP4 on.
       // [DllImport("shell32.dll",EntryPoint="#680",CharSet=CharSet.Unicode)]
       [DllImport("shell32.dll", EntryPoint = "IsUserAnAdmin", CharSet = CharSet.Unicode)]

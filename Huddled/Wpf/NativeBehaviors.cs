@@ -76,15 +76,19 @@ namespace Huddled.Wpf
          window.SetValue(NativeBehaviorsProperty, chrome);
       }
 
+      /// <summary>
+      /// Gets the behaviors.
+      /// </summary>
+      /// <param name="window">The window.</param>
+      /// <returns>The <see cref="WindowBehaviors"/> collection.</returns>
       public static WindowBehaviors GetBehaviors(Window window)
       {
          return GetNativeBehaviors(window);
       }
 
-      /// <summary>Gets the behaviors.
-      /// </summary>
+      /// <summary>This is the internal/private <see cref="DependencyProperty"/> accessor.</summary>
       /// <param name="window">The window.</param>
-      /// <returns></returns>
+      /// <returns>The <see cref="WindowBehaviors"/> collection.</returns>
       private static WindowBehaviors GetNativeBehaviors(Window window)
       {
          if (window == null)
@@ -96,11 +100,11 @@ namespace Huddled.Wpf
 
          if (behaviors == null)
          {
-            behaviors = new WindowBehaviors { Window = window };
+            behaviors = new WindowBehaviors { Target = window };
             window.SetValue(NativeBehaviorsProperty, behaviors);
          }
 
-         Debug.Assert(behaviors.Window != null);
+         Debug.Assert(behaviors.Target != null);
          //{
          //   behaviors.Window = window;
          //   window.SetValue(NativeBehaviorsProperty, behaviors);
@@ -110,6 +114,12 @@ namespace Huddled.Wpf
       }
 
 
+      /// <summary>
+      /// Coerces values to window behaviors.
+      /// </summary>
+      /// <param name="dependency">The dependency.</param>
+      /// <param name="value">The value.</param>
+      /// <returns></returns>
       private static object CoerceWindowBehaviors(DependencyObject dependency, object value)
       {
          if (DesignerProperties.GetIsInDesignMode(dependency))
@@ -138,6 +148,12 @@ namespace Huddled.Wpf
          return behaviors;
       }
 
+      /// <summary> Called when the <see cref="WindowBehaviors"/> collection is replaced.  
+      /// This shouldn't actually happen in normal use (it <em>will not</em> happen purely through use in XAML).
+      /// </summary>
+      /// <param name="dependency">The dependency.</param>
+      /// <param name="dpcEA">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> 
+      /// instance containing the event data.</param>
       private static void OnWindowBehaviorsChanged(DependencyObject dependency, DependencyPropertyChangedEventArgs dpcEA)
       {
          if (DesignerProperties.GetIsInDesignMode(dependency))
@@ -174,11 +190,16 @@ namespace Huddled.Wpf
          
       }
 
+      /// <summary>
+      /// Called when [behaviors collection changed].
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="nccea">The <see cref="System.Collections.Specialized.NotifyCollectionChangedEventArgs"/> instance containing the event data.</param>
       private static void OnBehaviorsCollectionChanged(object sender, NotifyCollectionChangedEventArgs nccea)
       {
          var behaviors = (WindowBehaviors)sender;
          // get the owner of the collection (the object to which it is attached)  
-         var owner = behaviors.Window;
+         var owner = behaviors.Target;
          if (owner != null)
          {
             if (nccea.Action == NotifyCollectionChangedAction.Add || nccea.Action == NotifyCollectionChangedAction.Replace)

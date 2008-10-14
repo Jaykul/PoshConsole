@@ -42,8 +42,22 @@ namespace Huddled.Interop
    /// </summary>
    public class ConsoleInteropException : ApplicationException
    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="ConsoleInteropException"/> class.
+      /// </summary>
       public ConsoleInteropException() : base() { }
+      /// <summary>
+      /// Initializes a new instance of the <see cref="ConsoleInteropException"/> 
+      /// class with the specified message
+      /// </summary>
+      /// <param name="message">The message.</param>
       public ConsoleInteropException(String message) : base(message) { }
+      /// <summary>
+      /// Initializes a new instance of the <see cref="ConsoleInteropException"/> 
+      /// class with the specified message and innerException
+      /// </summary>
+      /// <param name="message">The message.</param>
+      /// <param name="innerException">The inner exception.</param>
       public ConsoleInteropException(String message, Exception innerException) : base(message, innerException) { }
    }
 
@@ -171,39 +185,44 @@ namespace Huddled.Interop
          }
       }
 
+      /// <summary>The arguments to the output events</summary>
       public class OutputEventArgs
       {
+         /// <summary>The text to be output</summary>
          public string Text;
       }
 
-      #region Delegate and Events (3)
+      #region Delegate and Events
       // Delegate, I changed this to be compatible with normal wpf/forms events
+      /// <summary>The delegate for the output events</summary>
       public delegate void OutputDelegate(object source, OutputEventArgs args);
 
-      // Events (2)
+      /// <summary>Occurs when we write an error line.</summary>
       public event OutputDelegate WriteErrorLine;
+      /// <summary>Occurs when we write an output line.</summary>
       public event OutputDelegate WriteOutputLine;
       #endregion
 
-      #region  Private Fields (16)
-      // Make sure we don't do anything until we're successfully initialized.
+      #region  Private Fields
+      /// <summary> Make sure we don't do anything until we're successfully initialized.</summary>
       private ConsoleInteropException initializationException = null;
+      /// <summary> Track if we've been initialized.</summary>
       private bool initialized = false;
-      // Track whether Dispose has been called.
+      /// <summary> Track whether Dispose has been called.</summary>
       private bool disposed = false;
-      // A nice handle to our console Window
+      /// <summary> A nice handle to our console Window</summary>
       private IntPtr handle;
-      // And our process
+      /// <summary> And our process</summary>
       private System.Diagnostics.Process process;
-      // Our two threads
+      /// <summary> Our two threads</summary>
       private Thread outputThread, errorThread;
-      // and the original handles to the console
+      /// <summary> and the original handles to the console</summary>
       private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
-      // and the copy handles ...
+      /// <summary> and the copy handles ...</summary>
       private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
       #endregion
 
-      #region  Constructors and Destructors (3)
+      #region  Constructors and Destructors
       /// <summary>Creates and initializes a new instance of the <see cref="NativeConsole"/> class.</summary>
       public NativeConsole() : this(true) { }
       /// <summary>Creates and a new instance of the <see cref="NativeConsole"/> class 
@@ -243,6 +262,10 @@ namespace Huddled.Interop
          get { return initialized; }
       }
 
+      /// <summary>
+      /// Initializes this instance.
+      /// </summary>
+      /// <returns></returns>
       public bool Initialize()
       {
          if (!initialized)
@@ -380,9 +403,7 @@ namespace Huddled.Interop
 
       #endregion
 
-      #region Methods (5)
-
-      //  Public Methods (2)
+      #region Methods
 
       /// <summary>
       /// Implement IDisposable
@@ -419,8 +440,6 @@ namespace Huddled.Interop
             throw new Exception("Error Writing to StdIn, HRESULT: " + hresult.ToString());
          }
       }
-
-      //  Private Methods (3)
 
       /// <summary>
       /// Handles actual cleanup actions, under two different scenarios

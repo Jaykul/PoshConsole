@@ -41,6 +41,11 @@ namespace Huddled.Wpf
    public class SnapToBehavior : NativeBehavior
    {
 
+      /// <summary>
+      /// Gets the <see cref="MessageMapping"/>s for this behavior:
+      /// A single mapping of a handler for WM_WINDOWPOSCHANGING.
+      /// </summary>
+      /// <returns>A collection of <see cref="MessageMapping"/> objects.</returns>
       public override IEnumerable<MessageMapping> GetHandlers()
       {
          yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanging, OnPreviewPositionChange);          
@@ -105,12 +110,17 @@ namespace Huddled.Wpf
          return IntPtr.Zero;
       }
 
-
       #region Additional Dependency Properties
-      // Using a DependencyProperty as the backing store for SnapDistance.  This enables animation, styling, binding, etc...
+      /// <summary>
+      /// The DependencyProperty as the backing store for SnapDistance. <remarks>Just you can set it from XAML.</remarks>
+      /// </summary>
       public static readonly DependencyProperty SnapDistanceProperty =
           DependencyProperty.Register("SnapDistance", typeof(Thickness), typeof(SnapToBehavior), new UIPropertyMetadata(new Thickness(20)));
 
+      /// <summary>
+      /// Gets or sets the snap distance.
+      /// </summary>
+      /// <value>The snap distance.</value>
       public Thickness SnapDistance
       {
          get { return (Thickness)GetValue(SnapDistanceProperty); }
