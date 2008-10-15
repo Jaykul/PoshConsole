@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole", "PoshConsole\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Huddled", "Huddled\Huddled.csproj", "{23A411B5-657B-4B8E-9B10-D7256D39AD08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOGlobalHotkeys", "GlobalHotkeys\DEMOGlobalHotkeys.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOGlobalHotkeys", "DEMOGlobalHotkeys\DEMOGlobalHotkeys.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\FontLibrary.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
 EndProject
@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledControls\HuddledControls.csproj", "{969A3CF0-3AA6-499B-995B-C84E8F15B107}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOConsoleControl", "ConsoleControlDemo\DEMOConsoleControl.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOConsoleControl", "DEMOConsoleControl\DEMOConsoleControl.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -43,10 +43,10 @@ Global
 		SccProjectUniqueName5 = HuddledControls\\HuddledControls.csproj
 		SccProjectName5 = HuddledControls
 		SccLocalPath5 = HuddledControls
-		SccProjectUniqueName6 = ConsoleControlDemo\\DEMOConsoleControl.csproj
+		SccProjectUniqueName6 = DEMOConsoleControl\\DEMOConsoleControl.csproj
 		SccProjectName6 = ConsoleControlDemo
 		SccLocalPath6 = ConsoleControlDemo
-		SccProjectUniqueName7 = GlobalHotkeys\\DEMOGlobalHotkeys.csproj
+		SccProjectUniqueName7 = DEMOGlobalHotkeys\\DEMOGlobalHotkeys.csproj
 		SccProjectName7 = GlobalHotkeys
 		SccLocalPath7 = GlobalHotkeys
 	EndGlobalSection
