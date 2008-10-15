@@ -80,8 +80,8 @@ namespace PoshConsole
          // before we start animating, set the animation endpoints to the current values.
          _hideOpacityAnimations.From = _showOpacityAnimation.To = Opacity;
          _hideHeightAnimations.From = _showHeightAnimation.To = this.Height;
-         var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
-         if (chrome != null)
+         
+         foreach(CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
          {
             _defaultCornerRadius = chrome.CornerRadius;
          }
@@ -153,7 +153,7 @@ namespace PoshConsole
 
 
          // so now we can ask which keys are still unregistered.
-         foreach (var behavior in Native.GetBehaviors(this))
+         foreach (var behavior in NativeBehaviors.GetBehaviors(this))
          {
             if (behavior is HotkeysBehavior)
             {
@@ -517,13 +517,17 @@ namespace PoshConsole
                cornerRadius.BottomLeft = 0.0;
             }
 
-            var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
-            if (chrome != null) chrome.CornerRadius = cornerRadius;
+            foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+            {
+               chrome.CornerRadius = cornerRadius;
+            }
          }
          else
          {
-            var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
-            if (chrome != null) chrome.CornerRadius = _defaultCornerRadius;
+            foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+            {
+               chrome.CornerRadius = _defaultCornerRadius;
+            }
          }
       }
 
@@ -789,8 +793,10 @@ namespace PoshConsole
 
       private void OnToggleGlassClick(object sender, RoutedEventArgs e)
       {
-         var chrome = System.Windows.Extensions.WindowChrome.GetWindowChrome(this);
-         if (chrome != null) chrome.UseGlassFrame = !chrome.UseGlassFrame;
+         foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+         {
+            chrome.UseGlassFrame = !chrome.UseGlassFrame;
+         }
       }
    }
 }

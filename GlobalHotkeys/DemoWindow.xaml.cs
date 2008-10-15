@@ -27,7 +27,7 @@ namespace GlobalHotkeys
             base.OnSourceInitialized(e);
 
             // so now we can ask which keys are still unregistered.
-            foreach (var behavior in Native.GetBehaviors(this))
+            foreach (var behavior in NativeBehaviors.GetBehaviors(this))
             {
                if (behavior is HotkeysBehavior)
                {

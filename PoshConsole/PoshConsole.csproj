@@ -199,10 +199,6 @@
     <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Chrome\Chrome.csproj">
-      <Project>{6E840110-C9E8-4C86-A061-4ED8F3438F12}</Project>
-      <Name>Chrome</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FontLibrary\FontLibrary.csproj">
       <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
       <Name>FontLibrary</Name>

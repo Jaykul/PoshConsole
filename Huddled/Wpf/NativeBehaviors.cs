@@ -33,11 +33,129 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Interop;
+using Huddled.Interop;
+using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
 namespace Huddled.Wpf
 {
-   public static partial class Native
+   public class NativeBehaviors : ObservableCollection<NativeBehavior>
    {
+      /// <summary>The HWND handle to our window</summary>
+      protected IntPtr WindowHandle { get; private set; }
+      /// <summary>Gets the collection of active handlers.</summary>
+      /// <value>A List of the mappings from <see cref="NativeMethods.WindowMessage"/>s
+      /// to <see cref="NativeMethods.MessageHandler"/> delegates.</value>
+      protected List<MessageMapping> Handlers { get; set; }
+      /// <summary>
+      /// The reference to the Target or "owner" window 
+      /// should be accessed through the <see cref="NativeBehaviors.Window"/> property.
+      /// </summary>
+      private WeakReference _owner;
+      /// <summary>Gets or Sets the target/owner window</summary>
+      /// <value>The <see cref="Window"/> these Native Behavrios affect.</value>
+      public Window Target
+      {
+         get
+         {
+            if (_owner != null)
+            {
+               return _owner.Target as Window;
+            }
+            else return null;
+         }
+         set
+         {
+            if (_owner != null && WindowHandle != IntPtr.Zero)
+            {
+               HwndSource.FromHwnd(WindowHandle).RemoveHook(WndProc);
+            }
+
+            Debug.Assert(null != value);
+            _owner = new WeakReference(value);
+
+            // Use whether we can get an HWND to determine if the Window has been loaded.
+            WindowHandle = new WindowInteropHelper(value).Handle;
+
+
+            if (IntPtr.Zero == WindowHandle)
+            {
+               value.SourceInitialized += (sender, e) =>
+               {
+                  WindowHandle = new WindowInteropHelper((Window)sender).Handle;
+                  HwndSource.FromHwnd(WindowHandle).AddHook(WndProc);
+               };
+            }
+            else
+            {
+               HwndSource.FromHwnd(WindowHandle).AddHook(WndProc);
+            }
+         }
+      }
+
+      ///// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
+      ///// with no behaviors and no owner window
+      ///// </summary>
+      //public NativeBehaviors() { Handlers = new List<MessageMapping>(); }
+
+      /// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
+      /// with the specified target <see cref="Window"/> 
+      /// and <em>no</em> <see cref="NativeBehavior"/>s.
+      /// </summary>
+      /// <param name="target">The Window to be affected by this collection of behaviors</param>
+      public NativeBehaviors(Window target) { 
+         Handlers = new List<MessageMapping>();
+         Target = target;
+         target.SetValue(NativeBehaviorsProperty, this);
+      }
+
+      ///// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
+      ///// with the specified target <see cref="Window"/> 
+      ///// and <see cref="NativeBehavior"/>s.
+      ///// </summary>
+      ///// <param name="target">The Window to be affected by this collection of behaviors</param>
+      ///// <param name="behaviors">The NativeBehaviors</param>
+      //public NativeBehaviors(Window target, NativeBehaviors behaviors)
+      //{
+      //   Handlers = new List<MessageMapping>();
+      //   Window = target;
+      //   target.SetValue(NativeBehaviorsProperty, behaviors);
+      //}
+
+      /// <summary>
+      /// A Window Process Message Handler delegate
+      /// which processes all the registered message mappings
+      /// </summary>
+      /// <param name="hwnd">The window handle.</param>
+      /// <param name="msg">The message.</param>
+      /// <param name="wParam">The wParam.</param>
+      /// <param name="lParam">The lParam.</param>
+      /// <param name="handled">Set to true if the message has been handled</param>
+      /// <returns>IntPtr.Zero</returns>
+      [DebuggerNonUserCode]
+      private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+      {
+         // Only expecting messages for our cached HWND.
+         Debug.Assert(hwnd == WindowHandle);
+         var message = (NativeMethods.WindowMessage)msg;
+
+         foreach (var handlePair in Handlers)
+         {
+            if (handlePair.Key == message)
+            {
+               return handlePair.Value(wParam, lParam, ref handled);
+            }
+         }
+         return IntPtr.Zero;
+      }
+
+
+      #region The Attached DependencyProperty
       /// <summary>
       /// The Behaviors DependencyProperty is the collection of WindowMessage-based behaviors
       /// </summary>
@@ -60,48 +178,57 @@ namespace Huddled.Wpf
       /// </Window>
       /// ]]></example>
       private static readonly DependencyProperty NativeBehaviorsProperty = DependencyProperty.RegisterAttached(
-          "NativeBehaviors", typeof(WindowBehaviors), typeof(Native),
-          new FrameworkPropertyMetadata(null, OnWindowBehaviorsChanged, CoerceWindowBehaviors));
+          "NativeBehaviors", typeof(NativeBehaviors), typeof(NativeBehaviors),
+          new FrameworkPropertyMetadata(null, OnNativeBehaviorsChanged, CoerceNativeBehaviors));
 
-      /// <summary>Sets the behaviors.
-      /// </summary>
+      #region The PUBLIC accessors which wrap the hidden dependency property
+      /// <summary>Sets the behaviors.</summary>
       /// <param name="window">The window.</param>
-      /// <param name="chrome">The chrome.</param>
-      public static void SetBehaviors(Window window, WindowBehaviors chrome)
+      /// <param name="behaviors">The collection of <see cref="NativeBehavior"/>s.</param>
+      public static void SetBehaviors(Window window, NativeBehaviors behaviors)
       {
          if (window == null)
          {
             throw new ArgumentNullException("window");
          }
-         window.SetValue(NativeBehaviorsProperty, chrome);
+         window.SetValue(NativeBehaviorsProperty, behaviors);
       }
 
-      /// <summary>
-      /// Gets the behaviors.
-      /// </summary>
+      /// <summary>Gets the behaviors.</summary>
       /// <param name="window">The window.</param>
-      /// <returns>The <see cref="WindowBehaviors"/> collection.</returns>
-      public static WindowBehaviors GetBehaviors(Window window)
+      /// <returns>The collection of <see cref="NativeBehavior"/>s.</returns>
+      public static NativeBehaviors GetBehaviors(Window window)
       {
          return GetNativeBehaviors(window);
       }
 
-      /// <summary>This is the internal/private <see cref="DependencyProperty"/> accessor.</summary>
+      public static IEnumerable<TBehavior> SelectBehaviors<TBehavior>(Window window) where TBehavior : NativeBehavior
+      {
+         foreach (var behavior in NativeBehaviors.GetBehaviors(window))
+         {
+            if (behavior is TBehavior)
+            {
+               yield return (TBehavior)behavior;
+            }
+         }
+      }
+      #endregion
+      /// <summary>Gets the behaviors.
+      /// </summary>
       /// <param name="window">The window.</param>
-      /// <returns>The <see cref="WindowBehaviors"/> collection.</returns>
-      private static WindowBehaviors GetNativeBehaviors(Window window)
+      /// <returns></returns>
+      private static NativeBehaviors GetNativeBehaviors(Window window)
       {
          if (window == null)
          {
             throw new ArgumentNullException("window");
          }
 
-         var behaviors = (WindowBehaviors)window.GetValue(NativeBehaviorsProperty);
+         var behaviors = (NativeBehaviors)window.GetValue(NativeBehaviorsProperty);
 
          if (behaviors == null)
          {
-            behaviors = new WindowBehaviors { Target = window };
-            window.SetValue(NativeBehaviorsProperty, behaviors);
+            behaviors = new NativeBehaviors(window);
          }
 
          Debug.Assert(behaviors.Target != null);
@@ -113,14 +240,14 @@ namespace Huddled.Wpf
          return behaviors;
       }
 
-
+      #region The helper methods which handle misassignments
       /// <summary>
-      /// Coerces values to window behaviors.
+      /// Verify that assigned values are, in fact, <see cref="NativeBehaviors"/>
       /// </summary>
-      /// <param name="dependency">The dependency.</param>
-      /// <param name="value">The value.</param>
+      /// <param name="dependency">The Window</param>
+      /// <param name="value">The NativeBehaviors</param>
       /// <returns></returns>
-      private static object CoerceWindowBehaviors(DependencyObject dependency, object value)
+      private static object CoerceNativeBehaviors(DependencyObject dependency, object value)
       {
          if (DesignerProperties.GetIsInDesignMode(dependency))
          {
@@ -128,7 +255,7 @@ namespace Huddled.Wpf
          }
 
          var window = (Window)dependency;
-         var behaviors = (WindowBehaviors)value;
+         var behaviors = (NativeBehaviors)value;
 
          if (window == null)
          {
@@ -147,14 +274,19 @@ namespace Huddled.Wpf
 
          return behaviors;
       }
-
-      /// <summary> Called when the <see cref="WindowBehaviors"/> collection is replaced.  
-      /// This shouldn't actually happen in normal use (it <em>will not</em> happen purely through use in XAML).
+      /// <summary>
+      /// Hook up our CollectionChanged event when the new NativeBehaviors collection
+      /// is set for a <see cref="Window"/>, and add any initial behaviors to the window.
       /// </summary>
-      /// <param name="dependency">The dependency.</param>
-      /// <param name="dpcEA">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> 
-      /// instance containing the event data.</param>
-      private static void OnWindowBehaviorsChanged(DependencyObject dependency, DependencyPropertyChangedEventArgs dpcEA)
+      /// <remarks>Although this method handles removing or replacing a NativeBehavior collection
+      /// from a Window, it isn't recommended that you try to do that, and this may be deprecated
+      /// in a future release (that is: once you assign a NativeBehaviors collection to a Window,
+      /// you shouldn't try to remove it or replace it.  Certainly if you do it in XAML, you need
+      /// not worry about that ever happening...
+      /// </remarks>
+      /// <param name="dependency">The <see cref="Window"/></param>
+      /// <param name="dpcEA">The <see cref="EventArgs"/></param>
+      private static void OnNativeBehaviorsChanged(DependencyObject dependency, DependencyPropertyChangedEventArgs dpcEA)
       {
          if (DesignerProperties.GetIsInDesignMode(dependency))
          {
@@ -162,8 +294,8 @@ namespace Huddled.Wpf
          }
 
          var window = (Window)dependency;
-         var oldBehaviors = (WindowBehaviors)dpcEA.OldValue;
-         var newBehaviors = (WindowBehaviors)dpcEA.NewValue;
+         var oldBehaviors = (NativeBehaviors)dpcEA.OldValue;
+         var newBehaviors = (NativeBehaviors)dpcEA.NewValue;
 
          if (newBehaviors != null)
          {
@@ -171,7 +303,7 @@ namespace Huddled.Wpf
             {
                behavior.AddTo(window);
                newBehaviors.Handlers.AddRange(behavior.GetHandlers());
-            } 
+            }
             newBehaviors.CollectionChanged += OnBehaviorsCollectionChanged;
          }
 
@@ -184,20 +316,21 @@ namespace Huddled.Wpf
                {
                   oldBehaviors.Handlers.Remove(h);
                }
-            } 
+            }
             oldBehaviors.CollectionChanged -= OnBehaviorsCollectionChanged;
-         } 
-         
-      }
+         }
 
+      }
+      #endregion
       /// <summary>
-      /// Called when [behaviors collection changed].
+      /// Handles changes to the NativeBehaviors collection, invoking the <see cref="NativeBehavior.AddTo"/>
+      /// and <see cref="NativeBehavior.RemoveFrom"/> methods, and adding their handlers to the list.
       /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="nccea">The <see cref="System.Collections.Specialized.NotifyCollectionChangedEventArgs"/> instance containing the event data.</param>
+      /// <param name="sender"></param>
+      /// <param name="nccea"></param>
       private static void OnBehaviorsCollectionChanged(object sender, NotifyCollectionChangedEventArgs nccea)
       {
-         var behaviors = (WindowBehaviors)sender;
+         var behaviors = (NativeBehaviors)sender;
          // get the owner of the collection (the object to which it is attached)  
          var owner = behaviors.Target;
          if (owner != null)
@@ -223,7 +356,6 @@ namespace Huddled.Wpf
             }
          }
       }
-
-
+      #endregion
    }
 }

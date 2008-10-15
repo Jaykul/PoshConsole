@@ -69,7 +69,7 @@
     <Compile Include="Wpf\SnapToBehavior.cs" />
     <Compile Include="Interop\Windows\NativeMethods.cs" />
     <Compile Include="Wpf\NativeBehaviors.cs" />
-    <Compile Include="Wpf\WindowBehaviors.cs" />
+    <Compile Include="Wpf\NativeBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Interop\Vista\ChromelessWindowTemplate.xaml">

@@ -720,7 +720,7 @@ namespace PoshConsole.PSHost
          {
             try
             {
-               foreach (var behavior in Native.GetBehaviors(PsUi as Window))
+               foreach (var behavior in NativeBehaviors.GetBehaviors(PsUi as Window))
                {
                   if (behavior is HotkeysBehavior)
                   {

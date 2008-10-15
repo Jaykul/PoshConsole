@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole", "PoshConsole\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Huddled", "Huddled\Huddled.csproj", "{23A411B5-657B-4B8E-9B10-D7256D39AD08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalHotkeysDemo", "GlobalHotkeys\GlobalHotkeysDemo.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOGlobalHotkeys", "GlobalHotkeys\DEMOGlobalHotkeys.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary", "FontLibrary\FontLibrary.csproj", "{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}"
 EndProject
@@ -20,13 +20,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledControls\HuddledControls.csproj", "{969A3CF0-3AA6-499B-995B-C84E8F15B107}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleControlDemo", "ConsoleControlDemo\ConsoleControlDemo.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrome", "Chrome\Chrome.csproj", "{6E840110-C9E8-4C86-A061-4ED8F3438F12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOConsoleControl", "ConsoleControlDemo\DEMOConsoleControl.csproj", "{40ACBB24-A606-4C46-A07C-8133A58DA5A4}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 9
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -39,21 +37,18 @@ Global
 		SccProjectUniqueName3 = PoshConsole\\PoshConsole.csproj
 		SccProjectName3 = PoshConsole
 		SccLocalPath3 = PoshConsole
-		SccProjectUniqueName4 = GlobalHotkeys\\GlobalHotkeysDemo.csproj
-		SccProjectName4 = GlobalHotkeys
-		SccLocalPath4 = GlobalHotkeys
-		SccProjectUniqueName5 = FontLibrary\\FontLibrary.csproj
-		SccProjectName5 = FontLibrary
-		SccLocalPath5 = FontLibrary
-		SccProjectUniqueName6 = HuddledControls\\HuddledControls.csproj
-		SccProjectName6 = HuddledControls
-		SccLocalPath6 = HuddledControls
-		SccProjectUniqueName7 = ConsoleControlDemo\\ConsoleControlDemo.csproj
-		SccProjectName7 = ConsoleControlDemo
-		SccLocalPath7 = ConsoleControlDemo
-		SccProjectUniqueName8 = Chrome\\Chrome.csproj
-		SccProjectName8 = Chrome
-		SccLocalPath8 = Chrome
+		SccProjectUniqueName4 = FontLibrary\\FontLibrary.csproj
+		SccProjectName4 = FontLibrary
+		SccLocalPath4 = FontLibrary
+		SccProjectUniqueName5 = HuddledControls\\HuddledControls.csproj
+		SccProjectName5 = HuddledControls
+		SccLocalPath5 = HuddledControls
+		SccProjectUniqueName6 = ConsoleControlDemo\\DEMOConsoleControl.csproj
+		SccProjectName6 = ConsoleControlDemo
+		SccLocalPath6 = ConsoleControlDemo
+		SccProjectUniqueName7 = GlobalHotkeys\\DEMOGlobalHotkeys.csproj
+		SccProjectName7 = GlobalHotkeys
+		SccLocalPath7 = GlobalHotkeys
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,10 +83,6 @@ Global
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40ACBB24-A606-4C46-A07C-8133A58DA5A4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E840110-C9E8-4C86-A061-4ED8F3438F12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
