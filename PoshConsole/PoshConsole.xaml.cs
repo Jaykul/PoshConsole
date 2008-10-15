@@ -155,10 +155,10 @@ namespace PoshConsole
          // so now we can ask which keys are still unregistered.
          foreach (var behavior in Native.GetBehaviors(this))
          {
-            if (behavior is HotkeyBehavior)
+            if (behavior is HotkeysBehavior)
             {
 
-               HotkeyBehavior hk = behavior as HotkeyBehavior;
+               HotkeysBehavior hk = behavior as HotkeysBehavior;
                int k = -1;
                int count = hk.UnregisteredKeys.Count;
                while (++k < count)
@@ -167,7 +167,7 @@ namespace PoshConsole
                   // hypothetically, you would show them a GUI for changing the hotkeys... 
 
                   // but you could try modifying them yourself ...
-                  ModifierKeys mk = HotkeyBehavior.AddModifier(key.Modifiers);
+                  ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
                   if (mk != ModifierKeys.None)
                   {
                      MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));

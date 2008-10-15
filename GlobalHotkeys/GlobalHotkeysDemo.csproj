@@ -48,6 +48,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -72,12 +73,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+      <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="DemoWindow.xaml.cs">
-      <DependentUpon>DemoWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
+      <DependentUpon>DemoWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +109,15 @@
       <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
       <Name>Huddled</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\PoshConsoleWindow.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppPin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\AppLightning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2008 Joel Bennett
+﻿// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
-using Huddled.Interop.Windows;
-using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.Windows.NativeMethods.WindowMessage, Huddled.Interop.Windows.NativeMethods.MessageHandler>;
+using Huddled.Interop;
+using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
 namespace Huddled.Wpf
 {

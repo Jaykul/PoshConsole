@@ -1,4 +1,4 @@
-// Copyright (c) 2008 Joel Bennett
+// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -288,7 +288,7 @@ namespace Huddled.Interop.Vista
 
             NativeMethods.ThumbnailProperties props = new NativeMethods.ThumbnailProperties();
             props.Visible = true;
-            props.Destination = new NativeMethods.RECT(
+            props.Destination = new NativeMethods.ApiRect(
                 2 + (int)Math.Ceiling(a.X), 2 + (int)Math.Ceiling(a.Y),
                 -2 + (int)Math.Ceiling(b.X), -2 + (int)Math.Ceiling(b.Y));
             props.Flags = NativeMethods.ThumbnailFlags.Visible | NativeMethods.ThumbnailFlags.RectDestination;
@@ -323,158 +323,5 @@ namespace Huddled.Interop.Vista
 
    }
 
-   public partial class NativeMethods
-   {
-
-      #region [rgn] Enums (1)
-
-      [Flags()]
-      public enum ThumbnailFlags : uint
-      {
-         /// <summary>
-         /// Indicates a value for fSourceClientAreaOnly has been specified.
-         /// </summary>
-         RectDestination = 0x01,
-         /// <summary>
-         /// Indicates a value for rcSource has been specified.
-         /// </summary>
-         RectSource = 0x02,
-         /// <summary>
-         /// Indicates a value for opacity has been specified.
-         /// </summary>
-         Opacity = 0x04,
-         /// <summary>
-         /// Indicates a value for fVisible has been specified.
-         /// </summary>
-         Visible = 0x08,
-         /// <summary>
-         /// Indicates a value for fSourceClientAreaOnly has been specified.
-         /// </summary>
-         SourceClientAreaOnly = 0x10
-      }
-
-      #endregion [rgn]
-
-      #region [rgn] Methods (4)
-
-      // [rgn] Public Methods (4)
-
-      [DllImport("dwmapi.dll")]
-      public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out System.Drawing.Size size);
-
-      // ************************************************
-      // ***** VISTA ONLY *******************************
-      // ************************************************
-      //[DllImport("dwmapi.dll")]
-      //public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, IntPtr pReserved, out SafeThumbnailHandle phThumbnailId);
-      [DllImport("dwmapi.dll")]
-      public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, out IntPtr hThumbnailId);
-
-      [DllImport("dwmapi.dll")]
-      public static extern int DwmUnregisterThumbnail(IntPtr hThumbnailId);
-
-      //[DllImport("dwmapi.dll")]
-      //public static extern int DwmUpdateThumbnailProperties(SafeThumbnailHandle hThumbnailId, ref DwmThumbnailProperties ptnProperties);
-      [DllImport("dwmapi.dll")]
-      public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnailId, ref ThumbnailProperties thumbProps);
-
-      #endregion [rgn]
-
-      [DllImport("dwmapi.dll")]
-      public static extern int DwmIsCompositionEnabled([MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
-      [Serializable, StructLayout(LayoutKind.Sequential)]
-      public struct ThumbnailProperties
-      {
-         public ThumbnailFlags Flags;
-         public RECT Destination;
-         public RECT Source;
-
-         public byte Opacity;
-
-         [MarshalAs(UnmanagedType.Bool)]
-         public bool Visible;
-
-         [MarshalAs(UnmanagedType.Bool)]
-         public bool ClientAreaOnly;
-
-         public ThumbnailProperties(RECT destination, ThumbnailFlags flags)
-         {
-            Source = new RECT();
-            Destination = destination;
-            Flags = flags;
-
-            Opacity = 255;
-            Visible = true;
-            ClientAreaOnly = false;
-         }
-      }
-      [Serializable, StructLayout(LayoutKind.Sequential)]
-      public struct RECT
-      {
-         public int Left;
-         public int Top;
-         public int Right;
-         public int Bottom;
-
-         public RECT(int left_, int top_, int right_, int bottom_)
-         {
-            Left = left_;
-            Top = top_;
-            Right = right_;
-            Bottom = bottom_;
-         }
-
-         public int Height
-         {
-            get { return (Bottom - Top) + 1; }
-            set { Bottom = (Top + value) - 1; }
-         }
-         public int Width
-         {
-            get { return (Right - Left) + 1; }
-            set { Right = (Left + value) - 1; }
-         }
-         public Size Size { get { return new Size(Width, Height); } }
-
-         public Point Location { get { return new Point(Left, Top); } }
-
-         // Handy method for converting to a System.Drawing.Rectangle
-         public System.Drawing.Rectangle ToRectangle()
-         { return System.Drawing.Rectangle.FromLTRB(Left, Top, Right, Bottom); }
-
-         public static RECT FromRectangle(System.Drawing.Rectangle rectangle)
-         {
-            return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
-         }
-
-         public override int GetHashCode()
-         {
-            return Left ^ ((Top << 13) | (Top >> 0x13))
-              ^ ((Width << 0x1a) | (Width >> 6))
-              ^ ((Height << 7) | (Height >> 0x19));
-         }
-
-         #region Operator overloads
-
-         //public static implicit operator System.Windows.Shapes.Rectangle(RECT rect)
-         //{
-         //    System.Windows.Shapes.Rectangle sRectangle = new System.Windows.Shapes.Rectangle();
-         //    sRectangle.Height = rect.Height;
-         //    sRectangle.Width = rect.Width;
-         //}
-
-         public static implicit operator System.Drawing.Rectangle(RECT rect)
-         {
-            return System.Drawing.Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
-         }
-
-         public static implicit operator RECT(System.Drawing.Rectangle rect)
-         {
-            return new RECT(rect.Left, rect.Top, rect.Right, rect.Bottom);
-         }
-
-         #endregion
-      }
-   }
 }
 

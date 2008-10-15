@@ -453,7 +453,7 @@ namespace Win32
 
          #region Operator overloads
 
-         //public static implicit operator System.Windows.Shapes.Rectangle(RECT rect)
+         //public static implicit operator System.Windows.Shapes.Rectangle(ApiRect rect)
          //{
          //    System.Windows.Shapes.Rectangle sRectangle = new System.Windows.Shapes.Rectangle();
          //    sRectangle.Height = rect.Height;

@@ -722,9 +722,9 @@ namespace PoshConsole.PSHost
             {
                foreach (var behavior in Native.GetBehaviors(PsUi as Window))
                {
-                  if (behavior is HotkeyBehavior)
+                  if (behavior is HotkeysBehavior)
                   {
-                     HotkeyBehavior hk = behavior as HotkeyBehavior;
+                     HotkeysBehavior hk = behavior as HotkeysBehavior;
                      hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
                      return true;
                   }

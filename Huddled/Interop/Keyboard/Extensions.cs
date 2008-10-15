@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2008 Joel Bennett
+﻿// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +86,7 @@ namespace Huddled.Interop.Keyboard
       /// Gets the control key states.
       /// </summary>
       /// <param name="kb">The <see cref="KeyboardDevice"/>.</param>
-      /// <returns>The <see cref="ControlKeyStates"/> flags</returns>
+      /// <returns>The <see cref="ControlKeyStates"/> Flags</returns>
       private static ControlKeyStates GetControlKeyStates( this KeyboardDevice kb)
       {
          ControlKeyStates controlStates = default(ControlKeyStates);

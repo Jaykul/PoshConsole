@@ -1,4 +1,4 @@
-// Copyright (c) 2008 Joel Bennett
+// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/ http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
+using Huddled.Interop;
 using Huddled.Interop.Windows;
-using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.Windows.NativeMethods.WindowMessage, Huddled.Interop.Windows.NativeMethods.MessageHandler>;
+using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
 namespace Huddled.Wpf
 {
@@ -67,6 +68,7 @@ namespace Huddled.Wpf
                                       SystemParameters.VirtualScreenTop,
                                       SystemParameters.VirtualScreenWidth,
                                       SystemParameters.VirtualScreenHeight);
+
             Rect snapToBorder = new Rect(SystemParameters.VirtualScreenLeft + SnapDistance.Left,
                                      SystemParameters.VirtualScreenTop + SnapDistance.Top,
                                      SystemParameters.VirtualScreenWidth - (SnapDistance.Left + SnapDistance.Right),

@@ -1,4 +1,4 @@
-// Copyright (c) 2008 Joel Bennett
+// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Huddled.Interop.Keyboard
+namespace Huddled.Interop
 {
     public static partial class NativeMethods
     {

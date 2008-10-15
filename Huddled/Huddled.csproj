@@ -54,12 +54,15 @@
     <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Wpf\Hotkeys\HotkeyBehavior.cs" />
+    <Compile Include="Interop\Vista\CustomChrome.cs" />
+    <Compile Include="Interop\Utilities.cs" />
+    <Compile Include="Wpf\DpiHelper.cs" />
+    <Compile Include="Wpf\Hotkeys\HotkeysBehavior.cs" />
     <Compile Include="Wpf\Hotkeys\GlobalCommands.cs" />
     <Compile Include="Interop\Keyboard\NativeMethods.cs" />
     <Compile Include="Interop\Keyboard\Extensions.cs" />
     <Compile Include="Interop\NativeConsole.cs" />
-    <Compile Include="Interop\Vista\Glass.cs" />
+    <Compile Include="Interop\Vista\NativeMethods.cs" />
     <Compile Include="Interop\Vista\WindowImage.cs" />
     <Compile Include="Interop\Windows\WindowSwitcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,6 +70,12 @@
     <Compile Include="Interop\Windows\NativeMethods.cs" />
     <Compile Include="Wpf\NativeBehaviors.cs" />
     <Compile Include="Wpf\WindowBehaviors.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Interop\Vista\ChromelessWindowTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utility\" />

@@ -6,7 +6,6 @@
     xmlns:extensions="http://schemas.microsoft.com/winfx/2006/xaml/extentions"
 
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
-    xmlns:hotkeys="http://schemas.huddledmasses.org/interop/hotkeys"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
     Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
@@ -35,17 +34,15 @@
     >
    <huddled:Native.Behaviors>
       <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
-      <huddled:HotkeyBehavior>
+      <huddled:HotkeysBehavior>
          <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
          <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
          <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
          <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-      </huddled:HotkeyBehavior>
+      </huddled:HotkeysBehavior>
+      <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
    </huddled:Native.Behaviors>
-   <extensions:WindowChrome.WindowChrome>
-      <extensions:WindowChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
-   </extensions:WindowChrome.WindowChrome>
-
+   
    <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
@@ -177,7 +174,7 @@
 				<huddle:ImageButton x:Name="ToggleGlass" extensions:WindowChrome.HitTestable="True"
 					Click="OnToggleGlassClick" 
 					Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-					ToolTip="Toggle Vista Glass" Image="pack://application:,,,/Artwork/AppLightning.png" Width="25" Height="Auto" />
+					ToolTip="Toggle Vista NativeMethods" Image="pack://application:,,,/Artwork/AppLightning.png" Width="25" Height="Auto" />
 				<huddle:ImageToggleButton x:Name="OnTopWindow" extensions:WindowChrome.HitTestable="True"
 					DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
 					CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
