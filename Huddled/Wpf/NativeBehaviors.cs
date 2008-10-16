@@ -71,6 +71,9 @@ namespace Huddled.Wpf
          }
          set
          {
+            // design mode bailout (in Design mode there's no window, and no wndproc)
+            if (DesignerProperties.GetIsInDesignMode(value)) { return; }
+
             if (_owner != null && WindowHandle != IntPtr.Zero)
             {
                HwndSource.FromHwnd(WindowHandle).RemoveHook(WndProc);
@@ -140,18 +143,21 @@ namespace Huddled.Wpf
       [DebuggerNonUserCode]
       private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
       {
-         // Only expecting messages for our cached HWND.
-         Debug.Assert(hwnd == WindowHandle);
-         var message = (NativeMethods.WindowMessage)msg;
+         Debug.Assert(hwnd == WindowHandle); // Only expecting messages for our cached HWND.
 
+         // cast and cache the message
+         var message = (NativeMethods.WindowMessage)msg;
+         // NOTE: we may process a message multiple times
+         // and we have no good way to handle that...
+         var result = IntPtr.Zero;
          foreach (var handlePair in Handlers)
-         {
-            if (handlePair.Key == message)
+         {  if (handlePair.Key == message)
             {
-               return handlePair.Value(wParam, lParam, ref handled);
-            }
-         }
-         return IntPtr.Zero;
+               var r = handlePair.Value(wParam, lParam, ref handled);
+               // So, we'll return the last non-zero result (if any)
+               if (r != IntPtr.Zero) { result = r; }
+         }  }
+         return result;
       }
 
 
@@ -179,7 +185,7 @@ namespace Huddled.Wpf
       /// ]]></example>
       private static readonly DependencyProperty NativeBehaviorsProperty = DependencyProperty.RegisterAttached(
           "NativeBehaviors", typeof(NativeBehaviors), typeof(NativeBehaviors),
-          new FrameworkPropertyMetadata(null, OnNativeBehaviorsChanged, CoerceNativeBehaviors));
+          new FrameworkPropertyMetadata(null));
 
       #region The PUBLIC accessors which wrap the hidden dependency property
       /// <summary>Sets the behaviors.</summary>
@@ -219,143 +225,52 @@ namespace Huddled.Wpf
       /// <returns></returns>
       private static NativeBehaviors GetNativeBehaviors(Window window)
       {
-         if (window == null)
-         {
-            throw new ArgumentNullException("window");
-         }
-
+         if (window == null) { throw new ArgumentNullException("window"); }
+         // This is the plain old normal thing:
          var behaviors = (NativeBehaviors)window.GetValue(NativeBehaviorsProperty);
-
-         if (behaviors == null)
-         {
-            behaviors = new NativeBehaviors(window);
-         }
-
-         Debug.Assert(behaviors.Target != null);
-         //{
-         //   behaviors.Window = window;
-         //   window.SetValue(NativeBehaviorsProperty, behaviors);
-         //}
+         // Our raison d'être: create a new collection if there isn't one yet
+         if (behaviors == null) { behaviors = new NativeBehaviors(window); }
 
          return behaviors;
       }
 
-      #region The helper methods which handle misassignments
-      /// <summary>
-      /// Verify that assigned values are, in fact, <see cref="NativeBehaviors"/>
-      /// </summary>
-      /// <param name="dependency">The Window</param>
-      /// <param name="value">The NativeBehaviors</param>
-      /// <returns></returns>
-      private static object CoerceNativeBehaviors(DependencyObject dependency, object value)
-      {
-         if (DesignerProperties.GetIsInDesignMode(dependency))
-         {
-            return value;
-         }
-
-         var window = (Window)dependency;
-         var behaviors = (NativeBehaviors)value;
-
-         if (window == null)
-         {
-            throw new ArgumentNullException("dependency");
-         }
-
-         if (behaviors == null)
-         {
-            throw new ArgumentNullException("value");
-         }
-
-         if (!window.CheckAccess())
-         {
-            throw new NotSupportedException();
-         }
-
-         return behaviors;
-      }
-      /// <summary>
-      /// Hook up our CollectionChanged event when the new NativeBehaviors collection
-      /// is set for a <see cref="Window"/>, and add any initial behaviors to the window.
-      /// </summary>
-      /// <remarks>Although this method handles removing or replacing a NativeBehavior collection
-      /// from a Window, it isn't recommended that you try to do that, and this may be deprecated
-      /// in a future release (that is: once you assign a NativeBehaviors collection to a Window,
-      /// you shouldn't try to remove it or replace it.  Certainly if you do it in XAML, you need
-      /// not worry about that ever happening...
-      /// </remarks>
-      /// <param name="dependency">The <see cref="Window"/></param>
-      /// <param name="dpcEA">The <see cref="EventArgs"/></param>
-      private static void OnNativeBehaviorsChanged(DependencyObject dependency, DependencyPropertyChangedEventArgs dpcEA)
-      {
-         if (DesignerProperties.GetIsInDesignMode(dependency))
-         {
-            return;
-         }
-
-         var window = (Window)dependency;
-         var oldBehaviors = (NativeBehaviors)dpcEA.OldValue;
-         var newBehaviors = (NativeBehaviors)dpcEA.NewValue;
-
-         if (newBehaviors != null)
-         {
-            foreach (var behavior in newBehaviors)
-            {
-               behavior.AddTo(window);
-               newBehaviors.Handlers.AddRange(behavior.GetHandlers());
-            }
-            newBehaviors.CollectionChanged += OnBehaviorsCollectionChanged;
-         }
-
-         if (oldBehaviors != null)
-         {
-            foreach (var behavior in oldBehaviors)
-            {
-               behavior.RemoveFrom(window);
-               foreach (var h in behavior.GetHandlers())
-               {
-                  oldBehaviors.Handlers.Remove(h);
-               }
-            }
-            oldBehaviors.CollectionChanged -= OnBehaviorsCollectionChanged;
-         }
-
-      }
-      #endregion
       /// <summary>
       /// Handles changes to the NativeBehaviors collection, invoking the <see cref="NativeBehavior.AddTo"/>
       /// and <see cref="NativeBehavior.RemoveFrom"/> methods, and adding their handlers to the list.
       /// </summary>
-      /// <param name="sender"></param>
       /// <param name="nccea"></param>
-      private static void OnBehaviorsCollectionChanged(object sender, NotifyCollectionChangedEventArgs nccea)
+      protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs nccea)
       {
-         var behaviors = (NativeBehaviors)sender;
-         // get the owner of the collection (the object to which it is attached)  
-         var owner = behaviors.Target;
-         if (owner != null)
+         base.OnCollectionChanged(nccea);
+         // design mode bailout because NativeBehaviors don't work in DesignMode
+         if (DesignerProperties.GetIsInDesignMode(Target)) { return; }
+         // notify new behaviors they are being hooked up, and track their handlers
+         if (nccea.Action == NotifyCollectionChangedAction.Add ||
+             nccea.Action == NotifyCollectionChangedAction.Replace)
          {
-            if (nccea.Action == NotifyCollectionChangedAction.Add || nccea.Action == NotifyCollectionChangedAction.Replace)
+            foreach (NativeBehavior behavior in nccea.NewItems)
             {
-               foreach (NativeBehavior behavior in nccea.NewItems)
-               {
-                  behavior.AddTo(owner);
-                  behaviors.Handlers.AddRange(behavior.GetHandlers());
-               }
+               behavior.AddTo(Target);
+               Handlers.AddRange(behavior.GetHandlers());
             }
-            if (nccea.Action == NotifyCollectionChangedAction.Remove || nccea.Action == NotifyCollectionChangedAction.Replace)
+         }
+
+         // notify removed behaviors they are being unhooked, and stop tracking their handlers
+         if (nccea.Action == NotifyCollectionChangedAction.Remove ||
+             nccea.Action == NotifyCollectionChangedAction.Replace)
+         {
+            foreach (NativeBehavior behavior in nccea.OldItems)
             {
-               foreach (NativeBehavior behavior in nccea.OldItems)
+               behavior.RemoveFrom(Target);
+               foreach (var h in behavior.GetHandlers())
                {
-                  behavior.RemoveFrom(owner);
-                  foreach (var h in behavior.GetHandlers())
-                  {
-                     behaviors.Handlers.Remove(h);
-                  }
+                  Handlers.Remove(h);
                }
             }
          }
       }
+
       #endregion
+
    }
 }
