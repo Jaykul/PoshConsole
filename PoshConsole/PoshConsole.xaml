@@ -43,7 +43,7 @@
          <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
          <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
       </huddled:HotkeysBehavior>
-      <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="10,60,10,10" UseGlassFrame="True" />
+      <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" />
    </huddled:NativeBehaviors.Behaviors>
    
    <!--
@@ -207,19 +207,19 @@
 			   <Grid.ColumnDefinitions>
 				   <ColumnDefinition MinWidth="45" Width="52"/>
 				   <ColumnDefinition Width="*"/>
-				   <ColumnDefinition Width="Auto"/>
+				   <ColumnDefinition Width="250"/>
 				   <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
 			   </Grid.ColumnDefinitions>
 			   <!--<StatusBar.BitmapEffect>
         			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		   </StatusBar.BitmapEffect>-->
-			   <TextBox Grid.Column="1"  x:Name="title" Padding="4,0,4,0" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Stretch" VerticalAlignment="Center" d:LayoutOverrides="Width" Margin="0,1,0,1" BorderThickness="1,1,1,1" />
-			   <GridSplitter Grid.Column="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" MinWidth="0" Width="2" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
-			   <TextBox x:Name="Search" Padding="4,0,25,0" Text="Search" HorizontalAlignment="Stretch" d:LayoutOverrides="Height" Margin="0,0,0,0" MinWidth="150" BorderThickness="1,1,1,1" Width="Auto" Grid.Column="4" VerticalAlignment="Center" />
+			   <TextBox Grid.Column="1"  x:Name="title" Padding="4,0,4,0" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,1,2,1" BorderThickness="1,1,1,1" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+			   <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
+			   <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" />
 			   <huddle:ImageButton x:Name="FindButton" 
 				   Click="OnFindButtonClick" 
 				   Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-				   ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="3" Panel.ZIndex="1" />
+				   ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1" />
 		   </Grid>
       </StackPanel>
 		<Grid huddled:CustomChrome.ClientConstrained="True">
@@ -285,6 +285,6 @@
             </LinearGradientBrush>
          </Ellipse.Fill>
       </Ellipse>
-      <Button Style="{DynamicResource SuperButton}" Margin="3,3,0,0" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" />
+      <Button Style="{DynamicResource SuperButton}" Margin="5,5,0,0" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" />
    </Grid>
 </Window>
