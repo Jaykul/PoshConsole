@@ -796,6 +796,19 @@ namespace PoshConsole
          }
       }
 
+      private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
+      {
+         Find(Search.Text); //Search.Focus();
+         //if (ApplicationCommands.Find.CanExecute(Search.Text, buffer))
+         //{
+         //   ApplicationCommands.Find.Execute(Search.Text, buffer);
+         //}
+         //else if (!NavigationCommands.Search.CanExecute(Search.Text, buffer))
+         //{
+         //   NavigationCommands.Search.Execute(Search.Text, buffer);
+         //}
+      }
+
       private void Search_GotFocus(object sender, RoutedEventArgs e)
       {
          Search.SelectAll();
@@ -806,8 +819,6 @@ namespace PoshConsole
          Find(Search.Text);
       }
 
-      TextPointer lastSearchPoint = null;
-      String lastSearchString = String.Empty;
       private void Search_PreviewKeyDown(object sender, KeyEventArgs e)
       {
          if (e.Key == Key.Enter)
@@ -816,24 +827,21 @@ namespace PoshConsole
          }
       }
 
+      TextPointer lastSearchPoint = null;
+      String lastSearchString = String.Empty;
       private void Find(string input)
       {
          if (lastSearchPoint == null || input != lastSearchString)
+         {
             lastSearchPoint = buffer.Document.ContentStart;
+            lastSearchString = input;
+         }
 
          TextRange found = buffer.FindNext(ref lastSearchPoint, input);
-         //if (found != null)
-         //{
-
-         //   //found.ApplyPropertyValue( ForegroundProperty, Brushes.Honeydew);
-         //   //buffer.Selection.Select(found.Start, found.End);
-         //}
-         
-      }
-
-      private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
-      {
-         Search.Focus();
+         if (found != null)
+         {
+            buffer.Focus();
+         }
       }
    }
 }

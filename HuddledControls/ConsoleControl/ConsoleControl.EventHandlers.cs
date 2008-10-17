@@ -233,7 +233,7 @@ namespace Huddled.WPF.Controls
 
       protected override void OnPreviewKeyUp(KeyEventArgs e)
       {
-         Trace.WriteLine(string.Format("Preview KeyUp, queueing KeyInfo: {0} ({1})", e.Key, e.Handled));
+         //Trace.WriteLine(string.Format("Preview KeyUp, queueing KeyInfo: {0} ({1})", e.Key, e.Handled));
          // NOTE: if it's empty, it must have been CLEARed during the KeyDown, 
          //       so we don't want to count the KeyUp either
          if (_inputBuffer.Count > 0)
@@ -246,7 +246,7 @@ namespace Huddled.WPF.Controls
 
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
-         Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
+         //Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
          _inputBuffer.Enqueue(e.ToKeyInfo());
          if ((Keyboard.Modifiers & ModifierKeys.None) == 0) 
             _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)

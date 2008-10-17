@@ -361,17 +361,29 @@ namespace Huddled.WPF.Controls
       public TextRange FindNext(ref TextPointer position, String input)
       {
          TextRange result = null;
-
-         result = DocumentHelper.FindText( position, Document.ContentEnd, input, DocumentHelper.FindFlags.None, CultureInfo.CurrentCulture);
-         if(result != null) {
-            position = result.End;
+         if (position.CompareTo(Document.ContentEnd) == 0)
+         {
+            position = Document.ContentStart;
          }
 
-         //result.Start.Paragraph.BringIntoView();
-         Selection.Select(result.Start, result.End);
-         // Selection.ApplyPropertyValue( Run.BackgroundProperty, Brushes.Honeydew);
+         result = DocumentHelper.FindText( position, Document.ContentEnd, input, DocumentHelper.FindFlags.None, CultureInfo.CurrentCulture);
+         if (result != null)
+         {
+            position = result.End;
+            Selection.Select(result.Start, result.End);
+         }
+         else
+         {
+            position = Document.ContentEnd;
+            Selection.Select(position, position);
+         }
 
-         return null;
+         double top = this.PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y;
+         Trace.WriteLine(string.Format(" Top: {0}, CharOffset: {1}", top, position));
+         ScrollViewer.ScrollToVerticalOffset(top);
+         //this.BringIntoView( );
+
+         return result;
       }
 
 
@@ -408,10 +420,13 @@ namespace Huddled.WPF.Controls
                   }
 
 
-                  Object result = findMethod.Invoke(null, new Object[] { findContainerStartPosition,
-                    findContainerEndPosition,
-                    input, flags, CultureInfo.CurrentCulture });
-                  textRange = result as TextRange;
+                  textRange = findMethod.Invoke(null, 
+                     new Object[] { findContainerStartPosition,
+                                    findContainerEndPosition,
+                                    input, 
+                                    flags, 
+                                    CultureInfo.CurrentCulture 
+                     }) as TextRange;
                }
                catch (ApplicationException)
                {

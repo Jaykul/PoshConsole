@@ -119,7 +119,9 @@
                   </Style>
                </ControlTemplate.Resources>
                <Border Background="{TemplateBinding Background}">
-                  <ScrollViewer Name="PART_ContentHost" />
+                  <AdornerDecorator x:Name="PART_Adorner">
+                     <ScrollViewer Name="PART_ContentHost" />
+                  </AdornerDecorator>
                </Border>
             </ControlTemplate>
          </Setter.Value>
