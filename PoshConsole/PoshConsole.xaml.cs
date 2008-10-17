@@ -786,10 +786,7 @@ namespace PoshConsole
          Settings.Default.AlwaysOnTop = false;
       }
 
-      private void OnFindButtonClick(object sender, RoutedEventArgs e)
-      {
-         buffer.Find();
-      }
+
 
       private void OnToggleGlassClick(object sender, RoutedEventArgs e)
       {
@@ -797,6 +794,45 @@ namespace PoshConsole
          {
             chrome.UseGlassFrame = !chrome.UseGlassFrame;
          }
+      }
+
+      private void Search_GotFocus(object sender, RoutedEventArgs e)
+      {
+         Search.SelectAll();
+      }
+
+      private void OnFindButtonClick(object sender, RoutedEventArgs e)
+      {
+         Find(Search.Text);
+      }
+
+      TextPointer lastSearchPoint = null;
+      String lastSearchString = String.Empty;
+      private void Search_PreviewKeyDown(object sender, KeyEventArgs e)
+      {
+         if (e.Key == Key.Enter)
+         {
+            Find(Search.Text);
+         }
+      }
+
+      private void Find(string input)
+      {
+         if (lastSearchPoint == null || input != lastSearchString)
+            lastSearchPoint = buffer.Document.ContentStart;
+
+         TextRange found = buffer.FindNext(ref lastSearchPoint, input);
+         if (found != null)
+         {
+            //found.ApplyPropertyValue( ForegroundProperty, Brushes.Honeydew);
+            buffer.Selection.Select(found.Start, found.End);
+         }
+         
+      }
+
+      private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
+      {
+         Search.Focus();
       }
    }
 }

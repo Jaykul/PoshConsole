@@ -338,18 +338,60 @@ namespace Huddled.WPF.Controls
          set { SetValue(TitleProperty, value); }
       }
 
+
       // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
       // TODO: Check if other properties ought to be backed by dependency properties so they can be bound      
       public static readonly DependencyProperty TitleProperty =
           DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
 
 
+      public TextRange FindText(String input)
+      {
+         TextPointer position = Document.ContentStart;
+         return FindNext(ref position, input);
+      }
 
-      //private string _title;
-      //public string Title
-      //{
-      //   get { return _title; }
-      //   set { _title = value; }
-      //}
+      /// <summary>
+      /// Find the input string within the document, starting at the specified position.
+      /// </summary>
+      /// <param name="position">the current text position</param>
+      /// <param name="input">input text</param>
+      /// <returns>An <see cref="TextRange"/> represeneting the (next) matching string within the text container.</returns>
+      public TextRange FindNext(ref TextPointer position, String input)
+      {
+         while (position != null)
+         {
+            if (position.CompareTo(Document.ContentEnd) == 0) { 
+               position = position.DocumentStart;
+               return null;
+            }
+
+            if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+            {
+               String textRun = position.GetTextInRun(LogicalDirection.Forward);
+               Int32 indexInRun = textRun.IndexOf(input, StringComparison.CurrentCultureIgnoreCase);
+
+               if (indexInRun >= 0)
+               {
+                  position = position.GetPositionAtOffset(indexInRun + input.Length);
+                  //ScrollViewer.ScrollToVerticalOffset
+                  return new TextRange(position.GetPositionAtOffset(-input.Length), position);
+               }
+               else
+               {
+                  // If a match is not found, go over to the next context position after the "textRun".
+                  position = position.GetPositionAtOffset(textRun.Length);
+               }
+            }
+            else
+            {
+               //If the current position doesn't represent a text context position, go to the next context position.
+               // This can effectively ignore the formatting or embedded element symbols.
+               position = position.GetNextContextPosition(LogicalDirection.Forward);
+            }
+         }
+         return null;
+      }
+
    }
 }
