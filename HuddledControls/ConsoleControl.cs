@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using System.Globalization;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace Huddled.WPF.Controls
 {
@@ -359,39 +360,67 @@ namespace Huddled.WPF.Controls
       /// <returns>An <see cref="TextRange"/> represeneting the (next) matching string within the text container.</returns>
       public TextRange FindNext(ref TextPointer position, String input)
       {
-         while (position != null)
-         {
-            if (position.CompareTo(Document.ContentEnd) == 0) { 
-               position = position.DocumentStart;
-               return null;
-            }
+         TextRange result = null;
 
-            if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
-            {
-               String textRun = position.GetTextInRun(LogicalDirection.Forward);
-               Int32 indexInRun = textRun.IndexOf(input, StringComparison.CurrentCultureIgnoreCase);
-
-               if (indexInRun >= 0)
-               {
-                  position = position.GetPositionAtOffset(indexInRun + input.Length);
-                  //ScrollViewer.ScrollToVerticalOffset
-                  return new TextRange(position.GetPositionAtOffset(-input.Length), position);
-               }
-               else
-               {
-                  // If a match is not found, go over to the next context position after the "textRun".
-                  position = position.GetPositionAtOffset(textRun.Length);
-               }
-            }
-            else
-            {
-               //If the current position doesn't represent a text context position, go to the next context position.
-               // This can effectively ignore the formatting or embedded element symbols.
-               position = position.GetNextContextPosition(LogicalDirection.Forward);
-            }
+         result = DocumentHelper.FindText( position, Document.ContentEnd, input, DocumentHelper.FindFlags.None, CultureInfo.CurrentCulture);
+         if(result != null) {
+            position = result.End;
          }
+
+         //result.Start.Paragraph.BringIntoView();
+         Selection.Select(result.Start, result.End);
+         // Selection.ApplyPropertyValue( Run.BackgroundProperty, Brushes.Honeydew);
+
          return null;
       }
 
+
+
+      /// <summary>
+      /// An ugly internal search helper (which uses reflection, and "just works")
+      /// </summary>
+      private static class DocumentHelper
+      {
+         private static MethodInfo findMethod = null;
+         [Flags]
+         public enum FindFlags
+         {
+            None = 0,
+            MatchCase = 1,
+            FindInReverse = 2,
+            FindWholeWordsOnly = 4,
+            MatchDiacritics = 8,
+            MatchKashida = 16,
+            MatchAlefHamza = 32,
+         } 
+
+         public static TextRange FindText(TextPointer findContainerStartPosition, TextPointer findContainerEndPosition, String input, FindFlags flags, CultureInfo cultureInfo)
+         {
+            TextRange textRange = null;
+            if (findContainerStartPosition.CompareTo(findContainerEndPosition) < 0)
+            {
+               try
+               {
+                  if (findMethod == null)
+                  {
+                     findMethod = typeof(FrameworkElement).Assembly.GetType("System.Windows.Documents.TextFindEngine").
+                            GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
+                  }
+
+
+                  Object result = findMethod.Invoke(null, new Object[] { findContainerStartPosition,
+                    findContainerEndPosition,
+                    input, flags, CultureInfo.CurrentCulture });
+                  textRange = result as TextRange;
+               }
+               catch (ApplicationException)
+               {
+                  textRange = null;
+               }
+            }
+
+            return textRange;
+         }
+      } 
    }
 }

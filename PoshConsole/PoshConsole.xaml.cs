@@ -822,11 +822,12 @@ namespace PoshConsole
             lastSearchPoint = buffer.Document.ContentStart;
 
          TextRange found = buffer.FindNext(ref lastSearchPoint, input);
-         if (found != null)
-         {
-            //found.ApplyPropertyValue( ForegroundProperty, Brushes.Honeydew);
-            buffer.Selection.Select(found.Start, found.End);
-         }
+         //if (found != null)
+         //{
+
+         //   //found.ApplyPropertyValue( ForegroundProperty, Brushes.Honeydew);
+         //   //buffer.Selection.Select(found.Start, found.End);
+         //}
          
       }
 

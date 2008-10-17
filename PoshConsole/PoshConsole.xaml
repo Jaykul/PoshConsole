@@ -130,8 +130,8 @@
       <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
       <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
       <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
-      <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
-      <CommandBinding Command="ApplicationCommands.Find" Executed="OnSearchCommand" />
+      <!--<CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
+      <CommandBinding Command="ApplicationCommands.Find" Executed="OnSearchCommand" />-->
 
    </Window.CommandBindings>
    <Window.InputBindings>
