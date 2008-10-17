@@ -101,10 +101,11 @@ namespace Huddled.Wpf
          }
       }
 
-      ///// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
-      ///// with no behaviors and no owner window
-      ///// </summary>
-      //public NativeBehaviors() { Handlers = new List<MessageMapping>(); }
+      /// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
+      /// with no behaviors and no owner window.
+      /// </summary>
+      /// <remarks>We need this constructor for DesignMode support</remarks>
+      public NativeBehaviors() { Handlers = new List<MessageMapping>(); }
 
       /// <summary>Initializes a new instance of the <see cref="NativeBehaviors"/> class
       /// with the specified target <see cref="Window"/> 
@@ -243,7 +244,7 @@ namespace Huddled.Wpf
       {
          base.OnCollectionChanged(nccea);
          // design mode bailout because NativeBehaviors don't work in DesignMode
-         if (DesignerProperties.GetIsInDesignMode(Target)) { return; }
+         if(Target == null || DesignerProperties.GetIsInDesignMode(Target)) { return; }
          // notify new behaviors they are being hooked up, and track their handlers
          if (nccea.Action == NotifyCollectionChangedAction.Add ||
              nccea.Action == NotifyCollectionChangedAction.Replace)
