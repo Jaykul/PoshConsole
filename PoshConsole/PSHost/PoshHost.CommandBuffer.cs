@@ -293,8 +293,15 @@ namespace PoshConsole
 
                // I thought that maybe invoke instead of InvokeAsync() would stop the (COM) thread problems
                // it didn't, but it means I don't need the sync, so I might as well leave it...
-               _Pipeline.Invoke(boundCommand.Input);
-
+               try
+               {
+                  _Pipeline.Invoke(boundCommand.Input);
+               }
+               catch (IncompleteParseException ipe)
+               {
+                  // TODO: Handle IncompleteParseException with some elegance!
+                  Debug.WriteLine(ipe.Message);
+               }
                //_Pipeline.InvokeAsync();
                //_Pipeline.Input.Write(boundCommand.Input, true);
                //_Pipeline.Input.Close();

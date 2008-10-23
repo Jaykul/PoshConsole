@@ -21,7 +21,6 @@ using System.Reflection;
 
 namespace Huddled.WPF.Controls
 {
-
    /// <summary>
    /// The ConsoleControl is a <see cref="FlowDocumentScrollViewer"/> where all input goes to a sub-textbox after the "prompt"
    /// </summary>
@@ -78,6 +77,8 @@ namespace Huddled.WPF.Controls
                              IsEnabled = true,
                              Focusable = true,
                              AcceptsTab = true,
+                             AcceptsReturn = true,
+                             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
                           };
          _passwordBox = new PasswordBox()
                            {
@@ -87,7 +88,7 @@ namespace Huddled.WPF.Controls
          _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
          _passwordBox.PreviewKeyDown += new KeyEventHandler(_passwordBox_PreviewKeyDown);
 
-         _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Center };
+         _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.TextTop };
       }
 
 

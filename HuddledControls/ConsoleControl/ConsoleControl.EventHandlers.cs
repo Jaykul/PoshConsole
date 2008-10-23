@@ -97,7 +97,7 @@ namespace Huddled.WPF.Controls
 
       private void OnDownPressed(KeyEventArgs e)
       {
-         if (!e.IsModifierOn(ModifierKeys.Control) && !e.KeyboardDevice.IsScrollLockToggled())
+         if ((_commandBox.LineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
          {
             CurrentCommand = _cmdHistory.Next(CurrentCommand);
             e.Handled = true;
@@ -106,7 +106,7 @@ namespace Huddled.WPF.Controls
 
       private void OnUpPressed(KeyEventArgs e)
       {
-         if (!e.IsModifierOn(ModifierKeys.Control) && !e.KeyboardDevice.IsScrollLockToggled())
+         if ((_commandBox.LineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
          {
             CurrentCommand = _cmdHistory.Previous(CurrentCommand);
             e.Handled = true;
@@ -262,23 +262,32 @@ namespace Huddled.WPF.Controls
 
       private void OnEnterPressed(KeyEventArgs e)
       {
-         // get the command
-         string cmd = _commandBox.Text;
-         // clear the box
-         ((IPSRawConsole)this).FlushInputBuffer();
-         lock (_commandContainer)
+         // if they CTRL+ENTER, let it through
+         if (!e.IsModifierOn(ModifierKeys.Control) && !e.IsModifierOn(ModifierKeys.Shift))
          {
-            // put the text in instead
-            _current.Inlines.Add(cmd + "\n");
-            // and move the _commandContainer to the "next" paragraph
-            _current.Inlines.Remove(_commandContainer);
-            _next = new Paragraph(_commandContainer);
-         }
-         Document.Blocks.Add(_next);
-         UpdateLayout();
-         OnCommand(cmd);
+            // get the command
+            string cmd = _commandBox.Text;
+            // clear the box
+            ((IPSRawConsole)this).FlushInputBuffer();
+            lock (_commandContainer)
+            {
+               // put the text in instead
+               _current.Inlines.Add(cmd + "\n");
+               // and move the _commandContainer to the "next" paragraph
+               _current.Inlines.Remove(_commandContainer);
+               _next = new Paragraph(_commandContainer);
+            }
+            Document.Blocks.Add(_next);
+            UpdateLayout();
+            OnCommand(cmd);
 
-         e.Handled = true;
+            e.Handled = true;
+         } else {
+            var indx = _commandBox.CaretIndex;
+            _commandBox.Text += "\n";
+            _commandBox.CaretIndex = indx + 1;
+            e.Handled = true;
+         }
       }
 
       protected override void OnDragEnter(DragEventArgs e)
