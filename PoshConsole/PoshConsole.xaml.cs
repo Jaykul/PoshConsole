@@ -798,16 +798,21 @@ namespace PoshConsole
 
       private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
       {
-         Find(Search.Text); //Search.Focus();
-         //if (ApplicationCommands.Find.CanExecute(Search.Text, buffer))
-         //{
-         //   ApplicationCommands.Find.Execute(Search.Text, buffer);
-         //}
-         //else if (!NavigationCommands.Search.CanExecute(Search.Text, buffer))
-         //{
-         //   NavigationCommands.Search.Execute(Search.Text, buffer);
-         //}
+         if (Search.Text.Length > 0)
+         {
+            Find(Search.Text);
+         }
+         else
+         {
+            Search.Focus();
+         }
       }
+
+      private void OnFindCommand(object sender, ExecutedRoutedEventArgs e)
+      {
+         Search.Focus();
+      }
+      
 
       private void Search_GotFocus(object sender, RoutedEventArgs e)
       {

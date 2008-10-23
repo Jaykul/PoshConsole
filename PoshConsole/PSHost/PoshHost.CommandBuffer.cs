@@ -300,7 +300,16 @@ namespace PoshConsole
                catch (IncompleteParseException ipe)
                {
                   // TODO: Handle IncompleteParseException with some elegance!
+                  //    klumsy suggested we could prevent these by using the tokenizer 
+                  // Tokenizing in OnEnterPressed (before sending it to the CommandRunner)
+                  //    would allow us to let {Enter} be handled nicely ... 
+                  // Tokenizing in KeyDown would let us do live syntax highlighting,
+                  //    is it fast enough to work?
                   Debug.WriteLine(ipe.Message);
+               }
+               catch (ParseException pe)
+               {
+                  // TODO: Handle ParseException with some elegance!
                }
                //_Pipeline.InvokeAsync();
                //_Pipeline.Input.Write(boundCommand.Input, true);
