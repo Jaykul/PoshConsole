@@ -153,11 +153,13 @@
             <File Id="FontLibrary" KeyPath="yes" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
           </Component>
           
+          <!-- The null file seems to be removed 
           <Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
             <File Id="Null" KeyPath="yes" Name="null" Source="$(var.folder)null">
               <Permission ChangePermission="yes" GenericAll="yes" User="Everyone"/>
             </File>
           </Component>
+          -->
         </Directory>
       </Directory>
     </Directory>
@@ -167,7 +169,7 @@
       <ComponentRef Id="HuddledWPFControls"/>
       <ComponentRef Id="Huddled.Interop.WPF"/>
       <ComponentRef Id="FontLibrary"/>
-      <ComponentRef Id="Null"/>
+      <!--<ComponentRef Id="Null"/>-->
       <ComponentRef Id="MainExecutableDesktopSCS"/>
       <ComponentRef Id="MainExecutableStartMenuSCS"/>
       <ComponentRef Id="MainExecutableQuickStartMenuSCS"/>
