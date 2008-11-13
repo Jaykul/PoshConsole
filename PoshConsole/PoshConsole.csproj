@@ -69,6 +69,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\Reference Assemblies\Microsoft\WindowsPowerShell\v2.0CTP2\System.Management.Automation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -139,6 +140,7 @@
     <Compile Include="Cmdlets\AddHotkeyCommand.cs" />
     <Compile Include="Cmdlets\GetPoshOutputCommand.cs" />
     <Compile Include="Cmdlets\NewParagraphCommand.cs" />
+    <Compile Include="Cmdlets\QuakeModeCommand.cs" />
     <Compile Include="Controls\Interop\NativeMethods.cs" />
     <Compile Include="Controls\ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
