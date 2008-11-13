@@ -105,7 +105,7 @@ namespace Huddled.WPF.Controls
 		
 		private static void OnExecutePaste(object sender, ExecutedRoutedEventArgs e)
         {
-            TextBox box = ((ConsoleControl)sender)._commandBox;
+            RichTextBox box = ((ConsoleControl)sender)._commandBox;
 
             box.Paste();
             //if (Clipboard.ContainsText())

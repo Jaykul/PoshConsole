@@ -25,12 +25,12 @@
                   <Style TargetType="{x:Type Paragraph}">
                      <Setter Property="Margin" Value="0"/>
                   </Style>
-                  <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+                  <Style BasedOn="{x:Null}" TargetType="{x:Type RichTextBox}">
                      <!-- It turns out that setting this Background is the main way to change the cursor color too!
                                 http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
                                 -->
                      <Setter Property="ForceCursor" Value="True" />
-                     <Setter Property="TextWrapping" Value="Wrap" />
+                     <!--<Setter Property="TextWrapping" Value="Wrap" />-->
                      <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type huddle:ConsoleControl}, AncestorLevel=1}}" />
                      <Setter Property="Background">
                         <Setter.Value>
@@ -43,7 +43,7 @@
                      </Setter>
                      <Setter Property="Template">
                         <Setter.Value>
-                           <ControlTemplate TargetType="{x:Type TextBox}">
+                           <ControlTemplate TargetType="{x:Type RichTextBox}">
                               <!-- The textbox insertion caret color is the inverse of it's background color. 
                                     In order to give ourselves control over it, separate from changing the actual background color ...
                                     We use a template with a Border that has it's own background color which can be set manually.

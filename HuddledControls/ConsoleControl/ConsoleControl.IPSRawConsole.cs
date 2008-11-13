@@ -75,18 +75,19 @@ namespace Huddled.WPF.Controls
 
       private void ShouldEcho(char ch, bool echo)
       {
-         if (_commandBox.Text.Length > 0)
-         {         
-            if (ch == _commandBox.Text[0])
+         var cmd = CurrentCommand;
+         if (cmd.Length > 0)
+         {
+            if (ch == cmd[0])
             {
                // emulate NoEcho by UN-echoing...
-               if (_commandBox.Text.Length > 1)
+               if (cmd.Length > 1)
                {
-                  _commandBox.Text = _commandBox.Text.Substring(1);
+                  CurrentCommand = cmd.Substring(1);
                }
                else
                {
-                  _commandBox.Text = "";
+                  CurrentCommand = "";
                }
                // if we're NOT NoEcho, then re-echo it:
                if (echo)
@@ -107,11 +108,11 @@ namespace Huddled.WPF.Controls
          {
             if (Dispatcher.CheckAccess())
             {
-               return _commandBox.Text.Length > _keyIndex;
+               return CurrentCommand.Length > _keyIndex;
             }
             else
             {
-               return (bool)Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _commandBox.Text.Length > _keyIndex));
+               return (bool)Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => CurrentCommand.Length > _keyIndex));
             }
          }
       }
@@ -377,13 +378,17 @@ namespace Huddled.WPF.Controls
       {
          if (Dispatcher.CheckAccess())
          {
-            _commandBox.Clear();
+            _commandBox.Document.Blocks.Clear();
             _passwordBox.Clear();
             _inputBuffer.Clear();
          }
          else
          {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => { _commandBox.Clear(); _inputBuffer.Clear(); }));
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => {
+               _commandBox.Document.Blocks.Clear();
+               _passwordBox.Clear();
+               _inputBuffer.Clear();
+            }));
          }
       }
 

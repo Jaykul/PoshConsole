@@ -12,6 +12,8 @@ using Huddled.WPF.Controls.Utility;
 using System.Windows.Threading;
 using System.Windows.Documents;
 using Keyboard=System.Windows.Input.Keyboard;
+using System.Management.Automation;
+using System.Collections.ObjectModel;
 
 namespace Huddled.WPF.Controls
 {
@@ -59,11 +61,32 @@ namespace Huddled.WPF.Controls
          //Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
          //{
          if (!_waitingForKey)
+         {
             switch (e.Key)
             {
                case Key.Enter:
-                  OnEnterPressed(e);
-                  break;
+                  {
+                     var errors = new Collection<PSParseError>();
+                     PSParser.Tokenize( CurrentCommand, out errors);
+
+                     if (errors.Count > 0)
+                     {
+                        TextRange error;
+                        foreach (var err in errors)
+                        {
+                           //_commandBox.Document.ContentStart.GetLineStartPosition(err.Token.StartLine-1).GetPositionAtOffset(err.Token.StartColumn)
+                           error  = new TextRange(
+                              _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2*(err.Token.StartLine-1)),LogicalDirection.Forward),
+                              _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2*(err.Token.EndLine-1)) + err.Token.Length,LogicalDirection.Backward));
+                           error.ApplyPropertyValue( Run.TextDecorationsProperty, TextDecorations.Underline);
+                           error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
+                           //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
+                           //int errEnd = _commandBox.GetCharacterIndexFromLineIndex(err.Token.EndLine) + err.Token.EndColumn;
+                        }
+
+                     } else 
+                        OnEnterPressed(e);
+                  } break;
 
                case Key.Tab:
                   OnTabPressed(e);
@@ -93,11 +116,12 @@ namespace Huddled.WPF.Controls
                   _cmdHistory.Reset();
                   break;
             }
+         }
       }
 
       private void OnDownPressed(KeyEventArgs e)
       {
-         if ((_commandBox.LineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
+         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
          {
             CurrentCommand = _cmdHistory.Next(CurrentCommand);
             e.Handled = true;
@@ -106,12 +130,14 @@ namespace Huddled.WPF.Controls
 
       private void OnUpPressed(KeyEventArgs e)
       {
-         if ((_commandBox.LineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
+         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
          {
             CurrentCommand = _cmdHistory.Previous(CurrentCommand);
             e.Handled = true;
          }
       }
+
+
 
 
       private void OnPageDownPressed(KeyEventArgs e)
@@ -178,7 +204,8 @@ namespace Huddled.WPF.Controls
                 && choices.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
             || (((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds)))
             {
-               Point position = _commandBox.PointToScreen(_commandBox.GetRectFromCharacterIndex(_commandBox.CaretIndex, true).TopRight);
+               
+               Point position = _commandBox.PointToScreen( _commandBox.CaretPosition.GetCharacterRect(LogicalDirection.Forward).TopLeft );
 
                _popup.ShowTabPopup(
                  new Rect(
@@ -208,7 +235,7 @@ namespace Huddled.WPF.Controls
       {
          //if (inPrompt && !IsScrollLockToggled(e.KeyboardDevice))
          //{
-         Point position = _commandBox.PointToScreen(_commandBox.GetRectFromCharacterIndex(_commandBox.CaretIndex, true).TopRight);
+         Point position = _commandBox.PointToScreen(_commandBox.CaretPosition.GetCharacterRect(LogicalDirection.Forward).TopLeft);
 
          _popup.ShowHistoryPopup(
             new Rect(
@@ -260,13 +287,14 @@ namespace Huddled.WPF.Controls
          base.OnPreviewTextInput(e);
       }
 
+      // TODO: change this to handle with the Tokenizer
       private void OnEnterPressed(KeyEventArgs e)
       {
          // if they CTRL+ENTER, let it through
          if (!e.IsModifierOn(ModifierKeys.Control) && !e.IsModifierOn(ModifierKeys.Shift))
          {
             // get the command
-            string cmd = _commandBox.Text;
+            string cmd = CurrentCommand;
             // clear the box
             ((IPSRawConsole)this).FlushInputBuffer();
             lock (_commandContainer)
@@ -283,9 +311,8 @@ namespace Huddled.WPF.Controls
 
             e.Handled = true;
          } else {
-            var indx = _commandBox.CaretIndex;
-            _commandBox.Text += "\n";
-            _commandBox.CaretIndex = indx + 1;
+            //var indx = _commandBox.CaretPosition.GetOffsetToPosition.CaretIndex;
+            _commandBox.CaretPosition = _commandBox.CaretPosition.InsertLineBreak();
             e.Handled = true;
          }
       }
@@ -306,7 +333,7 @@ namespace Huddled.WPF.Controls
       {
          if (e.Data.GetDataPresent(DataFormats.Text))
          {
-            _commandBox.Text = _commandBox.Text.Substring(0, _commandBox.CaretIndex) + ((string)e.Data.GetData(DataFormats.Text)) + _commandBox.Text.Substring(_commandBox.CaretIndex + 1);
+            _commandBox.CaretPosition.InsertTextInRun( (string)e.Data.GetData(DataFormats.Text) );
             e.Handled = true;
          }
          base.OnDrop(e);

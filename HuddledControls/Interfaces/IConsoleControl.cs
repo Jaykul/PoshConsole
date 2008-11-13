@@ -35,7 +35,7 @@ namespace Huddled.WPF.Controls
          void Prompt(string text);
 
          string CurrentCommand { get; set; }
-         TextBox CommandBox { get; }
+         RichTextBox CommandBox { get; }
          System.Windows.Media.Color CaretColor { get; set; }
 
          CommandHistory History { get; }

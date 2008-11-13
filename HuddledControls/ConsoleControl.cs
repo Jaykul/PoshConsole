@@ -52,7 +52,7 @@ namespace Huddled.WPF.Controls
       }
 
       private readonly ConsoleBrushes _brushes;
-      private readonly TextBox _commandBox;
+      private readonly RichTextBox _commandBox;
       private readonly PasswordBox _passwordBox;
       private readonly InlineUIContainer _commandContainer;
       protected Paragraph _current;
@@ -72,7 +72,7 @@ namespace Huddled.WPF.Controls
          _expansion = new TabExpansion();
          _cmdHistory = new CommandHistory();
 
-         _commandBox = new TextBox()
+         _commandBox = new RichTextBox()
                           {
                              IsEnabled = true,
                              Focusable = true,
@@ -85,10 +85,17 @@ namespace Huddled.WPF.Controls
                               IsEnabled = true,
                               Focusable = true
                            };
-         _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
+         _commandBox.PreviewKeyDown  += new KeyEventHandler(_commandBox_PreviewKeyDown);
          _passwordBox.PreviewKeyDown += new KeyEventHandler(_passwordBox_PreviewKeyDown);
 
-         _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.TextTop };
+         _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
+
+         //ScrollViewer.SizeChanged += new SizeChangedEventHandler(ScrollViewer_SizeChanged);
+      }
+
+      void ScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+      {
+         SetPrompt();
       }
 
 
@@ -173,6 +180,7 @@ namespace Huddled.WPF.Controls
          lock (_commandContainer)
          {
             _next.Inlines.Remove(_commandContainer);
+            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left;
             _next.Inlines.Add(_commandContainer);
          }
 
@@ -326,11 +334,32 @@ namespace Huddled.WPF.Controls
 
       public string CurrentCommand
       {
-         get { return _commandBox.Text; }
+         get
+         {
+            TextRange all = new TextRange(_commandBox.Document.ContentStart, _commandBox.Document.ContentEnd);
+            return all.Text;
+         }
          set
          {
-            _commandBox.Text = value;
-            _commandBox.CaretIndex = value.Length;
+            _commandBox.Document.Blocks.Clear();
+            // TODO: re-parse and syntax highlight
+            _commandBox.Document.ContentStart.InsertTextInRun(value.TrimEnd('\n','\r'));
+            _commandBox.CaretPosition = _commandBox.Document.ContentEnd;
+         }
+      }
+
+      private int CurrentCommandLineCount
+      {
+         get
+         {
+            var lineCount = _commandBox.Document.Blocks.Count;
+            if (lineCount > 0)
+            {
+               _commandBox.Document.ContentStart.GetNextInsertionPosition(LogicalDirection.Forward).GetLineStartPosition(int.MaxValue, out lineCount);
+               lineCount++;
+            }
+            else { lineCount = 1; }
+            return lineCount;
          }
       }
 

@@ -119,14 +119,14 @@ namespace Huddled.WPF.Controls
                {
                   if (Dispatcher.CheckAccess())
                   {
-                     _commandBox.Text = psDefault.ToString();
+                     CurrentCommand = psDefault.ToString();
                      _commandBox.SelectAll();
                   }
                   else
                   {
                      Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action<string>) ((def) =>
                                                                                            {
-                                                                                              _commandBox.Text = def;
+                                                                                              CurrentCommand = def;
                                                                                               _commandBox.SelectAll();
                                                                                            }), psDefault.ToString());
                   }

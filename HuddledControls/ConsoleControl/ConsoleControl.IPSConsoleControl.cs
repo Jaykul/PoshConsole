@@ -77,7 +77,7 @@ namespace Huddled.WPF.Controls
       //    }
       //}
 
-      TextBox IPoshConsoleControl.CommandBox
+      RichTextBox IPoshConsoleControl.CommandBox
       {
          get
          {
