@@ -89,19 +89,19 @@ namespace PoshConsole
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
-         // problems with data binding 
-         WindowStyle = Properties.Settings.Default.WindowStyle;
-         if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
-         {
-            AllowsTransparency = true;
-            ResizeMode = ResizeMode.CanResizeWithGrip;
-         }
-         else
-         {
-            // we ignore the border if the windowstyle isn't "None"
-            this.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
-            ResizeMode = ResizeMode.CanResize;
-         }
+         //// problems with data binding 
+         //WindowStyle = Properties.Settings.Default.WindowStyle;
+         //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
+         //{
+         //   AllowsTransparency = true;
+         //   ResizeMode = ResizeMode.CanResizeWithGrip;
+         //}
+         //else
+         //{
+         //   // we ignore the border if the windowstyle isn't "None"
+         //   this.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
+         //   ResizeMode = ResizeMode.CanResize;
+         //}
 
       }
 
@@ -641,7 +641,7 @@ namespace PoshConsole
                } break;
             case "WindowStyle":
                {
-                  ((IPSConsole)buffer).WriteWarningLine("Window Style change requires a restart to take effect");
+                  //((IPSConsole)buffer).WriteWarningLine("Window Style change requires a restart to take effect");
                   //this.WindowStyle = Properties.Settings.Default.WindowStyle;
                   //this.Hide();
                   //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);

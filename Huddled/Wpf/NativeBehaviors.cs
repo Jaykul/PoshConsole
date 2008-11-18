@@ -29,13 +29,10 @@
 // *****************************************************************************
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 using System;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;

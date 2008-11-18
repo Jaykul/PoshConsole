@@ -63,7 +63,7 @@ namespace Huddled.WPF.Controls
          {
             Type type = Type.GetType(fd.ParameterAssemblyFullName);
 
-            if (type.IsArray)
+            if (type != null && type.IsArray)
             {
                type = type.GetElementType();
                List<PSObject> output = new List<PSObject>();

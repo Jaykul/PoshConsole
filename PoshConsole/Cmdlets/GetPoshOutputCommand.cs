@@ -19,7 +19,7 @@ namespace PoshConsole.Cmdlets
          HelpMessage = "The id of the Paragraph to return")]
       public int id { get; set; }
 
-      private int _id = 0;
+      private int _id = -2;
       private Window _window;
       private Huddled.WPF.Controls.Interfaces.IPSXamlConsole _xamlUI;
       private Block _numbered;

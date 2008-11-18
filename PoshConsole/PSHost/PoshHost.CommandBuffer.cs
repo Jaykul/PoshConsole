@@ -297,7 +297,7 @@ namespace PoshConsole
                {
                   _Pipeline.Invoke(boundCommand.Input);
                }
-               catch (IncompleteParseException ipe)
+               catch (Exception ipe)
                {
                   // TODO: Handle IncompleteParseException with some elegance!
                   //    klumsy suggested we could prevent these by using the tokenizer 
@@ -307,10 +307,10 @@ namespace PoshConsole
                   //    is it fast enough to work?
                   Debug.WriteLine(ipe.Message);
                }
-               catch (ParseException pe)
-               {
-                  // TODO: Handle ParseException with some elegance!
-               }
+               //catch (ParseException pe)
+               //{
+               //   // TODO: Handle ParseException with some elegance!
+               //}
                //_Pipeline.InvokeAsync();
                //_Pipeline.Input.Write(boundCommand.Input, true);
                //_Pipeline.Input.Close();
