@@ -334,5 +334,17 @@ namespace PoshConsole.Properties {
                 this["MaxBufferCommands"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Visible")]
+        public global::System.Windows.Visibility ToolbarVisibility {
+            get {
+                return ((global::System.Windows.Visibility)(this["ToolbarVisibility"]));
+            }
+            set {
+                this["ToolbarVisibility"] = value;
+            }
+        }
     }
 }

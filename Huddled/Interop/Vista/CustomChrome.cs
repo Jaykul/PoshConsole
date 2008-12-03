@@ -131,20 +131,6 @@ namespace Huddled.Wpf
          _templatePartBorder = (Border)_template.FindName("PART_BackgroundBorder", Target);
          Debug.Assert(null != _templatePartBorder);
 
-
-         VisualTreeHelper.HitTest( Target, target =>
-            {
-               FrameworkElement uie = target as FrameworkElement;
-               if (null != uie && CustomChrome.GetClientConstrained(uie))
-               {
-                  uie.SetValue(FrameworkElement.MarginProperty, this.ClientBorderThickness);
-                  return HitTestFilterBehavior.Stop;
-               }
-               return HitTestFilterBehavior.Continue;
-            },
-            result => HitTestResultBehavior.Stop, 
-            new GeometryHitTestParameters( new RectangleGeometry(Target.GetWindowRect())));
-
          // Force this the first time.
          _UpdateSystemMenu(Target.WindowState);
          _UpdateFrameState(true);
@@ -781,6 +767,20 @@ namespace Huddled.Wpf
          {
             return;
          }
+
+         VisualTreeHelper.HitTest(Target, target =>
+         {
+            FrameworkElement uie = target as FrameworkElement;
+            if (null != uie && CustomChrome.GetClientConstrained(uie))
+            {
+               uie.SetValue(FrameworkElement.MarginProperty, this.ClientBorderThickness);
+               return HitTestFilterBehavior.Stop;
+            }
+            return HitTestFilterBehavior.Continue;
+         },
+            result => HitTestResultBehavior.Stop,
+            new GeometryHitTestParameters(new RectangleGeometry(Target.GetWindowRect())));
+
 
          bool frameState = NativeMethods.IsCompositionEnabled;
          if (force || frameState != IsGlassEnabled)

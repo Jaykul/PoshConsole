@@ -47,8 +47,20 @@
             </StackPanel.ToolTip>
         </StackPanel>
     </DataTemplate>
+   <DataTemplate DataType="{x:Type sysio:DirectoryInfo}">
+      <StackPanel Width="100px" Orientation="Vertical" Margin="2">
+         <Image Source='C:\Users\Joel\Projects\PowerShell\PoshConsole\trunk\PoshConsole\Artwork\Folder-256x256.png'/>
+         <Label Content="{Binding Path=Name}" 
+                   Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
+                   Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}"
+                   />
+         <StackPanel.ToolTip>
+            <ToolTip Content="{Binding Path=FullName}" />
+         </StackPanel.ToolTip>
+      </StackPanel>
+   </DataTemplate>
 
-    <!-- This Template is for Process, but it only handles processes with Windows! -->
+   <!-- This Template is for Process, but it only handles processes with Windows! -->
     <DataTemplate DataType="{x:Type diag:Process}">
         <StackPanel MaxWidth="150" Orientation="Vertical" Margin="2">
             <huddle:ThumbnailImage WindowSource='{Binding Path=MainWindowHandle}' />

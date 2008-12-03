@@ -440,7 +440,6 @@ namespace PoshConsole
             {
                if (result.Failure != null)
                {
-                  // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
                   // WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
                }
 

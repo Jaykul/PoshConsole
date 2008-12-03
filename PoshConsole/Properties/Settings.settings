@@ -80,5 +80,8 @@
     <Setting Name="MaxBufferCommands" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">25</Value>
     </Setting>
+    <Setting Name="ToolbarVisibility" Type="System.Windows.Visibility" Scope="User">
+      <Value Profile="(Default)">Visible</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

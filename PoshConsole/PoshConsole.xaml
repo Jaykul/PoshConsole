@@ -46,7 +46,7 @@
             <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
             <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
         </huddled:HotkeysBehavior>
-        <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" />
+        <huddled:CustomChrome CornerRadius="24,0,3,3" ClientBorderThickness="0,58,0,8" UseGlassFrame="True" />
     </huddled:NativeBehaviors.Behaviors>
 
     <!--
@@ -181,130 +181,118 @@
     </Window.Topmost>
     <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
     <Grid>
-        <Grid huddled:CustomChrome.ClientConstrained="True" Margin="0,53,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>
-            </Grid.RowDefinitions>
-            <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
+		<Grid x:Name="TopBar" huddled:CustomChrome.ClientConstrained="False"
+            Width="Auto" Height="50" VerticalAlignment="Top"
+            Visibility="{Binding Path=ToolbarVisibility, Mode=Default, Source={StaticResource SettingsDS}}">
+			<Button Style="{DynamicResource SuperButton}" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,5,0,0" Padding="0,0,0,1" />
+			<StackPanel Width="Auto">
+				<Grid x:Name="CaptionBar" Panel.ZIndex="10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MinWidth="45" Width="50"/>
+						<ColumnDefinition Width="Auto" MinWidth="20"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+					<StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0">
+						<huddle:ImageToggleButton
+							x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Checked="OnAdminToggle"
+							DefaultImage="pack://application:,,,/Artwork/information.png" CheckedImage="pack://application:,,,/Artwork/exclamation.png"
+							Style="{StaticResource CaptionButtonStyle}" />
+						<huddle:ImageButton 
+							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" Image="pack://application:,,,/Artwork/AppLightning.png" 
+							Style="{StaticResource CaptionButtonStyle}" />
+						<huddle:ImageToggleButton 
+							x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"
+							DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
+							CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
+							Style="{StaticResource CaptionButtonStyle}" />
+					</StackPanel>
+					<TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption" VerticalAlignment="Center"><TextBlock.BitmapEffect>
+							<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
+						</TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
+					<StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
+						<huddle:ImageButton 
+							x:Name="MinimizeButton" ToolTip="Minimize" Click="OnMinimizeButtonClick" Image="pack://application:,,,/Artwork/AppHide.png" 
+							Style="{StaticResource ReplacingCaptionButtonStyle}"/>
+						<huddle:ImageToggleButton 
+							x:Name="MaximizeButton" ToolTip="Maximize" Checked="OnMaximize" Unchecked="OnRestore" 
+							Style="{StaticResource ReplacingCaptionButtonStyle}"
+							DefaultImage="pack://application:,,,/Artwork/AppMax.png"
+							CheckedImage="pack://application:,,,/Artwork/AppRestore.png" />
+						<huddle:ImageButton 
+							x:Name="CloseButton" Click="OnCloseButtonClick" ToolTip="Close" Image="pack://application:,,,/Artwork/AppClose.png" 
+							Style="{StaticResource ReplacingCaptionButtonStyle}" />
+					</StackPanel>
+				</Grid>
+				<Grid x:Name="Systray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MinWidth="45" Width="52"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="150"/>
+						<!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+					</Grid.ColumnDefinitions>
+					<!--<StatusBar.BitmapEffect>
+        			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
+        		   </StatusBar.BitmapEffect>-->
+					<TextBox Grid.Column="1" x:Name="title" Padding="4,0,4,0" Margin="0,1,2,1"
+                        Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" 
+                        Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"
+                        Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                        BorderThickness="1,1,1,1" />
+					<GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
+					<TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}" PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
+					<huddle:ImageButton x:Name="FindButton" 
+						Click="OnFindButtonClick" 
+						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1" />
+				</Grid>
+			</StackPanel>
+		</Grid>
+		<Grid x:Name="ConsoleArea" huddled:CustomChrome.ClientConstrained="True">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/><!--progress-->
+				<RowDefinition Height="*"/><!--console-->
+				<RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/><!--systray-->
+			</Grid.RowDefinitions>
+			<StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
 				Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
 				Opacity="0.9" Orientation="Vertical" Background="{x:Null}" Grid.Column="1" >
-                <PoshControls:ProgressPanel x:Name="progress1" Width="Auto" Margin="0,0,0,0" Visibility="Collapsed" Background="{Binding Path=Background, ElementName=buffer, Mode=Default}" Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" />
-            </StackPanel>
-            <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
+				<PoshControls:ProgressPanel x:Name="progress1" Width="Auto" Margin="0,0,0,0" Visibility="Collapsed" Background="{Binding Path=Background, ElementName=buffer, Mode=Default}" Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}" />
+			</StackPanel>
+			<huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
 				HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            IsSelectionEnabled="True"
+				IsSelectionEnabled="True"
 				Title="PoshConsole" Grid.Column="1"
 				FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
 				FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
-            PreviewMouseWheel="OnBufferPreviewMouseWheel"
+				PreviewMouseWheel="OnBufferPreviewMouseWheel"
          >
-                <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                <FlowDocument>
-                    <FlowDocument.Resources>
-                        <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-                        <Style x:Key="POSHFont">
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
-                        </Style>
-                        <Style x:Key="ConsoleFont">
-                            <Setter Property="TextElement.FontSize" Value="12" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-                        </Style>
-                        <Style x:Key="BannerFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                        <Style x:Key="SigFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                    </FlowDocument.Resources>
-                    <Paragraph ClearFloaters="Both" />
-                </FlowDocument>
-            </huddle:ConsoleControl>
-        </Grid>
-        <Ellipse VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-3,-3,0,0" Width="60" Height="60" Stroke="#FF000000" Visibility="Collapsed">
-            <Ellipse.BitmapEffect>
-                <DropShadowBitmapEffect/>
-            </Ellipse.BitmapEffect>
-            <Ellipse.LayoutTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleX="1" ScaleY="1"/>
-                    <SkewTransform AngleX="0" AngleY="0"/>
-                    <RotateTransform Angle="0"/>
-                    <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.LayoutTransform>
-            <Ellipse.Fill>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF99989F" Offset="0.013"/>
-                    <GradientStop Color="#FFB2B6BF" Offset="0.339"/>
-                    <GradientStop Color="#FF6D6B7C" Offset="1"/>
-                </LinearGradientBrush>
-            </Ellipse.Fill>
-        </Ellipse>
-        <Button Style="{DynamicResource SuperButton}" Margin="5,5,0,0" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" />
-        <StackPanel>
-            <Grid Panel.ZIndex="10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="8,0,8,0" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="45" Width="50"/>
-                    <ColumnDefinition Width="Auto" MinWidth="20"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0">
-                    <huddle:ImageToggleButton
-                        x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Checked="OnAdminToggle"
-					              DefaultImage="pack://application:,,,/Artwork/information.png" CheckedImage="pack://application:,,,/Artwork/exclamation.png"
-					              Style="{StaticResource CaptionButtonStyle}" />
-                    <huddle:ImageButton 
-                        x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" Image="pack://application:,,,/Artwork/AppLightning.png" 
-                        Style="{StaticResource CaptionButtonStyle}" />
-                    <huddle:ImageToggleButton 
-                        x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"
-                        DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
-				                CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
-                        Style="{StaticResource CaptionButtonStyle}" />
-                </StackPanel>
-                <TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption" VerticalAlignment="Center"><TextBlock.BitmapEffect>
-					   <OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
-				   </TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
-                <StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-
-                    <huddle:ImageButton 
-                  x:Name="MinimizeButton" ToolTip="Minimize" Click="OnMinimizeButtonClick" Image="pack://application:,,,/Artwork/AppHide.png" 
-					   Style="{StaticResource ReplacingCaptionButtonStyle}"/>
-                    <huddle:ImageToggleButton 
-                  x:Name="MaximizeButton" ToolTip="Maximize" Checked="OnMaximize" Unchecked="OnRestore" 
-                  Style="{StaticResource ReplacingCaptionButtonStyle}"
-				      DefaultImage="pack://application:,,,/Artwork/AppMax.png"
-				      CheckedImage="pack://application:,,,/Artwork/AppRestore.png" />
-                    <huddle:ImageButton 
-                  x:Name="CloseButton" Click="OnCloseButtonClick" ToolTip="Close" Image="pack://application:,,,/Artwork/AppClose.png" 
-                  Style="{StaticResource ReplacingCaptionButtonStyle}" />
-                </StackPanel>
-            </Grid>
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="8,0,8,0" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="45" Width="52"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="150"/>
-                    <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-                </Grid.ColumnDefinitions>
-                <!--<StatusBar.BitmapEffect>
-        			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
-        		   </StatusBar.BitmapEffect>-->
-                <TextBox Grid.Column="1"  x:Name="title" Padding="4,0,4,0" Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,1,2,1" BorderThickness="1,1,1,1" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-                <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
-                <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}" PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
-                <huddle:ImageButton x:Name="FindButton" 
-				   Click="OnFindButtonClick" 
-				   Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-				   ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1" />
-            </Grid>
-        </StackPanel>
-    </Grid>
+				<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+				<FlowDocument>
+					<FlowDocument.Resources>
+						<!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
+						<Style x:Key="POSHFont">
+							<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
+						</Style>
+						<Style x:Key="ConsoleFont">
+							<Setter Property="TextElement.FontSize" Value="12" />
+							<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
+						</Style>
+						<Style x:Key="BannerFont">
+							<Setter Property="TextElement.FontSize" Value="20" />
+							<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
+							<Setter Property="Typography.ContextualSwashes" Value="1" />
+						</Style>
+						<Style x:Key="SigFont">
+							<Setter Property="TextElement.FontSize" Value="20" />
+							<Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
+							<Setter Property="Typography.ContextualSwashes" Value="1" />
+						</Style>
+					</FlowDocument.Resources>
+					<Paragraph ClearFloaters="Both" />
+				</FlowDocument>
+			</huddle:ConsoleControl>
+		</Grid>
+	</Grid>
 </Window>

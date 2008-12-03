@@ -324,7 +324,6 @@ namespace PoshConsole
             else
             {
                progress1.Visibility = Visibility.Visible;
-
                progress1.Activity = record.Activity;
                progress1.Status = record.StatusDescription;
                progress1.Operation = record.CurrentOperation;
@@ -594,11 +593,15 @@ namespace PoshConsole
                {
                   this.ShowInTaskbar = Properties.Settings.Default.ShowInTaskbar;
                } break;
-            // TODO: let the new top-toolbars be hidden
-            //case "StatusBar":
-            //   {
-            //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
-            //   } break;
+            case "ToolbarVisibility":
+               {
+                  this.TopBar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+               } break;
+               // TODO: let the new top-toolbars be hidden
+               //case "StatusBar":
+               //   {
+               //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
+               //   } break;
             case "WindowHeight":
                {
                   this.Height = Properties.Settings.Default.WindowHeight;

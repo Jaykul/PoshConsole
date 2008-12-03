@@ -38,7 +38,8 @@ namespace PoshConsole.Cmdlets
                    {
                        foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.XamlUI.RootWindow))
                        {
-                           chrome.UseGlassFrame = true;
+                           //chrome.UseGlassFrame = true;
+                          chrome.ClientBorderThickness = new Thickness(8, 58, 8, 8);
                        }
                       _options.Settings.SettingsKey = "";
                       _options.Settings.Reload();
@@ -65,18 +66,22 @@ namespace PoshConsole.Cmdlets
                         _options.Settings.SettingsKey = "Quake";
                         _options.Settings.Reload();
 
-
                         foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.XamlUI.RootWindow))
                         {
-                            chrome.UseGlassFrame = false;
+                            //chrome.UseGlassFrame = false;
+                           chrome.ClientBorderThickness = new Thickness(0, 0, 0, 5);
                         }
 
                         if (_options.Settings.WindowWidth != screen.WorkingArea.Width)
                         {
+                            _options.Settings.ToolbarVisibility = Visibility.Collapsed;
+
                             _options.Settings.ShowInTaskbar = false;
                             _options.Settings.AutoHide = true;
                             _options.Settings.AlwaysOnTop = true;
-                            _options.Settings.Animate = true;
+                           // TODO: When ANIMATE, the window resizes WIDTH too, WHY?
+                           // TODO: Also doesn't quite restore to the right place.
+                            //_options.Settings.Animate = true;
                             _options.Settings.Opacity = 0.8;
                             _options.Settings.BorderThickness = new Thickness(0, 0, 0, 5);
                             _options.Settings.BorderColorBottomRight = Colors.Red;
@@ -84,9 +89,6 @@ namespace PoshConsole.Cmdlets
                             _options.Settings.SnapToScreenEdge = true;
 
                             _options.Settings.WindowHeight = screen.WorkingArea.Height / 3;
-                            _options.Settings.WindowWidth = screen.WorkingArea.Width;
-                            _options.Settings.WindowTop = screen.WorkingArea.Top;
-                            _options.Settings.WindowLeft = screen.WorkingArea.Left;
 
                             _options.Colors.DefaultBackground = ConsoleColor.Black;
                             _options.Colors.DefaultForeground = ConsoleColor.White;
@@ -94,7 +96,10 @@ namespace PoshConsole.Cmdlets
                             //_options.Settings.StartupBanner = false;
                             _options.Settings.Save();
                         }
-
+                        // Always force reset the width/top/left, but NOT the HEIGHT
+                        _options.Settings.WindowWidth = screen.WorkingArea.Width;
+                        _options.Settings.WindowTop = screen.WorkingArea.X;
+                        _options.Settings.WindowLeft = screen.WorkingArea.Y;
                     } break; 
              }
          }));

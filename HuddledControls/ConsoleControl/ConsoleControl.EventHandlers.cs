@@ -339,6 +339,15 @@ namespace Huddled.WPF.Controls
          base.OnDrop(e);
       }
 
+      protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+      {
+         if (ScrollViewer.ViewportWidth > 0 && _next.Inlines.Count > 1 )
+         {
+            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left;
+         }
+
+         base.OnRenderSizeChanged(sizeInfo);
+      }
 
    }
 }
