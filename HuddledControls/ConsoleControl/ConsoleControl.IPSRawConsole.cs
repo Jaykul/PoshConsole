@@ -49,6 +49,7 @@ namespace Huddled.WPF.Controls
          {
             if (_inputBuffer.Count == 0)
             {
+               Dispatcher.BeginInvoke((Action)(() => SetPrompt()));
                _waitingForKey = true;
                _gotInputKey.Reset();
                _gotInputKey.WaitOne();

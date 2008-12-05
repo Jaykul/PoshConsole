@@ -851,5 +851,10 @@ namespace PoshConsole
             buffer.Focus();
          }
       }
+
+      private void progress1_Loaded(object sender, RoutedEventArgs e)
+      {
+
+      }
    }
 }

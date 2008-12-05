@@ -121,7 +121,7 @@ namespace Huddled.WPF.Controls
 
       private void OnDownPressed(KeyEventArgs e)
       {
-         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
+         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Alt | ModifierKeys.Control | ModifierKeys.Shift))
          {
             CurrentCommand = _cmdHistory.Next(CurrentCommand);
             e.Handled = true;
@@ -130,32 +130,29 @@ namespace Huddled.WPF.Controls
 
       private void OnUpPressed(KeyEventArgs e)
       {
-         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Control))
+         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Alt | ModifierKeys.Control | ModifierKeys.Shift))
          {
             CurrentCommand = _cmdHistory.Previous(CurrentCommand);
             e.Handled = true;
          }
       }
 
-
-
-
       private void OnPageDownPressed(KeyEventArgs e)
       {
-         if (!e.KeyboardDevice.IsScrollLockToggled())
-         {
+         //if (!e.KeyboardDevice.IsScrollLockToggled())
+         //{
             CurrentCommand = _cmdHistory.Last(CurrentCommand);
             e.Handled = true;
-         }
+         //}
       }
 
       private void OnPageUpPressed(KeyEventArgs e)
       {
-         if (!e.KeyboardDevice.IsScrollLockToggled())
-         {
+         //if (!e.KeyboardDevice.IsScrollLockToggled())
+         //{
             CurrentCommand = _cmdHistory.First(CurrentCommand);
             e.Handled = true;
-         }
+         //}
       }
       protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
       {

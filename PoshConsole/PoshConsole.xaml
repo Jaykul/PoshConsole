@@ -46,7 +46,7 @@
             <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
             <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
         </huddled:HotkeysBehavior>
-        <huddled:CustomChrome CornerRadius="24,0,3,3" ClientBorderThickness="0,58,0,8" UseGlassFrame="True" />
+        <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="0,58,0,8" UseGlassFrame="True" />
     </huddled:NativeBehaviors.Behaviors>
 
     <!--
@@ -180,7 +180,7 @@
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
     <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
-    <Grid>
+    <Grid x:Name="WindowGrid" Background="Transparent">
 		<Grid x:Name="TopBar" huddled:CustomChrome.ClientConstrained="False"
             Width="Auto" Height="50" VerticalAlignment="Top"
             Visibility="{Binding Path=ToolbarVisibility, Mode=Default, Source={StaticResource SettingsDS}}">
@@ -199,7 +199,8 @@
 							DefaultImage="pack://application:,,,/Artwork/information.png" CheckedImage="pack://application:,,,/Artwork/exclamation.png"
 							Style="{StaticResource CaptionButtonStyle}" />
 						<huddle:ImageButton 
-							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" Image="pack://application:,,,/Artwork/AppLightning.png" 
+							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" 
+                     Image="pack://application:,,,/Artwork/AppLightning.png" 
 							Style="{StaticResource CaptionButtonStyle}" />
 						<huddle:ImageToggleButton 
 							x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"

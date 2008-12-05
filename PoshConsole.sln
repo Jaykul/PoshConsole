@@ -24,9 +24,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOGlobalHotkeys", "DEMOGl
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller", "PoshConsoleInstaller\PoshConsoleInstaller.wixproj", "{A64775D9-B889-4A68-9A20-46A78EBB30BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf", "PoshWpf\PoshWpf.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 8
+		SccNumberOfProjects = 9
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -51,6 +53,9 @@ Global
 		SccProjectUniqueName7 = DEMOGlobalHotkeys\\DEMOGlobalHotkeys.csproj
 		SccProjectName7 = DEMOGlobalHotkeys
 		SccLocalPath7 = DEMOGlobalHotkeys
+		SccProjectUniqueName8 = PoshWpf\\PoshWpf.csproj
+		SccProjectName8 = PoshWpf
+		SccLocalPath8 = PoshWpf
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,12 +146,22 @@ Global
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|Mixed Platforms.Build.0 = Release|x86
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|x86.ActiveCfg = Release|x86
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|x86.Build.0 = Release|x86
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal
