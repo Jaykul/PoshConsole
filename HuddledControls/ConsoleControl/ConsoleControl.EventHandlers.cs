@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using Keyboard=System.Windows.Input.Keyboard;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
+using System.Management.Automation.Host;
 
 namespace Huddled.WPF.Controls
 {

@@ -8,7 +8,7 @@ using System.Threading;
 using System.Collections;
 using System.ComponentModel;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
    partial class PoshHost
    {

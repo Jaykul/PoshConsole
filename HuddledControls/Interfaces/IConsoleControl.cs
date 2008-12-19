@@ -6,7 +6,30 @@ using System.IO;
 using Huddled.WPF.Controls.Interfaces;
 using System.Windows.Controls;
 using System.Management.Automation.Runspaces;
+using Huddled.WPF.Controls;
 
+
+namespace System.Management.Automation.Host
+{
+	public interface IPoshConsoleControl : IPSWpfConsole, IPSConsole
+	{
+		event CommmandDelegate Command;
+
+		void CommandFinished(PipelineState results);
+		void Prompt(string text);
+
+		string CurrentCommand { get; set; }
+		RichTextBox CommandBox { get; }
+		System.Windows.Media.Color CaretColor { get; set; }
+
+		CommandHistory History { get; }
+		TabExpansion Expander { get; set; }
+
+		// TODO: REIMPLEMENT scrollbar visibility options
+		//ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
+		//ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
+	}
+}
 namespace Huddled.WPF.Controls
 {
 
@@ -21,30 +44,11 @@ namespace Huddled.WPF.Controls
          Visible = 3,
       }
 
-
       public enum CommandResults
       {
          Stopped, Failed, Completed
       }
 
-      public interface IPoshConsoleControl : IPSXamlConsole, IPSConsole
-      {
-         event CommmandDelegate Command;
-
-         void CommandFinished(System.Management.Automation.Runspaces.PipelineState results);
-         void Prompt(string text);
-
-         string CurrentCommand { get; set; }
-         RichTextBox CommandBox { get; }
-         System.Windows.Media.Color CaretColor { get; set; }
-
-         CommandHistory History { get; }
-         TabExpansion Expander { get; set; }
-
-         // TODO: REIMPLEMENT scrollbar visibility options
-         //ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
-         //ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
-      }
    }
    public delegate void CommmandDelegate(Object source, CommandEventArgs command);
 

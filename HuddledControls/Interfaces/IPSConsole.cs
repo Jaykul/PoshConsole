@@ -6,7 +6,7 @@ using System.Management.Automation.Host;
 using System.Security;
 using System.Windows.Documents;
 
-namespace Huddled.WPF.Controls.Interfaces
+namespace System.Management.Automation.Host
 {
    /// <summary>
    /// An interface for <see cref="System.Management.Automation.Host.PSHostUserInterface"/> to allow 

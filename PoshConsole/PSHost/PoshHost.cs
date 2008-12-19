@@ -13,16 +13,15 @@ using System.Windows.Threading;
 using Huddled.Interop;
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
-using IPoshConsoleControl = Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
    /// <summary>
    /// A sample implementation of the PSHost abstract class for console
    /// applications. Not all members are implemented. Those that are 
    /// not implemented throw a NotImplementedException exception.
    /// </summary>
-   public partial class PoshHost : System.Management.Automation.Host.PSHost, IPSBackgroundHost
+	public partial class PoshHost : PSHost, IPSBackgroundHost, IPSWpfHost
    {
 
       #region  Fields (16)
@@ -736,5 +735,14 @@ namespace PoshConsole.PSHost
       }
 
       #endregion
-   }
+
+		#region IPSXamlHost Members
+
+		public IPSWpfConsole GetWpfConsole()
+		{
+			return PsUi.Console;
+		}
+
+		#endregion
+	}
 }

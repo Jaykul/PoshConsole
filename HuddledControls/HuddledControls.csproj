@@ -89,6 +89,7 @@
     <Compile Include="ConsoleControl\TabExpansion.cs" />
     <Compile Include="ImageButton.cs" />
     <Compile Include="ImageToggleButton.cs" />
+    <Compile Include="Interfaces\CompatabilityInterfaces.cs" />
     <Compile Include="Interfaces\IConsoleControl.cs" />
     <Compile Include="Interfaces\IPSConsole.cs" />
     <Compile Include="Interfaces\IPSRawConsole.cs" />

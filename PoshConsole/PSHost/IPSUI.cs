@@ -5,8 +5,9 @@ using System.Text;
 using System.Management.Automation;
 using System.Security;
 using Huddled.WPF.Controls.Interfaces;
+using System.Management.Automation.Host;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
    /// <summary>
    /// <para>This interface wraps up the methods of PSHost which are not particularly console-oriented.
@@ -22,16 +23,6 @@ namespace PoshConsole.PSHost
 
       void SetShouldExit(int exitCode);
       IPoshConsoleControl Console { get; }
-   }
-
-   /// <summary>
-   /// <para>Provides an interface which extends the existing PowerShell interfaces with a 
-   /// <see cref="Huddled.Interop.Hotkeys.HotkeyManager"/> able to execute scriptblocks
-   /// </para>
-   /// </summary>
-   public interface IPSBackgroundHost
-   {
-      bool RegisterHotkey(System.Windows.Input.KeyGesture key, ScriptBlock script);
    }
 
    /// <summary>

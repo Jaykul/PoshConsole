@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.IO;
+using System.Management.Automation.Host;
 
 namespace PoshConsole.Cmdlets
 {
@@ -21,12 +22,12 @@ namespace PoshConsole.Cmdlets
 
       private int _id = -2;
       private Window _window;
-      private Huddled.WPF.Controls.Interfaces.IPSXamlConsole _xamlUI;
+      private IPSWpfConsole _xamlUI;
       private Block _numbered;
 
       protected override void BeginProcessing()
       {
-         _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
+         _xamlUI = ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
          _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
          {
             _window = _xamlUI.RootWindow;

@@ -5,7 +5,7 @@ using System.Windows;
 using System.Collections.Generic;
 using System.Windows.Threading;
 
-namespace Huddled.WPF.Controls.Interfaces
+namespace System.Management.Automation.Host
 {
    /// <summary>
    /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
@@ -16,7 +16,7 @@ namespace Huddled.WPF.Controls.Interfaces
    /// create instances of the visual controls (the likely contents of the <paramref name="template"/>).
    /// </para>
    /// </summary>
-   public interface IPSXamlConsole
+   public interface IPSWpfConsole
    {
       FlowDocument Document { get; }
       Window RootWindow { get; }

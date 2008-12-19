@@ -8,6 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Markup;
 using Huddled.WPF.Controls.Interfaces;
 using System.Windows.Media;
+using System.Management.Automation.Host;
 
 namespace PoshConsole.Cmdlets
 {
@@ -53,7 +54,7 @@ namespace PoshConsole.Cmdlets
       // private Huddled.WPF.Controls.Interfaces.IPSXamlConsole xamlUI;
       // private FlowDocument _document = null;
       private FrameworkElement _element = null;
-      private IPSXamlConsole _xamlUI = null;
+      private IPSWpfConsole _xamlUI = null;
       private ItemsControl _host = null;
       private Window _window = null;
 
@@ -62,7 +63,7 @@ namespace PoshConsole.Cmdlets
       {
 
 
-         _xamlUI = ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
+         _xamlUI = ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
          ErrorRecord error = (ErrorRecord)_xamlUI.Dispatcher.Invoke((Func<ErrorRecord>)(() =>
          {
             ErrorRecord err = null;

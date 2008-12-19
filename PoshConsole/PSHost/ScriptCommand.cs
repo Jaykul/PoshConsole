@@ -2,10 +2,10 @@
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
    /// <summary>
-   /// A <see cref="WindowCommand"/> which toggles the visibility of the Window
+   /// A <see cref="WindowCommand"/> which executes a script
    /// </summary>
    public class ScriptCommand : WindowCommand
    {
@@ -25,7 +25,6 @@ namespace PoshConsole.PSHost
 
       protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
       {
-
          _handler.Invoke(window, new CommandEventArgs { Command = _script.ToString() });
       }
    }

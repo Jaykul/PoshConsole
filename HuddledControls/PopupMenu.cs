@@ -11,6 +11,7 @@ using System.Windows.Controls.Primitives;
 using System.Diagnostics;
 using Huddled.WPF.Controls.Interfaces;
 using Huddled.WPF.Controls.Utility;
+using System.Management.Automation;
 namespace Huddled.WPF.Controls
 {
    public class PopupMenu : System.Windows.Controls.Primitives.Popup

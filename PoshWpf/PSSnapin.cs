@@ -15,19 +15,19 @@ namespace PoshWpf
       }
       public override string Vendor
       {
-         get { return ""; }
+          get { return "HuddledMasses.org"; }
       }
       public override string VendorResource
       {
-         get { return "PoshWpf,"; }
+         get { return "PoshWpf, HuddledMasses.org"; }
       }
       public override string Description
       {
-         get { return "Registers the CmdLets and Providers in this assembly"; }
+         get { return "Cmdlets for working with WPF and implementing PowerBoots"; }
       }
       public override string DescriptionResource
       {
-         get { return "PoshWpf,Registers the CmdLets and Providers in this assembly"; }
+         get { return "PoshWpf, Registers the Cmdlets and Providers in this assembly"; }
       }
    }
 }

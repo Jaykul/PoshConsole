@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -12,9 +13,7 @@ using System.Windows.Threading;
 using Huddled.Wpf;
 using PoshConsole.Controls;
 using PoshConsole.Properties;
-using PoshConsole.PSHost;
-using IPoshConsoleControl = Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
-using IPSConsole = Huddled.WPF.Controls.Interfaces.IPSConsole;
+using PoshConsole.Host;
 
 namespace PoshConsole
 {

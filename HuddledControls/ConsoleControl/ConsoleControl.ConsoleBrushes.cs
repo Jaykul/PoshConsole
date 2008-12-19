@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Huddled.WPF.Controls.Interfaces;
+using System.Management.Automation.Host;
 
 namespace Huddled.WPF.Controls
 {

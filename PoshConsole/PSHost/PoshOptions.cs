@@ -4,13 +4,14 @@ using System.Management.Automation.Runspaces;
 using System.Text;
 using System.Windows;
 using PoshConsole.Controls;
-using IPoshConsoleControl=Huddled.WPF.Controls.Interfaces.IPoshConsoleControl;
-using IPSXamlConsole=Huddled.WPF.Controls.Interfaces.IPSXamlConsole;
+using IPoshConsoleControl = System.Management.Automation.Host.IPoshConsoleControl;
+using IPSXamlConsole = System.Management.Automation.Host.IPSWpfConsole;
 using Huddled.WPF.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
+using System.Management.Automation.Host;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
    internal class PoshOptions : DependencyObject
    {

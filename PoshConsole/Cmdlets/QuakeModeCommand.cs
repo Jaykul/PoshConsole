@@ -16,16 +16,16 @@ namespace PoshConsole.Cmdlets
     public class QuakeModeCommand : PSCmdlet
     {
         private Window _window;
-        private PoshConsole.PSHost.PoshOptions _options;
+        private PoshConsole.Host.PoshOptions _options;
         private Block _numbered;
 
         protected override void BeginProcessing()
        {
-         ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject
+         ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject
              ).XamlUI.Dispatcher.BeginInvoke((Action)(() =>
          {
 
-             _options = (PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject;
+             _options = (PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject;
              var topLeft = new System.Drawing.Point(
                                   (int)_options.XamlUI.RootWindow.Left,
                                   (int)_options.XamlUI.RootWindow.Top);

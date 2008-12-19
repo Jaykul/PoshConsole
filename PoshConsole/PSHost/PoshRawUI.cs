@@ -16,7 +16,7 @@ using System.Windows.Threading;
 using System.Windows.Documents;
 using Huddled.WPF.Controls.Interfaces;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
     /// <summary>
     /// An implementation of PSHostRawUserInterface based on an IConsoleControl 

@@ -12,7 +12,7 @@ namespace PoshConsole.Cmdlets
       protected override void BeginProcessing()
       {
          base.BeginProcessing();
-         ((PoshConsole.PSHost.PoshOptions)Host.PrivateData.BaseObject).XamlUI.NewParagraph();
+         ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).XamlUI.NewParagraph();
       }
       protected override void ProcessRecord()
       {

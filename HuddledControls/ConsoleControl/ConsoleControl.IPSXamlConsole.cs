@@ -10,16 +10,17 @@ using System.Xml;
 using System.IO;
 using System.Windows.Controls;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using Huddled.WPF.Controls.Interfaces;
 using Huddled.WPF.Controls.Utility;
 using System.Windows.Media;
 
 namespace Huddled.WPF.Controls
 {
-   partial class ConsoleControl : IPSXamlConsole
+   partial class ConsoleControl : IPSWpfConsole
    {
       #region IPSXamlConsole Members
-      void IPSXamlConsole.NewParagraph()
+      void IPSWpfConsole.NewParagraph()
       {
          Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() =>
              {
@@ -28,7 +29,7 @@ namespace Huddled.WPF.Controls
       }
 
       private List<Window> _children = new List<Window>();
-      List<Window> IPSXamlConsole.PopoutWindows
+      List<Window> IPSWpfConsole.PopoutWindows
       {
          get 
          {
@@ -36,7 +37,7 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      FlowDocument IPSXamlConsole.Document
+      FlowDocument IPSWpfConsole.Document
       {
          get
          {
@@ -44,7 +45,7 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      Window IPSXamlConsole.RootWindow
+      Window IPSWpfConsole.RootWindow
       {
          get
          {
@@ -52,7 +53,7 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      Paragraph IPSXamlConsole.CurrentBlock
+      Paragraph IPSWpfConsole.CurrentBlock
       {
          get
          {
@@ -60,7 +61,7 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      Dispatcher IPSXamlConsole.Dispatcher {
+      Dispatcher IPSWpfConsole.Dispatcher {
          get
          {
             return Dispatcher;

@@ -20,7 +20,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using Huddled.WPF.Controls.Interfaces;
 
-namespace PoshConsole.PSHost
+namespace PoshConsole.Host
 {
     /// <summary>
     /// Sample implementation of the PSHostUserInterface class.
