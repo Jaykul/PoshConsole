@@ -330,7 +330,35 @@ namespace Huddled.WPF.Controls
          });
       }
 
+      public string CurrentCommandPreCursor
+      {
+          get
+          {
+              TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+              return preCursor.Text.TrimEnd('\n', '\r');
+          }
+          set
+          {
+              TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+              // TODO: re-parse and syntax highlight
+              preCursor.Text = value.TrimEnd('\n', '\r');
+          }
+      }
+      public string CurrentCommandPostCursor
+      {
+          get
+          {
+              TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+              return postCursor.Text.TrimEnd('\n', '\r');
+          }
+          set
+          {
+              TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+              // TODO: re-parse and syntax highlight
+              postCursor.Text = value.TrimEnd('\n', '\r');
 
+          }
+      }
 
       public string CurrentCommand
       {

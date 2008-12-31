@@ -186,18 +186,19 @@ namespace Huddled.WPF.Controls
       private void OnTabPressed(KeyEventArgs e)
       {
          System.Threading.Thread.Sleep(0);
+         // CurrentCommand.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+         string cmdline = CurrentCommandPreCursor;
+         bool hasMore = CurrentCommandPostCursor.Length > 0;
 
-         string[] cmds = CurrentCommand.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-
-         if (!e.IsModifierOn(ModifierKeys.Control) && cmds.Length > 0)
+         if (!e.IsModifierOn(ModifierKeys.Control) && !hasMore)
          {
-            List<string> choices = _expansion.GetChoices(cmds[0]);
+             List<string> choices = _expansion.GetChoices(cmdline);
 
             // DO NOT use menu mode if we're in _playbackMode 
             // OTHERWISE, DO USE it if there are more than TabCompleteMenuThreshold items
             // OR if they double-tapped
             System.Diagnostics.Trace.WriteLine(((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds);
-            if ((cmds.Length == 1) &&
+            if ((CurrentCommandPostCursor.Trim('\n', '\r').Length == 0) &&
                 ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
                 && choices.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
             || (((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds)))
@@ -217,11 +218,11 @@ namespace Huddled.WPF.Controls
             {
                if (e.IsModifierOn(ModifierKeys.Shift))
                {
-                  CurrentCommand = _expansion.Previous(cmds[0]) + ((cmds.Length > 1) ? string.Join("\t", cmds, 1, cmds.Length - 1) : string.Empty);
+                  CurrentCommand = _expansion.Previous(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
                }
                else
                {
-                  CurrentCommand = _expansion.Next(cmds[0]) + ((cmds.Length > 1) ? string.Join("\t", cmds, 1, cmds.Length - 1) : string.Empty);
+                  CurrentCommand = _expansion.Next(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
                }
             }
             _tabTime = DateTime.Now;
@@ -273,14 +274,14 @@ namespace Huddled.WPF.Controls
       {
          //Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
          _inputBuffer.Enqueue(e.ToKeyInfo());
-         if ((Keyboard.Modifiers & ModifierKeys.None) == 0) 
+         if ((Keyboard.Modifiers & ModifierKeys.None) == 0 && !_popup.IsOpen) 
             _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          base.OnPreviewKeyDown(e);
       }
 
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {
-         if (!_popup.IsVisible) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+          if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          //_commandBox.RaiseEvent(e);
          base.OnPreviewTextInput(e);
       }
