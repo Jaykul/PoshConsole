@@ -7,6 +7,9 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using System.Windows.Threading;
+using System.Management.Automation.Runspaces;
+using System.Management.Automation;
 
 namespace PoshWpf
 {
@@ -115,20 +118,25 @@ namespace PoshWpf
 		public EventWaitHandle InitHandle;
 		/// <summary> an initialization exception that, if set, will be thown by the start method</summary>
 		public Exception InitException;
+
+        public Dispatcher ShellDispatcher;
+        public Runspace ShellRunspace;
 	}
 
 	public class Presentation
 	{
+        public static Window Window { get; set; }
+        public static Dispatcher Dispatcher { get; set; }
+
 		// internal method to start the window thread
 		public static WindowDispatcherAsyncResult Start(XmlNode xaml)
 		{
-			if (xaml == null)
-				throw new ArgumentNullException("xaml");
-
 			WindowArgs Args = new WindowArgs() {
 				WindowXaml = xaml,
 				AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
 				InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
+                ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
+                ShellRunspace = Runspace.DefaultRunspace
 			};
 
 			Thread WindowThread = new Thread(new ParameterizedThreadStart(WindowProc)) {
@@ -161,18 +169,26 @@ namespace PoshWpf
 			WindowArgs Args = (WindowArgs)obj;
 			Window LocalWindow;
 			PresentationResult FinalResult = new PresentationResult();
+            
+            Runspace.DefaultRunspace = Args.ShellRunspace;
 			// trap initialization errors
 			try
 			{
+                object XamlObject = null;
 				// initialize from xaml
-				object XamlObject = System.Windows.Markup.XamlReader.Load(
-					new System.Xml.XmlNodeReader((System.Xml.XmlNode)Args.WindowXaml));
+                if (Args.WindowXaml != null)
+                {
+                    XamlObject = System.Windows.Markup.XamlReader.Load(
+                        new System.Xml.XmlNodeReader((System.Xml.XmlNode)Args.WindowXaml));
+                }
+
 				if (!(XamlObject is Window))
 				{
 					LocalWindow = new Window
 					{
 						WindowStyle = WindowStyle.ToolWindow,
-						Content = XamlHelper.NewItemsControl()
+                        SizeToContent = SizeToContent.WidthAndHeight
+						// Content = XamlHelper.NewItemsControl()
 					};
 					// _xamlUI.PopoutWindows.Add(_window);
 					// _window.Show();
@@ -198,7 +214,8 @@ namespace PoshWpf
 			// trap runtime exceptions
 			try
 			{
-				FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
+                LoadTemplates(LocalWindow);
+                FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
 				FinalResult.WindowTag = LocalWindow.Tag;
 			}
 			catch (Exception ex)
@@ -210,5 +227,40 @@ namespace PoshWpf
 			// set the dialog result
 			Args.AsyncResult.SetComplete(FinalResult);
 		}
+
+        internal static void LoadTemplates(Window window)
+        {
+            LoadTemplates(window, new[] { "DataTemplates.xaml" });
+        }
+        internal static void LoadTemplates(Window window, string[] templates)
+        {
+            window.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                foreach (string template in templates)
+                {
+                    if (System.IO.File.Exists(template))
+                    {
+                        ResourceDictionary resources;
+                        ErrorRecord error;
+                        System.IO.FileInfo startup = new System.IO.FileInfo(template);
+                        // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                        if (startup.TryLoadXaml(out resources, out error))
+                        {
+                            //Application.Current.Resources.MergedDictionaries.Add(resources);
+                            window.Resources.MergedDictionaries.Add(resources);
+                        }
+                        else
+                        {
+                            throw error.Exception;
+                        }
+                    }
+                    else
+                    {
+                        throw new System.IO.FileNotFoundException("Data Template file not found in " + System.Environment.CurrentDirectory, "DataTemplates.xaml");
+                    }
+                }
+            }));
+
+        }
 	}
 }

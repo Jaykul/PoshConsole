@@ -66,12 +66,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NewDockPanelCommand.cs" />
+    <Compile Include="NewMessageBoxCommand.cs" />
+    <Compile Include="NewStackPanelCommand.cs" />
+    <Compile Include="NewButtonCommand.cs" />
+    <Compile Include="NewPanelCommand.cs" />
+    <Compile Include="NewWpfControlCommandBase.cs" />
+    <Compile Include="NewWrapPanelCommand.cs" />
     <Compile Include="OutWPFCommand.cs" />
     <Compile Include="PresentationInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSSnapin.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WpfCommandBase.cs" />
     <Compile Include="XamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +87,15 @@
       <Project>{969A3CF0-3AA6-499B-995B-C84E8F15B107}</Project>
       <Name>HuddledControls</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="XamlTemplates\DataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Artwork\Folder237x237.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
