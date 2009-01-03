@@ -203,14 +203,8 @@ namespace PoshWpf
 
         protected override void EndProcessing()
         {
-            // reference count and release
-            _windowCount--;
-            if (_windowCount == 0)
-            {
-                _window = null;
-                _dispatcher = null;
-                _xamlUI = null;
-            }
+			  // reference count
+			  _windowCount--;
             base.EndProcessing();
         }
 

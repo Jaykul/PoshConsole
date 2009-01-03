@@ -9,11 +9,9 @@ using System.Windows.Controls;
 
 namespace PoshWpf
 {
-    [Cmdlet(VerbsCommon.New, "Button", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-    public class NewButtonCommand : WpfNewControlCommandBase
+    [Cmdlet(VerbsCommon.New, "Image", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+	public class NewImageCommand : WpfNewFrameworkElementCommandBase
     {
-        [Parameter( Position = 1 )]
-        public RoutedEventHandler Click { get; set; }
 
         protected override void ProcessRecord()
 		  {
@@ -23,12 +21,8 @@ namespace PoshWpf
                 {
                     object output = Content.BaseObject;
 
-                    control = new Button();
-
-                    if (Click != null)
-                    {
-							  ((Button)control).Click += Click;
-                    }
+                    element = new Image();
+						  element.Margin = Margin;
 
                     if (_element != null)
                     {
@@ -36,16 +30,16 @@ namespace PoshWpf
                         FrameworkElement el;
                         _template.TryLoadXaml(out el, out err);
                         el.DataContext = output;
-								((Button)control).Content = el;
+								element = el;
                     }
                     else
                     {
-							  ((Button)control).Content = output;
+							  ((Image)element).Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(Content.ToString()));
                     }
                 }
             }));
 				base.ProcessRecord();
-				WriteObject(control);
+				WriteObject(element);
         }
     }
 }

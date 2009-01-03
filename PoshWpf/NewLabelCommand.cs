@@ -9,11 +9,9 @@ using System.Windows.Controls;
 
 namespace PoshWpf
 {
-    [Cmdlet(VerbsCommon.New, "Button", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-    public class NewButtonCommand : WpfNewControlCommandBase
+    [Cmdlet(VerbsCommon.New, "Label", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+	public class NewLabelCommand : WpfNewControlCommandBase
     {
-        [Parameter( Position = 1 )]
-        public RoutedEventHandler Click { get; set; }
 
         protected override void ProcessRecord()
 		  {
@@ -23,12 +21,7 @@ namespace PoshWpf
                 {
                     object output = Content.BaseObject;
 
-                    control = new Button();
-
-                    if (Click != null)
-                    {
-							  ((Button)control).Click += Click;
-                    }
+                    control = new Label();
 
                     if (_element != null)
                     {
@@ -36,11 +29,11 @@ namespace PoshWpf
                         FrameworkElement el;
                         _template.TryLoadXaml(out el, out err);
                         el.DataContext = output;
-								((Button)control).Content = el;
+								((Label)control).Content = el;
                     }
                     else
                     {
-							  ((Button)control).Content = output;
+							  ((Label)control).Content = output;
                     }
                 }
             }));

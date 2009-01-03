@@ -10,8 +10,8 @@ using System.Windows.Media;
 
 namespace PoshWpf
 {
-    [Cmdlet(VerbsCommon.New, "DockPanel", DefaultParameterSetName = "DataTemplate", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
-    public class NewDockPanelCommand : WpfNewPanelCommandBase
+    [Cmdlet(VerbsCommon.New, "GridPanel", DefaultParameterSetName = "DataTemplate", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
+    public class NewGridPanelCommand : WpfNewPanelCommandBase
     {
 
         [Parameter][Alias("Fill")]
@@ -24,9 +24,11 @@ namespace PoshWpf
 		  /// <returns>The panel for the PanelCommand</returns>
         protected override Panel CreatePanel()
         {
-            Panel panel = new DockPanel();
-            panel.SetValue(DockPanel.LastChildFillProperty, LastChildFill);
-            return panel;
+			  Grid grid = new Grid();
+
+			  // TODO: Set Column and Row collections appropriately
+
+           return grid;
         }
     }
 }

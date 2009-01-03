@@ -11,7 +11,7 @@ using System.Windows.Media;
 namespace PoshWpf
 {
     [Cmdlet(VerbsCommon.New, "StackPanel", DefaultParameterSetName = "DataTemplate", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
-    public class NewStackPanelCommand : NewPanelCommand
+    public class NewStackPanelCommand : WpfNewPanelCommandBase
     {
         public NewStackPanelCommand()
         {

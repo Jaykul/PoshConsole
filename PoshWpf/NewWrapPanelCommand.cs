@@ -11,36 +11,21 @@ using System.Windows.Media;
 namespace PoshWpf
 {
     [Cmdlet(VerbsCommon.New, "WrapPanel", DefaultParameterSetName = "DataTemplate", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
-    public class NewWrapPanelCommand : NewPanelCommand
+    public class NewWrapPanelCommand : WpfNewPanelCommandBase
     {
         [Parameter]
         public Orientation Orientation { get; set; }
 
 
-        protected override Panel CreatePanel()
+		  /// <summary>
+		  /// Create the Panel object
+		  /// </summary>
+		  /// <remarks>Must be invoked on the dispatcher thread.</remarks>
+		  /// <returns>The panel for the PanelCommand</returns>
+		  protected override Panel CreatePanel()
         {
-            Panel panel = null;
-            _dispatcher.Invoke((Action)(() =>
-            {
-                panel = new WrapPanel();
-
-                panel.SetValue(WrapPanel.OrientationProperty, Orientation);
-                if (Background != null)
-                {
-                    panel.SetValue(WrapPanel.BackgroundProperty, Background);
-                }
-
-                if (Width > 0.0)
-                {
-                    panel.SetValue(WrapPanel.WidthProperty, Width);
-                }
-
-                if (Height > 0.0)
-                {
-                    panel.SetValue(WrapPanel.HeightProperty, Height);
-                }
-            }));
-
+            Panel panel = new WrapPanel();
+            panel.SetValue(WrapPanel.OrientationProperty, Orientation);
             return panel;
         }
     }

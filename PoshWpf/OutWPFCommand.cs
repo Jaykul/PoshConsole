@@ -126,6 +126,16 @@ namespace PoshWpf
 
 		#endregion
 
-
+		protected override void EndProcessing()
+		{
+			// release only in OutWPFCommand
+			//if (_windowCount == 0)
+			//{
+				_window = null;
+				_dispatcher = null;
+				_xamlUI = null;
+			//}
+			base.EndProcessing();
+		}
 	}
 }
