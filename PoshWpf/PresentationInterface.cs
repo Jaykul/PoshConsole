@@ -23,7 +23,7 @@ namespace PoshWpf
 		public object WindowTag;
 		public PresentationResult(bool dialogResult, object tag)
 		{
-			DialogResult = dialogResult; 
+			DialogResult = dialogResult;
 			WindowTag = tag;
 		}
 	}
@@ -34,12 +34,14 @@ namespace PoshWpf
 		System.Windows.Threading.Dispatcher Dispatcher { get; }
 	}
 
+	public delegate void SetWindowProperties(Window window);
+
 	// this is an IAsynResult object returned by the start method
 	// may be passed to the stop method to retrieve the dialog result or
 	// may be discarded safely
 	public class WindowDispatcherAsyncResult : IAsyncResult, IExposeDispatcher
 	{
-		EventWaitHandle Handle;
+		EventWaitHandle DoneHandle;
 		PresentationResult DialogResult;
 		Window _window;
 		object StateObject;
@@ -48,16 +50,16 @@ namespace PoshWpf
 		System.Exception Error;
 		System.Windows.Threading.Dispatcher _Dispatcher;
 
-		public WindowDispatcherAsyncResult(EventWaitHandle handle)
+		public WindowDispatcherAsyncResult(EventWaitHandle done)
 		{
 			Completed = false;
-			Handle = handle; 
+			DoneHandle = done;
 		}
 
 		/// <summary> returns the user defined object that was given at the start method</summary>
 		public object AsyncState { get { return StateObject; } }
 		/// <summary> returns a wait handle that will be signaled when the window is closed</summary>
-		public WaitHandle AsyncWaitHandle { get { return Handle; } }
+		public WaitHandle AsyncWaitHandle { get { return DoneHandle; } }
 		/// <summary> returns false, this is an asyncronous method</summary>
 		public bool CompletedSynchronously { get { return false; } }
 		/// <summary> returns true if the window is closed, or if initialization has failed</summary>
@@ -80,9 +82,9 @@ namespace PoshWpf
 		/// <summary> used to set the result when the window is closed</summary>
 		internal void SetComplete(PresentationResult result)
 		{
-			DialogResult = result; 
-			Completed = true; 
-			Handle.Set();
+			DialogResult = result;
+			Completed = true;
+			DoneHandle.Set();
 		}
 
 		/// <summary> used to set the dispatcher once the window is initialized</summary>
@@ -96,9 +98,9 @@ namespace PoshWpf
 		internal void SetException(System.Exception ex)
 		{
 			Error = ex;
-			IsError = true; 
+			IsError = true;
 			Completed = true;
-			Handle.Set();
+			DoneHandle.Set();
 		}
 		/// <summary>Update the AsyncState return object</summary>
 		internal void SetState(object stateObject)
@@ -116,33 +118,39 @@ namespace PoshWpf
 		public WindowDispatcherAsyncResult AsyncResult;
 		/// <summary> initialization wait handle, signaled once initialization is completed</summary>
 		public EventWaitHandle InitHandle;
+		/// <summary> Delegate to </summary>
+		public SetWindowProperties Initialize;
 		/// <summary> an initialization exception that, if set, will be thown by the start method</summary>
 		public Exception InitException;
 
-        public Dispatcher ShellDispatcher;
-        public Runspace ShellRunspace;
+		public Dispatcher ShellDispatcher;
+		public Runspace ShellRunspace;
 	}
 
 	public class Presentation
 	{
-        public static Window Window { get; set; }
-        public static Dispatcher Dispatcher { get; set; }
+		public static Window Window { get; set; }
+		public static Dispatcher Dispatcher { get; set; }
 
 		// internal method to start the window thread
-		public static WindowDispatcherAsyncResult Start(XmlNode xaml)
+		public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize)
 		{
-			WindowArgs Args = new WindowArgs() {
+			var ShowDialogHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+			WindowArgs Args = new WindowArgs()
+			{
 				WindowXaml = xaml,
 				AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
 				InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
-                ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
-                ShellRunspace = Runspace.DefaultRunspace
+				Initialize = initialize,
+				ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
+				ShellRunspace = Runspace.DefaultRunspace
 			};
 
-			Thread WindowThread = new Thread(new ParameterizedThreadStart(WindowProc)) {
-				Name = "Presentation.Thread" 
+			Thread WindowThread = new Thread(new ParameterizedThreadStart(WindowProc))
+			{
+				Name = "Presentation.Thread"
 			};
-				
+
 			WindowThread.SetApartmentState(ApartmentState.STA);
 			WindowThread.Start(Args);
 
@@ -169,30 +177,32 @@ namespace PoshWpf
 			WindowArgs Args = (WindowArgs)obj;
 			Window LocalWindow;
 			PresentationResult FinalResult = new PresentationResult();
-            
-            Runspace.DefaultRunspace = Args.ShellRunspace;
+
+			Runspace.DefaultRunspace = Args.ShellRunspace;
 			// trap initialization errors
 			try
 			{
-                object XamlObject = null;
+				object XamlObject = null;
 				// initialize from xaml
-                if (Args.WindowXaml != null)
-                {
-                    XamlObject = System.Windows.Markup.XamlReader.Load(
-                        new System.Xml.XmlNodeReader((System.Xml.XmlNode)Args.WindowXaml));
-                }
+				if (Args.WindowXaml != null)
+				{
+					XamlObject = System.Windows.Markup.XamlReader.Load(
+						 new System.Xml.XmlNodeReader((System.Xml.XmlNode)Args.WindowXaml));
+				}
 
 				if (!(XamlObject is Window))
 				{
 					LocalWindow = new Window
 					{
 						WindowStyle = WindowStyle.ToolWindow,
-                        SizeToContent = SizeToContent.WidthAndHeight
+						SizeToContent = SizeToContent.WidthAndHeight
 						// Content = XamlHelper.NewItemsControl()
 					};
 					// _xamlUI.PopoutWindows.Add(_window);
 					// _window.Show();
-				} else {
+				}
+				else
+				{
 					LocalWindow = (Window)XamlObject;
 				}
 			}
@@ -208,14 +218,18 @@ namespace PoshWpf
 			// set the dispatcher
 			Args.AsyncResult.SetWindow(LocalWindow);
 
-			// set the initialization wait handle
 			Args.InitHandle.Set();
+
+			if (Args.Initialize != null)
+			{
+				Args.Initialize(LocalWindow);
+			}
 
 			// trap runtime exceptions
 			try
 			{
-                LoadTemplates(LocalWindow);
-                FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
+				LoadTemplates(LocalWindow);
+				FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
 				FinalResult.WindowTag = LocalWindow.Tag;
 			}
 			catch (Exception ex)
@@ -228,39 +242,39 @@ namespace PoshWpf
 			Args.AsyncResult.SetComplete(FinalResult);
 		}
 
-        internal static void LoadTemplates(Window window)
-        {
-            LoadTemplates(window, new[] { "DataTemplates.xaml" });
-        }
-        internal static void LoadTemplates(Window window, string[] templates)
-        {
-            window.Dispatcher.BeginInvoke((Action)(() =>
-            {
-                foreach (string template in templates)
-                {
-                    if (System.IO.File.Exists(template))
-                    {
-                        ResourceDictionary resources;
-                        ErrorRecord error;
-                        System.IO.FileInfo startup = new System.IO.FileInfo(template);
-                        // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-                        if (startup.TryLoadXaml(out resources, out error))
-                        {
-                            //Application.Current.Resources.MergedDictionaries.Add(resources);
-                            window.Resources.MergedDictionaries.Add(resources);
-                        }
-                        else
-                        {
-                            throw error.Exception;
-                        }
-                    }
-                    else
-                    {
-                        throw new System.IO.FileNotFoundException("Data Template file not found in " + System.Environment.CurrentDirectory, "DataTemplates.xaml");
-                    }
-                }
-            }));
+		internal static void LoadTemplates(Window window)
+		{
+			LoadTemplates(window, new[] { "DataTemplates.xaml" });
+		}
+		internal static void LoadTemplates(Window window, string[] templates)
+		{
+			window.Dispatcher.BeginInvoke((Action)(() =>
+			{
+				foreach (string template in templates)
+				{
+					if (System.IO.File.Exists(template))
+					{
+						ResourceDictionary resources;
+						ErrorRecord error;
+						System.IO.FileInfo startup = new System.IO.FileInfo(template);
+						// Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+						if (startup.TryLoadXaml(out resources, out error))
+						{
+							//Application.Current.Resources.MergedDictionaries.Add(resources);
+							window.Resources.MergedDictionaries.Add(resources);
+						}
+						else
+						{
+							throw error.Exception;
+						}
+					}
+					else
+					{
+						throw new System.IO.FileNotFoundException("Data Template file not found in " + System.Environment.CurrentDirectory, "DataTemplates.xaml");
+					}
+				}
+			}));
 
-        }
+		}
 	}
 }

@@ -15,20 +15,20 @@ namespace PoshConsole.Cmdlets
     [Cmdlet(VerbsCommon.Get, "QuakeMode", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
     public class QuakeModeCommand : PSCmdlet
     {
-        private Window _window;
+        // private Window _window;
         private PoshConsole.Host.PoshOptions _options;
-        private Block _numbered;
+        // private Block _numbered;
 
         protected override void BeginProcessing()
        {
          ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject
-             ).XamlUI.Dispatcher.BeginInvoke((Action)(() =>
+             ).WpfConsole.Dispatcher.BeginInvoke((Action)(() =>
          {
 
              _options = (PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject;
              var topLeft = new System.Drawing.Point(
-                                  (int)_options.XamlUI.RootWindow.Left,
-                                  (int)_options.XamlUI.RootWindow.Top);
+                                  (int)_options.WpfConsole.RootWindow.Left,
+                                  (int)_options.WpfConsole.RootWindow.Top);
              var screen = System.Windows.Forms.Screen.FromPoint(topLeft);
              
              _options.Settings.Save();
@@ -36,7 +36,7 @@ namespace PoshConsole.Cmdlets
              {
                 case "Quake":
                    {
-                       foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.XamlUI.RootWindow))
+                       foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.WpfConsole.RootWindow))
                        {
                            //chrome.UseGlassFrame = true;
                           chrome.ClientBorderThickness = new Thickness(8, 58, 8, 8);
@@ -66,7 +66,7 @@ namespace PoshConsole.Cmdlets
                         _options.Settings.SettingsKey = "Quake";
                         _options.Settings.Reload();
 
-                        foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.XamlUI.RootWindow))
+                        foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.WpfConsole.RootWindow))
                         {
                             //chrome.UseGlassFrame = false;
                            chrome.ClientBorderThickness = new Thickness(0, 0, 0, 5);

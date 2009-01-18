@@ -180,7 +180,11 @@ namespace Huddled.WPF.Controls
          lock (_commandContainer)
          {
             _next.Inlines.Remove(_commandContainer);
-            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left;
+
+
+
+            ((RichTextBox)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10,
+             ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
             _next.Inlines.Add(_commandContainer);
          }
 

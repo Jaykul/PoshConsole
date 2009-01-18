@@ -49,7 +49,8 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            return this.TryFindParent<Window>();
+             return (Window)Dispatcher.Invoke((Func <Window>)(() =>
+                 { return this.TryFindParent<Window>(); }),DispatcherPriority.Normal);
          }
       }
 

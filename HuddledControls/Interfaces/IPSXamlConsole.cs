@@ -7,6 +7,10 @@ using System.Windows.Threading;
 
 namespace System.Management.Automation.Host
 {
+    public interface IPSWpfOptions
+    {
+        IPSWpfConsole WpfConsole { get; }
+    }
    /// <summary>
    /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
    /// based user interface which allows loading of arbitrary bits of Xaml source.  This
@@ -18,12 +22,16 @@ namespace System.Management.Automation.Host
    /// </summary>
    public interface IPSWpfConsole
    {
-      FlowDocument Document { get; }
-      Window RootWindow { get; }
-      List<Window> PopoutWindows { get; }
-      Paragraph CurrentBlock { get; }
-      void NewParagraph();
-      Dispatcher Dispatcher { get; }
+       Window RootWindow { get; }
+       Dispatcher Dispatcher { get; }
+
+       List<Window> PopoutWindows { get; }
+
+       FlowDocument Document { get; }
+
+       Paragraph CurrentBlock { get; }
+
+       void NewParagraph();
       //Runspace Runspace { get; }
 
       //void OutXaml(bool popup, System.Xml.XmlDocument template );

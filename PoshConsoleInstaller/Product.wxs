@@ -1,187 +1,192 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?define folder = "..\PoshConsole\bin\Debug\"?>
+<?define folderModules = "..\PoshWpf\bin\Debug\"?>
 <?define folderArtwork = "..\PoshConsole\Artwork\"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product
-    Id="51e0de3f-0e25-4896-a310-71b39851e1ee"
-    Name="PoshConsole"
-    Language="1033"
-    Version="1.0.0.0"
-    Manufacturer="PoshConsole"
-    UpgradeCode="a342fa00-d8f6-4cbd-8773-e2b7e6874c4e"
-    Codepage="1252">
+	<Product
+	  Id="51e0de3f-0e25-4896-a310-71b39851e1ee"
+	  Name="PoshConsole"
+	  Language="1033"
+	  Version="1.0.0.0"
+	  Manufacturer="PoshConsole"
+	  UpgradeCode="a342fa00-d8f6-4cbd-8773-e2b7e6874c4e"
+	  Codepage="1252">
 
-    <Package InstallerVersion="200"
-             Compressed="yes"
-             Comments="PoshConsole BETA RELEASE"
-             Description="Installer for the POSH Console, a WPF PowerShell Console"
-             InstallPrivileges="elevated"
-             InstallScope="perMachine"
-             Keywords="POSH, PowerShell, Console"
-             Languages="1033"
-             Manufacturer="POSH Installer"
-             SummaryCodepage="1252" />
+		<Package InstallerVersion="200"
+					Compressed="yes"
+					Comments="PoshConsole BETA RELEASE"
+					Description="Installer for the POSH Console, a WPF PowerShell Console"
+					InstallPrivileges="elevated"
+					InstallScope="perMachine"
+					Keywords="POSH, PowerShell, Console"
+					Languages="1033"
+					Manufacturer="POSH Installer"
+					SummaryCodepage="1252" />
 
-    <Media Id="1" Cabinet="PoshConsoleInstaller.cab" EmbedCab="yes" />
-    <Icon Id="icon.ico" SourceFile="$(var.folderArtwork)PoshConsole.ico"/>
-    
-    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<Media Id="1" Cabinet="PoshConsoleInstaller.cab" EmbedCab="yes" />
+		<Icon Id="icon.ico" SourceFile="$(var.folderArtwork)PoshConsole.ico"/>
 
-    <!--There properties represent the standard settings (on) for shortcut creation-->
-    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"></Property>
-    <Property Id="INSTALLSTARTMENUSHORTCUT" Value="1"></Property>
-    <Property Id="INSTALLQUICKSTARTMENUSHORTCUT" Value="1"></Property>
-    
-    <Property Id="POWERSHELLISINSTALLED">
-      <RegistrySearch Id="FindPowerShell2" Root="HKLM" Key="Software\Microsoft\PowerShell\1\PowerShellEngine" Name="PowerShellVersion" Type="raw"></RegistrySearch>
-    </Property>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-    <Property Id="NETFRAMEWORK35">
-      <RegistrySearch Id="NetFramework35"
-          Root="HKLM"
-          Key="Software\Microsoft\NET Framework Setup\NDP\v3.5"
-          Name="Install"
-          Type="raw" />
-    </Property>
+		<!--There properties represent the standard settings (on) for shortcut creation-->
+		<Property Id="INSTALLDESKTOPSHORTCUT" Value="1"></Property>
+		<Property Id="INSTALLSTARTMENUSHORTCUT" Value="1"></Property>
+		<Property Id="INSTALLQUICKSTARTMENUSHORTCUT" Value="1"></Property>
 
-    <Condition Message="Installation only possible with Windows XP or higher">
-      <![CDATA[VersionNT >= 501]]>
-    </Condition>
-    <Condition Message=".NET Framework 3.5 is needed to run this application">
-      <![CDATA[NETFRAMEWORK35]]>
-    </Condition>
-    <Condition Message="PowerShell V2 must be installed to use the PoshConsole">
-      <![CDATA[POWERSHELLISINSTALLED]]>
-    </Condition>
-    
+		<Property Id="POWERSHELLISINSTALLED">
+			<RegistrySearch Id="FindPowerShell2" Root="HKLM" Key="Software\Microsoft\PowerShell\1\PowerShellEngine" Name="PowerShellVersion" Type="raw"></RegistrySearch>
+		</Property>
 
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="DesktopFolder"></Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="PoshConsole" Name="PoshConsole"></Directory>
-      </Directory>
-      <Directory Id="AppDataFolder">
-        <Directory Id="Microsoft" Name="Microsoft">
-          <Directory Id="InternetExplorer" Name="Internet Explorer">
-            <Directory Id="QuickLaunch" Name="Quick Launch"></Directory>
-          </Directory>
-        </Directory>
-      </Directory>
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="PoshConsole">
-        </Directory>
-      </Directory>
-    </Directory>
+		<Property Id="NETFRAMEWORK35">
+			<RegistrySearch Id="NetFramework35"
+				 Root="HKLM"
+				 Key="Software\Microsoft\NET Framework Setup\NDP\v3.5"
+				 Name="Install"
+				 Type="raw" />
+		</Property>
 
-    <DirectoryRef Id="INSTALLLOCATION">
-      <Component Id="MainExecutable" Guid="62eee9d7-15f3-47be-9c2b-9a875cf4285f">
-        <File Id="MainExecutable" KeyPath="yes" Name="PoshConsole.exe" Source="$(var.folder)PoshConsole.exe"></File>
-        <File Id="Config_File" KeyPath="no" Name="PoshConsole.exe.config" Source="$(var.folder)PoshConsole.exe.config"></File>
-        <File Id="StartUp_Banner" KeyPath="no" Name="StartupBanner.xaml" Source="$(var.folder)StartupBanner.xaml"></File>
+		<Condition Message="Installation only possible with Windows XP or higher">
+			<![CDATA[VersionNT >= 501]]>
+		</Condition>
+		<Condition Message=".NET Framework 3.5 is needed to run this application">
+			<![CDATA[NETFRAMEWORK35]]>
+		</Condition>
+		<Condition Message="PowerShell must be installed to use PoshConsole">
+			<![CDATA[POWERSHELLISINSTALLED]]>
+		</Condition>
 
-        <!-- Old Shortcut definitions not needed any more because they are non-conditional -->
-        <!--<Shortcut Id="MainExecutableSCSDS" Icon="icon.ico" Advertise="yes" Description="Starts POSH Console" Name="POSH Console" WorkingDirectory="INSTALLLOCATION" Directory="DesktopFolder"></Shortcut>-->
-        <!--<Shortcut Id="MainExecutableSCSPMF" Icon="icon.ico" Advertise="yes" Description="Starts POSH Console" Name="POSH Console" WorkingDirectory="INSTALLLOCATION" Directory="PoshConsole"></Shortcut>-->
-      </Component>
 
-      <Component Id="MainExecutableDesktopSCS" Guid="50A3BA30-878D-4dcf-B3B2-76447E702D4E">
-        <!--<Condition>INSTALLDESKTOPSHORTCUT</Condition>-->
-        <RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecDesktopSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
-          <RegistryValue Name="DesktopFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
-        </RegistryKey>
-        <Shortcut
-                  Id="MainExecDeskopSCS"
-                  Target="[INSTALLLOCATION]PoshConsole.exe"
-                  Icon="icon.ico"
-                  Description="Starts POSH Console"
-                  Name="POSH Console"
-                  WorkingDirectory="INSTALLLOCATION"
-                  Directory="DesktopFolder">
-        </Shortcut>
-      </Component>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="DesktopFolder"></Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="PoshConsole" Name="PoshConsole"></Directory>
+			</Directory>
+			<Directory Id="AppDataFolder">
+				<Directory Id="Microsoft" Name="Microsoft">
+					<Directory Id="InternetExplorer" Name="Internet Explorer">
+						<Directory Id="QuickLaunch" Name="Quick Launch"></Directory>
+					</Directory>
+				</Directory>
+			</Directory>
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLLOCATION" Name="PoshConsole">
+				</Directory>
+			</Directory>
+		</Directory>
 
-      <Component Id="MainExecutableStartMenuSCS" Guid="31BDDFFF-5704-4691-B5BF-A7997DCB0ACC">
-        <!--<Condition>INSTALLSTARTMENUSHORTCUT</Condition>-->
-        <RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecStartMenuSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
-          <RegistryValue Name="StartMenuFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
-        </RegistryKey>
-        <Shortcut
-                  Id="MainExecStartMenuSCS"
-                  Target="[INSTALLLOCATION]PoshConsole.exe"
-                  Icon="icon.ico"
-                  Description="Starts POSH Console"
-                  Name="POSH Console"
-                  WorkingDirectory="INSTALLLOCATION"
-                  Directory="PoshConsole">
-        </Shortcut>
+		<DirectoryRef Id="INSTALLLOCATION">
+			<Component Id="MainExecutable" Guid="62eee9d7-15f3-47be-9c2b-9a875cf4285f">
+				<File Id="MainExecutable" KeyPath="yes" Name="PoshConsole.exe" Source="$(var.folder)PoshConsole.exe"></File>
+				<File Id="Config_File" KeyPath="no" Name="PoshConsole.exe.config" Source="$(var.folder)PoshConsole.exe.config"></File>
+				<File Id="StartUp_Banner" KeyPath="no" Name="StartupBanner.xaml" Source="$(var.folder)StartupBanner.xaml"></File>
 
-        <CreateFolder Directory="PoshConsole"></CreateFolder>
-        <RemoveFolder Directory="PoshConsole" Id="RmPoshMenuFolder" On="uninstall"/>
-      </Component>
+				<!-- Old Shortcut definitions not needed any more because they are non-conditional -->
+				<!--<Shortcut Id="MainExecutableSCSDS" Icon="icon.ico" Advertise="yes" Description="Starts POSH Console" Name="POSH Console" WorkingDirectory="INSTALLLOCATION" Directory="DesktopFolder"></Shortcut>-->
+				<!--<Shortcut Id="MainExecutableSCSPMF" Icon="icon.ico" Advertise="yes" Description="Starts POSH Console" Name="POSH Console" WorkingDirectory="INSTALLLOCATION" Directory="PoshConsole"></Shortcut>-->
+			</Component>
 
-      <Component Id="MainExecutableQuickStartMenuSCS" Guid="EB151A61-A135-4d6b-94B5-1FE70FE760D2">
-        <!--<Condition>INSTALLQUICKSTARTMENUSHORTCUT</Condition>-->
-        <RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecQuickStartMenuSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
-          <RegistryValue Name="QuickStartMenuFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
-        </RegistryKey>
-        <Shortcut
-                  Id="MainExecQuickStartMenuSCS"
-                  Target="[INSTALLLOCATION]PoshConsole.exe"
-                  Icon="icon.ico"
-                  Description="Starts POSH Console"
-                  Name="POSH Console"
-                  WorkingDirectory="INSTALLLOCATION"
-                  Directory="QuickLaunch">
-        </Shortcut>
+			<Component Id="MainExecutableDesktopSCS" Guid="50A3BA30-878D-4dcf-B3B2-76447E702D4E">
+				<!--<Condition>INSTALLDESKTOPSHORTCUT</Condition>-->
+				<RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecDesktopSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
+					<RegistryValue Name="DesktopFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
+				</RegistryKey>
+				<Shortcut
+							 Id="MainExecDeskopSCS"
+							 Target="[INSTALLLOCATION]PoshConsole.exe"
+							 Icon="icon.ico"
+							 Description="Starts POSH Console"
+							 Name="POSH Console"
+							 WorkingDirectory="INSTALLLOCATION"
+							 Directory="DesktopFolder">
+				</Shortcut>
+			</Component>
 
-        <CreateFolder Directory="QuickLaunch"></CreateFolder>
-        <RemoveFolder Directory="QuickLaunch" Id="RmQuickStartFolder" On="uninstall"/>
-        <CreateFolder Directory="InternetExplorer"></CreateFolder>
-        <RemoveFolder Directory="InternetExplorer" Id="RmInternetExplorerFolder" On="uninstall"/>
-        <CreateFolder Directory="Microsoft"></CreateFolder>
-        <RemoveFolder Directory="Microsoft" Id="RmMicrosoftFolder" On="uninstall"/>
-      </Component>
+			<Component Id="MainExecutableStartMenuSCS" Guid="31BDDFFF-5704-4691-B5BF-A7997DCB0ACC">
+				<!--<Condition>INSTALLSTARTMENUSHORTCUT</Condition>-->
+				<RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecStartMenuSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
+					<RegistryValue Name="StartMenuFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
+				</RegistryKey>
+				<Shortcut
+							 Id="MainExecStartMenuSCS"
+							 Target="[INSTALLLOCATION]PoshConsole.exe"
+							 Icon="icon.ico"
+							 Description="Starts POSH Console"
+							 Name="POSH Console"
+							 WorkingDirectory="INSTALLLOCATION"
+							 Directory="PoshConsole">
+				</Shortcut>
 
-      <Component Id="HuddledWPFControls" Guid="E3BD3326-CBB4-4d8a-B8C5-45A133F3CD7C">
-        <File Id="HuddledWPFControls" KeyPath="yes" Name="HuddledWPFControls.dll" Source="$(var.folder)HuddledWPFControls.dll"></File>
-      </Component>
+				<CreateFolder Directory="PoshConsole"></CreateFolder>
+				<RemoveFolder Directory="PoshConsole" Id="RmPoshMenuFolder" On="uninstall"/>
+			</Component>
 
-      <Component Id="Huddled.Interop.WPF" Guid="AC54B85C-495D-44a8-A61E-924CD0609788">
-        <File Id="Huddled.Interop.WPF" KeyPath="yes" Name="Huddled.Interop.WPF.dll" Source="$(var.folder)Huddled.Interop.WPF.dll"></File>
-      </Component>
+			<Component Id="MainExecutableQuickStartMenuSCS" Guid="EB151A61-A135-4d6b-94B5-1FE70FE760D2">
+				<!--<Condition>INSTALLQUICKSTARTMENUSHORTCUT</Condition>-->
+				<RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecQuickStartMenuSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
+					<RegistryValue Name="QuickStartMenuFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
+				</RegistryKey>
+				<Shortcut
+							 Id="MainExecQuickStartMenuSCS"
+							 Target="[INSTALLLOCATION]PoshConsole.exe"
+							 Icon="icon.ico"
+							 Description="Starts POSH Console"
+							 Name="POSH Console"
+							 WorkingDirectory="INSTALLLOCATION"
+							 Directory="QuickLaunch">
+				</Shortcut>
 
-      <Component Id="FontLibrary" Guid="C42FE80B-CCE1-4bac-AA16-13374F5E18D6">
-        <File Id="FontLibrary" KeyPath="yes" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
-      </Component>
+				<CreateFolder Directory="QuickLaunch"></CreateFolder>
+				<RemoveFolder Directory="QuickLaunch" Id="RmQuickStartFolder" On="uninstall"/>
+				<CreateFolder Directory="InternetExplorer"></CreateFolder>
+				<RemoveFolder Directory="InternetExplorer" Id="RmInternetExplorerFolder" On="uninstall"/>
+				<CreateFolder Directory="Microsoft"></CreateFolder>
+				<RemoveFolder Directory="Microsoft" Id="RmMicrosoftFolder" On="uninstall"/>
+			</Component>
 
-      <!--<Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
+			<Component Id="Huddled.WPF.Controls" Guid="E3BD3326-CBB4-4d8a-B8C5-45A133F3CD7C">
+				<File Id="Huddled.WPF.Controls" KeyPath="yes" Name="Huddled.WPF.Controls.dll" Source="$(var.folder)Huddled.WPF.Controls.dll"></File>
+			</Component>
+
+			<Component Id="Huddled.Interop" Guid="AC54B85C-495D-44a8-A61E-924CD0609788">
+				<File Id="Huddled.Interop" KeyPath="yes" Name="Huddled.Interop.dll" Source="$(var.folder)Huddled.Interop.dll"></File>
+			</Component>
+
+			<Component Id="FontLibrary" Guid="C42FE80B-CCE1-4bac-AA16-13374F5E18D6">
+				<File Id="FontLibrary" KeyPath="yes" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
+			</Component>
+			<!-- TODO:  Add to a "Modules" folder -->
+			<Component Id="PoshWpf" Guid="D6005150-A1C8-49bb-931F-30736B36B92D">
+				<File Id="PoshWpf" KeyPath="yes" Name="PoshWpf.dll" Source="$(var.folderModules)PoshWpf.dll"></File>
+			</Component>
+			<!--<Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
         <File Id="Null" KeyPath="yes" Name="null" Source="$(var.folder)null">
           <Permission ChangePermission="yes" GenericAll="yes" User="Everyone"/>
         </File>
       </Component>-->
-    </DirectoryRef>
+		</DirectoryRef>
 
-    <Feature Id="ProductFeature" Title="PoshConsole" Level="1" Absent="disallow" InstallDefault="local">
-      <ComponentRef Id="MainExecutable" />
-      <ComponentRef Id="HuddledWPFControls"/>
-      <ComponentRef Id="Huddled.Interop.WPF"/>
-      <ComponentRef Id="FontLibrary"/>
-      <!--<ComponentRef Id="Null"/>-->
+		<Feature Id="ProductFeature" Title="PoshConsole" Level="1" Absent="disallow" InstallDefault="local">
+			<ComponentRef Id="MainExecutable" />
+			<ComponentRef Id="Huddled.WPF.Controls"/>
+			<ComponentRef Id="Huddled.Interop"/>
+			<ComponentRef Id="FontLibrary"/>
+			<ComponentRef Id="PoshWpf"/>
+			<!--<ComponentRef Id="Null"/>-->
 
-      <Feature Id="DesktopSCS" Title="Desktop shortcut" Description="Places a shortcut to PoshConsole on the desktop" TypicalDefault="install" InstallDefault="local" Level="1">
-        <ComponentRef Id="MainExecutableDesktopSCS"/>
-      </Feature>
+			<Feature Id="DesktopSCS" Title="Desktop shortcut" Description="Places a shortcut to PoshConsole on the desktop" TypicalDefault="install" InstallDefault="local" Level="1">
+				<ComponentRef Id="MainExecutableDesktopSCS"/>
+			</Feature>
 
-      <Feature Id="StartMenuSCS" Title="Startmenu shortcut" Description="Places a shortcut to PoshConsole in the start menu" TypicalDefault="install" InstallDefault="local" Level="1">
-        <ComponentRef Id="MainExecutableStartMenuSCS"/>
-      </Feature>
+			<Feature Id="StartMenuSCS" Title="Startmenu shortcut" Description="Places a shortcut to PoshConsole in the start menu" TypicalDefault="install" InstallDefault="local" Level="1">
+				<ComponentRef Id="MainExecutableStartMenuSCS"/>
+			</Feature>
 
-      <Feature Id="QuickSCS" Title="QuickStart Shortcut" Description="Places a shortcut to PoshConsole in the quick start menu" TypicalDefault="install" InstallDefault="local" Level="1">
-        <ComponentRef Id="MainExecutableQuickStartMenuSCS"/>
-      </Feature>
-    </Feature>
-    <UIRef Id="WixUI_Mondo"/>
-  </Product>
+			<Feature Id="QuickSCS" Title="QuickStart Shortcut" Description="Places a shortcut to PoshConsole in the quick start menu" TypicalDefault="install" InstallDefault="local" Level="1">
+				<ComponentRef Id="MainExecutableQuickStartMenuSCS"/>
+			</Feature>
+		</Feature>
+		<UIRef Id="WixUI_Mondo"/>
+	</Product>
 </Wix>

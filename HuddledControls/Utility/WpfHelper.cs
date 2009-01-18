@@ -73,6 +73,7 @@ namespace Huddled.WPF.Controls.Utility
       /// </returns>
       public static T TryFindParent<T>(this DependencyObject child) where T : DependencyObject
       {
+          //child.Dispatcher.Invoke(()=>{
          // get parent item
          DependencyObject parent = VisualTreeHelper.GetParent(child);
          while (parent != null)

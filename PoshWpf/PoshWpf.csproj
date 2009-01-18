@@ -66,17 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NewGridPanelCommand.cs" />
-    <Compile Include="WpfNewFrameworkElementCommandBase.cs" />
-    <Compile Include="NewImageCommand.cs" />
-    <Compile Include="NewLabelCommand.cs" />
-    <Compile Include="NewDockPanelCommand.cs" />
-    <Compile Include="NewMessageBoxCommand.cs" />
-    <Compile Include="NewStackPanelCommand.cs" />
-    <Compile Include="NewButtonCommand.cs" />
-    <Compile Include="WpfNewPanelCommandBase.cs" />
-    <Compile Include="WpfNewControlCommandBase.cs" />
-    <Compile Include="NewWrapPanelCommand.cs" />
+    <Compile Include="NewBootsThreadCommand.cs" />
     <Compile Include="OutWPFCommand.cs" />
     <Compile Include="PresentationInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

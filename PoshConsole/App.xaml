@@ -6,7 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/>
+                <!--ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/-->
                 <ResourceDictionary Source="themes\ScrollBarColors.xaml"/>
                 <ResourceDictionary Source="themes\ScrollBar.xaml"/>
                 <ResourceDictionary Source="Controls\ControlStyles.xaml"/>

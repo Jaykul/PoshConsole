@@ -99,7 +99,7 @@ namespace PoshWpf
                         // If they ask for a popup from a IPSWpfOptions, we still use the Presentation
                         // That way the threading "issues" are the same for both Wpf and non-Wpf hosts
                         // Otherwise we'd have to deal with two different realities
-                        var result = Presentation.Start(_template);
+							  var result = Presentation.Start(_template, null);
                         _window = result.Window;
                         _dispatcher = result.Dispatcher;
                     }
@@ -112,7 +112,7 @@ namespace PoshWpf
                 }
                 else
                 {
-                    var result = Presentation.Start(_template);
+						 var result = Presentation.Start(_template, null);
                     _window = result.Window;
                     _dispatcher = result.Dispatcher;
                 }

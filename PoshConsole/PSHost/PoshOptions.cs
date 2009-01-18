@@ -5,7 +5,6 @@ using System.Text;
 using System.Windows;
 using PoshConsole.Controls;
 using IPoshConsoleControl = System.Management.Automation.Host.IPoshConsoleControl;
-using IPSXamlConsole = System.Management.Automation.Host.IPSWpfConsole;
 using Huddled.WPF.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
@@ -13,14 +12,14 @@ using System.Management.Automation.Host;
 
 namespace PoshConsole.Host
 {
-   internal class PoshOptions : DependencyObject
+    internal class PoshOptions : DependencyObject, IPSWpfOptions
    {
 
       #region [rgn] Fields (4)
 
       IPoshConsoleControl _console;
       PoshHost _host;
-      XamlConsole _xamlUI;
+      PoshWpfConsole _xamlUI;
       public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
 
       #endregion [rgn]
@@ -31,7 +30,7 @@ namespace PoshConsole.Host
       {
          _host = host;
          _console = console;
-         _xamlUI = new XamlConsole(console);
+         _xamlUI = new PoshWpfConsole(console);
       }
 
       #endregion [rgn]
@@ -92,7 +91,7 @@ namespace PoshConsole.Host
          }
       }
 
-      public IPSXamlConsole XamlUI
+      public IPSWpfConsole WpfConsole
       {
          get
          {
@@ -120,21 +119,21 @@ namespace PoshConsole.Host
 
       #region [rgn] Nested Classes (1)
 
-      public class XamlConsole : IPSXamlConsole
+      public class PoshWpfConsole : IPSWpfConsole
       {
-         private IPSXamlConsole _console;
+         private IPSWpfConsole _console;
 
          /// <summary>
          /// Initializes a new instance of the <see cref="XamlConsole"/> class.
          /// </summary>
          /// <param name="console">The console.</param>
-         public XamlConsole(IPSXamlConsole console)
+         public PoshWpfConsole(IPSWpfConsole console)
          {
             _console = console;
          }
 
 
-         #region IPSXamlConsole Members
+         #region IPSWpfConsole Members
          public void NewParagraph(){ _console.NewParagraph(); }
          public FlowDocument Document { get { return _console.Document;  } }
          public Window RootWindow { get { return _console.RootWindow; } }

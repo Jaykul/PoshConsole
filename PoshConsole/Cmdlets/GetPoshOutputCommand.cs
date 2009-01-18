@@ -27,7 +27,7 @@ namespace PoshConsole.Cmdlets
 
       protected override void BeginProcessing()
       {
-         _xamlUI = ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).XamlUI;
+         _xamlUI = ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).WpfConsole;
          _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
          {
             _window = _xamlUI.RootWindow;
