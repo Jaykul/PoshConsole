@@ -49,7 +49,7 @@
     </DataTemplate>
    <DataTemplate DataType="{x:Type sysio:DirectoryInfo}">
       <StackPanel Width="100px" Orientation="Vertical" Margin="2">
-         <Image Source='C:\Users\JBennett\Projects\PowerShell\PoshConsole\trunk\PoshConsole\Artwork\Folder-256x256.png'/>
+         <Image Source='pack://application:,,,/Artwork/Folder237x237.png'/>
          <Label Content="{Binding Path=Name}" 
                    Background="{Binding Path=Background, ElementName=buffer, Mode=Default}"
                    Foreground="{Binding Path=Foreground, ElementName=buffer, Mode=Default}"

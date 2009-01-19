@@ -159,7 +159,13 @@ namespace Huddled.WPF.Controls
       {
          if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
          {
-            Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
+				try
+				{
+					Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
+				}
+				catch {
+					// TODO: Should we warn if we can't set the clipboard?
+				}
          }
 
          base.OnPreviewMouseLeftButtonUp(e);
