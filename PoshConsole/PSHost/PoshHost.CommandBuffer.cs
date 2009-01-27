@@ -367,12 +367,14 @@ namespace PoshConsole
             }
          }
 
+         // TODO: Must compile against v2 for this
+         #if POWERSHELL2
          if (_runSpace.Version.Major >= 2)
          {
             _runSpace.ApartmentState = ApartmentState.STA;
             _runSpace.ThreadOptions = PSThreadOptions.ReuseThread;
          }
-
+         #endif
          //_runSpace.StateChanged += (sender, e) =>
          //                             {
          //                                if (e.RunspaceStateInfo.State == RunspaceState.Opened && RunspaceReady != null)

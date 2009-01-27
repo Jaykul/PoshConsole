@@ -11,7 +11,7 @@ using System.Windows.Threading;
 
 namespace PoshWpf
 {
-    public abstract class WpfCommandBase : PSCmdlet, IDynamicParameters
+    public abstract class WpfCommandBase : PSCmdlet
     {
         #region Parameters
 
@@ -41,30 +41,12 @@ namespace PoshWpf
         public XmlDocument SourceTemplate { get; set; }
         #endregion
 
-        #region IDynamicParameters
-        private WPFParameters _dynamicProviders = null;
-
-        internal class WPFParameters
-        {
-            #region Parameters
-            [Parameter(
-                Position = 20,
-                Mandatory = false,
-                ValueFromPipeline = false,
-                HelpMessage = "Show in popup Window")]
-            public SwitchParameter Popup { get; set; }
-            #endregion
-        }
-
-        public object GetDynamicParameters()
-        {
-            if (Host.PrivateData.BaseObject is IPSWpfOptions)
-            {
-                _dynamicProviders = new WPFParameters();
-            }
-            return _dynamicProviders;
-        }
-        #endregion IDynamicParameters
+        [Parameter(
+            Position = 20,
+            Mandatory = false,
+            ValueFromPipeline = false,
+            HelpMessage = "Show in popup Window")]
+        public SwitchParameter Popup { get; set; }
 
         protected static Window _window = null;
         protected static Dispatcher _dispatcher = null;
@@ -84,7 +66,7 @@ namespace PoshWpf
                 {
                     //((IPSWpfHost)).GetWpfConsole();
                     _xamlUI = ((IPSWpfOptions)Host.PrivateData.BaseObject).WpfConsole;
-                    if (_dynamicProviders != null && _dynamicProviders.Popup.ToBool())
+                    if (Popup.ToBool())
                     {
                         //_window = new Window
                         //{
@@ -107,7 +89,12 @@ namespace PoshWpf
                     {
                         //_window = _xamlUI.RootWindow;
                         _dispatcher = _xamlUI.Dispatcher;
-                        Presentation.LoadTemplates(_xamlUI.RootWindow);
+
+                        string[] pathGetDirectoryName = new [] { 
+                           Path.GetDirectoryName((string)GetVariableValue("PROFILE", System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell\\Profile.ps1"))),
+                           (string)GetVariableValue("PSHOME", System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0"))
+                        };
+                        Presentation.LoadTemplates(_xamlUI.RootWindow, pathGetDirectoryName);
                     }
                 }
                 else

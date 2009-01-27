@@ -242,36 +242,47 @@ namespace PoshWpf
 			Args.AsyncResult.SetComplete(FinalResult);
 		}
 
-		internal static void LoadTemplates(Window window)
+      internal static void LoadTemplates(Window window)
+      {
+         LoadTemplates(window, new[] {
+            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell"),
+            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0")
+         });
+
+      }
+
+      internal static void LoadTemplates(Window window, string[] sourceFolders)
 		{
-			LoadTemplates(window, new[] { "DataTemplates.xaml" });
+			LoadTemplates(window, sourceFolders, new[] { "DataTemplates.xaml" });
 		}
-		internal static void LoadTemplates(Window window, string[] templates)
+
+      internal static void LoadTemplates(Window window, string[] sourceFolders, string[] templates)
 		{
 			window.Dispatcher.BeginInvoke((Action)(() =>
 			{
 				foreach (string template in templates)
 				{
-					if (System.IO.File.Exists(template))
-					{
-						ResourceDictionary resources;
-						ErrorRecord error;
-						System.IO.FileInfo startup = new System.IO.FileInfo(template);
-						// Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-						if (startup.TryLoadXaml(out resources, out error))
-						{
-							//Application.Current.Resources.MergedDictionaries.Add(resources);
-							window.Resources.MergedDictionaries.Add(resources);
-						}
-						else
-						{
-							throw error.Exception;
-						}
-					}
-					else
-					{
-						throw new System.IO.FileNotFoundException("Data Template file not found in " + System.Environment.CurrentDirectory, "DataTemplates.xaml");
-					}
+               foreach (string root in sourceFolders)
+               {
+                  string templatePath = System.IO.Path.Combine(root, template);
+
+                  if (System.IO.File.Exists(templatePath))
+                  {
+                     ResourceDictionary resources;
+                     ErrorRecord error;
+                     System.IO.FileInfo startup = new System.IO.FileInfo(templatePath);
+                     // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                     if (startup.TryLoadXaml(out resources, out error))
+                     {
+                        //Application.Current.Resources.MergedDictionaries.Add(resources);
+                        window.Resources.MergedDictionaries.Add(resources);
+                     }
+                     else
+                     {
+                        throw error.Exception;
+                     }
+                  }
+               }
 				}
 			}));
 

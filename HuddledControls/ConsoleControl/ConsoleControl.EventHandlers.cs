@@ -67,6 +67,9 @@ namespace Huddled.WPF.Controls
             {
                case Key.Enter:
                   {
+                     // TODO: Find a way to do this IF v2, and not otherwise.
+                     // BUGBUG: Make sure we're handling the exceptions right.
+                     #if POWERSHELL2
                      var errors = new Collection<PSParseError>();
                      PSParser.Tokenize( CurrentCommand, out errors);
 
@@ -84,9 +87,9 @@ namespace Huddled.WPF.Controls
                            //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
                            //int errEnd = _commandBox.GetCharacterIndexFromLineIndex(err.Token.EndLine) + err.Token.EndColumn;
                         }
-
                      } else 
-                        OnEnterPressed(e);
+                     #endif
+                     OnEnterPressed(e);
                   } break;
 
                case Key.Tab:
