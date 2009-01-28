@@ -70,24 +70,28 @@ namespace Huddled.WPF.Controls
                      // TODO: Find a way to do this IF v2, and not otherwise.
                      // BUGBUG: Make sure we're handling the exceptions right.
                      #if POWERSHELL2
-                     var errors = new Collection<PSParseError>();
-                     PSParser.Tokenize( CurrentCommand, out errors);
-
-                     if (errors.Count > 0)
+                     if (System.Management.Automation.Runspaces.Runspace.DefaultRunspace.Version.Major >= 2)
                      {
-                        TextRange error;
-                        foreach (var err in errors)
+                        var errors = new Collection<PSParseError>();
+                        PSParser.Tokenize(CurrentCommand, out errors);
+
+                        if (errors.Count > 0)
                         {
-                           //_commandBox.Document.ContentStart.GetLineStartPosition(err.Token.StartLine-1).GetPositionAtOffset(err.Token.StartColumn)
-                           error  = new TextRange(
-                              _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2*(err.Token.StartLine-1)),LogicalDirection.Forward),
-                              _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2*(err.Token.EndLine-1)) + err.Token.Length,LogicalDirection.Backward));
-                           error.ApplyPropertyValue( Run.TextDecorationsProperty, TextDecorations.Underline);
-                           error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
-                           //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
-                           //int errEnd = _commandBox.GetCharacterIndexFromLineIndex(err.Token.EndLine) + err.Token.EndColumn;
+                           TextRange error;
+                           foreach (var err in errors)
+                           {
+                              //_commandBox.Document.ContentStart.GetLineStartPosition(err.Token.StartLine-1).GetPositionAtOffset(err.Token.StartColumn)
+                              error = new TextRange(
+                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward),
+                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward));
+                              error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
+                              error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
+                              //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
+                              //int errEnd = _commandBox.GetCharacterIndexFromLineIndex(err.Token.EndLine) + err.Token.EndColumn;
+                           }
+                           break;
                         }
-                     } else 
+                     }
                      #endif
                      OnEnterPressed(e);
                   } break;
