@@ -9,10 +9,11 @@ using System.Windows.Threading;
 using System.Xml;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PoshWpf
 {
-	[Cmdlet(VerbsCommon.New, "BootsThread", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+	[Cmdlet(VerbsCommon.New, "Boots", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
 	public class NewBootsThreadCommand : PSCmdlet
 	{
 		#region Parameters
@@ -20,8 +21,12 @@ namespace PoshWpf
 			 Position = 0,
 			 Mandatory = false,
 			 ValueFromPipeline = true,
-			 HelpMessage = "A PowerBoots ScriptBlock to generate WPF content")]
-		public ScriptBlock Content { get; set; }
+			 HelpMessage = "The Content for the WPF window ...")]
+      public ScriptBlock[] Content { get; set; }
+
+      [Parameter(Mandatory = false, ValueFromPipeline = true)]
+      [Alias("Threaded")]
+      public SwitchParameter Async { get; set; }
 
 		// TODO!
 		[Parameter(
@@ -423,16 +428,21 @@ namespace PoshWpf
 		protected FrameworkElement _element = null;
 		private ItemsControl _host = null;
       private int _index;
-		#region Methods
+      WindowDispatcherAsyncResult _asyncResult = null;
+      #region Methods
 
 		protected override void BeginProcessing()
-		{
-			WindowDispatcherAsyncResult result = null;
+      {
+         TouchDefaults();
+         RedefineWriteOutput();
+
 			if (_window == null)
 			{
 				_template = GetXaml();
-
-				if (Host.PrivateData.BaseObject is IPSWpfOptions && !Popup.ToBool())
+            
+            // If they don't want a popup, and they don't want Async Threaded
+            // And we're in a WPF host, so we can give that to them...
+            if (Host.PrivateData.BaseObject is IPSWpfOptions && !Popup.ToBool() && !Async.ToBool())
 				{
 					//((IPSWpfHost)).GetWpfConsole();
 					_xamlUI = ((IPSWpfOptions)Host.PrivateData.BaseObject).WpfConsole;
@@ -440,12 +450,28 @@ namespace PoshWpf
 					_dispatcher = _xamlUI.Dispatcher;
 					Presentation.LoadTemplates(_xamlUI.RootWindow);
 				}
-				else
-				{
-					result = Presentation.Start(_template, SetWindowParams);
-					_window = result.Window;
-					_dispatcher = result.Dispatcher;
-				}
+            // if they *want* it shown async ...
+            // Or it MUST be shown Async (because we're not in a STA thread)
+            else if (Async.ToBool() || System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA)
+            {
+               // Async = true;
+               Popup = true;
+
+               _asyncResult = Presentation.Start(_template, SetWindowParams);
+               _window = _asyncResult.Window;
+               _dispatcher = _asyncResult.Dispatcher;
+            }
+            // otherwise, 
+            // they do not want the async thread, and we're in a STA host
+            // so we'll just create the window and call ShowDialog() at the end...
+            else
+            {
+               // Async = false; // this is already false
+               Popup = true;
+               _window = Presentation.NewWindow(_template);
+               _dispatcher = _window.Dispatcher;
+               Presentation.LoadTemplates(_window);
+            }
 
 				if (_template != null)
 				{
@@ -481,6 +507,51 @@ namespace PoshWpf
 			}
 			base.BeginProcessing();
 		}
+
+      private void RedefineWriteOutput()
+      {
+            this.InvokeCommand.InvokeScript(
+@"$Global:BootsOutput = @()
+function Write-Output($inputObject) {
+   BEGIN {
+      if ($inputObject) {
+         $Global:BootsOutput += $inputObject
+         break;
+      }
+   }
+   PROCESS {
+      if($_) {
+         $Global:BootsOutput += $_
+      }
+   }
+}");
+      }
+
+      private void TouchDefaults()
+      {
+         // Default value for SizeToContent 
+         if (SizeToContent == null)
+         {
+
+            if (Width == null && Height == null)
+            {
+               SizeToContent = System.Windows.SizeToContent.WidthAndHeight;
+            }
+            else if (Height == null)
+            {
+               SizeToContent = System.Windows.SizeToContent.Height;
+            }
+            else if (Width == null)
+            {
+               SizeToContent = System.Windows.SizeToContent.Width;
+            }
+         }
+         // Default value for Title
+         if (Title == null)
+         {
+            Title = "Boots";
+         }
+      }
 
 		private void SetWindowParams(Window window)
 		{
@@ -1253,13 +1324,23 @@ namespace PoshWpf
 			{
 				try
 				{
-					if (Content != null)
+					if (Content != null && Content.Length > 0)
 					{
-						Collection<PSObject> scriptResults = null;
+						List<PSObject> scriptResults = new List<PSObject>();
 
 						try
 						{
-							scriptResults = Content.Invoke();
+                     foreach (var pso in Content)
+                     {
+                        if (pso is ScriptBlock)
+                        {
+                           scriptResults.AddRange(((ScriptBlock)pso).Invoke());
+                        }
+                        //else
+                        //{
+                        //   scriptResults.Add(pso);
+                        //}
+                     }
 						}
 						catch (Exception ex)
 						{
@@ -1270,7 +1351,7 @@ namespace PoshWpf
 								_window = null;
 							}
 						}
-						if (scriptResults != null)
+						if (scriptResults.Count > 0)
 						{
 							foreach (PSObject obj in scriptResults)
 							{
@@ -1389,6 +1470,22 @@ namespace PoshWpf
 
 		protected override void EndProcessing()
 		{
+         //if (Host.PrivateData.BaseObject is IPSWpfOptions && !Popup.ToBool() && !Async.ToBool())
+         //else if (Async.ToBool() || System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA)
+         if (!Async.ToBool() && Popup.ToBool())
+         {
+            _window.ShowDialog();
+         }
+
+         if (!Async.ToBool())
+         {
+            if (_asyncResult != null)
+            {
+               _asyncResult.AsyncWaitHandle.WaitOne();
+            }
+            WriteObject(GetVariableValue("BootsOutput", null));
+         }
+
 			// release only in OutWPFCommand
 			//if (_windowCount == 0)
 			//{
