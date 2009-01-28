@@ -66,6 +66,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BootsWindowDictionary.cs" />
+    <Compile Include="InvokeBootsWindowCommand.cs" />
+    <Compile Include="GetBootsWindowCommand.cs" />
     <Compile Include="NewBootsThreadCommand.cs" />
     <Compile Include="OutWPFCommand.cs" />
     <Compile Include="PresentationInterface.cs" />

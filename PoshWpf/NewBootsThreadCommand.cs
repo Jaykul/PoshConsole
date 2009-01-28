@@ -422,7 +422,7 @@ namespace PoshWpf
 		protected XmlDocument _template = null;
 		protected FrameworkElement _element = null;
 		private ItemsControl _host = null;
-
+      private int _index;
 		#region Methods
 
 		protected override void BeginProcessing()
@@ -486,13 +486,13 @@ namespace PoshWpf
 		{
          var windows = SessionState.PSVariable.Get("BootsWindows");
 
-         if (windows.Value == null || !(windows.Value is List<Window>))
+         if (windows == null || windows.Value == null || !(windows.Value is BootsWindowDictionary))
          {
-            windows.Value = new List<Window>();
+            windows = new PSVariable("BootsWindows", BootsWindowDictionary.Instance, ScopedItemOptions.AllScope | ScopedItemOptions.Constant | ScopedItemOptions.ReadOnly );
             windows.Description = "PowerBoots running windows";
-            windows.Options = ScopedItemOptions.AllScope | ScopedItemOptions.Constant | ScopedItemOptions.ReadOnly;
+            SessionState.PSVariable.Set(windows);
          }
-         ((List<Window>)windows.Value).Add(window);
+         _index = ((BootsWindowDictionary)windows.Value).Add(window);
          
          // NOTE: We want to remove these once they're closed, but ... 
          // probably not right away, since they might contain data the user wants?
@@ -720,14 +720,14 @@ namespace PoshWpf
 			{
 				window.OpacityMask = OpacityMask;
 			}
-			if (BitmapEffect != null)
-			{
-				window.BitmapEffect = BitmapEffect;
-			}
-			if (BitmapEffectInput != null)
-			{
-				window.BitmapEffectInput = BitmapEffectInput;
-			}
+         //if (BitmapEffect != null)
+         //{
+         //   window.BitmapEffect = BitmapEffect;
+         //}
+         //if (BitmapEffectInput != null)
+         //{
+         //   window.BitmapEffectInput = BitmapEffectInput;
+         //}
 			if (Effect != null)
 			{
 				window.Effect = Effect;
@@ -1379,6 +1379,11 @@ namespace PoshWpf
 			{
 				WriteError(err);
 			}
+
+         if (_window != null)
+         {
+            WriteObject(_index);
+         }
 		}
 
 
