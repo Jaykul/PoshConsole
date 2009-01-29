@@ -28,7 +28,7 @@ namespace PoshWpf
       }
    }
 
-   // public interface can give a reference to the dispatcher assosiated with a window
+   // public interface can give a reference to the dispatcher associated with a window
    public interface IExposeDispatcher
    {
       System.Windows.Threading.Dispatcher Dispatcher { get; }
