@@ -11,9 +11,9 @@ using System.Xml;
 namespace PoshWpf
 {
     [Cmdlet(VerbsData.Out, "WPF", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-    public class OutWPFCommand : WpfCommandBase
+    public class OutWpfCommand : WpfCommandBase
 	{
-        private ItemsControl _host = null;
+        private ItemsControl _host;
         // private Huddled.WPF.Controls.Interfaces.IPSXamlConsole xamlUI;
         // private FlowDocument _document = null;
 
@@ -35,46 +35,7 @@ namespace PoshWpf
                     // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
                     if (output is Block || output is Inline)
                     {
-                        Paragraph par;
-                        FlowDocument doc;
-                        // if we're dong a XamlUI Popup window (or are not in XamlUI) ...
-                        if (_window != null)
-                        {
-                            par = new Paragraph();
-                            doc = new FlowDocument(par);
-                            if (_xamlUI != null)
-                            {
-                                par.Background = _xamlUI.CurrentBlock.Background;
-                                par.Foreground = _xamlUI.CurrentBlock.Foreground;
-                                doc.Background = _xamlUI.Document.Background;
-                                doc.Foreground = _xamlUI.Document.Foreground;
-                            }
-
-                            _window.Content = new FlowDocumentScrollViewer
-                            {
-                                Document = doc,
-                                Width = _window.Width,
-                                Height = _window.Height,
-                                Margin = new Thickness(0),
-                                Padding = new Thickness(0),
-                                IsToolBarVisible = true
-                            };
-                        }
-                        else
-                        {
-                            par = _xamlUI.CurrentBlock;
-                            doc = _xamlUI.Document;
-                        }
-
-
-                        if (output is Block)
-                        {
-                            doc.Blocks.InsertAfter(par, (Block)output);
-                        }
-                        else
-                        {
-                            par.Inlines.Add((Inline)output);
-                        }
+                       DocumentOutput(output);
                     }
                     else if(output is Panel)
                     {
@@ -123,6 +84,52 @@ namespace PoshWpf
                 }
 			}));
 		}
+
+      private static void DocumentOutput(object output)
+      {
+
+         Paragraph par;
+         FlowDocument doc;
+         // if we're dong a XamlUI Popup window (or are not in XamlUI) ...
+         if (_window != null)
+         {
+            par = new Paragraph();
+            doc = new FlowDocument(par);
+            if (_xamlUI != null)
+            {
+               par.Background = _xamlUI.CurrentBlock.Background;
+               par.Foreground = _xamlUI.CurrentBlock.Foreground;
+               doc.Background = _xamlUI.Document.Background;
+               doc.Foreground = _xamlUI.Document.Foreground;
+            }
+
+            _window.Content = new FlowDocumentScrollViewer
+            {
+               Document = doc,
+               Width = _window.Width,
+               Height = _window.Height,
+               Margin = new Thickness(0),
+               Padding = new Thickness(0),
+               IsToolBarVisible = true
+            };
+         }
+         else
+         {
+            par = _xamlUI.CurrentBlock;
+            doc = _xamlUI.Document;
+         }
+
+
+         Block blockput = output as Block;
+         if (blockput == null)
+         {
+            doc.Blocks.InsertAfter(par, blockput);
+         }
+         else
+         {
+            par.Inlines.Add((Inline)output);
+         }
+      }
 
 		#endregion
 

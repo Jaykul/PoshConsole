@@ -24,16 +24,17 @@ namespace PoshWpf
 		/// <param name="data"></param>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		public static bool TryLoadXaml<T1>(this FileInfo source, out T1 element, out ErrorRecord error) //where T1 : FrameworkElement
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+      public static bool TryLoadXaml<TElement>(this FileInfo source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
 		{
 			error = default(System.Management.Automation.ErrorRecord);
-			element = default(T1);
+			element = default(TElement);
 			try
 			{
 				object loaded = XamlReader.Load(source.OpenRead());
-				if (loaded is T1)
+				if (loaded is TElement)
 				{
-					element = (T1)loaded;
+					element = (TElement)loaded;
 					return true;
 				}
 				else
@@ -59,16 +60,17 @@ namespace PoshWpf
 		/// <param name="data"></param>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		public static bool TryLoadXaml<T1>(this XmlDocument source, out T1 element, out ErrorRecord error) //where T1 : FrameworkElement
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+      public static bool TryLoadXaml<TElement>(this XmlDocument source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
 		{
 			error = default(System.Management.Automation.ErrorRecord);
-			element = default(T1);
+			element = default(TElement);
 			try
 			{
 				var loaded = XamlReader.Load(new XmlNodeReader(source));
-				if (loaded is T1)
+				if (loaded is TElement)
 				{
-					element = (T1)loaded;
+					element = (TElement)loaded;
 					return true;
 				}
 				else
@@ -101,5 +103,55 @@ namespace PoshWpf
 				ItemsPanel = template
 			};
 		}
+
+      private static readonly string defaultTemplate = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), 
+                                                    Path.Combine( "WindowsPowerShell",  "DataTemplates.xaml"));
+      private static List<string> __dataTemplates = new List<string>(new[] {defaultTemplate});
+
+
+
+      internal static void AddDataTemplate(string templatePath)
+      {
+         if(File.Exists(templatePath) && !__dataTemplates.Contains(templatePath)) {
+            __dataTemplates.Add(templatePath);
+         }
+      }
+      
+      internal static void RemoveDataTemplate(string templatePath)
+      {
+         if(__dataTemplates.Contains(templatePath)) {
+            __dataTemplates.Remove(templatePath);
+         }
+      }
+
+      internal static void LoadTemplates(this Window window)
+      {
+         window.Dispatcher.BeginInvoke((Action)(() =>
+         {
+            window.Resources.MergedDictionaries.Clear();
+
+            foreach (var templatePath in __dataTemplates)
+	         {
+               if (System.IO.File.Exists(templatePath))
+               {
+                  ResourceDictionary resources;
+                  ErrorRecord error;
+                  System.IO.FileInfo startup = new System.IO.FileInfo(templatePath);
+                  // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                  if (startup.TryLoadXaml(out resources, out error))
+                  {
+                     //Application.Current.Resources.MergedDictionaries.Add(resources);
+                     window.Resources.MergedDictionaries.Add(resources);
+                  }
+                  else
+                  {
+                     throw error.Exception;
+                  }
+               }
+            }
+         }));
+
+      }
+
 	}
 }

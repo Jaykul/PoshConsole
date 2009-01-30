@@ -31,6 +31,8 @@ namespace PoshWpf
             HelpMessage = "XAML template file")]
         public FileInfo FileTemplate { get; set; }
 
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
         [Parameter(
             Position = 10,
             ParameterSetName = "SourceTemplate",
@@ -48,13 +50,20 @@ namespace PoshWpf
             HelpMessage = "Show in popup Window")]
         public SwitchParameter Popup { get; set; }
 
-        protected static Window _window = null;
-        protected static Dispatcher _dispatcher = null;
-        protected static IPSWpfConsole _xamlUI = null;
-        protected static int _windowCount = 0;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2211:NonConstantFieldsShouldNotBeVisible")]
+        protected static Window _window;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2211:NonConstantFieldsShouldNotBeVisible")]
+        protected static Dispatcher _dispatcher;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2211:NonConstantFieldsShouldNotBeVisible")]
+        protected static IPSWpfConsole _xamlUI;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2211:NonConstantFieldsShouldNotBeVisible")]
+        protected static int _windowCount;
 
-        protected XmlDocument _template = null;
-        protected FrameworkElement _element = null;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
+        protected XmlDocument _template;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
+        protected FrameworkElement _element;
 
         protected override void BeginProcessing()
         {
@@ -89,12 +98,7 @@ namespace PoshWpf
                     {
                         //_window = _xamlUI.RootWindow;
                         _dispatcher = _xamlUI.Dispatcher;
-
-                        string[] pathGetDirectoryName = new [] { 
-                           Path.GetDirectoryName((string)GetVariableValue("PROFILE", System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell\\Profile.ps1"))),
-                           (string)GetVariableValue("PSHOME", System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0"))
-                        };
-                        Presentation.LoadTemplates(_xamlUI.RootWindow, pathGetDirectoryName);
+                        _xamlUI.RootWindow.LoadTemplates();
                     }
                 }
                 else

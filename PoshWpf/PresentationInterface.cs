@@ -17,14 +17,47 @@ namespace PoshWpf
    public struct PresentationResult
    {
       // Contains the value of the DialogResult property of the window
-      public bool DialogResult;
+      public bool DialogResult {get; set;}
       // Contains the value of the Tag property of the window
       // may be used if a bool is insufficient
-      public object WindowTag;
-      public PresentationResult(bool dialogResult, object tag)
+      public object WindowTag {get; set;}
+
+      public PresentationResult(bool dialogResult, object tag) : this()
       {
          DialogResult = dialogResult;
          WindowTag = tag;
+      }
+      public override bool Equals(object obj)
+      {
+         if (obj == null)
+         {
+            return false;
+         }
+
+         if (obj is PresentationResult)
+         {
+            var pr = (PresentationResult)obj;
+            return pr.DialogResult == DialogResult && pr.WindowTag == WindowTag;
+         }
+         else return false;
+      }
+
+      public bool Equals(PresentationResult obj)
+      {
+         return obj.DialogResult == DialogResult && obj.WindowTag == WindowTag;
+      }
+      public override int GetHashCode()
+      {
+         return DialogResult.GetHashCode() + WindowTag.GetHashCode();
+      }
+      
+      public static bool operator ==(PresentationResult one, PresentationResult two)
+      {
+            return one.DialogResult == two.DialogResult && one.WindowTag == two.WindowTag;
+      }
+      public static bool operator !=(PresentationResult one, PresentationResult two)
+      {
+         return !(one == two);
       }
    }
 
@@ -52,7 +85,7 @@ namespace PoshWpf
 
       public WindowDispatcherAsyncResult(EventWaitHandle done)
       {
-         Completed = false;
+         // Completed = false; // redundant initializing
          DoneHandle = done;
       }
 
@@ -103,6 +136,7 @@ namespace PoshWpf
          DoneHandle.Set();
       }
       /// <summary>Update the AsyncState return object</summary>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
       internal void SetState(object stateObject)
       {
          StateObject = stateObject;
@@ -123,26 +157,25 @@ namespace PoshWpf
       /// <summary> an initialization exception that, if set, will be thown by the start method</summary>
       public Exception InitException;
 
-      public Dispatcher ShellDispatcher;
       public Runspace ShellRunspace;
    }
 
-   public class Presentation
+   public static class Presentation
    {
       public static Window Window { get; set; }
       public static Dispatcher Dispatcher { get; set; }
 
       // internal method to start the window thread
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
       public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize)
       {
-         var ShowDialogHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
          WindowArgs Args = new WindowArgs()
          {
             WindowXaml = xaml,
             AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
             InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
             Initialize = initialize,
-            ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
+            //ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
             ShellRunspace = Runspace.DefaultRunspace
          };
 
@@ -172,6 +205,8 @@ namespace PoshWpf
       }
 
       // procedure for the window thread
+      // we pass those exceptions on in another way ...
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       private static void WindowProc(object obj)
       {
          WindowArgs Args = (WindowArgs)obj;
@@ -206,7 +241,7 @@ namespace PoshWpf
          // trap runtime exceptions
          try
          {
-            LoadTemplates(LocalWindow);
+            LocalWindow.LoadTemplates();
             FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
             FinalResult.WindowTag = LocalWindow.Tag;
          }
@@ -225,6 +260,8 @@ namespace PoshWpf
       /// </summary>
       /// <param name="xaml">A XAML definition of a Window object</param>
       /// <returns></returns>
+      // I need the XmlNode so I can get a reader so I can feed it to XamlReader.Load
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
       public static Window NewWindow(XmlNode xaml)
       {
          object xamlObject = null;
@@ -235,60 +272,10 @@ namespace PoshWpf
                 new System.Xml.XmlNodeReader(xaml));
          }
 
-         if (xamlObject is Window)
-         {
-            return (Window)xamlObject;
-         }
-         else
-         {
-            return new Window();
-         }
-      }
-
-      internal static void LoadTemplates(Window window)
-      {
-         LoadTemplates(window, new[] {
-            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell"),
-            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0")
-         });
-
-      }
-
-      internal static void LoadTemplates(Window window, string[] sourceFolders)
-      {
-         LoadTemplates(window, sourceFolders, new[] { "DataTemplates.xaml" });
-      }
-
-      internal static void LoadTemplates(Window window, string[] sourceFolders, string[] templates)
-      {
-         window.Dispatcher.BeginInvoke((Action)(() =>
-         {
-            foreach (string template in templates)
-            {
-               foreach (string root in sourceFolders)
-               {
-                  string templatePath = System.IO.Path.Combine(root, template);
-
-                  if (System.IO.File.Exists(templatePath))
-                  {
-                     ResourceDictionary resources;
-                     ErrorRecord error;
-                     System.IO.FileInfo startup = new System.IO.FileInfo(templatePath);
-                     // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-                     if (startup.TryLoadXaml(out resources, out error))
-                     {
-                        //Application.Current.Resources.MergedDictionaries.Add(resources);
-                        window.Resources.MergedDictionaries.Add(resources);
-                     }
-                     else
-                     {
-                        throw error.Exception;
-                     }
-                  }
-               }
-            }
-         }));
-
+         Window w = xamlObject as Window;
+         if (w == null){ w = new Window(); }
+         w.LoadTemplates();
+         return w;
       }
    }
 }

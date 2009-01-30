@@ -19,6 +19,8 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>HuddledMasses.org.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,6 +30,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -67,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootsWindowDictionary.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="RemoveBootsTemplateCommand.cs" />
     <Compile Include="InvokeBootsWindowCommand.cs" />
     <Compile Include="GetBootsWindowCommand.cs" />
     <Compile Include="NewBootsThreadCommand.cs" />
@@ -76,6 +81,7 @@
     <Compile Include="PSSnapin.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="AddBootsTemplateCommand.cs" />
     <Compile Include="WpfCommandBase.cs" />
     <Compile Include="XamlUtilities.cs" />
   </ItemGroup>
@@ -86,6 +92,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="HuddledMasses.org.pfx" />
     <None Include="XamlTemplates\DataTemplates.xaml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

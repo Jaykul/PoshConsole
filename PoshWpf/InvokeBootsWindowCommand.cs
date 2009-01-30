@@ -15,13 +15,13 @@ namespace PoshWpf
    [Cmdlet("Invoke", "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByIndex")]
    public class InvokeBootsWindowCommand : PSCmdlet
    {
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
       public int[] Index { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle")]
       public string[] Name { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByWindow")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByWindow")]
       public Window[] Window { get; set; }
 
       [Parameter(Position = 1, Mandatory = true)]
@@ -78,7 +78,8 @@ namespace PoshWpf
          base.ProcessRecord();
       }
 
-      ErrorRecord _error = null;
+      ErrorRecord _error;
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       private Collection<PSObject> Invoker()
       {
          Collection<PSObject> result = null;
