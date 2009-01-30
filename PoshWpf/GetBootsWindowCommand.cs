@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace PoshWpf
 {
-	[Cmdlet(VerbsCommon.Get, "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByIndex")]
+	[Cmdlet(VerbsCommon.Get, "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
 	public class GetBootsWindowCommand : PSCmdlet
 	{
-      [Parameter(Position = 0, Mandatory = false, ParameterSetName = "ByIndex")]
+      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
       public int[] Index { get; set; }
       
       [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle")]
@@ -36,19 +36,17 @@ namespace PoshWpf
 
       protected override void ProcessRecord()
       {
-         var windows = SessionState.PSVariable.Get("BootsWindows");
-
-         if (windows != null && windows.Value != null && (windows.Value is BootsWindowDictionary))
+			if (BootsWindowDictionary.Instance.Count > 0)
          {
             switch (ParameterSetName)
 	         {
                case "ByIndex":
                   foreach (var i in Index)
                   {
-                     WriteObject(((BootsWindowDictionary)windows.Value)[i]);
+                     WriteObject(BootsWindowDictionary.Instance[i]);
                   } break;
                case "ByTitle":
-                  foreach (var window in ((BootsWindowDictionary)windows.Value).Values)
+                  foreach (var window in BootsWindowDictionary.Instance.Values)
                   {
                      foreach (var title in patterns)
 	                  {
@@ -58,7 +56,7 @@ namespace PoshWpf
                      }
                   } break;
          		default:
-                  foreach (var window in ((BootsWindowDictionary)windows.Value).Values)
+                  foreach (var window in BootsWindowDictionary.Instance.Values)
                   {
                      WriteObject(window);
                   } break;

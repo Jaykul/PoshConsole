@@ -43,19 +43,18 @@ namespace PoshWpf
 
       protected override void ProcessRecord()
       {
-         var windows = SessionState.PSVariable.Get("BootsWindows");
 
-         if (windows != null && windows.Value != null && (windows.Value is BootsWindowDictionary))
+			if (BootsWindowDictionary.Instance.Count > 0)
          {
             switch (ParameterSetName)
 	         {
                case "ByIndex":
                   foreach (var i in Index)
                   {
-                     WriteObject(((BootsWindowDictionary)windows.Value)[i].Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
+                     WriteObject(BootsWindowDictionary.Instance[i].Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
                   } break;
                case "ByTitle":
-                  foreach (var window in ((BootsWindowDictionary)windows.Value).Values)
+                  foreach (var window in BootsWindowDictionary.Instance.Values)
                   {
                      foreach (var title in patterns)
 	                  {

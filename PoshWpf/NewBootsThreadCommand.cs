@@ -555,15 +555,7 @@ function Write-Output($inputObject) {
 
       private void SetWindowParams(Window window)
       {
-         var windows = SessionState.PSVariable.Get("BootsWindows");
-
-         if (windows == null || windows.Value == null || !(windows.Value is BootsWindowDictionary))
-         {
-            windows = new PSVariable("BootsWindows", BootsWindowDictionary.Instance, ScopedItemOptions.AllScope | ScopedItemOptions.Constant | ScopedItemOptions.ReadOnly);
-            windows.Description = "PowerBoots running windows";
-            SessionState.PSVariable.Set(windows);
-         }
-         _index = ((BootsWindowDictionary)windows.Value).Add(window);
+         _index = BootsWindowDictionary.Instance.Add(window);
 
          // NOTE: We want to remove these once they're closed, but ... 
          // probably not right away, since they might contain data the user wants?
