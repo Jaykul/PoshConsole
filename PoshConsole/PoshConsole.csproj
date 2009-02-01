@@ -208,6 +208,10 @@
       <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
       <Name>Huddled</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PoshWpf\PoshWpf.csproj">
+      <Project>{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}</Project>
+      <Name>PoshWpf</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

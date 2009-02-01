@@ -104,8 +104,9 @@ namespace PoshWpf
 			};
 		}
 
-      private static readonly string defaultTemplate = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), 
-                                                    Path.Combine( "WindowsPowerShell",  "DataTemplates.xaml"));
+      private static readonly string defaultTemplate = Path.Combine(
+                                                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
+                                                    "DataTemplates.xaml");
       private static List<string> __dataTemplates = new List<string>(new[] {defaultTemplate});
 
 

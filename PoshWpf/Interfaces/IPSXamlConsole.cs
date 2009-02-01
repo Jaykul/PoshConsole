@@ -1,16 +1,19 @@
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Windows.Documents;
-using System.Windows;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Threading;
+
 
 namespace System.Management.Automation.Host
 {
-    public interface IPSWpfOptions
-    {
-        IPSWpfConsole WpfConsole { get; }
-    }
+   /// <summary>
+   /// <para>Provides an interface which extends the existing PowerShell PrivateData class with a
+   /// <see cref="IPSWpfConsole" />, with access to the WPF Window and Dispatcher</para>
+   /// </summary>
+   public interface IPSWpfOptions
+   {
+      IPSWpfConsole WpfConsole { get; }
+   }
    /// <summary>
    /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
    /// based user interface which allows loading of arbitrary bits of Xaml source.  This
@@ -22,16 +25,16 @@ namespace System.Management.Automation.Host
    /// </summary>
    public interface IPSWpfConsole
    {
-       Window RootWindow { get; }
-       Dispatcher Dispatcher { get; }
+      Window RootWindow { get; }
+      Dispatcher Dispatcher { get; }
 
-       List<Window> PopoutWindows { get; }
+      IList<Window> PopoutWindows { get; }
 
-       FlowDocument Document { get; }
+      FlowDocument Document { get; }
 
-       Paragraph CurrentBlock { get; }
+      Paragraph CurrentBlock { get; }
 
-       void NewParagraph();
+      void NewParagraph();
       //Runspace Runspace { get; }
 
       //void OutXaml(bool popup, System.Xml.XmlDocument template );

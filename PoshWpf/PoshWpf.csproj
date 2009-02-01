@@ -71,25 +71,20 @@
   <ItemGroup>
     <Compile Include="BootsWindowDictionary.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="RemoveBootsTemplateCommand.cs" />
-    <Compile Include="InvokeBootsWindowCommand.cs" />
-    <Compile Include="GetBootsWindowCommand.cs" />
-    <Compile Include="NewBootsThreadCommand.cs" />
-    <Compile Include="OutWPFCommand.cs" />
+    <Compile Include="Interfaces\IPSXamlConsole.cs" />
+    <Compile Include="Commands\RemoveBootsTemplateCommand.cs" />
+    <Compile Include="Commands\InvokeBootsWindowCommand.cs" />
+    <Compile Include="Commands\GetBootsWindowCommand.cs" />
+    <Compile Include="Commands\NewBootsThreadCommand.cs" />
+    <Compile Include="Commands\OutWPFCommand.cs" />
     <Compile Include="PresentationInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSSnapin.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AddBootsTemplateCommand.cs" />
+    <Compile Include="Commands\AddBootsTemplateCommand.cs" />
     <Compile Include="WpfCommandBase.cs" />
     <Compile Include="XamlUtilities.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HuddledControls\HuddledControls.csproj">
-      <Project>{969A3CF0-3AA6-499B-995B-C84E8F15B107}</Project>
-      <Name>HuddledControls</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="HuddledMasses.org.pfx" />

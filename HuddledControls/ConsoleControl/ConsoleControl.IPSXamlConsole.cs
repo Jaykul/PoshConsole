@@ -1,19 +1,10 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Collections.Generic;
-using System.Windows.Markup;
 using System.Windows.Threading;
-using System.Xml;
-using System.IO;
-using System.Windows.Controls;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using Huddled.WPF.Controls.Interfaces;
 using Huddled.WPF.Controls.Utility;
-using System.Windows.Media;
 
 namespace Huddled.WPF.Controls
 {
@@ -29,7 +20,7 @@ namespace Huddled.WPF.Controls
       }
 
       private List<Window> _children = new List<Window>();
-      List<Window> IPSWpfConsole.PopoutWindows
+      IList<Window> IPSWpfConsole.PopoutWindows
       {
          get 
          {

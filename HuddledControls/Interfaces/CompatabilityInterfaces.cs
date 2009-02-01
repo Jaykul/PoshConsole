@@ -15,13 +15,4 @@ namespace System.Management.Automation.Host
 	{
 		bool RegisterHotkey(System.Windows.Input.KeyGesture key, ScriptBlock script);
 	}
-
-	/// <summary>
-	/// <para>Provides an interface which extends the existing PowerShell interfaces with a
-	/// <see cref="IPSXamlConsole" />, with access to the WPF Window and Dispatcher</para>
-	/// </summary>
-	public interface IPSWpfHost
-	{
-		IPSWpfConsole GetWpfConsole();
-	}
 }

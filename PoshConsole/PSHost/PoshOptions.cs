@@ -137,7 +137,7 @@ namespace PoshConsole.Host
          public void NewParagraph(){ _console.NewParagraph(); }
          public FlowDocument Document { get { return _console.Document;  } }
          public Window RootWindow { get { return _console.RootWindow; } }
-         public List<Window> PopoutWindows { get { return _console.PopoutWindows; } }
+         public IList<Window> PopoutWindows { get { return _console.PopoutWindows; } }
          public Paragraph CurrentBlock { get { return _console.CurrentBlock; } }
          public Dispatcher Dispatcher { get { return _console.Dispatcher; } }
          //public Runspace Runspace { get { return _console.Runspace; } }

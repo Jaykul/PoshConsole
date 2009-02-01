@@ -21,7 +21,7 @@ namespace PoshConsole.Host
    /// applications. Not all members are implemented. Those that are 
    /// not implemented throw a NotImplementedException exception.
    /// </summary>
-	public partial class PoshHost : PSHost, IPSBackgroundHost, IPSWpfHost
+	public partial class PoshHost : PSHost, IPSBackgroundHost
    {
 
       #region  Fields (16)
