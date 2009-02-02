@@ -50,7 +50,7 @@ namespace PoshWpf
                   {
                      foreach (var title in patterns)
 	                  {
-                        if(title.IsMatch( window.Title )) {
+                        if( (bool)window.Dispatcher.Invoke((Func<bool>)(()=>title.IsMatch( window.Title ))) ) {
                            WriteObject(window);
                         }
                      }

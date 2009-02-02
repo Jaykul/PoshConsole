@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?define folder = "..\PoshConsole\bin\Debug\"?>
-<?define folderModules = "..\PoshWpf\bin\Debug\"?>
+<?define folder = "..\PoshConsole\bin\Release\"?>
 <?define folderArtwork = "..\PoshConsole\Artwork\"?>
+<?define folderPoshWpfTemplates = "..\PoshConsole\bin\Release\XamlTemplates\"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product
@@ -72,6 +72,7 @@
 			</Directory>
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLLOCATION" Name="PoshConsole">
+               <Directory Id="XamlTemplatesLocation" Name="XamlTemplates"/>
 				</Directory>
 			</Directory>
 		</Directory>
@@ -141,8 +142,8 @@
 				<RemoveFolder Directory="QuickLaunch" Id="RmQuickStartFolder" On="uninstall"/>
 				<CreateFolder Directory="InternetExplorer"></CreateFolder>
 				<RemoveFolder Directory="InternetExplorer" Id="RmInternetExplorerFolder" On="uninstall"/>
-				<CreateFolder Directory="Microsoft"></CreateFolder>
-				<RemoveFolder Directory="Microsoft" Id="RmMicrosoftFolder" On="uninstall"/>
+            <CreateFolder Directory="Microsoft"></CreateFolder>
+            <RemoveFolder Directory="Microsoft" Id="RmMicrosoftFolder" On="uninstall"/>
 			</Component>
 
 			<Component Id="Huddled.WPF.Controls" Guid="E3BD3326-CBB4-4d8a-B8C5-45A133F3CD7C">
@@ -154,13 +155,25 @@
 			</Component>
 
 			<Component Id="FontLibrary" Guid="C42FE80B-CCE1-4bac-AA16-13374F5E18D6">
-				<File Id="FontLibrary" KeyPath="yes" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
+            <CreateFolder Directory="Microsoft"></CreateFolder>
+
+            <File Id="FontLibrary" KeyPath="yes" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
 			</Component>
 			<!-- TODO:  Add to a "Modules" folder -->
 			<Component Id="PoshWpf" Guid="D6005150-A1C8-49bb-931F-30736B36B92D">
-				<File Id="PoshWpf" KeyPath="yes" Name="PoshWpf.dll" Source="$(var.folderModules)PoshWpf.dll"></File>
-			</Component>
-			<!--<Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
+            <File Id="PoshWpf" KeyPath="yes" Name="PoshWpf.dll" Source="$(var.folder)PoshWpf.dll"></File>
+            <CreateFolder Directory="XamlTemplatesLocation"></CreateFolder>
+            <RemoveFolder Directory="XamlTemplatesLocation" Id="RmXamlTemplatesFolder" On="uninstall"/>
+            <File Id="defaultxaml" Name="default.xaml" Source="$(var.folder)/XamlTemplates/default.xaml"></File>
+         </Component>
+         <!--
+         <Directory Id="XamlTemplatesLocation">
+            <Component Id="PoshWpfTemplates" Feature="PoshWpf" Guid="D6005150-A1C8-49bb-931F-30736B36B92D">
+               <File Id="defaultxaml" Name="default.xaml" Source="$(var.folder)/XamlTemplates/default.xaml"></File>
+            </Component>
+         </Directory>
+          -->
+         <!--<Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
         <File Id="Null" KeyPath="yes" Name="null" Source="$(var.folder)null">
           <Permission ChangePermission="yes" GenericAll="yes" User="Everyone"/>
         </File>

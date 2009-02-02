@@ -241,7 +241,6 @@ namespace PoshWpf
          // trap runtime exceptions
          try
          {
-            LocalWindow.LoadTemplates();
             FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
             FinalResult.WindowTag = LocalWindow.Tag;
          }

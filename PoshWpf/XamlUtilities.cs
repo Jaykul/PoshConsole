@@ -106,7 +106,7 @@ namespace PoshWpf
 
       private static readonly string defaultTemplate = Path.Combine(
                                                     Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
-                                                    "DataTemplates.xaml");
+                                                    Path.Combine("XamlTemplates","default.xaml"));
       private static List<string> __dataTemplates = new List<string>(new[] {defaultTemplate});
 
 
@@ -127,7 +127,7 @@ namespace PoshWpf
 
       internal static void LoadTemplates(this Window window)
       {
-         window.Dispatcher.BeginInvoke((Action)(() =>
+         window.Dispatcher.Invoke((Action)(() =>
          {
             window.Resources.MergedDictionaries.Clear();
 

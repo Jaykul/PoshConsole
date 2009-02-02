@@ -75,7 +75,7 @@
     <Compile Include="Commands\RemoveBootsTemplateCommand.cs" />
     <Compile Include="Commands\InvokeBootsWindowCommand.cs" />
     <Compile Include="Commands\GetBootsWindowCommand.cs" />
-    <Compile Include="Commands\NewBootsThreadCommand.cs" />
+    <Compile Include="Commands\NewBootsWindowCommand.cs" />
     <Compile Include="Commands\OutWPFCommand.cs" />
     <Compile Include="PresentationInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="HuddledMasses.org.pfx" />
-    <None Include="XamlTemplates\DataTemplates.xaml">
+    <None Include="XamlTemplates\default.xaml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

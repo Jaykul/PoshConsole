@@ -58,9 +58,14 @@ namespace PoshWpf
                   {
                      foreach (var title in patterns)
 	                  {
-                        if(title.IsMatch( window.Title )) {
-                           WriteObject(window.Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
-                        }
+                        WriteObject(
+                           window.Dispatcher.Invoke((Func<Collection<PSObject>>)(() => 
+                           {
+                              if(title.IsMatch(window.Title))
+                              {
+                                 return Invoker();
+                              } else return null;
+                           })));
                      }
                   } break;
          		case "ByWindow":
