@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootsWindowDictionary.cs" />
+    <Compile Include="Commands\ExportBootsImageCommand.cs" />
     <Compile Include="Commands\RemoveBootsWindowCommand.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interfaces\IPSXamlConsole.cs" />
