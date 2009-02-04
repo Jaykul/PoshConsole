@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootsWindowDictionary.cs" />
+    <Compile Include="Commands\RemoveBootsWindowCommand.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interfaces\IPSXamlConsole.cs" />
     <Compile Include="Commands\RemoveBootsTemplateCommand.cs" />
@@ -95,6 +96,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Artwork\Folder237x237.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="XamlTemplates\huddledcontrols.xaml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

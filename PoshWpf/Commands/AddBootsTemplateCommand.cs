@@ -5,7 +5,7 @@ using System.Management.Automation;
 using Microsoft.PowerShell.Commands;
 namespace PoshWpf
 {
-   [Cmdlet(VerbsCommon.Add, "BootsTemplate", SupportsShouldProcess = true)]
+   [Cmdlet(VerbsCommon.Add, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
    public class AddBootsTemplateCommand : PSCmdlet
    {
       private const string Noun = "BootsTemplate";

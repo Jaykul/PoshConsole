@@ -5,7 +5,7 @@ using System.Management.Automation;
 using Microsoft.PowerShell.Commands;
 namespace PoshWpf
 {
-   [Cmdlet(VerbsCommon.Remove, "BootsTemplate", SupportsShouldProcess = true)]
+   [Cmdlet(VerbsCommon.Remove, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName = "Path")]
    public class RemoveBootsTemplateCommand : PSCmdlet
    {
       private const string Noun = "BootsTemplate";

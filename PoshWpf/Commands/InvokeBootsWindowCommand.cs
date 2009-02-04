@@ -51,27 +51,34 @@ namespace PoshWpf
                case "ByIndex":
                   foreach (var i in Index)
                   {
-                     WriteObject(BootsWindowDictionary.Instance[i].Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
+                     var window = BootsWindowDictionary.Instance[i];
+                     if(window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted )
+                        WriteObject(window.Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
                   } break;
                case "ByTitle":
                   foreach (var window in BootsWindowDictionary.Instance.Values)
                   {
-                     foreach (var title in patterns)
-	                  {
-                        WriteObject(
-                           window.Dispatcher.Invoke((Func<Collection<PSObject>>)(() => 
-                           {
-                              if(title.IsMatch(window.Title))
+                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
+                     {
+                        foreach (var title in patterns)
+                        {
+                           WriteObject(
+                              window.Dispatcher.Invoke((Func<Collection<PSObject>>)(() =>
                               {
-                                 return Invoker();
-                              } else return null;
-                           })));
+                                 if (title.IsMatch(window.Title))
+                                 {
+                                    return Invoker();
+                                 }
+                                 else return null;
+                              })));
+                        }
                      }
                   } break;
          		case "ByWindow":
                   foreach (var window in Window)
                   {
-                     WriteObject(window.Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
+                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
+                        WriteObject(window.Dispatcher.Invoke(((Func<Collection<PSObject>>)Invoker)));
                   } break;
 	         }
 
