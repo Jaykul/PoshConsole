@@ -18,11 +18,25 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls", "HuddledC
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller", "PoshConsoleInstaller\PoshConsoleInstaller.wixproj", "{A64775D9-B889-4A68-9A20-46A78EBB30BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf", "PoshWpf\PoshWpf.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{3F848AAE-C60F-4FF8-9DE0-77E96E47765A}"
+	ProjectSection(SolutionItems) = preProject
+		PoshWpf\Install.ps1 = PoshWpf\Install.ps1
+		PoshWpf\PoshWpf.dll = PoshWpf\PoshWpf.dll
+		PoshWpf\UnInstall.ps1 = PoshWpf\UnInstall.ps1
+		PoshWpf\WpfTypes.format.ps1xml = PoshWpf\WpfTypes.format.ps1xml
+		PoshWpf\WpfTypes.types.ps1xml = PoshWpf\WpfTypes.types.ps1xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamlTemplates", "XamlTemplates", "{71AB38E8-825C-494F-8B6F-E9140C01A49E}"
+	ProjectSection(SolutionItems) = preProject
+		PoshWpf\XamlTemplates\DavesGlossyLight.xaml = PoshWpf\XamlTemplates\DavesGlossyLight.xaml
+		PoshWpf\XamlTemplates\default.xaml = PoshWpf\XamlTemplates\default.xaml
+		PoshWpf\XamlTemplates\huddledcontrols.xaml = PoshWpf\XamlTemplates\huddledcontrols.xaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 6
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
 		SccLocalPath0 = .
@@ -38,12 +52,9 @@ Global
 		SccProjectUniqueName4 = HuddledControls\\HuddledControls.csproj
 		SccProjectName4 = HuddledControls
 		SccLocalPath4 = HuddledControls
-		SccProjectUniqueName5 = PoshWpf\\PoshWpf.csproj
-		SccProjectName5 = PoshWpf
-		SccLocalPath5 = PoshWpf
-		SccProjectUniqueName6 = PoshConsoleInstaller\\PoshConsoleInstaller.wixproj
-		SccProjectName6 = PoshConsoleInstaller
-		SccLocalPath6 = PoshConsoleInstaller
+		SccProjectUniqueName5 = PoshConsoleInstaller\\PoshConsoleInstaller.wixproj
+		SccProjectName5 = PoshConsoleInstaller
+		SccLocalPath5 = PoshConsoleInstaller
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,22 +115,15 @@ Global
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|Mixed Platforms.Build.0 = Release|x86
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|x86.ActiveCfg = Release|x86
 		{A64775D9-B889-4A68-9A20-46A78EBB30BB}.Release|x86.Build.0 = Release|x86
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+   <ViewDefinitions>
+      <View>
+         <Name>System.Windows.Window</Name>
+         <ViewSelectedBy>
+             <TypeName>System.Windows.Window</TypeName>
+         </ViewSelectedBy>
+         <TableControl>
+            <TableHeaders>
+               <TableColumnHeader>
+                  <Label>Handle</Label>
+                  <Width>8</Width>
+               </TableColumnHeader>
+               <TableColumnHeader>
+                  <Label>Title</Label>
+               </TableColumnHeader>
+               <TableColumnHeader>
+                  <Label>IsVisible</Label>
+                  <Width>9</Width>
+               </TableColumnHeader>
+               <TableColumnHeader>
+                  <Label>RestoreBounds</Label>
+                  <Width>15</Width>
+               </TableColumnHeader>
+               <TableColumnHeader>
+                  <Label>Content</Label>
+                  <!-- <Width>30</Width> -->
+               </TableColumnHeader>
+            </TableHeaders>
+            <TableRowEntries>
+               <TableRowEntry>
+                  <TableColumnItems>
+                     <TableColumnItem>
+                        <ScriptBlock>(Invoke-BootsWindow $_ { (New-Object System.Windows.Interop.WindowInteropHelper $_).Handle})[0]</ScriptBlock>
+                     </TableColumnItem>
+                     <TableColumnItem>
+                        <ScriptBlock>(Invoke-BootsWindow $_ {$_.Title})[0]</ScriptBlock>
+                     </TableColumnItem>
+                     <TableColumnItem>
+                        <PropertyName>IsVisible</PropertyName>
+                     </TableColumnItem>
+                     <TableColumnItem>
+                        <ScriptBlock>(Invoke-BootsWindow $_ {$_.RestoreBounds})[0]</ScriptBlock>
+                     </TableColumnItem>
+                     <TableColumnItem>
+                        <ScriptBlock>(Invoke-BootsWindow $_ {$_.Content.GetType().Name})[0]</ScriptBlock>
+                     </TableColumnItem>
+                  </TableColumnItems>
+               </TableRowEntry>
+            </TableRowEntries>
+         </TableControl>
+      </View> 
+   </ViewDefinitions>
+</Configuration>
