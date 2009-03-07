@@ -10,6 +10,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
     xmlns:huddle="http://schemas.huddledmasses.org/wpf/controls"
+    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
    
@@ -27,12 +28,11 @@
     LocationChanged="OnWindowLocationChanged"
     SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico"
-    Width="750" Height="500" 
+    Width="750" Height="500"
     
-    Background="{DynamicResource SolidBorderBrush}" 
-    BorderBrush="{DynamicResource SolidBorderBrush}" 
+    Background="{DynamicResource SolidBorderBrush}"
+    BorderBrush="{DynamicResource SolidBorderBrush}"
     BorderThickness="5,5,5,5" Margin="0,0,0,0"
-    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
     WindowStyle="SingleBorderWindow" >
     <!-- The SingleBorderWindow is important for the CustomChrome behavior -->
 
@@ -46,7 +46,7 @@
             <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
             <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
         </huddled:HotkeysBehavior>
-        <huddled:CustomChrome CornerRadius="24,0,8,8" ClientBorderThickness="0,58,0,8" UseGlassFrame="True" />
+        <huddled:CustomChrome CornerRadius="8,8,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" />
     </huddled:NativeBehaviors.Behaviors>
 
     <!--
@@ -60,30 +60,6 @@
         <!--<PoshProps:Settings x:Key="SettingsDS" />-->
         <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
         <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
-
-        <Style TargetType="{x:Type ButtonBase}" x:Key="CaptionButtonStyle">
-            <Setter Property="Visibility" Value="Visible"/>
-            <Setter Property="huddled:CustomChrome.HitTestable" Value="True"/>
-            <Setter Property="BorderThickness" Value="0,0,0,0"/>
-            <Setter Property="Margin" Value="0,0,0,0"/>
-            <Setter Property="Width" Value="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonWidthKey}}"/>
-            <Setter Property="Height" Value="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonHeightKey}}"/>
-            <Setter Property="Foreground" Value="{x:Null}"/>
-            <Setter Property="Background" Value="{x:Null}"/>
-            <Setter Property="BorderBrush" Value="{x:Null}"/>
-            <Setter Property="Cursor" Value="Arrow" />
-        </Style>
-        <Style TargetType="{x:Type ButtonBase}" BasedOn="{StaticResource CaptionButtonStyle}" x:Key="ReplacingCaptionButtonStyle">
-            <Style.Triggers>
-                <!-- Comment out both of these DataTriggers if you need to edit in Blend... -->
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="True">
-                    <Setter Property="Visibility" Value="Hidden"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="False">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
         <Style TargetType="{x:Type TextBox}" x:Key="SearchBox">
             <Style.Triggers>
                 <Trigger Property="IsFocused" Value="True">
@@ -181,75 +157,6 @@
     </Window.Topmost>
     <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
     <Grid x:Name="WindowGrid" Background="Transparent">
-		<Grid x:Name="TopBar" huddled:CustomChrome.ClientConstrained="False"
-            Width="Auto" Height="50" VerticalAlignment="Top"
-            Visibility="{Binding Path=ToolbarVisibility, Mode=Default, Source={StaticResource SettingsDS}}">
-			<Button Style="{DynamicResource SuperButton}" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,5,0,0" Padding="0,0,0,1" />
-			<StackPanel Width="Auto">
-				<Grid x:Name="CaptionBar" Panel.ZIndex="10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition MinWidth="45" Width="50"/>
-						<ColumnDefinition Width="Auto" MinWidth="20"/>
-						<ColumnDefinition Width="*"/>
-						<ColumnDefinition Width="Auto"/>
-					</Grid.ColumnDefinitions>
-					<StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0">
-						<huddle:ImageToggleButton
-							x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Checked="OnAdminToggle"
-							DefaultImage="pack://application:,,,/Artwork/information.png" CheckedImage="pack://application:,,,/Artwork/exclamation.png"
-							Style="{StaticResource CaptionButtonStyle}" />
-						<huddle:ImageButton 
-							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" 
-                     Image="pack://application:,,,/Artwork/AppLightning.png" 
-							Style="{StaticResource CaptionButtonStyle}" />
-						<huddle:ImageToggleButton 
-							x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"
-							DefaultImage="pack://application:,,,/Artwork/AppOnTop.png"
-							CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"
-							Style="{StaticResource CaptionButtonStyle}" />
-					</StackPanel>
-					<TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption" VerticalAlignment="Center"><TextBlock.BitmapEffect>
-							<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
-						</TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
-					<StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right">
-						<huddle:ImageButton 
-							x:Name="MinimizeButton" ToolTip="Minimize" Click="OnMinimizeButtonClick" Image="pack://application:,,,/Artwork/AppHide.png" 
-							Style="{StaticResource ReplacingCaptionButtonStyle}"/>
-						<huddle:ImageToggleButton 
-							x:Name="MaximizeButton" ToolTip="Maximize" Checked="OnMaximize" Unchecked="OnRestore" 
-							Style="{StaticResource ReplacingCaptionButtonStyle}"
-							DefaultImage="pack://application:,,,/Artwork/AppMax.png"
-							CheckedImage="pack://application:,,,/Artwork/AppRestore.png" />
-						<huddle:ImageButton 
-							x:Name="CloseButton" Click="OnCloseButtonClick" ToolTip="Close" Image="pack://application:,,,/Artwork/AppClose.png" 
-							Style="{StaticResource ReplacingCaptionButtonStyle}" />
-					</StackPanel>
-				</Grid>
-				<Grid x:Name="Systray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition MinWidth="45" Width="52"/>
-						<ColumnDefinition Width="*"/>
-						<ColumnDefinition Width="150"/>
-						<!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-					</Grid.ColumnDefinitions>
-					<!--<StatusBar.BitmapEffect>
-        			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
-        		   </StatusBar.BitmapEffect>-->
-					<TextBox Grid.Column="1" x:Name="title" Padding="4,0,4,0" Margin="0,1,2,1"
-                        Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" 
-                        Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"
-                        Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" 
-                        HorizontalAlignment="Stretch" VerticalAlignment="Center" 
-                        BorderThickness="1,1,1,1" />
-					<GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
-					<TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}" PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
-					<huddle:ImageButton x:Name="FindButton" 
-						Click="OnFindButtonClick" 
-						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1" />
-				</Grid>
-			</StackPanel>
-		</Grid>
 		<Grid x:Name="ConsoleArea" huddled:CustomChrome.ClientConstrained="True">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/><!--progress-->
@@ -267,8 +174,7 @@
 				Title="PoshConsole" Grid.Column="1"
 				FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
 				FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
-				PreviewMouseWheel="OnBufferPreviewMouseWheel"
-         >
+				PreviewMouseWheel="OnBufferPreviewMouseWheel" >
 				<!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
 				<FlowDocument>
 					<FlowDocument.Resources>
@@ -294,6 +200,77 @@
 					<Paragraph ClearFloaters="Both" />
 				</FlowDocument>
 			</huddle:ConsoleControl>
+		</Grid>
+		<Grid x:Name="TopBar"
+            Width="Auto" Height="50" VerticalAlignment="Top"
+            Visibility="{Binding Path=ToolbarVisibility, Mode=Default, Source={StaticResource SettingsDS}}" Margin="0,0,8,0" >
+			<Button Style="{DynamicResource SuperButton}" Width="45" Height="45" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,5,0,0" Padding="0,0,0,1" />
+			<StackPanel Width="Auto">
+				<Grid x:Name="CaptionBar" Panel.ZIndex="10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MinWidth="45" Width="50"/>
+						<ColumnDefinition Width="Auto" MinWidth="20"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+					<StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0" huddled:CustomChrome.HitTestable="True">
+                  <ToggleButton
+							x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Checked="OnAdminToggle"
+							Style="{StaticResource CaptionButtonStyle}" Background="#00000000" BorderThickness="0" >
+                     <Image Source="pack://application:,,,/Artwork/information.png" />
+                     <!--CheckedImage="pack://application:,,,/Artwork/exclamation.png"-->
+                  </ToggleButton>
+                  <Button 
+							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" 
+							Style="{StaticResource CaptionButtonStyle}" Background="#00000000" BorderThickness="0" >
+                     <Image Source="pack://application:,,,/Artwork/AppLightning.png" />
+                  </Button>
+                  <ToggleButton 
+							x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"
+							Style="{StaticResource CaptionButtonStyle}" Background="#00000000" BorderThickness="0" >
+                     <Image Source="pack://application:,,,/Artwork/AppOnTop.png" />
+							<!--CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"-->
+                  </ToggleButton>
+               </StackPanel>
+					<TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption" VerticalAlignment="Center"><TextBlock.BitmapEffect>
+							<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>
+						</TextBlock.BitmapEffect><Run Text="PoshConsole"/></TextBlock>
+					<StackPanel x:Name="WindowTools" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right" huddled:CustomChrome.HitTestable="True">
+						<Button 
+							x:Name="MinimizeButton" ToolTip="Minimize" Click="OnMinimizeButtonClick"
+							Style="{StaticResource LeftSystemCaptionButtonStyle}">_</Button>
+						<Button 
+							x:Name="MaximizeButton" ToolTip="Maximize" Click="OnMaximizeButtonClick" 
+							Style="{StaticResource SystemCaptionButtonStyle}">□</Button>
+						<Button 
+							x:Name="CloseButton" ToolTip="Close" Click="OnCloseButtonClick"
+							Style="{StaticResource RightSystemCaptionButtonStyle}">X</Button>
+					</StackPanel>
+				</Grid>
+				<Grid x:Name="Systray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="25" Margin="0,0,0,0" Background="Transparent">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MinWidth="45" Width="52"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="150"/>
+						<!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+					</Grid.ColumnDefinitions>
+					<!--<StatusBar.BitmapEffect>
+        			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
+        		   </StatusBar.BitmapEffect>-->
+					<TextBox Grid.Column="1" x:Name="title" Padding="4,0,4,0" Margin="0,1,2,1"
+                        Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" 
+                        Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"
+                        Text="{Binding Path=Title, ElementName=buffer, Mode=Default}" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                        BorderThickness="1,1,1,1" />
+					<GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
+					<TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}" PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
+               <huddle:ImageButton x:Name="FindButton" 
+						Click="OnFindButtonClick" 
+						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1" />
+				</Grid>
+			</StackPanel>
 		</Grid>
 	</Grid>
 </Window>

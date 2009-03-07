@@ -757,16 +757,21 @@ namespace PoshConsole
       }
 
 
-      private void OnMaximize(object sender, RoutedEventArgs e)
+      private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
       {
-         WindowState = WindowState.Maximized;
-         ((ButtonBase)sender).ToolTip = "Restore Down";
+         if (WindowState != WindowState.Maximized)
+         {
+            WindowState = WindowState.Maximized;
+            ((ButtonBase)sender).ToolTip = "Restore Down";
+         }
+         else
+         {
+            WindowState = WindowState.Normal;
+            ((ButtonBase)sender).ToolTip = "Maximize";
+         }
+
       }
-      private void OnRestore(object sender, RoutedEventArgs e)
-      {
-         WindowState = WindowState.Normal;
-         ((ButtonBase)sender).ToolTip = "Maximize";
-      }
+
       private void OnCloseButtonClick(object sender, RoutedEventArgs e)
       {
          Close();
