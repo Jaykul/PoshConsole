@@ -82,8 +82,8 @@ namespace Huddled.WPF.Controls
                            {
                               //_commandBox.Document.ContentStart.GetLineStartPosition(err.Token.StartLine-1).GetPositionAtOffset(err.Token.StartColumn)
                               error = new TextRange(
-                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward),
-                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward));
+                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward) ?? _commandBox.Document.ContentStart,
+                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ?? _commandBox.Document.ContentEnd);
                               error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
                               error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
                               //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
