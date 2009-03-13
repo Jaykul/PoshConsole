@@ -131,12 +131,59 @@ namespace Huddled.Wpf
          _templatePartBorder = (Border)_template.FindName("PART_BackgroundBorder", Target);
          Debug.Assert(null != _templatePartBorder);
 
-         // Force this the first time.
+			_HookUpSystemButtons();
+			// Force this the first time.
          _UpdateSystemMenu(Target.WindowState);
          _UpdateFrameState(true);
 
          NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0, _SwpFlags);
       }
+
+		private void _HookUpSystemButtons()
+		{
+			Button min = (Button)_template.FindName("MinimizeButton", Target);
+			if (min != null){
+				min.SetValue(CustomChrome.HitTestableProperty, true);
+				min.Click += OnMinimizeButtonClick;
+			} 
+			
+			Button max = (Button)_template.FindName("MaximizeButton", Target);
+			if (max != null) {
+				max.SetValue(CustomChrome.HitTestableProperty, true);
+				max.Click += OnMaximizeButtonClick;
+			}
+
+			Button cls = (Button)_template.FindName("CloseButton", Target);
+			if (cls != null) {
+				cls.SetValue(CustomChrome.HitTestableProperty, true);
+				cls.Click += OnCloseButtonClick;
+			} 	
+		}
+
+		private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
+		{
+			if (Target.WindowState != WindowState.Maximized)
+			{
+				Target.WindowState = WindowState.Maximized;
+				((Button)sender).ToolTip = "Restore Down";
+			}
+			else
+			{
+				Target.WindowState = WindowState.Normal;
+				((Button)sender).ToolTip = "Maximize";
+			}
+
+		}
+
+		private void OnCloseButtonClick(object sender, RoutedEventArgs e)
+		{
+			Target.Close();
+		}
+
+		private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
+		{
+			Target.WindowState = WindowState.Minimized;
+		}
 
 
       /// <summary>
@@ -262,7 +309,24 @@ namespace Huddled.Wpf
          get { return (bool)GetValue(IsGlassEnabledProperty); }
          private set { SetValue(IsGlassEnabledPropertyKey, value); }
       }
-      #endregion IsGlassEnabled Dependency Property
+
+		private static readonly DependencyPropertyKey IsGlassAvailablePropertyKey = DependencyProperty.RegisterReadOnly(
+			"IsGlassAvailable",
+			typeof(bool),
+			typeof(CustomChrome),
+			new PropertyMetadata(false));
+
+		public static readonly DependencyProperty IsGlassAvailableProperty = IsGlassAvailablePropertyKey.DependencyProperty;
+
+		/// <summary>
+		/// Get whether glass is enabled by the system and whether it hasn't been turned off by setting UseGlassFrame="False"
+		/// </summary>
+		public bool IsGlassAvailable
+		{
+			get { return NativeMethods.IsCompositionEnabled; }
+			// private set { SetValue(IsGlassAvailablePropertyKey, value); }
+		}
+		#endregion IsGlassEnabled Dependency Property
 
       #region CaptionHeight Dependency Property
       public static readonly DependencyProperty CaptionHeightProperty = DependencyProperty.Register(

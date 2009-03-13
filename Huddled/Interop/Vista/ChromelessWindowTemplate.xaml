@@ -1,12 +1,20 @@
 ﻿<ControlTemplate 
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
     TargetType="{x:Type Window}">
   <!-- Template to use when the Window's chrome is gone.
          This is generally similar to the standard Window template, 
          but it allows drawing everywhere on the client. -->
-
-  <!-- Create the Canvas with dimensions that span the full size of the Window. -->
+	<ControlTemplate.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<!--ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/-->
+				<ResourceDictionary Source="CaptionButtons.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</ControlTemplate.Resources>
+		<!-- Create the Canvas with dimensions that span the full size of the Window. -->
   <Canvas x:Name="PART_RootCanvas"
           Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
           Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
@@ -20,12 +28,39 @@
             BorderThickness="{TemplateBinding BorderThickness}"
             Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Height}"
             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Width}"/>
-         <AdornerDecorator x:Name="PART_Adorner"
+		<Grid>
+			<AdornerDecorator x:Name="PART_Adorner"
             Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Height}"
             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}, Path=Width}">
-            <ContentPresenter/>
-         </AdornerDecorator>
-         <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" IsTabStop="False"/>
+				<ContentPresenter/>
+			</AdornerDecorator>
+			<Border Style="{DynamicResource PlexiGlass}" Background="Transparent" 
+						BorderBrush="#52FFFFFF" BorderThickness="0,.5,.5,.5" CornerRadius="0,0,4,4" 
+						HorizontalAlignment="Right" VerticalAlignment="Top" 
+						Height="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonHeightKey}}"
+						Margin="0,0,8,0" Padding="0">
+				<Border Background="Transparent"
+							BorderBrush="#FF000000" BorderThickness="0,.5,.5,.5" 
+							CornerRadius="0,0,4,4" Padding="0" Margin="0">
+					<StackPanel x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" huddled:CustomChrome.HitTestable="True">
+						<Button Foreground="White" x:Name="MinimizeButton" ToolTip="Minimize" 
+							      Template="{DynamicResource GlassCaptionButtonLeft}">
+							<TextBlock FontWeight="Bold" FontFamily="Webdings">0</TextBlock>
+						</Button>
+						<Button Foreground="White" x:Name="MaximizeButton" ToolTip="Maximize"
+							      Template="{DynamicResource GlassCaptionButton}">
+							<TextBlock FontWeight="Bold" FontFamily="Webdings">1</TextBlock>
+						</Button>
+						<Button Foreground="White" Background="Red" x:Name="CloseButton" ToolTip="Close"
+							      Template="{DynamicResource GlassCaptionButtonRight}" Width="45">
+							<TextBlock FontWeight="Bold" FontFamily="Webdings">r</TextBlock>
+						</Button>
+
+					</StackPanel>
+				</Border>
+			</Border>
+		</Grid>
+		<ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" IsTabStop="False"/>
    </Canvas>
    <!--</Grid>-->
 </ControlTemplate>

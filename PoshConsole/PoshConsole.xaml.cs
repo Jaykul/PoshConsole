@@ -536,7 +536,7 @@ namespace PoshConsole
       /// <param name="e">The <see cref="System.Windows.SizeChangedEventArgs"/> instance containing the event data.</param>
       private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
       {
-         // we only recalculate when something other than animation changes the Window size
+         // we only reset the saved settings when something other than animation changes the Window size
          double h = (double)this.GetAnimationBaseValue(HeightProperty);
          if (Properties.Settings.Default.WindowHeight != h)
          {
@@ -755,33 +755,6 @@ namespace PoshConsole
             }
          }
       }
-
-
-      private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
-      {
-         if (WindowState != WindowState.Maximized)
-         {
-            WindowState = WindowState.Maximized;
-            ((ButtonBase)sender).ToolTip = "Restore Down";
-         }
-         else
-         {
-            WindowState = WindowState.Normal;
-            ((ButtonBase)sender).ToolTip = "Maximize";
-         }
-
-      }
-
-      private void OnCloseButtonClick(object sender, RoutedEventArgs e)
-      {
-         Close();
-      }
-
-      private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
-      {
-         WindowState = WindowState.Minimized;
-      }
-
 
       private void OnTopmost(object sender, RoutedEventArgs e)
       {

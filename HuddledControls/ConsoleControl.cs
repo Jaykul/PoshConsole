@@ -380,6 +380,34 @@ namespace Huddled.WPF.Controls
          }
       }
 
+		private int CurrentCommandLineCountPreCursor
+		{
+			get
+			{
+				var lineCount = _commandBox.Document.Blocks.Count;
+				if (lineCount > 0)
+				{
+					_commandBox.CaretPosition.GetLineStartPosition(int.MinValue, out lineCount);
+					lineCount--;
+				}
+				else { lineCount = 1; }
+				return Math.Abs(lineCount);
+			}
+		}
+		private int CurrentCommandLineCountPostCursor
+		{
+			get
+			{
+				var lineCount = _commandBox.Document.Blocks.Count;
+				if (lineCount > 0)
+				{
+					_commandBox.CaretPosition.GetLineStartPosition(int.MaxValue, out lineCount);
+					lineCount++;
+				}
+				else { lineCount = 1; }
+				return Math.Abs(lineCount);
+			}
+		}
       private int CurrentCommandLineCount
       {
          get

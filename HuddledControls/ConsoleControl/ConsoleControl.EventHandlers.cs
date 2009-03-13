@@ -129,19 +129,21 @@ namespace Huddled.WPF.Controls
 
       private void OnDownPressed(KeyEventArgs e)
       {
-         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Alt | ModifierKeys.Control | ModifierKeys.Shift))
-         {
-            CurrentCommand = _cmdHistory.Next(CurrentCommand);
-            e.Handled = true;
-         }
+			if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPostCursor == 1)
+			{
+				CurrentCommand = _cmdHistory.Next(CurrentCommand);
+				if (!e.IsModifierOn(ModifierKeys.Control))
+					e.Handled = true;
+			}
       }
 
       private void OnUpPressed(KeyEventArgs e)
       {
-         if ((CurrentCommandLineCount == 1 || !e.KeyboardDevice.IsScrollLockToggled()) && !e.IsModifierOn(ModifierKeys.Alt | ModifierKeys.Control | ModifierKeys.Shift))
+			if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPreCursor == 1)
          {
             CurrentCommand = _cmdHistory.Previous(CurrentCommand);
-            e.Handled = true;
+				if(!e.IsModifierOn(ModifierKeys.Control))
+					e.Handled = true;
          }
       }
 

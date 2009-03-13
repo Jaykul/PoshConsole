@@ -1,0 +1,336 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+   xmlns:huddled="http://schemas.huddledmasses.org/wpf"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
+	<Style TargetType="{x:Type FrameworkElement}" x:Key="PlexiGlass">
+		<Style.Triggers>
+			<!-- Comment out both of these DataTriggers if you need to edit in Blend...-->
+
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="False">
+				<Setter Property="Visibility" Value="Visible"/>
+			</DataTrigger>
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassAvailable}" Value="False">
+				<Setter Property="Visibility" Value="Visible"/>
+			</DataTrigger>
+
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="True">
+				<Setter Property="Visibility" Value="Hidden"/>
+			</DataTrigger>
+			<!--
+         <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="False">
+            <Setter Property="Visibility" Value="Visible"/>
+         </DataTrigger>
+-->
+			<!--<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=huddled:NativeMethod.IsGlassEnabled}" Value="False">
+				<Setter Property="Visibility" Value="Visible"/>
+			</DataTrigger>-->
+		</Style.Triggers>
+	</Style>
+	<Style TargetType="{x:Type FrameworkElement}" x:Key="GlassRequired">
+		<Style.Triggers>
+			<!-- Comment out both of these DataTriggers if you need to edit in Blend...-->
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassAvailable}" Value="True">
+				<Setter Property="Visibility" Value="Visible"/>
+			</DataTrigger>
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassAvailable}" Value="False">
+				<Setter Property="Visibility" Value="Collapsed"/>
+			</DataTrigger>
+		</Style.Triggers>
+	</Style>
+	<Style TargetType="{x:Type FrameworkElement}" x:Key="Clickable">
+		<Setter Property="Cursor" Value="Hand" />
+	</Style>
+	<ControlTemplate x:Key="GlassCaptionButton" TargetType="{x:Type ButtonBase}">
+		<ControlTemplate.Resources>
+			<Storyboard x:Key="MouseEnter">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowColor)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0077EE"/>
+				</ColorAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowSize)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="12"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderThickness)">
+					<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,2"/>
+				</ThicknessAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Offset)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#6200E9FF"/>
+				</ColorAnimationUsingKeyFrames>
+				<ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.KernelType)">
+					<DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static KernelType.Gaussian}"/>
+				</ObjectAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.Radius)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="3"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.8"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+			<Storyboard x:Key="MouseExit">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+		</ControlTemplate.Resources>
+		<Border BorderBrush="#FF000000" BorderThickness="0.0,0.0,.5,.5" CornerRadius="0,0,0,0"
+              Width="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonWidthKey}}"
+              MaxHeight="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonHeightKey}}"
+			     x:Name="border1" Style="{DynamicResource Clickable}"
+              >
+			<Border.BitmapEffect>
+				<OuterGlowBitmapEffect GlowSize="1" Opacity="0"/>
+			</Border.BitmapEffect>
+			<Border BorderBrush="#4CFFFFFF" x:Name="border" BorderThickness="1,0,1,1" CornerRadius="0,0,0,0">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="0.507*"/>
+						<RowDefinition Height="0.493*"/>
+					</Grid.RowDefinitions>
+					<Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2" CornerRadius="0,0,0,0" BorderThickness="0,0,0,1" SnapsToDevicePixels="True">
+						<Border.BitmapEffect>
+							<OuterGlowBitmapEffect GlowColor="#FF00BAFF"/>
+						</Border.BitmapEffect>
+						<Border.BorderBrush>
+							<LinearGradientBrush EndPoint="1,1" StartPoint=".5,1" SpreadMethod="Reflect">
+								<GradientStop Color="#1000F5FF" Offset="1"/>
+								<GradientStop Color="#FF00BAFF" Offset="0.018"/>
+							</LinearGradientBrush>
+						</Border.BorderBrush>
+					</Border>
+					<Border x:Name="shine" HorizontalAlignment="Stretch" Margin="0,0,0,0" Width="Auto" CornerRadius="0,0,0,0" BorderBrush="#D1FFFFFF" BorderThickness="0,1,0,0">
+						<Border.Background>
+							<LinearGradientBrush EndPoint="0.494,0.889" StartPoint="0.494,0.028">
+								<GradientStop Color="#9AFFFFFF" Offset="0"/>
+								<GradientStop Color="#41FFFFFF" Offset="1"/>
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
+				</Grid>
+			</Border>
+		</Border>
+		<ControlTemplate.Triggers>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter TargetName="glow"   Property="Visibility" Value="Hidden"/>
+				<Setter TargetName="shine"  Property="Opacity"    Value="0.4"/>
+				<Setter TargetName="border" Property="Background" Value="#50000000"/>
+			</Trigger>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Trigger.EnterActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseEnter}"/>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseExit}"/>
+				</Trigger.ExitActions>
+			</Trigger>
+		</ControlTemplate.Triggers>
+	</ControlTemplate>
+	<ControlTemplate x:Key="GlassCaptionButtonLeft" TargetType="{x:Type ButtonBase}">
+		<ControlTemplate.Resources>
+			<Storyboard x:Key="MouseEnter">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowColor)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0077EE"/>
+				</ColorAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowSize)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="12"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderThickness)">
+					<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,2"/>
+				</ThicknessAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Offset)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#62FFEA00"/>
+				</ColorAnimationUsingKeyFrames>
+				<ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.KernelType)">
+					<DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static KernelType.Gaussian}"/>
+				</ObjectAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.Radius)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="3"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.8"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+			<Storyboard x:Key="MouseExit">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+		</ControlTemplate.Resources>
+		<Border BorderBrush="#FF000000" BorderThickness="0.0,0.0,.5,.5" CornerRadius="0,0,0,4"
+              Width="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonWidthKey}}"
+              MaxHeight="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonHeightKey}}"
+			     x:Name="border1" Style="{DynamicResource Clickable}"
+              >
+			<Border.BitmapEffect>
+				<OuterGlowBitmapEffect GlowSize="1" Opacity="0" GlowColor="#FF00A0DE"/>
+			</Border.BitmapEffect>
+			<Border BorderBrush="#4CFFFFFF" x:Name="border" BorderThickness="1,0,1,1" CornerRadius="0,0,0,4">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="0.507*"/>
+						<RowDefinition Height="0.493*"/>
+					</Grid.RowDefinitions>
+					<Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2" CornerRadius="0,0,0,0" BorderThickness="0,0,0,1" SnapsToDevicePixels="True">
+						<Border.BitmapEffect>
+							<OuterGlowBitmapEffect GlowColor="#FF00BAFF"/>
+						</Border.BitmapEffect>
+						<Border.BorderBrush>
+							<LinearGradientBrush EndPoint="1,1" StartPoint=".5,1" SpreadMethod="Reflect">
+								<GradientStop Color="#1000F5FF" Offset="1"/>
+								<GradientStop Color="#FF00BAFF" Offset="0.018"/>
+							</LinearGradientBrush>
+						</Border.BorderBrush>
+					</Border>
+					<Border x:Name="shine" HorizontalAlignment="Stretch" Margin="0,0,0,0" Width="Auto" CornerRadius="0,0,0,4" BorderBrush="#D1FFFFFF" BorderThickness="0,1,0,0">
+						<Border.Background>
+							<LinearGradientBrush EndPoint="0.494,0.889" StartPoint="0.494,0.028">
+								<GradientStop Color="#9AFFFFFF" Offset="0"/>
+								<GradientStop Color="#41FFFFFF" Offset="1"/>
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
+				</Grid>
+			</Border>
+		</Border>
+		<ControlTemplate.Triggers>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter TargetName="glow"   Property="Visibility" Value="Hidden"/>
+				<Setter TargetName="shine"  Property="Opacity"    Value="0.4"/>
+				<Setter TargetName="border" Property="Background" Value="#50000000"/>
+			</Trigger>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Trigger.EnterActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseEnter}"/>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseExit}"/>
+				</Trigger.ExitActions>
+			</Trigger>
+		</ControlTemplate.Triggers>
+	</ControlTemplate>
+
+	<ControlTemplate x:Key="GlassCaptionButtonRight" TargetType="{x:Type ButtonBase}">
+		<ControlTemplate.Resources>
+			<Storyboard x:Key="MouseEnter">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowColor)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#FFE50000"/>
+				</ColorAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.GlowSize)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="12"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderThickness)">
+					<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,2"/>
+				</ThicknessAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Offset)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(Border.BorderBrush).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+					<SplineColorKeyFrame KeyTime="00:00:00" Value="#62FFEA00"/>
+				</ColorAnimationUsingKeyFrames>
+				<ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.KernelType)">
+					<DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static KernelType.Gaussian}"/>
+				</ObjectAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.BitmapEffect).(BlurBitmapEffect.Radius)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="3"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.8"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+			<Storyboard x:Key="MouseExit">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="00:00:00.0010000">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="border1" Storyboard.TargetProperty="(UIElement.BitmapEffect).(OuterGlowBitmapEffect.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+				</DoubleAnimationUsingKeyFrames>
+			</Storyboard>
+		</ControlTemplate.Resources>
+		<Border BorderBrush="#FF000000" BorderThickness="0.0,0.0,.5,.5" CornerRadius="0,0,4,0"
+              MinWidth="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonWidthKey}}"   MaxWidth="45"
+              MaxHeight="{DynamicResource {x:Static SystemParameters.WindowCaptionButtonHeightKey}}"
+			     x:Name="border1" Style="{DynamicResource Clickable}"
+              >
+			<Border.BitmapEffect>
+				<OuterGlowBitmapEffect GlowSize="1" Opacity="0"/>
+			</Border.BitmapEffect>
+			<Border BorderBrush="#4CFFFFFF" x:Name="border" BorderThickness="1,0,1,1" CornerRadius="0,0,4,0">
+				<Border.Background>
+					<RadialGradientBrush MappingMode="Absolute" SpreadMethod="Pad" RadiusX="25" RadiusY="25" GradientOrigin="25,12.5" Center="25,12.5">
+						<GradientStop Color="#B6CA1B00" Offset="0"/>
+						<GradientStop Color="#C39D0000" Offset="1"/>
+						<GradientStop Color="#BEDE1E00" Offset="0.701"/>
+					</RadialGradientBrush>
+				</Border.Background>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="0.507*"/>
+						<RowDefinition Height="0.493*"/>
+					</Grid.RowDefinitions>
+					<Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2" CornerRadius="0,0,0,0" BorderThickness="0,0,0,1">
+						<Border.BitmapEffect>
+							<BlurBitmapEffect/>
+						</Border.BitmapEffect>
+						<Border.BorderBrush>
+							<LinearGradientBrush EndPoint="1,1" StartPoint=".5,1" SpreadMethod="Reflect">
+								<GradientStop Color="#10FFEA00" Offset="1"/>
+								<GradientStop Color="#FFFFEA00" Offset="0.018"/>
+							</LinearGradientBrush>
+						</Border.BorderBrush>
+					</Border>
+					<Border x:Name="shine" HorizontalAlignment="Stretch" Margin="0,0,0,0" Width="Auto" CornerRadius="0,0,0,0" BorderBrush="#D1FFFFFF" BorderThickness="0,1,0,0">
+						<Border.Background>
+							<LinearGradientBrush EndPoint="0.494,0.889" StartPoint="0.494,0.028">
+								<GradientStop Color="#9AFFFFFF" Offset="0"/>
+								<GradientStop Color="#41FFFFFF" Offset="1"/>
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
+				</Grid>
+			</Border>
+		</Border>
+		<ControlTemplate.Triggers>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter TargetName="glow"   Property="Visibility" Value="Hidden"/>
+				<Setter TargetName="shine"  Property="Opacity"    Value="0.4"/>
+				<Setter TargetName="border" Property="Background" Value="#50000000"/>
+			</Trigger>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Trigger.EnterActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseEnter}"/>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard Storyboard="{StaticResource MouseExit}"/>
+				</Trigger.ExitActions>
+				<Setter Property="BitmapEffect" TargetName="border1">
+					<Setter.Value>
+						<OuterGlowBitmapEffect GlowSize="12" Opacity="0.8" GlowColor="#FFD80000"/>
+					</Setter.Value>
+				</Setter>
+			</Trigger>
+		</ControlTemplate.Triggers>
+	</ControlTemplate>
+</ResourceDictionary>

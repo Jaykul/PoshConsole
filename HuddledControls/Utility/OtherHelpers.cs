@@ -10,7 +10,7 @@ namespace Huddled.WPF.Controls.Utility
    {
       public static bool IsModifierOn(this KeyEventArgs e, ModifierKeys modifier)
       {
-         return (e.KeyboardDevice.Modifiers & modifier) == modifier;
+         return (e.KeyboardDevice.Modifiers & modifier) != ModifierKeys.None;
       }
 
       public static bool IsScrollLockToggled(this KeyboardDevice keyboard)

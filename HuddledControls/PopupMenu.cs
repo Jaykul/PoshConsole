@@ -373,7 +373,7 @@ namespace Huddled.WPF.Controls
       /// <returns></returns>
       private bool TypeAheadFilter(object item)
       {
-         return (item as string).ToLower().StartsWith(_lastWord.ToLower());
+         return (item.ToString()).ToLower().StartsWith(_lastWord.ToLower());
       }
 
       // [rgn] Internal Methods (2)

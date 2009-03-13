@@ -17,7 +17,7 @@ using System.Windows.Markup;
 [assembly: CLSCompliant(true)]
 
 // Assigning an XML Namespace Deffinition exposes the namespace to WPF
-[assembly: XmlnsDefinition("http://schemas.huddledmasses.org/interop", "Huddled.Interop")]
+[assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf", "Huddled.Interop")]
 [assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf", "Huddled.Wpf")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
