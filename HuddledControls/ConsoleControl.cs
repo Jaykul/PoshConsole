@@ -78,8 +78,10 @@ namespace Huddled.WPF.Controls
                              Focusable = true,
                              AcceptsTab = true,
                              AcceptsReturn = true,
-                             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
-                          };
+                             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+									  Padding = new Thickness(0.0),
+								  };
+			// _commandBox.Document.TextAlignment = TextAlignment.Left;
          _passwordBox = new PasswordBox()
                            {
                               IsEnabled = true,
@@ -112,6 +114,8 @@ namespace Huddled.WPF.Controls
          Document.Blocks.Add(_current);
          // We need to crush the PagePadding so that the "Width" values work...
          Document.PagePadding = new Thickness(0.0);
+			// Default the text alignment correctly
+			Document.TextAlignment = TextAlignment.Left;
          //   IsOptimalParagraphEnabled = true,
          //};
 
@@ -180,8 +184,6 @@ namespace Huddled.WPF.Controls
          lock (_commandContainer)
          {
             _next.Inlines.Remove(_commandContainer);
-
-
 
             ((RichTextBox)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10,
              ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);

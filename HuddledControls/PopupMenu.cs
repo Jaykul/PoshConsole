@@ -92,9 +92,13 @@ namespace Huddled.WPF.Controls
                } break;
             case Key.Back:
                {
+						// BUGBUG: if you tab back past where TAB was pressed.
+						//         this doesn't actually expand the _intellsense!
+						//  WORSE: it doesn't update the text on the fly.
+					
                   // Update the filter
-                  _tabbing = _tabbing.Substring(0, _tabbing.Length - 1);
-                  _lastWord = _lastWord.Substring(0, _lastWord.Length - 1);
+						_tabbing = (_tabbing.Length == 0) ? "" : _tabbing.Substring(0, _tabbing.Length - 1);
+                  _lastWord = (_lastWord.Length == 0) ? "" : _lastWord.Substring(0, _lastWord.Length - 1);
 
                   _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
                   _intellisense.SelectedIndex = 0;
