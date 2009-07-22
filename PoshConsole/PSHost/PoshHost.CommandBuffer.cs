@@ -64,6 +64,19 @@ namespace PoshConsole
          UseLocalScope = false;
 
       }
+
+      public InputBoundCommand(/*Pipeline pipeline,*/ string[] commands, IEnumerable input, bool addToHistory, PipelineOutputHandler callback)
+      {
+         //Pipeline = pipeline;
+         Commands = commands;
+         Input = input;
+         Callback = callback;
+         AddToHistory = addToHistory;
+
+         DefaultOutput = true;
+         RunAsScript = true;
+         UseLocalScope = false;
+      }
    }
 
 
@@ -528,11 +541,11 @@ namespace PoshConsole
             _runSpace.SessionStateProxy.SetVariable("profile", profiles[profiles.Length - 1]);
          }
 
-         Enqueue(new InputBoundCommand(new[] {Properties.Resources.Prompt}, new object[0], null));
+         Enqueue(new InputBoundCommand(new[] { Properties.Resources.Prompt }, new object[0], false, null));
          //existing.Add("New-Paragraph");
          existing.TrimExcess();
-         Enqueue(new InputBoundCommand(new[] { ". \"" + string.Join("\";. \"", existing.ToArray())+"\";" }, 
-                                       new object[0], 
+         Enqueue(new InputBoundCommand(new[] { ". \"" + string.Join("\";. \"", existing.ToArray())+"\";" },
+                                       new object[0], false, 
                                        ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)
                                        ));
       }
