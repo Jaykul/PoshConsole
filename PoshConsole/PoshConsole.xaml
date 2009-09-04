@@ -218,25 +218,39 @@
 						<ColumnDefinition Width="Auto"/>
 					</Grid.ColumnDefinitions>
 					<StackPanel x:Name="CaptionTools" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0" huddled:CustomChrome.HitTestable="True">
-                  <Button 
+                  <huddle:ImageToggleButton 
 							x:Name="ToggleGlass" ToolTip="Toggle Vista NativeMethods" Click="OnToggleGlassClick" 
 							Template="{DynamicResource ClearCaptionButton}"
 							Style="{DynamicResource GlassRequired}"
 							Background="#00000000" BorderThickness="0" >
-                     <Image Source="pack://application:,,,/Artwork/AppLightning.png" Height="16" Width="16"/>
-                  </Button>
-                  <ToggleButton 
+                     <huddle:ImageToggleButton.DefaultImage>
+                        <BitmapImage UriSource="pack://application:,,,/Artwork/AppLightning.png" DecodePixelHeight="16" />
+                     </huddle:ImageToggleButton.DefaultImage>
+                     <!--Image Source="pack://application:,,,/Artwork/AppLightning.png" Height="16" Width="16"/-->
+                  </huddle:ImageToggleButton>
+                  <huddle:ImageToggleButton 
 							x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Checked="OnTopmost" Unchecked="OnUnTopmost"
-							Template="{DynamicResource ClearCaptionButton}" Background="#00000000" BorderThickness="0" >
-                     <Image Source="pack://application:,,,/Artwork/AppOnTop.png" Height="16" Width="16"/>
-							<!--CheckedImage="pack://application:,,,/Artwork/AppOffTop.png"-->
-                  </ToggleButton>
-                  <ToggleButton
+							Template="{DynamicResource ClearCaptionButton}" Background="#00000000" BorderThickness="0"
+                     >
+                     <huddle:ImageToggleButton.DefaultImage>
+                        <BitmapImage UriSource="pack://application:,,,/Artwork/AppOnTop.png" DecodePixelHeight="16" />
+                     </huddle:ImageToggleButton.DefaultImage>
+                     <huddle:ImageToggleButton.CheckedImage>
+                        <BitmapImage UriSource="pack://application:,,,/Artwork/AppOffTop.png" DecodePixelHeight="16" />
+                     </huddle:ImageToggleButton.CheckedImage>
+                  </huddle:ImageToggleButton>
+                  <huddle:ImageToggleButton
 							x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Checked="OnAdminToggle"
 							Template="{DynamicResource ClearCaptionButton}" Background="#00000000" BorderThickness="0" >
-                     <Image Source="pack://application:,,,/Artwork/information.png" Height="16" Width="16"/>
-                     <!--CheckedImage="pack://application:,,,/Artwork/exclamation.png"-->
-                  </ToggleButton>
+                     <huddle:ImageToggleButton.DefaultImage>
+                        <BitmapImage UriSource="pack://application:,,,/Artwork/exclamation.png" DecodePixelHeight="16" />
+                     </huddle:ImageToggleButton.DefaultImage>
+                     <huddle:ImageToggleButton.CheckedImage>
+                        <BitmapImage UriSource="pack://application:,,,/Artwork/information.png" DecodePixelHeight="16" />
+                     </huddle:ImageToggleButton.CheckedImage>
+                     <!--Image Source="pack://application:,,,/Artwork/information.png" Height="16" Width="16"/>
+                     <CheckedImage="pack://application:,,,/Artwork/exclamation.png"-->
+                  </huddle:ImageToggleButton>
                </StackPanel>
 					<TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="0,0,0,0" HorizontalAlignment="Stretch" TextAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold" FontSize="14" x:Name="Caption" VerticalAlignment="Center"><TextBlock.BitmapEffect>
 							<OuterGlowBitmapEffect GlowColor="#FFFFFFFF"/>

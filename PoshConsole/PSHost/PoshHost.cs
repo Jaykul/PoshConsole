@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -33,25 +34,28 @@ namespace PoshConsole.Host
       /// <summary>
       /// A Console Window wrapper that hides the console
       /// </summary>
-      private NativeConsole console;
-      private static readonly Guid instanceId = Guid.NewGuid();
+      private NativeConsole _console;
+      private static readonly Guid _INSTANCE_ID = Guid.NewGuid();
       public bool IsClosing;
-      private readonly PoshRawUI myRawUI;
+      private readonly PoshRawUI _rawUI;
       /// <summary>
       /// The PSHostUserInterface implementation
       /// </summary>
-      private readonly PoshUI myUI;
+// ReSharper disable InconsistentNaming
+      // UI is an abbreviation as in _rawUI
+      private readonly PoshUI _UI;
+// ReSharper restore InconsistentNaming
       /// <summary>
       /// This API is called before an external application process is started.
       /// </summary>
-      int native;
+      int _native;
       //private IInput inputHandler = null; 
       internal PoshOptions Options;
-      private readonly CultureInfo originalCultureInfo = Thread.CurrentThread.CurrentCulture;
-      private readonly CultureInfo originalUICultureInfo = Thread.CurrentThread.CurrentUICulture;
-      private readonly IPSUI PsUi;
-      private string savedTitle = String.Empty;
-      private readonly Command outDefault;
+      private readonly CultureInfo _originalCultureInfo = Thread.CurrentThread.CurrentCulture;
+      private readonly CultureInfo _originalUICultureInfo = Thread.CurrentThread.CurrentUICulture;
+      private readonly IPSUI _psUi;
+      private string _savedTitle = String.Empty;
+      private readonly Command _outDefault;
       private readonly CommandRunner _runner;
 
       #endregion
@@ -59,28 +63,28 @@ namespace PoshConsole.Host
       #region  Constructors (1)
 
       //internal List<string> StringHistory;
-      public PoshHost(IPSUI PsUi)
+      public PoshHost(IPSUI psUi)
       {
-         _buffer = PsUi.Console;
+         _buffer = psUi.Console;
 
          MakeConsole();
 
          //StringHistory = new List<string>();
          Options = new PoshOptions(this, _buffer);
-         this.PsUi = PsUi;
+         _psUi = psUi;
 
          try
          {
             // we have to be careful here, because this is an interface member ...
             // but in the current implementation, _buffer.RawUI returns _buffer
-            myRawUI = new PoshRawUI(_buffer.RawUI);
-            myUI = new PoshUI(myRawUI, PsUi);
+            _rawUI = new PoshRawUI(_buffer.RawUI);
+            _UI = new PoshUI(_rawUI, psUi);
 
             // pre-create this
-            outDefault = new Command("Out-Default");
+            _outDefault = new Command("Out-Default");
             // for now, merge the errors with the rest of the output
-            outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-            outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
+            _outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
+            _outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
          }
          catch (Exception ex)
          {
@@ -90,7 +94,7 @@ namespace PoshConsole.Host
             throw;
          }
          _buffer.CommandBox.IsEnabled = false;
-         _buffer.Expander.TabComplete += buffer_TabComplete;
+         _buffer.Expander.TabComplete += BufferTabComplete;
          _buffer.Command += OnGotUserInput;
          //_buffer.CommandEntered +=new ConsoleRichTextBox.CommandHandler(buffer_CommandEntered);
 
@@ -131,7 +135,7 @@ namespace PoshConsole.Host
       /// </summary>
       public override CultureInfo CurrentCulture
       {
-         get { return originalCultureInfo; }
+         get { return _originalCultureInfo; }
       }
 
       /// <summary>
@@ -140,7 +144,7 @@ namespace PoshConsole.Host
       /// </summary>
       public override CultureInfo CurrentUICulture
       {
-         get { return originalUICultureInfo; }
+         get { return _originalUICultureInfo; }
       }
 
       /// <summary>
@@ -148,7 +152,7 @@ namespace PoshConsole.Host
       /// </summary>
       public override Guid InstanceId
       {
-         get { return instanceId; }
+         get { return _INSTANCE_ID; }
       }
 
       /// <summary>
@@ -176,7 +180,7 @@ namespace PoshConsole.Host
       /// </summary>
       public override PSHostUserInterface UI
       {
-         get { return myUI; }
+         get { return _UI; }
       }
 
       //private PoshUI myHostUserInterface = new PoshUI();
@@ -186,7 +190,10 @@ namespace PoshConsole.Host
       /// </summary>
       public override Version Version
       {
-         get { return new Version(1, 0, 2007, 7310); }
+         get
+         {
+             return Assembly.GetEntryAssembly().GetName().Version;
+         }
       }
 
       #endregion
@@ -216,16 +223,16 @@ namespace PoshConsole.Host
 
       private void MakeConsole()
       {
-         if (console == null)
+         if (_console == null)
          {
             try
             {
                // don't initialize in the constructor
-               console = new NativeConsole(false);
+               _console = new NativeConsole(false);
                // this way, we can handle (report) any exception...
-               console.Initialize();
-               console.WriteOutputLine += (source, args) => _buffer.WriteNativeLine(args.Text.TrimEnd('\n'));
-               console.WriteErrorLine += (source, args) => _buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n'));
+               _console.Initialize();
+               _console.WriteOutputLine += (source, args) => _buffer.WriteNativeLine(args.Text.TrimEnd('\n'));
+               _console.WriteErrorLine += (source, args) => _buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n'));
             }
             catch (ConsoleInteropException cie)
             {
@@ -236,19 +243,19 @@ namespace PoshConsole.Host
 
       public void KillConsole()
       {
-         if (console != null)
+         if (_console != null)
          {
-            console.Dispose();
+            _console.Dispose();
             _runner.Dispose();
          }
-         console = null;
+         _console = null;
       }
 
       public override void NotifyBeginApplication()
       {
-         savedTitle = myUI.RawUI.WindowTitle;
+         _savedTitle = _UI.RawUI.WindowTitle;
 
-         native++;
+         _native++;
          //MakeConsole();
       }
 
@@ -257,10 +264,10 @@ namespace PoshConsole.Host
       /// </summary>
       public override void NotifyEndApplication()
       {
-         myUI.RawUI.WindowTitle = savedTitle;
+         _UI.RawUI.WindowTitle = _savedTitle;
 
-         native--;
-         //if (native == 0) KillConsole();
+         _native--;
+         //if (_native == 0) KillConsole();
       }
 
       /// <summary>
@@ -279,9 +286,9 @@ namespace PoshConsole.Host
       //    {
       //        if (currentPipeline != null && currentPipeline.PipelineStateInfo.State == PipelineState.Running)
       //        {
-      //            if (native > 0)
+      //            if (_native > 0)
       //            {
-      //                console.WriteInput("\n" + (char)26);
+      //                _console.WriteInput("\n" + (char)26);
       //            }
       //            else
       //            {
@@ -396,13 +403,13 @@ namespace PoshConsole.Host
       //   if (e.RunspaceStateInfo.State == RunspaceState.Opened)
       //   {
       //      _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
-      //                                           (Action)(() => PsUi.Console.CommandBox.IsEnabled = true));
+      //                                           (Action)(() => _psUi.Console.CommandBox.IsEnabled = true));
       //      ExecuteStartupProfile();
       //   }
       //   else
       //   {
       //      _buffer.Dispatcher.BeginInvoke(DispatcherPriority.Render,
-      //                                           (Action)(() => PsUi.Console.CommandBox.IsEnabled = false));
+      //                                           (Action)(() => _psUi.Console.CommandBox.IsEnabled = false));
       //   }
       //}
 
@@ -414,7 +421,7 @@ namespace PoshConsole.Host
       void OnGotUserInput(Object source, CommandEventArgs command)
       {
          string commandLine = command.Command;
-         if (native == 0)
+         if (_native == 0)
          {
             Execute(commandLine);
          }
@@ -422,9 +429,9 @@ namespace PoshConsole.Host
          {
             if (commandLine[commandLine.Length - 1].Equals('\n'))
             {
-               console.WriteInput(commandLine);
+               _console.WriteInput(commandLine);
             }
-            else console.WriteInput(commandLine + '\n');
+            else _console.WriteInput(commandLine + '\n');
          }
       }
 
@@ -455,12 +462,12 @@ namespace PoshConsole.Host
             //((IPSConsole)buffer).WriteVerboseLine("Shutting Down.");
          } else {
           //Application.Current.Shutdown(exitCode);
-          PsUi.SetShouldExit(exitCode);
+          _psUi.SetShouldExit(exitCode);
          }
 
       }
 
-      private List<string> buffer_TabComplete(string cmdline)
+      private List<string> BufferTabComplete(string cmdline)
       {
          List<string> completions = new List<string>();
          Collection<PSObject> set;
@@ -639,7 +646,7 @@ namespace PoshConsole.Host
       //            currentPipeline.StateChanged += new EventHandler<PipelineStateEventArgs>(Pipeline_StateChanged);
       //        }
 
-      //        outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
+      //        _outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
 
       //        // Create a pipeline for this execution. Place the result in the currentPipeline
       //        // instance variable so that it is available to be stopped.
@@ -657,7 +664,7 @@ namespace PoshConsole.Host
       //            // commands. This will result in the output being written using the PSHost
       //            // and PSHostUserInterface classes instead of returning objects to the hosting
       //            // application.
-      //            currentPipeline.Commands.Add( outDefault );
+      //            currentPipeline.Commands.Add( _outDefault );
 
       //            currentPipeline.InvokeAsync();
       //            if (Input != null)
@@ -715,11 +722,11 @@ namespace PoshConsole.Host
 
       public bool RegisterHotkey(KeyGesture key, ScriptBlock script)
       {
-         return (bool)((UIElement)PsUi).Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() =>
+         return (bool)((UIElement)_psUi).Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() =>
          {
             try
             {
-               foreach (var behavior in NativeBehaviors.GetBehaviors(PsUi as Window))
+               foreach (var behavior in NativeBehaviors.GetBehaviors(_psUi as Window))
                {
                   if (behavior is HotkeysBehavior)
                   {
@@ -740,7 +747,7 @@ namespace PoshConsole.Host
 
 		public IPSWpfConsole GetWpfConsole()
 		{
-			return PsUi.Console;
+			return _psUi.Console;
 		}
 
 		#endregion
