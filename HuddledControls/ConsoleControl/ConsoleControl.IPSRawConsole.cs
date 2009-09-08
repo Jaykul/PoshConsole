@@ -396,18 +396,19 @@ namespace Huddled.WPF.Controls
       BufferCell[,] IPSRawConsole.GetBufferContents(Rectangle rectangle)
       {
          // TODO: REIMPLEMENT PSHostRawUserInterface.GetBufferContents(Rectangle rectangle)
-         throw new NotImplementedException("The GetBufferContents method is not (yet) implemented!");
-         //if (Dispatcher.CheckAccess())
-         // {
-         //     return this.GetBufferContents(rectangle);
-         // }
-         // else
-         // {
-         //    return (BufferCell[,])Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
-         //     {
-         //         return this.GetBufferContents(rectangle);
-         //     });
-         // }
+         // throw new NotImplementedException("The GetBufferContents method is not (yet) implemented!");
+
+         if (Dispatcher.CheckAccess())
+         {
+            return this.GetBufferContents(rectangle);
+         }
+         else
+         {
+            return (BufferCell[,])Dispatcher.Invoke(DispatcherPriority.Normal, (Func<BufferCell[,]>)(()=>
+             {
+                 return this.GetBufferContents(rectangle);
+             }));
+         }
       }
 
       /// <summary>

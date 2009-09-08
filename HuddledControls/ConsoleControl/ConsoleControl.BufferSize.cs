@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Windows.Media;
 using System.Windows;
@@ -142,9 +143,13 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            //Rect caret = CaretPosition.GetInsertionPosition(LogicalDirection.Forward).GetCharacterRect(LogicalDirection.Backward);
-            //_cursorPosition.X = (int)caret.Left;
-            //_cursorPosition.Y = (int)caret.Top;
+            Rect caret = (_commandContainer.Child.IsFocused) ? // Document.ContentEnd
+               _current.ElementEnd.GetCharacterRect(LogicalDirection.Backward) :
+               Selection.End.GetCharacterRect(LogicalDirection.Backward);
+            
+               _cursorPosition.X = (int)((caret.Left + ScrollViewer.ContentHorizontalOffset) * CharacterWidthRatio);
+               _cursorPosition.Y = (int)((caret.Top + ScrollViewer.ContentVerticalOffset) / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
+            
             return _cursorPosition;
          }
          set
@@ -183,7 +188,62 @@ namespace Huddled.WPF.Controls
       }
       #endregion ConsoleSizeCalculations
 
+      public BufferCell[,] GetBufferContents(Rectangle rectangle)
+      {
+         BufferCell[,] bufferCells = new BufferCell[(rectangle.Top - rectangle.Bottom), (rectangle.Right - rectangle.Left)];
+         try
+         {
+            int cur =
+               (int)
+               ((_next.ElementEnd.GetCharacterRect(LogicalDirection.Backward).Bottom +
+                 ScrollViewer.ContentVerticalOffset)/
+                (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
+            int count;
+            TextPointer next,
+                        end,
+                        start =
+                           _next.ElementEnd.GetNextContextPosition(LogicalDirection.Backward).GetLineStartPosition(
+                              rectangle.Bottom - cur, out count);
+            if (start != null)
+            {
+               for (int ln = 0; ln <= rectangle.Top - rectangle.Bottom; ln++)
+               {
+                  next = start.GetLineStartPosition(1);
+                  start = start.GetPositionAtOffset(rectangle.Left);
+                  // if there's text on this line after that char
+                  if (start.GetOffsetToPosition(next) <= 0)
+                  {
+                     // no output on this line
+                     continue;
+                  }
 
+                  end = start.GetPositionAtOffset(1);
+                  int c = 0, width = rectangle.Right - rectangle.Left;
+                  while (end.GetOffsetToPosition(next) <= 0 && c < width)
+                  {
+                     var character = new TextRange(start, end);
+                     bufferCells[ln, c++] = new BufferCell(character.Text[0],
+                                                           _brushes.ConsoleColorFromBrush(
+                                                              character.GetPropertyValue(ForegroundProperty) as Brush),
+                                                           _brushes.ConsoleColorFromBrush(
+                                                              character.GetPropertyValue(BackgroundProperty) as Brush),
+                                                           BufferCellType.Complete);
+
+                     end = end.GetPositionAtOffset(1);
+                  }
+                  for (; c < width; c++)
+                  {
+                     bufferCells[ln, c] = new BufferCell(' ', ForegroundColor, BackgroundColor, BufferCellType.Complete);
+                  }
+                  start = next;
+               }
+            }
+         } catch( Exception ex )
+         {
+            this.Write( _brushes.ErrorForeground, _brushes.ErrorBackground, ex.Message);
+         }
+         return bufferCells;
+      }
 
 
       /// <summary>
