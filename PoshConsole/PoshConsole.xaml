@@ -110,8 +110,7 @@
         <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
         <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
         <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
-
-    </Window.CommandBindings>
+   </Window.CommandBindings>
     <Window.InputBindings>
         <!-- 
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
@@ -289,7 +288,7 @@
                         HorizontalAlignment="Stretch" VerticalAlignment="Center" 
                         BorderThickness="1,1,1,1" />
 					<GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" />
-					<TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}" PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
+					<TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1,1,1,1" Width="Auto" VerticalAlignment="Center" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"/>
                <huddle:ImageButton x:Name="FindButton" 
 						Click="OnFindButtonClick" 
 						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"

@@ -437,45 +437,63 @@ namespace Huddled.WPF.Controls
       public static readonly DependencyProperty TitleProperty =
           DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
 
-
-      public TextRange FindText(String input)
+      private string _searchString = String.Empty;
+      private IEnumerable<TextRange> _searchHits = new TextRange[]{};
+      /// <summary>
+      /// Find all instances of the given text
+      /// </summary>
+      /// <param name="input">text to search for (null or empty clears search)</param>
+      /// <returns>True if results were found, False otherwise</returns>
+      public bool FindText(String input)
       {
-         TextPointer position = Document.ContentStart;
-         return FindNext(ref position, input);
+         if (string.IsNullOrEmpty(input) || !_searchString.Equals(input, StringComparison.InvariantCultureIgnoreCase))
+         {
+            foreach (var found in _searchHits)
+            {
+               found.ClearAllProperties();
+            }
+            _searchString = input;
+         }
+
+         bool result = false;
+         if (!string.IsNullOrEmpty(input))
+         {
+            // Start at the beginning and ...
+            _searchHits = DocumentHelper.FindText(Document, input, DocumentHelper.FindFlags.None, CultureInfo.CurrentCulture);
+            foreach (var found in _searchHits)
+            {
+               result = true;
+               found.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Yellow);
+               found.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Black);
+            }
+         }
+         return result;
       }
+
 
       /// <summary>
       /// Find the input string within the document, starting at the specified position.
       /// </summary>
       /// <param name="position">the current text position</param>
       /// <param name="input">input text</param>
-      /// <returns>An <see cref="TextRange"/> represeneting the (next) matching string within the text container.</returns>
+      /// <returns>An <see cref="TextRange"/> representing the (next) matching string within the text container. Null if there are no matches.</returns>
       public TextRange FindNext(ref TextPointer position, String input)
       {
-         TextRange result = null;
-         if (position.CompareTo(Document.ContentEnd) == 0)
-         {
-            position = Document.ContentStart;
-         }
+         FindText(input);
 
-         result = DocumentHelper.FindText( position, Document.ContentEnd, input, DocumentHelper.FindFlags.None, CultureInfo.CurrentCulture);
-         if (result != null)
+         foreach (var result in _searchHits)
          {
-            position = result.End;
-            Selection.Select(result.Start, result.End);
+            if (position.CompareTo(result.End) < 0)
+            {
+               position = result.Start;
+               double top = this.PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y + this.PointFromScreen(new System.Windows.Point(0, 0)).Y;
+               Trace.WriteLine(string.Format(" Top: {0}, CharOffset: {1}", top, position));
+               ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset + top);
+               position = result.End;
+               return result;
+            }
          }
-         else
-         {
-            position = Document.ContentEnd;
-            Selection.Select(position, position);
-         }
-
-         double top = this.PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y;
-         Trace.WriteLine(string.Format(" Top: {0}, CharOffset: {1}", top, position));
-         ScrollViewer.ScrollToVerticalOffset(top);
-         //this.BringIntoView( );
-
-         return result;
+         return null;
       }
 
 
@@ -511,7 +529,6 @@ namespace Huddled.WPF.Controls
                             GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
                   }
 
-
                   textRange = findMethod.Invoke(null, 
                      new Object[] { findContainerStartPosition,
                                     findContainerEndPosition,
@@ -527,6 +544,50 @@ namespace Huddled.WPF.Controls
             }
 
             return textRange;
+         }
+
+         public static IEnumerable<TextRange> FindText(FlowDocument document, String input, FindFlags flags, CultureInfo cultureInfo)
+         {
+            TextPointer start = document.ContentStart;
+            TextPointer end = document.ContentEnd;
+            TextRange last = null;
+            var textRange = new List<TextRange>();
+
+            try
+            {
+               if (findMethod == null)
+               {
+                  findMethod = typeof(FrameworkElement).Assembly.GetType("System.Windows.Documents.TextFindEngine").
+                         GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
+               }
+            }
+            catch (ApplicationException)
+            {
+               last = null;
+            }
+
+            while (findMethod != null && start.CompareTo(end) < 0)
+            {
+               try {
+               last = findMethod.Invoke(null,
+                                       new Object[] { start,
+                                                      end,
+                                                      input, 
+                                                      flags, 
+                                                      CultureInfo.CurrentCulture 
+                                       }) as TextRange;
+               }
+               catch (ApplicationException)
+               {
+                  last = null;
+               }
+
+               if (last == null) 
+                  yield break;
+               else
+                  yield return last;
+               start = last.End;
+            }
          }
       } 
    }

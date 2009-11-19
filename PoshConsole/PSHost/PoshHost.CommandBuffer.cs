@@ -213,9 +213,29 @@ namespace PoshConsole
             DefaultOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
             DefaultOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
 
-            // ToDo: it would be nice to customize the RunspaceConfiguration ... but it's too much work for now
-            //_runSpace = RunspaceFactory.CreateRunspace(this, new PoshRunspaceConfiguration());
-            _runSpace = RunspaceFactory.CreateRunspace(host);
+            // Create the default initial session state and add the module.
+            InitialSessionState iss = InitialSessionState.CreateDefault();
+            // Import the PoshWPF module automatically
+            iss.ImportPSModule(new string[] { @".\PoshWPF.dll" });
+            // Load all the Cmdlets that are in this assembly automatically.
+            foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
+            {
+               var cmdlets = t.GetCustomAttributes(typeof(CmdletAttribute), false) as CmdletAttribute[];
+
+               if (cmdlets != null)
+               {
+                  foreach (var cmdlet in cmdlets)
+                  {
+                     iss.Commands.Add(new SessionStateCmdletEntry(
+                                            string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
+                                            string.Format("{0}.xml", t.Name)));
+                  }
+               }
+            }
+            iss.ApartmentState = ApartmentState.STA;
+            iss.ThreadOptions = PSThreadOptions.ReuseThread;
+
+            _runSpace = RunspaceFactory.CreateRunspace(host, iss);
             // Set the default runspace, so that event handlers can run in the same runspace as commands.
             // We _could_ hypothetically make this a different runspace, but it would probably cause issues.
             Runspace.DefaultRunspace = _runSpace;
@@ -224,6 +244,14 @@ namespace PoshConsole
             _WorkerThread = new Thread(ThreadRun) { Name = "CommandRunner" };
             _WorkerThread.SetApartmentState(ApartmentState.STA);
             _WorkerThread.Start();
+        }
+
+
+
+        private void StartRunspace()
+        {
+           _runSpace.Open();
+           ExecuteStartupProfile();
         }
 
         public void Enqueue(InputBoundCommand command)
@@ -362,42 +390,6 @@ namespace PoshConsole
             }
         }
 
-        private void StartRunspace()
-        {
-
-            foreach (var t in System.Reflection.Assembly.GetEntryAssembly().GetTypes())
-            {
-                var cmdlets = t.GetCustomAttributes(typeof(CmdletAttribute), false) as CmdletAttribute[];
-
-                if (cmdlets != null)
-                {
-                    foreach (var cmdlet in cmdlets)
-                    {
-                        _runSpace.RunspaceConfiguration.Cmdlets.Append(new CmdletConfigurationEntry(
-                                                                          string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
-                                                                          string.Format("{0}.xml", t.Name)));
-                    }
-                }
-            }
-
-            // TODO: Must compile against v2 for this
-#if POWERSHELL2
-            if (_runSpace.Version.Major >= 2)
-            {
-                _runSpace.ApartmentState = ApartmentState.STA;
-                _runSpace.ThreadOptions = PSThreadOptions.ReuseThread;
-            }
-#endif
-            //_runSpace.StateChanged += (sender, e) =>
-            //                             {
-            //                                if (e.RunspaceStateInfo.State == RunspaceState.Opened && RunspaceReady != null)
-            //                                   {
-            //                                      RunspaceReady(sender, e);
-            //                                   }
-            //                             };
-            _runSpace.Open();
-            ExecuteStartupProfile();
-        }
 
         public RunspaceConfiguration RunspaceConfiguration
         {

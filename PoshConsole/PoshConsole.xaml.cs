@@ -776,6 +776,7 @@ namespace PoshConsole
          }
       }
 
+      // Handles F3 by default
       private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
       {
          if (Search.Text.Length > 0)
@@ -788,8 +789,10 @@ namespace PoshConsole
          }
       }
 
+      // Handles Ctrl+F by default
       private void OnFindCommand(object sender, ExecutedRoutedEventArgs e)
       {
+         Search.Select(0, Search.Text.Length - 1);
          Search.Focus();
       }
       
@@ -823,9 +826,10 @@ namespace PoshConsole
          }
 
          TextRange found = buffer.FindNext(ref lastSearchPoint, input);
-         if (found != null)
+         if (found == null)
          {
-            buffer.Focus();
+            System.Media.SystemSounds.Asterisk.Play();
+            lastSearchPoint = buffer.Document.ContentStart;
          }
       }
 
