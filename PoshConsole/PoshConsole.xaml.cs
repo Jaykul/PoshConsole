@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Huddled.Wpf;
+using Huddled.Interop.Windows;
 using PoshConsole.Controls;
 using PoshConsole.Properties;
 using PoshConsole.Host;
@@ -25,15 +26,17 @@ namespace PoshConsole
    {
 
       #region  Fields (11)
-
-      private DoubleAnimation _hideHeightAnimations = new DoubleAnimation(0.0, _lasts);
-      private DoubleAnimation _hideOpacityAnimations = new DoubleAnimation(0.0, _lasts);
-      private bool _isHiding = false;
-      private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
+      private static Duration _lasts = Duration.Automatic;
+      private DoubleAnimation _hideOpacityAnimation = new DoubleAnimation(0.0, _lasts);
+      private DoubleAnimation _hideHeightAnimation = new DoubleAnimation(0.0, _lasts);
+      //private DoubleAnimation _hideWidthAnimation = new DoubleAnimation(1.0, _lasts);
       private DoubleAnimation _showOpacityAnimation = new DoubleAnimation(1.0, _lasts);
+      private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
+      //private DoubleAnimation _showWidthAnimation = new DoubleAnimation(1.0, _lasts);
+
+      private bool _isHiding = false;
       private CornerRadius _defaultCornerRadius;
 
-      private static Duration _lasts = Duration.Automatic;
       private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
       private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
       private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
@@ -77,10 +80,13 @@ namespace PoshConsole
          this.Console = buffer;
 
          // before we start animating, set the animation endpoints to the current values.
-         _hideOpacityAnimations.From = _showOpacityAnimation.To = Opacity;
-         _hideHeightAnimations.From = _showHeightAnimation.To = this.Height;
-         
-         foreach(CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+         _hideOpacityAnimation.From = _showOpacityAnimation.To = Opacity;
+         _hideHeightAnimation.From = _showHeightAnimation.To = this.Height;
+
+         _hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
+         _hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
+
+         foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
          {
             _defaultCornerRadius = chrome.CornerRadius;
          }
@@ -256,19 +262,27 @@ namespace PoshConsole
             visi.Duration = _lasts;
             visi.KeyFrames.Add(_visKeyHidden);
 
-            _hideOpacityAnimations.AccelerationRatio = 0.25;
-            _hideHeightAnimations.AccelerationRatio = 0.5;
-            _showOpacityAnimation.AccelerationRatio = 0.25;
-            _showHeightAnimation.AccelerationRatio = 0.5;
+            // before we start animating, update the animation endpoints to the current values.
+            _hideOpacityAnimation.From = _showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
+            _hideHeightAnimation.From = _showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
 
-            // before we start animating, set the animation endpoints to the current values.
-            _hideOpacityAnimations.From = _showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
-            _hideHeightAnimations.From = _showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
+            //var width = this.GetLocalWorkArea().Width;
+            //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
 
-            // GO!
-            this.BeginAnimation(HeightProperty, _hideHeightAnimations, HandoffBehavior.SnapshotAndReplace);
-            this.BeginAnimation(OpacityProperty, _hideOpacityAnimations, HandoffBehavior.SnapshotAndReplace);
-            this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+            Storyboard board = new Storyboard
+            {
+               FillBehavior = FillBehavior.HoldEnd,
+               Duration = _lasts
+            };
+            Storyboard.SetTargetProperty(_hideHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
+            Storyboard.SetTargetProperty(_hideOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
+            Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
+
+            board.Children.Add(_hideHeightAnimation);
+            board.Children.Add(_hideOpacityAnimation);
+            board.Children.Add(visi);
+
+            this.BeginStoryboard(board);           
          }
          else
          {
@@ -380,14 +394,28 @@ namespace PoshConsole
          {
             if (Properties.Settings.Default.Animate)
             {
-               ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-               visi.Duration = _lasts;
+               ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames{
+                  Duration = _lasts,
+               };
                visi.KeyFrames.Add(_visKeyVisible);
 
-               // Go!
-               this.BeginAnimation(HeightProperty, _showHeightAnimation, HandoffBehavior.SnapshotAndReplace);
-               this.BeginAnimation(OpacityProperty, _showOpacityAnimation, HandoffBehavior.SnapshotAndReplace);
-               this.BeginAnimation(VisibilityProperty, visi, HandoffBehavior.SnapshotAndReplace);
+               //var width = this.GetLocalWorkArea().Width;
+               //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
+
+               Storyboard board = new Storyboard
+               {
+                  FillBehavior = FillBehavior.HoldEnd,
+                  Duration = _lasts
+               };
+               Storyboard.SetTargetProperty(_showHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
+               Storyboard.SetTargetProperty(_showOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
+               Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
+
+               board.Children.Add(_showHeightAnimation);
+               board.Children.Add(_showOpacityAnimation);
+               board.Children.Add(visi);
+
+               this.BeginStoryboard(board);    
             }
             else
             {
@@ -485,7 +513,7 @@ namespace PoshConsole
          {
 
             CornerRadius cornerRadius = _defaultCornerRadius;
-            if(_defaultCornerRadius == default(CornerRadius))
+            if (_defaultCornerRadius == default(CornerRadius))
             {
                cornerRadius = new CornerRadius(20, 0, 5, 5);
             }
@@ -596,11 +624,11 @@ namespace PoshConsole
                {
                   this.TopBar.Visibility = Properties.Settings.Default.ToolbarVisibility;
                } break;
-               // TODO: let the new top-toolbars be hidden
-               //case "StatusBar":
-               //   {
-               //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
-               //   } break;
+            // TODO: let the new top-toolbars be hidden
+            //case "StatusBar":
+            //   {
+            //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
+            //   } break;
             case "WindowHeight":
                {
                   this.Height = Properties.Settings.Default.WindowHeight;
@@ -795,7 +823,7 @@ namespace PoshConsole
          Search.Select(0, Search.Text.Length - 1);
          Search.Focus();
       }
-      
+
 
       private void Search_GotFocus(object sender, RoutedEventArgs e)
       {

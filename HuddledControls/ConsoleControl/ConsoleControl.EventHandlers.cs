@@ -67,32 +67,6 @@ namespace Huddled.WPF.Controls
             {
                case Key.Enter:
                   {
-                     // TODO: Find a way to do this IF v2, and not otherwise.
-                     // BUGBUG: Make sure we're handling the exceptions right.
-                     #if POWERSHELL2
-                     if (System.Management.Automation.Runspaces.Runspace.DefaultRunspace.Version.Major >= 2)
-                     {
-                        var errors = new Collection<PSParseError>();
-                        PSParser.Tokenize(CurrentCommand, out errors);
-
-                        if (errors.Count > 0)
-                        {
-                           TextRange error;
-                           foreach (var err in errors)
-                           {
-                              //_commandBox.Document.ContentStart.GetLineStartPosition(err.Token.StartLine-1).GetPositionAtOffset(err.Token.StartColumn)
-                              error = new TextRange(
-                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward) ?? _commandBox.Document.ContentStart,
-                                 _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ?? _commandBox.Document.ContentEnd);
-                              error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
-                              error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
-                              //int errStart = _commandBox.Selection.Start.Document.sel.inser..sel.get.GetCharacterIndexFromLineIndex(.StartLine) + err.Token.StartColumn;
-                              //int errEnd = _commandBox.GetCharacterIndexFromLineIndex(err.Token.EndLine) + err.Token.EndColumn;
-                           }
-                           break;
-                        }
-                     }
-                     #endif
                      OnEnterPressed(e);
                   } break;
 
@@ -304,9 +278,32 @@ namespace Huddled.WPF.Controls
       // TODO: change this to handle with the Tokenizer
       private void OnEnterPressed(KeyEventArgs e)
       {
-         // if they CTRL+ENTER, let it through
+         // if they CTRL+ENTER (or SHIFT+ENTER), let it through
          if (!e.IsModifierOn(ModifierKeys.Control) && !e.IsModifierOn(ModifierKeys.Shift))
          {
+            // TODO: Find a way to do this IF v2, and not otherwise.
+            // BUGBUG: Make sure we're handling the exceptions right.
+            var errors = new Collection<PSParseError>();
+            PSParser.Tokenize(CurrentCommand, out errors);
+
+            if (errors.Count > 0)
+            {
+               TextRange error;
+               foreach (var err in errors)
+               {
+                  // TODO: what is a (locale-safe) test that the error is NOT just "Missing function body in function declaration." because they're still writing it?
+                  error = new TextRange(
+                     _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward) ?? _commandBox.Document.ContentStart,
+                     _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ?? _commandBox.Document.ContentEnd);
+                  error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
+                  error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
+                  // TODO: put in some sort of milder "clunk" sound here, since this isn't necessarily an error...
+                  System.Media.SystemSounds.Exclamation.Play();
+               }
+               e.Handled = true;
+               return; // out past the normal OnEnterPressed stuff...
+            }
+
             // get the command
             string cmd = CurrentCommand;
             // clear the box

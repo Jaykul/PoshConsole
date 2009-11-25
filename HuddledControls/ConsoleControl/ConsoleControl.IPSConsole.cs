@@ -56,12 +56,17 @@ namespace Huddled.WPF.Controls
 
       Dictionary<string, PSObject> IPSConsole.Prompt(string caption, string message, Collection<FieldDescription> descriptions)
       {
-         ((IPSConsole)this).WriteLine(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + " ");
+         if (!string.IsNullOrEmpty(caption))
+            ((IPSConsole)this).WriteLine(caption);
+         if (!string.IsNullOrEmpty(message))
+            ((IPSConsole)this).WriteLine(message);
 
          var results = new Dictionary<string, PSObject>();
          foreach (var fd in descriptions)
          {
             Type type = Type.GetType(fd.ParameterAssemblyFullName);
+            
+            string prompt = string.IsNullOrEmpty(fd.Label) ? fd.Name : fd.Label;
 
             if (type != null && type.IsArray)
             {
@@ -70,8 +75,7 @@ namespace Huddled.WPF.Controls
                int count = 0;
                do
                {
-                  PSObject single = GetSingle(  caption, message, 
-                                                string.Format("{0}[{1}]", fd.Name, count++), 
+                  PSObject single = GetSingle(  caption, message, string.Format("{0}[{1}]", prompt, count++), 
                                                 fd.HelpMessage, fd.DefaultValue, type);
                   if(single == null) break;
 
@@ -84,7 +88,7 @@ namespace Huddled.WPF.Controls
                results[fd.Name] = PSObject.AsPSObject(output.ToArray());
             } else
             {
-               results[fd.Name] = GetSingle(caption, message, fd.Name, fd.HelpMessage, fd.DefaultValue, type);
+               results[fd.Name] = GetSingle(caption, message, prompt, fd.HelpMessage, fd.DefaultValue, type);
             }
 
          }
@@ -98,14 +102,13 @@ namespace Huddled.WPF.Controls
             return PSObject.AsPSObject(((IPSConsole)this).PromptForCredential(caption, message, String.Empty, prompt));
          }
 
-
          while(true)
          {
-            // TODO: Only show the help message if they ... something.
+            // TODO: Only show the help message if they type '?' as their entry something, in which case show help and re-prompt.
             if (!String.IsNullOrEmpty(help))
-               Write(_brushes.VerboseForeground, _brushes.VerboseBackground, help + "\n");
+               ((IPSConsole) this).WriteLine(_brushes.ConsoleColorFromBrush(_brushes.VerboseForeground), _brushes.ConsoleColorFromBrush(_brushes.VerboseBackground), help);
 
-            ((IPSConsole) this).Write(String.Format("\n{0}: ", prompt));
+            ((IPSConsole) this).Write(String.Format("{0}: ", prompt));
 
             if (null != type && type.Equals(typeof (System.Security.SecureString)))
             {
@@ -115,7 +118,7 @@ namespace Huddled.WPF.Controls
             } // Note: This doesn't look the way it does in PowerShell, but it should work :)
             else
             {
-               if (psDefault != null)
+               if (psDefault != null && psDefault.ToString().Length > 0)
                {
                   if (Dispatcher.CheckAccess())
                   {
@@ -332,7 +335,7 @@ namespace Huddled.WPF.Controls
       {
          if (_waitingForInput)
          {
-            _lastInputString = command;
+            _lastInputString = command.TrimEnd();
             _gotInputLine.Set();
          }
          else if (Command != null)
@@ -350,27 +353,72 @@ namespace Huddled.WPF.Controls
       /// <returns></returns>
       string IPSConsole.ReadLine()
       {
+         Dispatcher.Invoke((Action)(() =>
+                                       {
+                                          lock (_commandContainer)
+                                          {
+                                             UpdateLayout();
+                                             _next.Inlines.Remove(_commandContainer);
+                                             ((Control)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10, ScrollViewer.ViewportWidth - _current.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+                                             _current.Inlines.Add(_commandContainer);
+                                             UpdateLayout();
+                                             _commandContainer.Child.Focus();
+                                          }
+                                       }), DispatcherPriority.Render);
+         Thread.Sleep(0);
          _waitingForInput = true;
          _gotInputLine.Reset();
          _gotInputLine.WaitOne();
          _waitingForInput = false;
 
+         Dispatcher.Invoke((Action)(() =>
+                                       {
+                                          lock (_commandContainer)
+                                          {
+                                             _current.Inlines.Remove(_commandContainer);
+                                             ((Control)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10, ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+                                             _next.Inlines.Add(_commandContainer);
+                                             _commandContainer.Child.Focus();
+                                             UpdateLayout();
+                                          }
+                                       }), DispatcherPriority.Render);
          return _lastInputString ?? String.Empty;
       }
 
       SecureString IPSConsole.ReadLineAsSecureString()
       {
          Dispatcher.Invoke((Action)(() =>
-                                       {
-                                          _commandContainer.Child = _passwordBox;
-                                          Focus();
-                                          _passwordBox.Focus();
-                                       }));
+         {
+            lock (_commandContainer)
+            {
+               UpdateLayout();
+               _commandContainer.Child = _passwordBox;
+               _next.Inlines.Remove(_commandContainer);
+               ((Control)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10, ScrollViewer.ViewportWidth - _current.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+               _current.Inlines.Add(_commandContainer);
+               UpdateLayout();
+               _commandContainer.Child.Focus();
+            }
+         }), DispatcherPriority.Render);
+
+         Thread.Sleep(0);
          _waitingForInput = true;
          _gotInputLine.Reset();
          _gotInputLine.WaitOne();
          _waitingForInput = false;
-         Dispatcher.Invoke((Action)(() => _commandContainer.Child = _commandBox));
+
+         Dispatcher.Invoke((Action)(() =>
+         {
+            lock (_commandContainer)
+            {
+               _commandContainer.Child = _commandBox;
+               _current.Inlines.Remove(_commandContainer);
+               ((Control)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10, ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+               _next.Inlines.Add(_commandContainer);
+               _commandContainer.Child.Focus();
+               UpdateLayout();
+            }
+         }), DispatcherPriority.Render);
 
          return _lastPassword;
       }
@@ -396,8 +444,9 @@ namespace Huddled.WPF.Controls
 
          if ((options & PSCredentialUIOptions.ReadOnlyUserName) == PSCredentialUIOptions.Default )
          {
-            var user = new FieldDescription("User Name");
+            var user = new FieldDescription("User");
             user.SetParameterType(typeof(string));
+            user.Label = "Username";
             user.DefaultValue = PSObject.AsPSObject(userName);
             user.IsMandatory = true;
 
@@ -405,26 +454,36 @@ namespace Huddled.WPF.Controls
             {
                fields = new Collection<FieldDescription>(new[] {user});
                login = ((IPSConsole) this).Prompt(caption, message, fields);
-               userName = login["User Name"].BaseObject as string;
+               userName = login["User"].BaseObject as string;
             } while ( userName != null && userName.Length == 0);
          }
-         
+
+         // I think this is all I can do with the allowedCredentialTypes
+         // domain required
+         if (allowedCredentialTypes > PSCredentialTypes.Generic)
+         {
+            // and no domain
+            if (userName.IndexOfAny(new[] { '\\', '@' }) < 0)
+            {
+               userName = string.Format("{0}\\{1}", targetName, userName);
+            }
+         }
+
          var pass = new FieldDescription("Password");
          pass.SetParameterType(typeof(SecureString));
+         pass.Label = "Password for " + userName;
          pass.IsMandatory = true;
 
          fields = new Collection<FieldDescription>(new[] { pass });
-         password = ((IPSConsole)this).Prompt("", "", fields);
+         password = ((IPSConsole)this).Prompt(String.Empty, String.Empty, fields);
 
-         // TODO: I can't figure out what to do with the PromptForCredential allowedCredentialTypes
-         // TODO: I can't figure out what to do with the PromptForCredential options
-
+         // TODO: I'm not sure what to do with the PSCredentialUIOptions options, because PowerShell.exe ignores them
          return new PSCredential(userName, (SecureString)password["Password"].BaseObject);
       }
 
       PSCredential IPSConsole.PromptForCredential(string caption, string message, string userName, string targetName)
       {
-         var user = new FieldDescription("User Name");
+         var user = new FieldDescription("User");
          user.SetParameterType(typeof(string));
          user.DefaultValue = PSObject.AsPSObject(userName);
          user.IsMandatory = true;
@@ -439,7 +498,7 @@ namespace Huddled.WPF.Controls
          var login = ((IPSConsole)this).Prompt(caption, message, cred);
 
          return new PSCredential(
-            (string)login["User Name"].BaseObject,
+            (string)login["User"].BaseObject,
             (SecureString)login["Password"].BaseObject);
       }
 
