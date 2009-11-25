@@ -26,7 +26,6 @@ namespace PoshConsole.Host
    {
 
       #region  Fields (16)
-
       /// <summary>
       /// A ConsoleRichTextBox for output
       /// </summary>
@@ -484,14 +483,21 @@ namespace PoshConsole.Host
 
          if (!string.IsNullOrEmpty(lastWord))
          {
-            // TabComplete Cmdlets inside the pipeline
-            foreach (CmdletConfigurationEntry cmdlet in _runner.RunspaceConfiguration.Cmdlets)
-            {
-               if (cmdlet.Name.StartsWith(lastWord, true, null))
-               {
-                  completions.Add(cmdlet.Name);
-               }
-            }
+            // TODO: find a way to access the ExecutionContext.SessionState to get the Commands list.
+            //// TabComplete Cmdlets inside the pipeline
+            //try
+            //{
+               
+            //   foreach (CmdletConfigurationEntry cmdlet in _runner.RunspaceConfiguration.Cmdlets)
+            //   {
+            //      if (cmdlet.Name.StartsWith(lastWord, true, null))
+            //      {
+            //         completions.Add(cmdlet.Name);
+            //      }
+            //   }
+            //}  // hide the error (no error unless RunspaceConfiguration is missing)
+            //catch (RuntimeException) { }
+            //catch (NullReferenceException) { }
 
             // TabComplete Paths
             try
