@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="Interop\Vista\CustomChrome.cs" />
     <Compile Include="Interop\Utilities.cs" />
+    <Compile Include="Interop\Windows\WindowExtensions.cs" />
     <Compile Include="Wpf\DpiHelper.cs" />
     <Compile Include="Wpf\Hotkeys\HotkeysBehavior.cs" />
     <Compile Include="Wpf\Hotkeys\GlobalCommands.cs" />

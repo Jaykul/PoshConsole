@@ -875,7 +875,6 @@ namespace Huddled.Wpf
 
       private void _SetRoundingRegion(NativeMethods.WindowPosition? wp)
       {
-         const int MONITOR_DEFAULTTONEAREST = 0x00000002;
 
          // We're early - WPF hasn't necessarily updated the state of the window.
          // Need to query it ourselves.
@@ -898,7 +897,7 @@ namespace Huddled.Wpf
                top = (int)r.Top;
             }
 
-            IntPtr hMon = NativeMethods.MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+            IntPtr hMon = NativeMethods.MonitorFromWindow(_hwnd, NativeMethods.MonitorDefault.ToNearest);
 
             NativeMethods.MonitorInfo mi = NativeMethods.GetMonitorInfo(hMon);
             NativeMethods.ApiRect rcMax = mi.MonitorWorkingSpaceRect;

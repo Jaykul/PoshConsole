@@ -36,6 +36,7 @@ using System.Windows;
 using Huddled.Wpf;
 using Point=System.Windows.Point;
 using Rect=System.Windows.Rect;
+using System.Windows.Media;
 
 namespace Huddled.Interop
 {
@@ -656,15 +657,35 @@ namespace Huddled.Interop
               ^ ((Height << 7) | (Height >> 0x19));
          }
 
+         // Create working area dimensions, converted to DPI-independent values
+         public Rect DPITransformFromWindow(System.Windows.Interop.HwndSource source)
+         {
+            if (source == null) throw new ArgumentNullException("source"); // Should never be null
+            if (source.CompositionTarget == null) throw new ArgumentException("Provided HwndSource has no composition target"); // Should never be null
+
+            Matrix matrix = source.CompositionTarget.TransformFromDevice;
+            return new Rect( matrix.Transform(new Point(this.Left, this.Top)),
+                             matrix.Transform(new Point(this.Right, this.Bottom)));
+
+         }
+
          #region Operator overloads
 
          /// <summary>
-         /// Convert to a Drawing Rectangle.
+         /// Convert to a <see cref="System.Drawing.Rectangle"/>
          /// </summary>
          /// <returns></returns>
          public System.Drawing.Rectangle ToRectangle()
          {
             return System.Drawing.Rectangle.FromLTRB(Left, Top, Right, Bottom);
+         }
+         /// <summary>
+         /// Convert to a <see cref="System.Windows.Rect"/>
+         /// </summary>
+         /// <returns></returns>
+         public Rect ToRect()
+         {
+            return new Rect(Left, Top, Math.Abs(Right - Left), Math.Abs(Bottom - Top));
          }
 
          public static implicit operator System.Drawing.Rectangle(ApiRect apiRect)
@@ -782,7 +803,7 @@ namespace Huddled.Interop
          public WindowThemeNonClientAttributes dwMask;
       }
 
-
+      public enum MonitorDefault { ToNull = 0, ToPrimary, ToNearest }
 
       [StructLayout(LayoutKind.Sequential)]
       public class MonitorInfo
@@ -1020,7 +1041,7 @@ namespace Huddled.Interop
          public static extern bool IsWindowVisible(IntPtr hwnd);
 
          [DllImport("user32.dll")]
-         public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+         public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefault flags);
 
          [DllImport("user32.dll", EntryPoint = "PostMessage", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]

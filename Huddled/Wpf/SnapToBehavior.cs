@@ -41,6 +41,13 @@ namespace Huddled.Wpf
 {
    public class SnapToBehavior : NativeBehavior
    {
+      Window _target;
+      public override void AddTo(Window window)
+      {
+         _target = window;
+         base.AddTo(window);
+      }
+
       /// <summary>
       /// Gets the <see cref="MessageMapping"/>s for this behavior:
       /// A single mapping of a handler for WM_WINDOWPOSCHANGING.
@@ -64,39 +71,36 @@ namespace Huddled.Wpf
          if ((windowPosition.Flags & NativeMethods.WindowPositionFlags.NoMove) == 0)
          {
             // If we use the WPF SystemParameters, these should be "Logical" pixels
-            Rect validArea = new Rect(SystemParameters.VirtualScreenLeft,
-                                      SystemParameters.VirtualScreenTop,
-                                      SystemParameters.VirtualScreenWidth,
-                                      SystemParameters.VirtualScreenHeight);
+            Rect validArea = _target.GetLocalWorkArea();
 
-            Rect snapToBorder = new Rect(SystemParameters.VirtualScreenLeft + SnapDistance.Left,
-                                     SystemParameters.VirtualScreenTop + SnapDistance.Top,
-                                     SystemParameters.VirtualScreenWidth - (SnapDistance.Left + SnapDistance.Right),
-                                     SystemParameters.VirtualScreenHeight - (SnapDistance.Top + SnapDistance.Bottom));
+            Rect snapToBorder = new Rect( validArea.Left   + SnapDistance.Left,
+                                          validArea.Top    + SnapDistance.Top,
+                                          validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
+                                          validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
 
             // Enforce left boundary
-            if (windowPosition.Left < snapToBorder.Left)
+            if (windowPosition.Left < snapToBorder.Left && windowPosition.Left >= validArea.Left)
             {
                windowPosition.Left = (int)validArea.Left;
                updated = true;
             }
 
             // Enforce top boundary
-            if (windowPosition.Top < snapToBorder.Y)
+            if (windowPosition.Top < snapToBorder.Y && windowPosition.Top >= validArea.Top)
             {
                windowPosition.Top = (int)validArea.Top;
                updated = true;
             }
 
             // Enforce right boundary
-            if (windowPosition.Right > snapToBorder.Right)
+            if (windowPosition.Right > snapToBorder.Right && windowPosition.Right <= validArea.Right)
             {
                windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
                updated = true;
             }
 
             // Enforce bottom boundary
-            if (windowPosition.Bottom > snapToBorder.Bottom)
+            if (windowPosition.Bottom > snapToBorder.Bottom && windowPosition.Bottom <= validArea.Bottom)
             {
                windowPosition.Top = (int)(validArea.Bottom - windowPosition.Height);
                updated = true;
