@@ -32,7 +32,8 @@ namespace Huddled.WPF.Controls
       {
          get
          {
-            return Document;
+            return (FlowDocument)Dispatcher.Invoke((Func<FlowDocument>)(() =>
+            { return Document; }), DispatcherPriority.Normal);
          }
       }
 

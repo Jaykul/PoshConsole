@@ -388,7 +388,15 @@ namespace Huddled.Wpf
          /// <param name="e">The event arguments</param>
          protected override void IfNoHandlerOnExecute(object window, WindowOnExecuteArgs e)
          {
-            e.Window.Show();
+            if (!e.Window.IsVisible)
+            {
+               e.Window.Show();
+               e.Window.Activate();
+            }
+            else if (!e.Window.IsActive)
+            {
+               e.Window.Activate();
+            }
          }
       }
 

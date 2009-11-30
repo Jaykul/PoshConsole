@@ -14,8 +14,9 @@ namespace System.Management.Automation.Host
 	public interface IPoshConsoleControl : IPSWpfConsole, IPSConsole
 	{
 		event CommmandDelegate Command;
+      event PipelineFinished Finished;
 
-		void CommandFinished(PipelineState results);
+      void OnCommandFinished(String command, PipelineState results);
 		void Prompt(string text);
 
 		string CurrentCommand { get; set; }
@@ -51,7 +52,13 @@ namespace Huddled.WPF.Controls
 
    }
    public delegate void CommmandDelegate(Object source, CommandEventArgs command);
+   public delegate void PipelineFinished(Object source, FinishedEventArgs results);
 
+   public class FinishedEventArgs
+   {
+      public string Command;
+      public PipelineState Results;
+   }
    public class CommandEventArgs
    {
       public string Command;

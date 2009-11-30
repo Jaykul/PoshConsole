@@ -113,7 +113,7 @@ namespace PoshConsole.Host
          _runner = new CommandRunner(this);
          _runner.RunspaceReady += (source, args) => _buffer.Dispatcher.BeginInvoke((Action) (() => {
             _buffer.CommandBox.IsEnabled = true;
-            ExecutePromptFunction(PipelineState.Completed);
+            ExecutePromptFunction(null, PipelineState.Completed);
          }));
 
 
@@ -319,13 +319,13 @@ namespace PoshConsole.Host
                                                        }
                                                        if (!IsClosing)
                                                        {
-                                                          ExecutePromptFunction(result.State);
+                                                          ExecutePromptFunction(cmd, result.State);
                                                        }
                                                     });
          }
          else if (!IsClosing)
          {
-            ExecutePromptFunction(PipelineState.NotStarted);
+            ExecutePromptFunction(cmd, PipelineState.NotStarted);
          }
       }
 
@@ -375,9 +375,9 @@ namespace PoshConsole.Host
       //        _buffer.Prompt(sb.ToString());
       //    }
       //}
-      private void ExecutePromptFunction(PipelineState lastState)
+      private void ExecutePromptFunction(String command, PipelineState lastState)
       {
-         _buffer.CommandFinished(lastState);
+         _buffer.OnCommandFinished(command, lastState);
          // It is IMPERATIVE that we call "New-Paragraph" before Prompt
          _runner.Enqueue(new InputBoundCommand(new[] {"New-Paragraph", "Prompt"}, EmptyArray, result =>
              {

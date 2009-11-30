@@ -11,10 +11,12 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Huddled.Wpf;
+using Huddled.Interop;
 using Huddled.Interop.Windows;
 using PoshConsole.Controls;
 using PoshConsole.Properties;
 using PoshConsole.Host;
+using System.Collections.Generic;
 
 namespace PoshConsole
 {
@@ -26,20 +28,20 @@ namespace PoshConsole
    {
 
       #region  Fields (11)
-      private static Duration _lasts = Duration.Automatic;
-      private DoubleAnimation _hideOpacityAnimation = new DoubleAnimation(0.0, _lasts);
-      private DoubleAnimation _hideHeightAnimation = new DoubleAnimation(0.0, _lasts);
-      //private DoubleAnimation _hideWidthAnimation = new DoubleAnimation(1.0, _lasts);
-      private DoubleAnimation _showOpacityAnimation = new DoubleAnimation(1.0, _lasts);
-      private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
-      //private DoubleAnimation _showWidthAnimation = new DoubleAnimation(1.0, _lasts);
+      //private static Duration _lasts = Duration.Automatic;
+      //private DoubleAnimation _hideOpacityAnimation = new DoubleAnimation(0.0, _lasts);
+      //private DoubleAnimation _hideHeightAnimation = new DoubleAnimation(0.0, _lasts);
+      ////private DoubleAnimation _hideWidthAnimation = new DoubleAnimation(1.0, _lasts);
+      //private DoubleAnimation _showOpacityAnimation = new DoubleAnimation(1.0, _lasts);
+      //private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
+      ////private DoubleAnimation _showWidthAnimation = new DoubleAnimation(1.0, _lasts);
 
       private bool _isHiding = false;
       private CornerRadius _defaultCornerRadius;
 
-      private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
-      private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
-      private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
+      //private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
+      //private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
+      //private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
 
 
       private static DependencyProperty _consoleProperty;
@@ -79,12 +81,12 @@ namespace PoshConsole
          // "buffer" is defined in the XAML
          this.Console = buffer;
 
-         // before we start animating, set the animation endpoints to the current values.
-         _hideOpacityAnimation.From = _showOpacityAnimation.To = Opacity;
-         _hideHeightAnimation.From = _showHeightAnimation.To = this.Height;
+         //// before we start animating, set the animation endpoints to the current values.
+         //_hideOpacityAnimation.From = _showOpacityAnimation.To = Opacity;
+         //_hideHeightAnimation.From = _showHeightAnimation.To = this.Height;
 
-         _hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
-         _hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
+         //_hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
+         //_hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
 
          foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
          {
@@ -94,6 +96,14 @@ namespace PoshConsole
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
+         buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) =>
+         {
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+            {
+               progress.Children.Clear();
+               progressRecords.Clear();
+            });
+         });
          //// problems with data binding 
          //WindowStyle = Properties.Settings.Default.WindowStyle;
          //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
@@ -109,6 +119,8 @@ namespace PoshConsole
          //}
 
       }
+
+
 
       #endregion
 
@@ -256,38 +268,38 @@ namespace PoshConsole
       private void HideWindow()
       {
          _isHiding = true;
-         if (Properties.Settings.Default.Animate)
-         {
-            ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-            visi.Duration = _lasts;
-            visi.KeyFrames.Add(_visKeyHidden);
+      //   if (Properties.Settings.Default.Animate)
+      //   {
+      //      ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
+      //      visi.Duration = _lasts;
+      //      visi.KeyFrames.Add(_visKeyHidden);
 
-            // before we start animating, update the animation endpoints to the current values.
-            _hideOpacityAnimation.From = _showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
-            _hideHeightAnimation.From = _showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
+      //      // before we start animating, update the animation endpoints to the current values.
+      //      _hideOpacityAnimation.From = _showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
+      //      _hideHeightAnimation.From = _showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
 
-            //var width = this.GetLocalWorkArea().Width;
-            //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
+      //      //var width = this.GetLocalWorkArea().Width;
+      //      //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
 
-            Storyboard board = new Storyboard
-            {
-               FillBehavior = FillBehavior.HoldEnd,
-               Duration = _lasts
-            };
-            Storyboard.SetTargetProperty(_hideHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
-            Storyboard.SetTargetProperty(_hideOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
-            Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
+      //      Storyboard board = new Storyboard
+      //      {
+      //         FillBehavior = FillBehavior.HoldEnd,
+      //         Duration = _lasts
+      //      };
+      //      Storyboard.SetTargetProperty(_hideHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
+      //      Storyboard.SetTargetProperty(_hideOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
+      //      Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
 
-            board.Children.Add(_hideHeightAnimation);
-            board.Children.Add(_hideOpacityAnimation);
-            board.Children.Add(visi);
+      //      board.Children.Add(_hideHeightAnimation);
+      //      board.Children.Add(_hideOpacityAnimation);
+      //      board.Children.Add(visi);
 
-            this.BeginStoryboard(board);           
-         }
-         else
-         {
-            Hide();
-         }
+      //      this.BeginStoryboard(board);           
+      //   }
+      //   else
+      //   {
+         Hide();
+      //   }
       }
 
       void IPSUI.SetShouldExit(int exitCode)
@@ -321,7 +333,8 @@ namespace PoshConsole
       //}
 
       #region IPSUI Members
-
+      protected Dictionary<int, ProgressPanel> progressRecords = new Dictionary<int, ProgressPanel>();
+      
       void IPSUI.WriteProgress(long sourceId, ProgressRecord record)
       {
          if (!Dispatcher.CheckAccess())
@@ -330,18 +343,29 @@ namespace PoshConsole
          }
          else
          {
-            if (record.RecordType == ProgressRecordType.Completed)
+            if (progressRecords.ContainsKey(record.ActivityId))
             {
-               progress1.Visibility = Visibility.Collapsed;
+               if (record.RecordType == ProgressRecordType.Completed)
+               {
+                  progress.Children.Remove( progressRecords[record.ActivityId] );
+                  progressRecords.Remove(record.ActivityId);
+               }
+               else
+               {
+                  progressRecords[record.ActivityId].Record = record;
+               }
             }
             else
             {
-               progress1.Visibility = Visibility.Visible;
-               progress1.Activity = record.Activity;
-               progress1.Status = record.StatusDescription;
-               progress1.Operation = record.CurrentOperation;
-               progress1.PercentComplete = record.PercentComplete;
-               progress1.TimeRemaining = TimeSpan.FromSeconds(record.SecondsRemaining);
+               progressRecords[record.ActivityId] = new ProgressPanel(record);
+               if (record.ParentActivityId < 0 || !progressRecords.ContainsKey(record.ParentActivityId))
+               {
+                  progress.Children.Add(progressRecords[record.ActivityId]);
+               }
+               else
+               {
+                  progress.Children.Insert(progress.Children.IndexOf(progressRecords[record.ParentActivityId])+1, progressRecords[record.ActivityId] );
+               }
             }
          }
       }
@@ -392,44 +416,44 @@ namespace PoshConsole
       {
          if (_isHiding)
          {
-            if (Properties.Settings.Default.Animate)
-            {
-               ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames{
-                  Duration = _lasts,
-               };
-               visi.KeyFrames.Add(_visKeyVisible);
+         //   if (Properties.Settings.Default.Animate)
+         //   {
+         //      ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames{
+         //         Duration = _lasts,
+         //      };
+         //      visi.KeyFrames.Add(_visKeyVisible);
 
-               //var width = this.GetLocalWorkArea().Width;
-               //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
+         //      //var width = this.GetLocalWorkArea().Width;
+         //      //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
 
-               Storyboard board = new Storyboard
-               {
-                  FillBehavior = FillBehavior.HoldEnd,
-                  Duration = _lasts
-               };
-               Storyboard.SetTargetProperty(_showHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
-               Storyboard.SetTargetProperty(_showOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
-               Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
+         //      Storyboard board = new Storyboard
+         //      {
+         //         FillBehavior = FillBehavior.HoldEnd,
+         //         Duration = _lasts
+         //      };
+         //      Storyboard.SetTargetProperty(_showHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
+         //      Storyboard.SetTargetProperty(_showOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
+         //      Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
 
-               board.Children.Add(_showHeightAnimation);
-               board.Children.Add(_showOpacityAnimation);
-               board.Children.Add(visi);
+         //      board.Children.Add(_showHeightAnimation);
+         //      board.Children.Add(_showOpacityAnimation);
+         //      board.Children.Add(visi);
 
-               this.BeginStoryboard(board);    
-            }
-            else
-            {
+         //      this.BeginStoryboard(board);    
+         //   }
+         //   else
+         //   {
                Show();
-            }
+         //   }
          }
-         if (Properties.Settings.Default.Animate)
-         {
+         //if (Properties.Settings.Default.Animate)
+         //{
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(delegate { buffer.Focus(); }));
-         }
-         else
-         {
-            buffer.Focus();
-         }
+         //}
+         //else
+         //{
+         //   buffer.Focus();
+         //}
       }
 
       /// <summary>Handles the Closing event of the Window control.</summary>
@@ -569,7 +593,10 @@ namespace PoshConsole
          if (Properties.Settings.Default.WindowHeight != h)
          {
             Properties.Settings.Default.WindowHeight = h;
-            Properties.Settings.Default.WindowWidth = (double)this.GetAnimationBaseValue(WidthProperty);
+            double w = (double)this.GetAnimationBaseValue(WidthProperty);
+            if(!Double.IsNaN(w)) {
+               Properties.Settings.Default.WindowWidth = w;
+            }
          }
       }
 
@@ -581,28 +608,12 @@ namespace PoshConsole
       private void OnWindowSourceInitialized(object sender, EventArgs e)
       {
          Cursor = Cursors.AppStarting;
-         //this.TryExtendFrameIntoClientArea();
+         this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.Height, 0.0, 0.0));
 
          // hook mousedown and call DragMove() to make the whole Window a drag handle
-         //MouseButtonEventHandler mbeh = new MouseButtonEventHandler(DragHandler);
+         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
-         //border.PreviewMouseLeftButtonDown += mbeh;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
-
-         // hkManager = new WPFHotkeyManager(this);
-         // hkManager.HotkeyPressed += new WPFHotkeyManager.HotkeyPressedEvent(Hotkey_Pressed);
-         // FocusKey = Properties.Settings.Default.FocusKey;
-
-         //if(FocusKey == null)
-         //{
-         //    Properties.Settings.Default.FocusKey = new Hotkey(Modifiers.Win, Keys.Oemtilde);
-         //}
-
-         //// this shouldn't be needed, because we hooked the settings.change event earlier
-         //if(FocusKey == null || FocusKey.Id == 0)
-         //{
-         //    hkManager.Register(FocusKey);
-         //}
          buffer.Focus();
       }
 
@@ -622,7 +633,7 @@ namespace PoshConsole
                } break;
             case "ToolbarVisibility":
                {
-                  this.TopBar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
                } break;
             // TODO: let the new top-toolbars be hidden
             //case "StatusBar":
@@ -631,7 +642,8 @@ namespace PoshConsole
             //   } break;
             case "WindowHeight":
                {
-                  this.Height = Properties.Settings.Default.WindowHeight;
+                  // do nothing, this setting is set when width changes, so we don't want to cycle.
+                  //this.Height = Properties.Settings.Default.WindowHeight;
                } break;
             case "WindowLeft":
                {
@@ -639,7 +651,8 @@ namespace PoshConsole
                } break;
             case "WindowWidth":
                {
-                  this.Width = Properties.Settings.Default.WindowWidth;
+                  // do nothing, this setting is set when width changes, so we don't want to cycle.
+                  //this.Width = Properties.Settings.Default.WindowWidth;
                } break;
             case "WindowTop":
                {
@@ -716,7 +729,7 @@ namespace PoshConsole
       internal void DragHandler(object sender, MouseButtonEventArgs e)
       {
 
-         if (e.Source is Border || e.Source is ProgressPanel || (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+         if (e.Source is Border || e.Source is ProgressPanel || e.Source is Grid || (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
          {
             DragMove();
             e.Handled = true;
@@ -792,16 +805,6 @@ namespace PoshConsole
       private void OnUnTopmost(object sender, RoutedEventArgs e)
       {
          Settings.Default.AlwaysOnTop = false;
-      }
-
-
-
-      private void OnToggleGlassClick(object sender, RoutedEventArgs e)
-      {
-         foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
-         {
-            chrome.UseGlassFrame = !chrome.UseGlassFrame;
-         }
       }
 
       // Handles F3 by default

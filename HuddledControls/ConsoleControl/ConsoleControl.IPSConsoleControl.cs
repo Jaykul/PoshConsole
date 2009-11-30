@@ -30,6 +30,7 @@ namespace Huddled.WPF.Controls
       //public event TabCompleteHandler TabComplete;
       //public event HistoryHandler GetHistory;
       public event CommmandDelegate Command;
+      public event PipelineFinished Finished;
       private int _id = 0;
 
       /// <summary>
@@ -37,7 +38,7 @@ namespace Huddled.WPF.Controls
       /// But we want to trim any whitespace off the end of the output first 
       /// because the paragraph mark makes plenty of whitespace
       /// </summary>
-      void IPoshConsoleControl.CommandFinished(System.Management.Automation.Runspaces.PipelineState results)
+      void IPoshConsoleControl.OnCommandFinished(String command, System.Management.Automation.Runspaces.PipelineState results)
       {
          _id++;
          //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
@@ -47,6 +48,10 @@ namespace Huddled.WPF.Controls
             if (results != PipelineState.Completed && results != PipelineState.NotStarted)
             {
                ((IPSConsole)this).WriteVerboseLine("PowerShell Pipeline was: " + results);
+            }
+            if (Finished != null)
+            {
+               Finished(this, new FinishedEventArgs { Command = command, Results = results });
             }
          });
       }

@@ -178,7 +178,7 @@ Content="M 0 0 L 8 4 L 0 8 Z"/>
         </Grid>
     </ControlTemplate>
 
-    <Style TargetType="{x:Type ScrollBar}">
+    <Style TargetType="{x:Type ScrollBar}" x:Key="GrayTheme">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
         <Style.Triggers>

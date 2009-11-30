@@ -97,6 +97,7 @@
     <Compile Include="Interop\Vista\WindowImage.cs" />
     <Compile Include="Interop\Windows\WindowSwitcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Wpf\QuakeMode.cs" />
     <Compile Include="Wpf\SnapToBehavior.cs" />
     <Compile Include="Interop\Windows\NativeMethods.cs" />
     <Compile Include="Wpf\NativeBehaviors.cs" />

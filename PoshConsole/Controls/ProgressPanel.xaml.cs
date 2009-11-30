@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Navigation;
+using System.Management.Automation;
 
 namespace PoshConsole.Controls
 {
@@ -39,8 +40,27 @@ namespace PoshConsole.Controls
 
 			// Insert code required on object creation below this point.
 		}
-		
+
+      public ProgressPanel(ProgressRecord record) : this()
+      {
+         Record = record;
+      }
+
 		#endregion [rgn]
+
+      private ProgressRecord _record;
+      public ProgressRecord Record
+      {
+         get { return _record; }
+         set {
+            _record = value;
+            Activity = _record.Activity;
+            Status = _record.StatusDescription;
+            Operation = _record.CurrentOperation;
+            PercentComplete = _record.PercentComplete;
+            TimeRemaining = TimeSpan.FromSeconds(_record.SecondsRemaining);
+         }
+      }
 
 		#region [rgn] Properties (5)
 

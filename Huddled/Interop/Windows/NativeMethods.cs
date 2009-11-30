@@ -826,10 +826,9 @@ namespace Huddled.Interop
       [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
       public struct CalculateNonClientSizeParameter
       {
-         public ApiRect r1;
-         public ApiRect r2;
-
-         public ApiRect r3;
+         public ApiRect newWindow2newClient;
+         public ApiRect oldWindow2validDestination;
+         public ApiRect oldClient2validSource;
          public WindowPosition lppos; //pointer to windowpos
       }
 

@@ -40,6 +40,15 @@ namespace PoshConsole.Cmdlets
                         //chrome.UseGlassFrame = true;
                         chrome.ClientBorderThickness = new Thickness(8, 58, 8, 8);
                      }
+                     // make sure it's active so we don't turn off quakemode while it's hidden
+                     _options.WpfConsole.RootWindow.Activate();
+                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
+                     {
+                        quake.Enabled = true;
+                        quake.Duration = 0;
+                     }
+                     
+
                      _options.Settings.SettingsKey = "";
                      _options.Settings.Reload();
                      //_options.Settings.ShowInTaskbar = true;
@@ -64,9 +73,9 @@ namespace PoshConsole.Cmdlets
                   {
                      _options.Settings.SettingsKey = "Quake";
                      _options.Settings.Reload();
-                     var binder = new System.Windows.Data.Binding("WidthProperty");
-                     binder.Source = _options.WpfConsole.RootWindow.GetLocalWorkArea();
-                     System.Windows.Data.BindingOperations.SetBinding(_options.WpfConsole.RootWindow, Window.WidthProperty, binder);
+                     //var binder = new System.Windows.Data.Binding("WidthProperty");
+                     //binder.Source = _options.WpfConsole.RootWindow.GetLocalWorkArea();
+                     //System.Windows.Data.BindingOperations.SetBinding(_options.WpfConsole.RootWindow, Window.WidthProperty, binder);
 
 
                      foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.WpfConsole.RootWindow))
@@ -74,7 +83,15 @@ namespace PoshConsole.Cmdlets
                         //chrome.UseGlassFrame = false;
                         chrome.ClientBorderThickness = new Thickness(0, 0, 0, 5);
                      }
+                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
+                     {
+                        quake.Enabled = true;
+                        // TODO: expose the duration as a setting
+                        quake.Duration = _options.Settings.Animate ? 1 : 0;
+                     }
+                     NativeBehaviors.GetBehaviors(_options.WpfConsole.RootWindow).Add( new QuakeMode());
 
+                     // Initial population of the 
                      if (_options.Settings.WindowWidth != workingArea.Width)
                      {
                         _options.Settings.ToolbarVisibility = Visibility.Collapsed;
