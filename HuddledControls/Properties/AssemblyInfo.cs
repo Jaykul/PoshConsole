@@ -10,11 +10,11 @@ using System.Windows.Markup;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("HuddledControls")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Controls from HuddledMasses.org")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("HuddledControls")]
-[assembly: AssemblyCopyright("Copyright © 2008")]
+[assembly: AssemblyCopyright("© Copyright 2008-2010 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // [assembly: CLSCompliant(true)]
@@ -57,5 +57,7 @@ using System.Windows.Markup;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.2010.213")]
+[assembly: AssemblyFileVersion("1.0.2010.213")]
+[assembly: GuidAttribute("959f8985-f26b-47ee-827e-f7ad81367475")]
+[assembly: NeutralResourcesLanguageAttribute("en-US")]

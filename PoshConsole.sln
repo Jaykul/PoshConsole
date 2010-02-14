@@ -40,7 +40,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller", "Pos
 		{969A3CF0-3AA6-499B-995B-C84E8F15B107} = {969A3CF0-3AA6-499B-995B-C84E8F15B107}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf2", "..\..\PowerBoots\PoshWpf\PoshWpf2.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf", "..\..\PowerBoots\PoshWpf\PoshWpf.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -63,7 +63,7 @@ Global
 		SccProjectUniqueName5 = PoshConsoleInstaller\\PoshConsoleInstaller.wixproj
 		SccProjectName5 = PoshConsoleInstaller
 		SccLocalPath5 = PoshConsoleInstaller
-		SccProjectUniqueName6 = ..\\..\\PowerBoots\\PoshWpf\\PoshWpf2.csproj
+		SccProjectUniqueName6 = ..\\..\\PowerBoots\\PoshWpf\\PoshWpf.csproj
 		SccProjectName6 = PoshWpf
 		SccLocalPath6 = ..\\..\\PowerBoots\\PoshWpf
 	EndGlobalSection
@@ -143,7 +143,7 @@ Global
 		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal

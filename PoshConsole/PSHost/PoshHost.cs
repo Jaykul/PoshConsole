@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using Huddled.Interop;
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
+using Huddled.WPF.Controls.Interfaces;
 
 namespace PoshConsole.Host
 {
@@ -711,10 +712,15 @@ namespace PoshConsole.Host
                {
                   // do nothing, this setting is checked each time you select
                } break;
-            //ToDo: REIMPLEMENT case "ScrollBarVisibility":
-            //   {
-            //      _buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility)(int)Properties.Settings.Default.ScrollBarVisibility;
-            //   } break;
+            //ToDo: REIMPLEMENT 
+            case "ScrollBarVisibility":
+               {
+                  _buffer.Dispatcher.BeginInvoke((Action) delegate
+                   {
+                      _buffer.VerticalScrollBarVisibility = (ConsoleScrollBarVisibility) (int) Properties.Settings.Default.ScrollBarVisibility;
+                   });
+
+               } break;
             default:
                break;
          }
@@ -726,7 +732,17 @@ namespace PoshConsole.Host
       #region IPSBackgroundHost Members
 
 
-      public bool RegisterHotkey(KeyGesture key, ScriptBlock script)
+      public bool RemoveHotkey(KeyGesture key)
+      {
+         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
+         {
+               behavior.Hotkeys.Remove(new KeyBinding(new ScriptCommand(OnGotUserInput, null), key));
+               return true;
+         }
+         return false;
+      }
+
+      public bool AddHotkey(KeyGesture key, ScriptBlock script)
       {
          return (bool)((UIElement)_psUi).Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() =>
          {
@@ -745,6 +761,21 @@ namespace PoshConsole.Host
             }
             catch { return false; }
          }));
+      }
+
+      public IEnumerable<KeyValuePair<KeyGesture, ScriptBlock>> Hotkeys()
+      {
+         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
+         {
+            foreach (var keyBinding in behavior.Hotkeys)
+            {
+               yield return
+                  new KeyValuePair<KeyGesture, ScriptBlock>(
+                     keyBinding.Gesture as KeyGesture, 
+                     keyBinding.Command as ScriptCommand);
+            }
+            //return true;
+         }
       }
 
       #endregion

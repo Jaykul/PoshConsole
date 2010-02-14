@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Huddled.Wpf;
 using Huddled.Interop;
 using Huddled.Interop.Windows;
+using Huddled.WPF.Controls;
 using PoshConsole.Controls;
 using PoshConsole.Properties;
 using PoshConsole.Host;
@@ -96,14 +97,11 @@ namespace PoshConsole
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
-         buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) =>
-         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-            {
-               progress.Children.Clear();
-               progressRecords.Clear();
-            });
-         });
+         buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) => Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+                                                                                                                                                            {
+                                                                                                                                                               progress.Children.Clear();
+                                                                                                                                                               progressRecords.Clear();
+                                                                                                                                                            }));
          //// problems with data binding 
          //WindowStyle = Properties.Settings.Default.WindowStyle;
          //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
@@ -164,6 +162,8 @@ namespace PoshConsole
          base.OnClosing(e);
       }
 
+      private HotkeysBehavior _Hotkeys;
+
       protected override void OnSourceInitialized(EventArgs e)
       {
          base.OnSourceInitialized(e);
@@ -174,32 +174,37 @@ namespace PoshConsole
          {
             if (behavior is HotkeysBehavior)
             {
-
-               HotkeysBehavior hk = behavior as HotkeysBehavior;
-               int k = -1;
-               int count = hk.UnregisteredKeys.Count;
-               while (++k < count)
-               {
-                  KeyBinding key = hk.UnregisteredKeys[k];
-                  // hypothetically, you would show them a GUI for changing the hotkeys... 
-
-                  // but you could try modifying them yourself ...
-                  ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
-                  if (mk != ModifierKeys.None)
-                  {
-                     MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
-                     key.Modifiers |= mk;
-                     hk.Hotkeys.Add(key);
-                  }
-                  else
-                  {
-                     MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
-                     //key.Modifiers |= mk;
-                     //hk.Add(key);
-                  }
-               }
+               _Hotkeys = behavior as HotkeysBehavior;
             }
          }
+
+         if(_Hotkeys != null)
+         {
+            int k = -1;
+            int count = _Hotkeys.UnregisteredKeys.Count;
+            while (++k < count)
+            {
+               KeyBinding key = _Hotkeys.UnregisteredKeys[k];
+               // hypothetically, you would show them a GUI for changing the hotkeys... 
+
+               // but you could try modifying them yourself ...
+               ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
+               if (mk != ModifierKeys.None)
+               {
+                  // TODO: store this string somewhere for printing in the banner.
+                  // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
+                  key.Modifiers |= mk;
+                  _Hotkeys.Hotkeys.Add(key);
+               }
+               //else
+               //{
+               //   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
+               //   //key.Modifiers |= mk;
+               //   //hk.Add(key);
+               //}
+            }
+         }
+
       }
 
 
@@ -608,7 +613,7 @@ namespace PoshConsole
       private void OnWindowSourceInitialized(object sender, EventArgs e)
       {
          Cursor = Cursors.AppStarting;
-         this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.Height, 0.0, 0.0));
+         this.TryExtendFrameIntoClientArea(new Thickness(-1));
 
          // hook mousedown and call DragMove() to make the whole Window a drag handle
          Toolbar.PreviewMouseLeftButtonDown += DragHandler;
@@ -634,6 +639,17 @@ namespace PoshConsole
             case "ToolbarVisibility":
                {
                   this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+                  //switch (Properties.Settings.Default.ToolbarVisibility)
+                  //{
+                  //   case Visibility.Hidden:
+                  //   case Visibility.Collapsed:
+                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0));
+                  //      break;
+                  //   case Visibility.Visible:
+                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.ActualHeight, 0.0, 0.0));
+                  //      break;
+                  //}
+
                } break;
             // TODO: let the new top-toolbars be hidden
             //case "StatusBar":
@@ -642,7 +658,7 @@ namespace PoshConsole
             //   } break;
             case "WindowHeight":
                {
-                  // do nothing, this setting is set when width changes, so we don't want to cycle.
+                  // do nothing, this setting is set when height changes, so we don't want to cycle.
                   //this.Height = Properties.Settings.Default.WindowHeight;
                } break;
             case "WindowLeft":
@@ -676,11 +692,11 @@ namespace PoshConsole
                } break;
             case "AlwaysOnTop":
                {
-                  this.Topmost = Properties.Settings.Default.AlwaysOnTop;
+                  this.Topmost = Settings.Default.AlwaysOnTop;
                } break;
             case "Opacity":
                {
-                  this.Opacity = Properties.Settings.Default.Opacity;
+                  this.Opacity = Settings.Default.Opacity;
                } break;
             case "WindowStyle":
                {
@@ -710,15 +726,21 @@ namespace PoshConsole
                } break;
             case "FocusKey":
                {
-                  //HotkeyService.SetFocusHotkey(this, Properties.Settings.Default.FocusKey);
+                  KeyBinding focusKey = null;
+                  foreach (var hk in _Hotkeys.Hotkeys)
+                  {
+                     if(hk.Command is GlobalCommands.ActivateCommand)
+                     {
+                        focusKey = hk;
+                     }
+                  }
+                  if(focusKey != null)
+                  {
+                     _Hotkeys.Hotkeys.Remove(focusKey);
+                  }
+                  focusKey.Gesture = Properties.Settings.Default.FocusKey;
+                  _Hotkeys.Hotkeys.Add(focusKey);
 
-                  //if (FocusKey != null && FocusKey.Id != 0) hkManager.Unregister(FocusKey);
-
-                  //if (Properties.Settings.Default.FocusKey != null)
-                  //{
-                  //    FocusKey = Properties.Settings.Default.FocusKey;
-                  //    hkManager.Register(FocusKey);
-                  //}
                } break;
             default: break;
          }

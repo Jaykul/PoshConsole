@@ -6,7 +6,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WindowStyle" Type="System.Windows.WindowStyle" Scope="User">
-      <Value Profile="(Default)">SingleBorderWindow</Value>
+      <Value Profile="(Default)">ThreeDBorderWindow</Value>
     </Setting>
     <Setting Name="ShowInTaskbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -45,7 +45,7 @@
       <Value Profile="(Default)">#FF104C85</Value>
     </Setting>
     <Setting Name="BorderThickness" Type="System.Windows.Thickness" Scope="User">
-      <Value Profile="(Default)">5,5,5,5</Value>
+      <Value Profile="(Default)">0,0,0,0</Value>
     </Setting>
     <Setting Name="AutoHide" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -82,6 +82,9 @@
     </Setting>
     <Setting Name="ToolbarVisibility" Type="System.Windows.Visibility" Scope="User">
       <Value Profile="(Default)">Visible</Value>
+    </Setting>
+    <Setting Name="QuakeModeSize" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">300</Value>
     </Setting>
   </Settings>
 </SettingsFile>

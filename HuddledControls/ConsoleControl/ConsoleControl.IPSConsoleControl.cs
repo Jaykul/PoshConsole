@@ -41,7 +41,7 @@ namespace Huddled.WPF.Controls
       void IPoshConsoleControl.OnCommandFinished(String command, System.Management.Automation.Runspaces.PipelineState results)
       {
          _id++;
-         //// NOTE: we have to use the dispatcher, otherwise this might complete before the command output
+         //// NOTE: we are only using the dispatcher, to make sure this doesn't complete before the command output
          Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
          {
             _current.Tag = _id;
@@ -58,29 +58,33 @@ namespace Huddled.WPF.Controls
 
 
 
-      //ConsoleScrollBarVisibility IPoshConsoleControl.VerticalScrollBarVisibility
-      //{
-      //    get
-      //    {
-      //        return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate { return base.VerticalScrollBarVisibility; });
-      //    }
-      //    set
-      //    {
-      //       Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate { base.VerticalScrollBarVisibility = (ScrollBarVisibility)value; });
-      //    }
-      //}
+      ConsoleScrollBarVisibility IPoshConsoleControl.VerticalScrollBarVisibility
+      {
+         get
+         {
+            Dispatcher.VerifyAccess();
+            return (ConsoleScrollBarVisibility)base.VerticalScrollBarVisibility;
+         }
+         set
+         {
+            Dispatcher.VerifyAccess();
+            base.VerticalScrollBarVisibility = (ScrollBarVisibility)value;
+         }
+      }
 
-      //ConsoleScrollBarVisibility IPoshConsoleControl.HorizontalScrollBarVisibility
-      //{
-      //    get
-      //    {
-      //       return (ConsoleScrollBarVisibility)Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate { return base.HorizontalScrollBarVisibility; });
-      //    }
-      //    set
-      //    {
-      //       Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate { base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value; });
-      //    }
-      //}
+      ConsoleScrollBarVisibility IPoshConsoleControl.HorizontalScrollBarVisibility
+      {
+         get
+         {
+            Dispatcher.VerifyAccess();
+            return (ConsoleScrollBarVisibility) base.HorizontalScrollBarVisibility;
+         }
+         set
+         {
+            Dispatcher.VerifyAccess();
+            base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value;
+         }
+      }
 
       RichTextBox IPoshConsoleControl.CommandBox
       {

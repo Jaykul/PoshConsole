@@ -58,7 +58,7 @@ namespace Huddled.WPF.Controls
       /// <param name="e"></param>
       void _commandBox_PreviewKeyDown(object sender, KeyEventArgs e)
       {
-
+         // TODO: The special keys are hard-coded here. Need to switch these to the Command system, or at least make them configurable.
          //Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate
          //{
          if (!_waitingForKey)

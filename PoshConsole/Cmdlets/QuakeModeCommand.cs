@@ -9,6 +9,7 @@ using System.Windows.Documents;
 using System.IO;
 using System.Windows.Media;
 using Huddled.Wpf;
+using Huddled.Interop;
 using Huddled.Interop.Windows;
 
 namespace PoshConsole.Cmdlets
@@ -25,72 +26,49 @@ namespace PoshConsole.Cmdlets
          ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).WpfConsole.Dispatcher.BeginInvoke((Action)(() =>
          {
             _options = (PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject;
-            var topLeft = new System.Drawing.Point( (int)_options.WpfConsole.RootWindow.Left,
-                                                    (int)_options.WpfConsole.RootWindow.Top);
+            var win = _options.WpfConsole.RootWindow;
+            var topLeft = new System.Drawing.Point((int)win.Left, (int)win.Top);
 
-            Rect workingArea = _options.WpfConsole.RootWindow.GetLocalWorkArea();
+            Rect workingArea = win.GetLocalWorkArea();
 
             _options.Settings.Save();
             switch (_options.Settings.SettingsKey)
             {
                case "Quake":
                   {
-                     foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.WpfConsole.RootWindow))
-                     {
-                        //chrome.UseGlassFrame = true;
-                        chrome.ClientBorderThickness = new Thickness(8, 58, 8, 8);
-                     }
                      // make sure it's active so we don't turn off quakemode while it's hidden
                      _options.WpfConsole.RootWindow.Activate();
                      foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
                      {
-                        quake.Enabled = true;
-                        quake.Duration = 0;
+                        quake.Enabled = false;
+                        //quake.Duration = 0;
                      }
                      
-
                      _options.Settings.SettingsKey = "";
                      _options.Settings.Reload();
-                     //_options.Settings.ShowInTaskbar = true;
-                     //_options.Settings.AutoHide = false;
-                     //_options.Settings.AlwaysOnTop = false;
-                     //_options.Settings.Animate = true;
-                     //_options.Settings.Opacity = 1.0;
-                     //_options.Settings.BorderThickness = "2,10,2,2";
-                     //_options.Settings.BorderColorBottomRight = "Red";
-                     //_options.Settings.BorderColorTopLeft = "#CCFF3300";
-                     //_options.Settings.WindowHeight = _options.FullPrimaryScreenHeight/2;
-                     //_options.Settings.WindowWidth = _options.FullPrimaryScreenWidth * (2/3);
-                     //_options.Settings.WindowTop = _options.FullPrimaryScreenHeight / 4;
-                     //_options.Settings.WindowLeft = _options.FullPrimaryScreenWidth * (1/6);
-                     //_options.Settings.ConsoleDefaultBackground = "DarkBlue";
-                     //_options.Settings.ConsoleDefaultForeground = "White";
-                     //_options.Settings.StartupBanner = true;
+                     win.WindowState = WindowState.Normal;
+                     // this shouldn't be necessary, because it should happen in the Settings switch?
+                     _options.Settings.ToolbarVisibility = Visibility.Visible;
+
 
                   } break;
 
                default:
                   {
+                     var height = win.Height;
                      _options.Settings.SettingsKey = "Quake";
                      _options.Settings.Reload();
-                     //var binder = new System.Windows.Data.Binding("WidthProperty");
-                     //binder.Source = _options.WpfConsole.RootWindow.GetLocalWorkArea();
-                     //System.Windows.Data.BindingOperations.SetBinding(_options.WpfConsole.RootWindow, Window.WidthProperty, binder);
 
-
-                     foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(_options.WpfConsole.RootWindow))
-                     {
-                        //chrome.UseGlassFrame = false;
-                        chrome.ClientBorderThickness = new Thickness(0, 0, 0, 5);
-                     }
-                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
+                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(win))
                      {
                         quake.Enabled = true;
                         // TODO: expose the duration as a setting
                         quake.Duration = _options.Settings.Animate ? 1 : 0;
                      }
-                     NativeBehaviors.GetBehaviors(_options.WpfConsole.RootWindow).Add( new QuakeMode());
-
+                     win.WindowState = WindowState.Maximized;
+                     // this shouldn't be necessary, because it should happen in the Settings switch?
+                     _options.Settings.ToolbarVisibility = Visibility.Collapsed;
+                     
                      // Initial population of the 
                      if (_options.Settings.WindowWidth != workingArea.Width)
                      {
@@ -102,11 +80,12 @@ namespace PoshConsole.Cmdlets
                         // TODO: When ANIMATE, the window resizes WIDTH too, WHY?
                         // TODO: Also doesn't quite restore to the right place.
                         //_options.Settings.Animate = true;
-                        _options.Settings.Opacity = 0.8;
-                        _options.Settings.BorderThickness = new Thickness(0, 0, 0, 5);
-                        _options.Settings.BorderColorBottomRight = Colors.Red;
-                        _options.Settings.BorderColorTopLeft = new Color() { A = 0xCC, R = 0xFF, G = 0x33, B = 0x00 };
+                        _options.Settings.Opacity = 0.7;
+                        //_options.Settings.BorderThickness = new Thickness(0, 0, 0, 5);
+                        //_options.Settings.BorderColorBottomRight = Colors.Red;
+                        //_options.Settings.BorderColorTopLeft = new Color() { A = 0xCC, R = 0xFF, G = 0x33, B = 0x00 };
                         _options.Settings.SnapToScreenEdge = true;
+                        _options.Settings.SnapDistance = workingArea.Width / 3;
 
                         _options.Settings.WindowHeight = workingArea.Height / 3;
 

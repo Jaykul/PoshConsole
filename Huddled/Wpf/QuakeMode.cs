@@ -38,35 +38,24 @@ using Huddled.Interop.Windows;
 using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 using System.Windows.Media.Animation;
 using System.Windows.Data;
+using System.Windows.Interop;
 
 
 namespace Huddled.Wpf
 {
    public class QuakeMode : NativeBehavior
    {
-      public double _height;
+      private double _height;
+      private Window _window;
       public List<EventTrigger> _triggers = new List<EventTrigger>();
       public override void AddTo(Window window)
       {
-         //<Storyboard x:Key="OnLostFocus1">
-         //   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(FrameworkElement.Height)">
-         //      <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
-         //   </DoubleAnimationUsingKeyFrames>
-         //   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(UIElement.Opacity)">
-         //      <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
-         //   </DoubleAnimationUsingKeyFrames>
-         //</Storyboard>
-         if (Dimension == Direction.Height)
-         {
-            Size = window.Height;
-         }
-         else
-         {
-            Size = window.Width;
-         }
+         _window = window;
+         var duration = new Duration(TimeSpan.FromSeconds(Duration));
+         var sizeProperty = new PropertyPath((Dimension == Direction.Height) ? Window.HeightProperty : Window.WidthProperty);
 
-         var LostFocus = new Storyboard();
-         var GotFocus = new Storyboard();
+         var lostFocus = new Storyboard();
+         var gotFocus = new Storyboard();
 
          if (Dimension == Direction.Height)
          {
@@ -74,7 +63,7 @@ namespace Huddled.Wpf
                Size = ((Window)sender).Height;
                if (Enabled)
                {
-                  LostFocus.Begin();
+                  lostFocus.Begin();
                }
             });
          }
@@ -84,7 +73,7 @@ namespace Huddled.Wpf
                Size = ((Window)sender).Width;
                if (Enabled)
                {
-                  LostFocus.Begin();
+                  lostFocus.Begin();
                }
             });
          }
@@ -92,85 +81,76 @@ namespace Huddled.Wpf
          {
             if (Enabled)
             {
-               GotFocus.Begin();
+               gotFocus.Begin();
             } 
          });
 
+
+         // The HIDING animations
          // Animate the opacity 
-         var fade = new DoubleAnimation
-         {
-            To = 0.50,
-            Duration = new Duration(TimeSpan.FromSeconds(Duration))
-         };
+         var fade = new DoubleAnimation { To = 0.0, Duration = duration };
          Storyboard.SetTarget(fade, window);
-         Storyboard.SetTargetProperty(fade, new PropertyPath(System.Windows.Window.OpacityProperty));
+         Storyboard.SetTargetProperty(fade, new PropertyPath(UIElement.OpacityProperty));
 
+         // The HIDING animations
          // Animate the height
-         var shrink = new DoubleAnimation
-         {
-            To = 50.0,
-            Duration = new Duration(TimeSpan.FromSeconds(Duration))
-         };
+         var shrink = new DoubleAnimation { To = 0.0, Duration = duration };
          Storyboard.SetTarget(shrink, window);
-         if (Dimension == Direction.Height)
-         {
-            Storyboard.SetTargetProperty(shrink, new PropertyPath(System.Windows.Window.HeightProperty));
-         }
-         else
-         {
-            Storyboard.SetTargetProperty(shrink, new PropertyPath(System.Windows.Window.WidthProperty));
-         }
+         Storyboard.SetTargetProperty(shrink, sizeProperty);
 
-         // Animate the visibility
+         // The HIDING animations
+         // Toggle the visibility AFTER it should be hidden
          var hide = new ObjectAnimationUsingKeyFrames();
          hide.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Collapsed, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(Duration))));
          Storyboard.SetTarget(hide, window);
-         Storyboard.SetTargetProperty(hide, new PropertyPath(System.Windows.Window.VisibilityProperty));
+         Storyboard.SetTargetProperty(hide, new PropertyPath(UIElement.VisibilityProperty));
+         
+         //var normalize = new ObjectAnimationUsingKeyFrames();
+         //normalize.KeyFrames.Add(new DiscreteObjectKeyFrame(WindowState.Normal, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0))));
+         //Storyboard.SetTarget(normalize, window);
+         //Storyboard.SetTargetProperty(normalize, new PropertyPath(Window.WindowStateProperty));
 
-         LostFocus.Children.Add(shrink);
-         LostFocus.Children.Add(fade);
-         LostFocus.Children.Add(hide);
+         //lostFocus.Children.Add(normalize);
+         lostFocus.Children.Add(shrink);
+         lostFocus.Children.Add(fade);
+         lostFocus.Children.Add(hide);
 
+
+         // The SHOWING animations
          // Animate the opacity 
-         var unfade = new DoubleAnimation
-         {
-            To = 1.0,
-            Duration = new Duration(TimeSpan.FromSeconds(Duration))
-         };
+         var unfade = new DoubleAnimation { To = 1.0, Duration = duration };
+         var toOpacity = new Binding("OpacityProperty") { Source = this };
+         BindingOperations.SetBinding(unfade, DoubleAnimation.ToProperty, toOpacity);
          Storyboard.SetTarget(unfade, window);
-         Storyboard.SetTargetProperty(unfade, new PropertyPath(System.Windows.Window.OpacityProperty));
+         Storyboard.SetTargetProperty(unfade, new PropertyPath(UIElement.OpacityProperty));
 
+         // The SHOWING animations
          // Animate the height
-         var grow = new DoubleAnimation
-         {
-            To = 250.0,
-            Duration = new Duration(TimeSpan.FromSeconds(Duration))
-         };
-         var toBinding = new Binding("SizeProperty")
-         {
-            Source = this
-         };
+         var grow = new DoubleAnimation { To = 250.0, Duration = duration };
+         var toBinding = new Binding("SizeProperty") { Source = this };
          BindingOperations.SetBinding(grow, DoubleAnimation.ToProperty, toBinding);
-
          Storyboard.SetTarget(grow, window);
-         if (Dimension == Direction.Height)
-         {
-            Storyboard.SetTargetProperty(grow, new PropertyPath(System.Windows.Window.HeightProperty));
-         }
-         else
-         {
-            Storyboard.SetTargetProperty(grow, new PropertyPath(System.Windows.Window.WidthProperty));
-         }
+         Storyboard.SetTargetProperty(grow, sizeProperty);
 
-         // Animate the visibility
+         // The SHOWING animations
+         // Toggle the visibility BEFORE we try to animate it
          var show = new ObjectAnimationUsingKeyFrames();
          show.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0))));
          Storyboard.SetTarget(show, window);
-         Storyboard.SetTargetProperty(show, new PropertyPath(System.Windows.Window.VisibilityProperty));
+         Storyboard.SetTargetProperty(show, new PropertyPath(UIElement.VisibilityProperty));
 
-         GotFocus.Children.Add(show);
-         GotFocus.Children.Add(grow);
-         GotFocus.Children.Add(unfade);
+         //// The SHOWING animations
+         //// Toggle the WindowState
+         //var maximize = new ObjectAnimationUsingKeyFrames();
+         //maximize.KeyFrames.Add(new DiscreteObjectKeyFrame(WindowState.Maximized, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(Duration))));
+         //Storyboard.SetTarget(maximize, window);
+         //Storyboard.SetTargetProperty(maximize, new PropertyPath(System.Windows.Window.WindowStateProperty));
+
+         gotFocus.Children.Add(show);
+         gotFocus.Children.Add(grow);
+         gotFocus.Children.Add(unfade);
+         //gotFocus.Children.Add(maximize);
+
          base.AddTo(window);
       }
 
@@ -186,8 +166,33 @@ namespace Huddled.Wpf
 
       public override IEnumerable<MessageMapping> GetHandlers()
       {
-         yield break;
+         yield return new MessageMapping(NativeMethods.WindowMessage.GetMinMaxInfo, OnGetMinMaxInfo);
       }
+
+      /// <summary>Handles the GetMinMaxInfo Window Message.
+      /// </summary>
+      /// <param name="wParam">The wParam.</param>
+      /// <param name="lParam">The lParam.</param>
+      /// <param name="handled">Whether or not this message has been handled ... (we don't change it)</param>
+      /// <returns>IntPtr.Zero</returns>      
+      private IntPtr OnGetMinMaxInfo(IntPtr wParam, IntPtr lParam, ref bool handled)
+      {
+         if (Enabled)
+         {
+            var minMaxInfo = (NativeMethods.MinMaxInfo)Marshal.PtrToStructure(lParam, typeof(NativeMethods.MinMaxInfo));
+            var handle = (new WindowInteropHelper(_window)).Handle;
+            IntPtr hMonitor = NativeMethods.MonitorFromWindow(handle, NativeMethods.MonitorDefault.ToNearest);
+            NativeMethods.MonitorInfo mi = NativeMethods.GetMonitorInfo(hMonitor);
+            minMaxInfo.MaxPosition.x = mi.MonitorWorkingSpaceRect.Left;
+            minMaxInfo.MaxPosition.y = mi.MonitorWorkingSpaceRect.Top;
+            minMaxInfo.MaxSize.x = mi.MonitorWorkingSpaceRect.Width;
+            minMaxInfo.MaxSize.y = mi.MonitorWorkingSpaceRect.Top + (int)Math.Floor(Size);
+
+            Marshal.StructureToPtr(minMaxInfo, lParam, true);
+         }
+         return IntPtr.Zero;
+      }
+
 
       public static readonly DependencyProperty EnabledProperty =
          DependencyProperty.Register("Enabled", typeof(bool), typeof(QuakeMode), new UIPropertyMetadata(true));
@@ -195,7 +200,17 @@ namespace Huddled.Wpf
       public bool Enabled
       {
          get { return (bool)GetValue(EnabledProperty); }
-         set { SetValue(EnabledProperty, value); }
+         set { 
+            SetValue(EnabledProperty, value);
+            if (value)
+            {
+               _window.WindowStyle = WindowStyle.None;
+            }
+            else
+            {
+               _window.WindowStyle = WindowStyle.ThreeDBorderWindow;
+            }
+         }
       }
 
       public static readonly DependencyProperty DurationProperty =
@@ -215,6 +230,16 @@ namespace Huddled.Wpf
       {
          get { return (Double)GetValue(SizeProperty); }
          set { SetValue(SizeProperty, value); }
+      }
+
+
+      public static readonly DependencyProperty OpacityProperty =
+         DependencyProperty.Register("Opacity", typeof(Double), typeof(QuakeMode), new UIPropertyMetadata(1.0));
+
+      public Double Opacity
+      {
+         get { return (Double)GetValue(OpacityProperty); }
+         set { SetValue(OpacityProperty, value); }
       }
 
       public enum Direction

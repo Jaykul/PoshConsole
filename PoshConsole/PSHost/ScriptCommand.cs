@@ -1,4 +1,5 @@
-﻿using System.Management.Automation;
+﻿using System;
+using System.Management.Automation;
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
 
@@ -27,5 +28,10 @@ namespace PoshConsole.Host
       {
          _handler.Invoke(window, new CommandEventArgs { Command = _script.ToString() });
       }
+
+      public static implicit operator ScriptBlock(ScriptCommand command)
+      {
+         return command._script;
+      } 
    }
 }

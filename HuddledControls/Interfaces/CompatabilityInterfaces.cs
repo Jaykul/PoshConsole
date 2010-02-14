@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using Huddled.WPF.Controls.Interfaces;
 
 namespace System.Management.Automation.Host
@@ -13,6 +14,8 @@ namespace System.Management.Automation.Host
 	/// </summary>
 	public interface IPSBackgroundHost
 	{
-		bool RegisterHotkey(System.Windows.Input.KeyGesture key, ScriptBlock script);
-	}
+      bool AddHotkey(System.Windows.Input.KeyGesture key, ScriptBlock script);
+      bool RemoveHotkey(System.Windows.Input.KeyGesture key);
+      IEnumerable<KeyValuePair<KeyGesture, ScriptBlock>> Hotkeys();
+   }
 }

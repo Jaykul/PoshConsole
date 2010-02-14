@@ -42,7 +42,7 @@ namespace PoshConsole.Cmdlets
       {
          try
          {
-           ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).BgHost.RegisterHotkey(KeyGesture, Action);
+           ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).BgHost.AddHotkey(KeyGesture, Action);
          }
          catch ( Exception ex )
          {

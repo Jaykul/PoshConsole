@@ -261,10 +261,10 @@ namespace PoshConsole
          profile.Properties.Add(new PSNoteProperty("AllUsersCurrentHost", Path.GetFullPath(Path.Combine(allUsersProfilePath, host.Name + "_profile.ps1"))));
          //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
          //  This profile applies only to the current user, but affects all shells.
-         profile.Properties.Add(new PSNoteProperty("CurrentUserAllHosts", (string)profile.ImmediateBaseObject ));
+         profile.Properties.Add(new PSNoteProperty("CurrentUserAllHosts", Path.GetFullPath(Path.Combine(currentUserProfilePath, "Profile.ps1"))));
          //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
          //  This profile applies only to the current user and the Current shell.
-         profile.Properties.Add(new PSNoteProperty("CurrentUserCurrentHost", Path.GetFullPath(Path.Combine(currentUserProfilePath, "Profile.ps1"))));
+         profile.Properties.Add(new PSNoteProperty("CurrentUserCurrentHost", (string)profile.ImmediateBaseObject));
 
          iss.Variables.Add( new SessionStateVariableEntry("profile", profile, "The enumeration of all the available profiles the user could edit."));
 

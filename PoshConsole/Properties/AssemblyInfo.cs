@@ -18,7 +18,7 @@ using System.Windows.Markup;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Posh Console")]
-[assembly: AssemblyCopyright("Copyright Joel Bennett © 2008-2009")]
+[assembly: AssemblyCopyright("© Copyright 2008-2010 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -29,7 +29,7 @@ using System.Windows.Markup;
 //in your source files, set the <UICulture> to en-US.  Then uncomment
 //the NeutralResourceLanguage attribute below.  Update the "en-US" in
 //the line below to match the UICulture setting in the project file.
-[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.MainAssembly)]
+[assembly: NeutralResourcesLanguage("en-US")]
 
 // This will expose a couple of pieces of our code as xaml/wpf controls
 [assembly: XmlnsDefinition("http://schemas.poshconsole.org/controls", "PoshConsole.Controls")]
@@ -54,6 +54,7 @@ using System.Windows.Markup;
 
 
 // Version information
-[assembly: AssemblyVersion("1.0.2009.903")]
-[assembly: AssemblyFileVersion("1.0.2009.903")]
+[assembly: AssemblyVersion("1.0.2010.213")]
+[assembly: AssemblyFileVersion("1.0.2010.213")]
 [assembly: AssemblyInformationalVersion("1.0.2008.128")]
+[assembly: GuidAttribute("0d77437b-6892-4c83-a41c-d135133e758a")]

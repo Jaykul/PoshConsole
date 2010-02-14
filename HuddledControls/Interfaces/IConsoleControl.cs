@@ -26,9 +26,8 @@ namespace System.Management.Automation.Host
 		CommandHistory History { get; }
 		TabExpansion Expander { get; set; }
 
-		// TODO: REIMPLEMENT scrollbar visibility options
-		//ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
-		//ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
+		ConsoleScrollBarVisibility VerticalScrollBarVisibility { get; set; }
+		ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
 	}
 }
 namespace Huddled.WPF.Controls

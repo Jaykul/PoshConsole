@@ -244,6 +244,8 @@ namespace Huddled.Interop
          QueryOpen = 0x0013,
          EraseBackground = 0x0014,
          SystemColorChange = 0x0015,
+         
+         GetMinMaxInfo = 0x0024,
 
          WindowPositionChanging = 0x0046,
          WindowPositionChanged = 0x0047,
@@ -803,7 +805,7 @@ namespace Huddled.Interop
          public WindowThemeNonClientAttributes dwMask;
       }
 
-      public enum MonitorDefault { ToNull = 0, ToPrimary, ToNearest }
+      public enum MonitorDefault { ToNull = 0, ToPrimary = 1, ToNearest = 2}
 
       [StructLayout(LayoutKind.Sequential)]
       public class MonitorInfo
@@ -812,6 +814,16 @@ namespace Huddled.Interop
          public ApiRect MonitorRect;
          public ApiRect MonitorWorkingSpaceRect;
          public int Flags;
+      }
+
+      [StructLayout(LayoutKind.Sequential)]
+      public struct MinMaxInfo
+      {
+         public ApiPoint Reserved;
+         public ApiPoint MaxSize;
+         public ApiPoint MaxPosition;
+         public ApiPoint MinTrackSize;
+         public ApiPoint MaxTrackSize;
       }
 
       [StructLayout(LayoutKind.Sequential)]

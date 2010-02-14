@@ -13,10 +13,27 @@ namespace Huddled.Interop.Windows
          {
             // Get handle for nearest monitor to this window
             var wih = new WindowInteropHelper(window);
-            IntPtr hMonitor = NativeMethods.MonitorFromWindow(wih.Handle, NativeMethods.MonitorDefault.ToNearest);
+            return GetLocalWorkArea(wih.Handle);
+         }
+
+         public static Rect GetLocalWorkArea(IntPtr handle)
+         {
+            HwndSource source = HwndSource.FromHwnd(handle);
+            return GetLocalWorkAreaRect(handle).DPITransformFromWindow(source);
+         }
+
+         public static Huddled.Interop.NativeMethods.ApiRect GetLocalWorkAreaRect(this Window window)
+         {
+            // Get handle for nearest monitor to this window
+            var wih = new WindowInteropHelper(window);
+            return GetLocalWorkAreaRect(wih.Handle);
+         }
+         public static Huddled.Interop.NativeMethods.ApiRect GetLocalWorkAreaRect(IntPtr handle)
+         {
+            // Get handle for nearest monitor to this window
+            IntPtr hMonitor = NativeMethods.MonitorFromWindow(handle, NativeMethods.MonitorDefault.ToNearest);
             NativeMethods.MonitorInfo mi = NativeMethods.GetMonitorInfo(hMonitor);
-            HwndSource source = HwndSource.FromHwnd(wih.Handle);
-            return mi.MonitorWorkingSpaceRect.DPITransformFromWindow(source);
+            return mi.MonitorWorkingSpaceRect;
          }
    }
 }
