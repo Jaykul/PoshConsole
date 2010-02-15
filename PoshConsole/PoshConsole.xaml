@@ -9,8 +9,8 @@
     mc:Ignorable="d" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
-    xmlns:huddle="http://schemas.huddledmasses.org/wpf/controls"
-    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
+    xmlns:huddle="clr-namespace:Huddled.WPF.Controls;assembly=Huddled.WPF.Controls"
+    xmlns:huddled="clr-namespace:Huddled.Wpf;assembly=Huddled.Interop"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
    

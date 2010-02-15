@@ -50,6 +50,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -222,7 +223,7 @@
     <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\PowerBoots\PoshWpf\PoshWpf.csproj">
+    <ProjectReference Include="..\PoshWpf\PoshWpf.csproj">
       <Project>{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}</Project>
       <Name>PoshWpf</Name>
     </ProjectReference>

@@ -6,6 +6,7 @@
 using System;
 using System.Threading;
 using System.Windows;
+using System.Windows.Interop;
 using System.Xml;
 using System.Windows.Threading;
 using System.Management.Automation.Runspaces;
@@ -158,6 +159,8 @@ namespace PoshWpf
       public Exception InitException;
 
       public Runspace ShellRunspace;
+
+      public IntPtr? OwnerHandle;
    }
 
    public static class Presentation
@@ -167,7 +170,7 @@ namespace PoshWpf
 
       // internal method to start the window thread
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
-      public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize)
+      public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize, IntPtr? owner)
       {
          WindowArgs Args = new WindowArgs()
          {
@@ -175,6 +178,7 @@ namespace PoshWpf
             AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
             InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
             Initialize = initialize,
+            OwnerHandle = owner,
             //ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
             ShellRunspace = Runspace.DefaultRunspace
          };
@@ -217,7 +221,7 @@ namespace PoshWpf
          // trap initialization errors
          try
          {
-            LocalWindow = NewWindow(Args.WindowXaml);
+            LocalWindow = NewWindow(Args.WindowXaml, Args.OwnerHandle);
          }
          catch (Exception ex)
          {
@@ -241,7 +245,7 @@ namespace PoshWpf
          // trap runtime exceptions
          try
          {
-            FinalResult.DialogResult = (bool)LocalWindow.ShowDialog();
+            FinalResult.DialogResult = LocalWindow.ShowDialog().Value;
             FinalResult.WindowTag = LocalWindow.Tag;
          }
          catch (Exception ex)
@@ -261,19 +265,24 @@ namespace PoshWpf
       /// <returns></returns>
       // I need the XmlNode so I can get a reader so I can feed it to XamlReader.Load
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
-      public static Window NewWindow(XmlNode xaml)
+      public static Window NewWindow(XmlNode xaml, IntPtr? owner)
       {
          object xamlObject = null;
          // initialize from xaml
          if (xaml != null)
          {
-            xamlObject = System.Windows.Markup.XamlReader.Load(
-                new System.Xml.XmlNodeReader(xaml));
+            xamlObject = System.Windows.Markup.XamlReader.Load(new XmlNodeReader(xaml));
          }
 
          Window w = xamlObject as Window;
          if (w == null){ w = new Window(); }
+
          w.LoadTemplates();
+
+         if (owner.HasValue)
+         {
+            new WindowInteropHelper(w).Owner = owner.Value;
+         }
          return w;
       }
    }
