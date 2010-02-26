@@ -183,10 +183,10 @@ namespace Huddled.WPF.Controls
          {
              List<string> choices = _expansion.GetChoices(cmdline);
 
+            Trace.WriteLine(((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds);
             // DO NOT use menu mode if we're in _playbackMode 
             // OTHERWISE, DO USE it if there are more than TabCompleteMenuThreshold items
             // OR if they double-tapped
-            System.Diagnostics.Trace.WriteLine(((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds);
             if ((CurrentCommandPostCursor.Trim('\n', '\r').Length == 0) &&
                 ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
                 && choices.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
@@ -278,30 +278,39 @@ namespace Huddled.WPF.Controls
       // TODO: change this to handle with the Tokenizer
       private void OnEnterPressed(KeyEventArgs e)
       {
-         // if they CTRL+ENTER (or SHIFT+ENTER), let it through
+         // if they CTRL+ENTER (or SHIFT+ENTER), we just let that pass
          if (!e.IsModifierOn(ModifierKeys.Control) && !e.IsModifierOn(ModifierKeys.Shift))
          {
-            // TODO: Find a way to do this IF v2, and not otherwise.
-            // BUGBUG: Make sure we're handling the exceptions right.
-            var errors = new Collection<PSParseError>();
-            PSParser.Tokenize(CurrentCommand, out errors);
 
-            if (errors.Count > 0)
+            // we expect it to parse as legal script except when we're waiting for input
+            if (!_waitingForInput)
             {
-               TextRange error;
-               foreach (var err in errors)
+               // TODO: Find a way to do this IF v2, and not otherwise.
+               // BUGBUG: Make sure we're handling the exceptions right.
+               var errors = new Collection<PSParseError>();
+               PSParser.Tokenize(CurrentCommand, out errors);
+
+               if (errors.Count > 0)
                {
-                  // TODO: what is a (locale-safe) test that the error is NOT just "Missing function body in function declaration." because they're still writing it?
-                  error = new TextRange(
-                     _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.StartLine - 1)), LogicalDirection.Forward) ?? _commandBox.Document.ContentStart,
-                     _commandBox.Document.ContentStart.GetPositionAtOffset(err.Token.Start + (2 * (err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ?? _commandBox.Document.ContentEnd);
-                  error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
-                  error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
-                  // TODO: put in some sort of milder "clunk" sound here, since this isn't necessarily an error...
-                  System.Media.SystemSounds.Exclamation.Play();
+                  TextRange error;
+                  foreach (var err in errors)
+                  {
+                     // TODO: what is a (locale-safe) test that the error is NOT just "Missing function body in function declaration." because they're still writing it?
+                     error = new TextRange(
+                        _commandBox.Document.ContentStart.GetPositionAtOffset(
+                           err.Token.Start + (2*(err.Token.StartLine - 1)), LogicalDirection.Forward) ??
+                        _commandBox.Document.ContentStart,
+                        _commandBox.Document.ContentStart.GetPositionAtOffset(
+                           err.Token.Start + (2*(err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ??
+                        _commandBox.Document.ContentEnd);
+                     error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
+                     error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
+                     // TODO: put in some sort of milder "clunk" sound here, since this isn't necessarily an error...
+                     System.Media.SystemSounds.Exclamation.Play();
+                  }
+                  e.Handled = true;
+                  return; // out past the normal OnEnterPressed stuff...
                }
-               e.Handled = true;
-               return; // out past the normal OnEnterPressed stuff...
             }
 
             // get the command
