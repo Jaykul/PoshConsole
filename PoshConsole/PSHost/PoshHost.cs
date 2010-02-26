@@ -427,7 +427,7 @@ namespace PoshConsole.Host
          }
          else
          {
-            if (commandLine[commandLine.Length - 1].Equals('\n'))
+            if (commandLine.Length > 0 && commandLine[commandLine.Length - 1].Equals('\n'))
             {
                _console.WriteInput(commandLine);
             }
