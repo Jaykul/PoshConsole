@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.IO;
 using System.Management.Automation.Host;
+using System.Windows.Markup;
 
 namespace PoshConsole.Cmdlets
 {
@@ -28,7 +29,7 @@ namespace PoshConsole.Cmdlets
       protected override void BeginProcessing()
       {
          _xamlUI = ((PoshConsole.Host.PoshOptions)Host.PrivateData.BaseObject).WpfConsole;
-         _xamlUI.Dispatcher.BeginInvoke((Action)(() =>
+         _xamlUI.Dispatcher.Invoke((Action)(() =>
          {
             _window = _xamlUI.RootWindow;
             Block b = _xamlUI.CurrentBlock;
@@ -49,7 +50,7 @@ namespace PoshConsole.Cmdlets
       protected override void ProcessRecord()
       {
          WriteObject(
-           (Block)_xamlUI.Dispatcher.Invoke((Func<Block>)(() =>
+           _xamlUI.Dispatcher.Invoke((Func<String>)(() =>
            {
               Block source = null;
               if (id == 0 || Math.Abs(id) > _id)
@@ -72,14 +73,7 @@ namespace PoshConsole.Cmdlets
                  source = source.PreviousBlock;
               }
               // clone it by serializing and deserializing
-              MemoryStream stream = new MemoryStream();
-              (new TextRange(source.ContentStart, source.ContentEnd)).Save(stream, DataFormats.XamlPackage, true);
-
-              var result = new Paragraph();
-              var copy = new TextRange(result.ContentStart, result.ContentEnd);
-
-              copy.Load(stream, DataFormats.XamlPackage);
-              return result;
+              return XamlWriter.Save(source);
            })));
       }
    }

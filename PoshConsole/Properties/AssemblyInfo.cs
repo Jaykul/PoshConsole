@@ -1,11 +1,9 @@
 #region Using directives
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Resources;
-using System.Globalization;
-using System.Windows;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Markup;
 
 #endregion
@@ -54,7 +52,7 @@ using System.Windows.Markup;
 
 
 // Version information
-[assembly: AssemblyVersion("1.0.2010.213")]
-[assembly: AssemblyFileVersion("1.0.2010.213")]
-[assembly: AssemblyInformationalVersion("1.0.2008.128")]
+[assembly: AssemblyVersion("1.0.2010.227")]
+[assembly: AssemblyFileVersion("1.0.2010.227")]
+[assembly: AssemblyInformationalVersion("1.0.2010.227")]
 [assembly: GuidAttribute("0d77437b-6892-4c83-a41c-d135133e758a")]

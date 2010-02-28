@@ -432,6 +432,7 @@ namespace PoshWpf
         private bool _wantedAsync;
 
         private XmlDocument _template;
+        //private FrameworkElement _element;
         private FrameworkElement _element;
         private ItemsControl _host;
         private WindowDispatcherAsyncResult _asyncResult;
@@ -497,32 +498,42 @@ namespace PoshWpf
                 // preload the template into _element ...
                 if (_template != null)
                 {
-                    ErrorRecord error = (ErrorRecord)_dispatcher.Invoke((Func<ErrorRecord>)(() =>
-                    {
-                        ErrorRecord err = null;
-                        _template.TryLoadXaml(out _element, out err);
-
-                        // if the xaml template is a window, we will toss it unless we're in a WpfHost...
-                        if (_element is Window)
-                        {
+                   ErrorRecord error = (ErrorRecord)_dispatcher.Invoke((Func<ErrorRecord>)(() =>
+                   {
+                      ErrorRecord err = null;
+                      if (_template.TryLoadXaml(out _element, out err))
+                      {
+                         // if the xaml template is a window, we will toss it unless we're in a WpfHost...
+                         if (_element is Window)
+                         {
                             if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
                             {
-                                _window = (Window)_element;
-                                _window.Show();
-                                try
-                                {
-                                    SetWindowParams(_window);
-                                }
-                                catch (Exception ex)
-                                {
-                                    err = new ErrorRecord(ex, "Error Setting Parameter Property", ErrorCategory.InvalidArgument, Content);
-                                }
-                                _dispatcher = _window.Dispatcher;
+                               _window = (Window)_element;
+                               _window.Show();
+                               try
+                               {
+                                  SetWindowParams(_window);
+                               }
+                               catch (Exception ex)
+                               {
+                                  err = new ErrorRecord(ex, "Error Setting Parameter Property", ErrorCategory.InvalidArgument, Content);
+                               }
+                               _dispatcher = _window.Dispatcher;
                             }
                             _element = null;
-                        }
-                        return err;
-                    }));
+                         }
+                         return err;
+                      }
+                      else
+                      {
+                         ContentElement conElement;
+                         if (_template.TryLoadXaml(out conElement, out err))
+                         {
+                            DocumentOutput(conElement);
+                         }
+                         return err;
+                      }
+                   }));
                     if (error != null) { WriteError(error); }
                 }
 
@@ -1503,7 +1514,7 @@ function Global:Write-BootsOutput($inputObject) {
             }
 
             Block blockput = output as Block;
-            if (blockput == null)
+            if (blockput != null)
             {
                 doc.Blocks.InsertAfter(par, blockput);
             }

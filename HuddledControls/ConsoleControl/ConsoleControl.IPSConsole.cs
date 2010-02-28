@@ -1,25 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Security;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Management.Automation.Host;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Windows.Threading;
-using System.Management.Automation;
-using System.Threading;
 using System.Collections.ObjectModel;
-using System.Text;
-using Huddled.WPF.Controls.Interfaces;
-using Huddled.WPF.Controls.Properties;
-using Colors=Huddled.WPF.Controls.Properties.Colors;
+using System.Diagnostics;
+using System.Globalization;
+using System.Management.Automation;
+using System.Management.Automation.Host;
+using System.Security;
+using System.Threading;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Threading;
 
 namespace Huddled.WPF.Controls
 {
@@ -28,14 +18,12 @@ namespace Huddled.WPF.Controls
    /// Importantly, this implementation just calls the existing methods on the our ConsoleRichTextBox class
    /// Each call is wrapped in Dispatcher methods so that the interface is thread-safe!
    /// </summary>
-   public partial class ConsoleControl : IPSConsole  //, IPSConsole, IConsoleControlBuffered
+   public partial class ConsoleControl //: IPSConsole
    {
-
        //[DllImport("credui", EntryPoint="CredUIPromptForCredentialsW", CharSet=CharSet.Unicode)]
        //private static extern CredUIReturnCodes CredUIPromptForCredentials(ref CREDUI_INFO pUiInfo, string pszTargetName, IntPtr Reserved, int dwAuthError, StringBuilder pszUserName, int ulUserNameMaxChars, StringBuilder pszPassword, int ulPasswordMaxChars, ref int pfSave, CREDUI_FLAGS dwFlags);
 
-
-      private PSInvalidCastException TryConvertTo(Type type, string input, out object output)
+      private static PSInvalidCastException TryConvertTo(Type type, string input, out object output)
       {
          // default to string, that seems to be what PowerShell does
             output = input;
@@ -71,7 +59,7 @@ namespace Huddled.WPF.Controls
             if (type != null && type.IsArray)
             {
                type = type.GetElementType();
-               List<PSObject> output = new List<PSObject>();
+               var output = new List<PSObject>();
                int count = 0;
                do
                {
@@ -110,10 +98,9 @@ namespace Huddled.WPF.Controls
 
             ((IPSConsole) this).Write(String.Format("{0}: ", prompt));
 
-            if (null != type && type.Equals(typeof (System.Security.SecureString)))
+            if (null != type && typeof(SecureString).Equals(type))
             {
-               var userData = ((IPSConsole) this).ReadLineAsSecureString();
-               if (userData == null) userData = new SecureString();
+               var userData = ((IPSConsole) this).ReadLineAsSecureString() ?? new SecureString();
                return PSObject.AsPSObject(userData);
             } // Note: This doesn't look the way it does in PowerShell, but it should work :)
             else
@@ -127,7 +114,7 @@ namespace Huddled.WPF.Controls
                   }
                   else
                   {
-                     Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action<string>) ((def) =>
+                     Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action<string>) (def =>
                                                                                            {
                                                                                               CurrentCommand = def;
                                                                                               _commandBox.SelectAll();
@@ -145,8 +132,8 @@ namespace Huddled.WPF.Controls
                   if (ice == null)
                   {
                      return PSObject.AsPSObject(output);
-                  } 
-                  else if ((ice.InnerException is FormatException) || (ice.InnerException is OverflowException))
+                  }
+                  if ((ice.InnerException is FormatException) || (ice.InnerException is OverflowException))
                   {
                      ((IPSConsole)this).WriteErrorLine(
                         String.Format( @"Cannot recognize ""{0}"" as a {1} due to a format error.", userData, type.FullName )
@@ -172,7 +159,6 @@ namespace Huddled.WPF.Controls
 
          // Convert the choice collection into something that's a little easier to work with
          // See the BuildHotkeysAndPlainLabels method for details.
-         var results = new Dictionary<string, PSObject>();
          var promptData = BuildHotkeysAndPlainLabels(choices, true);
 
 
@@ -240,8 +226,10 @@ namespace Huddled.WPF.Controls
       /// </returns>
       private static string[] GetHotkeyAndLabel(string input)
       {
-         string[] result = new string[] { String.Empty, String.Empty };
+         // ReSharper disable SuggestUseVarKeywordEvident
+         string[] result = new[] { String.Empty, String.Empty };
          string[] fragments = input.Split('&');
+         // ReSharper restore SuggestUseVarKeywordEvident
          if (fragments.Length == 2)
          {
             if (fragments[1].Length > 0)
@@ -263,14 +251,15 @@ namespace Huddled.WPF.Controls
       /// with &amp; removed.
       /// </summary>
       /// <param name="choices">The choice collection to process</param>
+      /// <param name="addHelp">Add the 'Help' prompt </param>
       /// <returns>
       /// A two dimensional array containing the accelerator characters
       /// and the cleaned-up labels</returns>
       private static string[,] BuildHotkeysAndPlainLabels(Collection<ChoiceDescription> choices, bool addHelp)
       {
          // Allocate the result array
-         int count = addHelp ? choices.Count+1 : choices.Count;
-         string[,] hotkeysAndPlainLabels = new string[2, count];
+         var count = addHelp ? choices.Count+1 : choices.Count;
+         var hotkeysAndPlainLabels = new string[2, count];
 
          for (int i = 0; i < choices.Count; ++i)
          {
@@ -299,7 +288,7 @@ namespace Huddled.WPF.Controls
       // the PopupMenu uses these two things...
       private TabExpansion _expansion;
       private CommandHistory _cmdHistory;
-      private PopupMenu _popup;
+      private readonly PopupMenu _popup;
       private DateTime _tabTime;
 
       public CommandHistory History
@@ -324,16 +313,16 @@ namespace Huddled.WPF.Controls
 
       private readonly AutoResetEvent _gotInputKey = new AutoResetEvent(false);
       private readonly AutoResetEvent _gotInputLine = new AutoResetEvent(false);
-      private string _lastInputString = null;
-      private SecureString _lastPassword = null;
+      private string _lastInputString;
+      private SecureString _lastPassword;
 
-      public bool _waitingForInput = false;
+      public bool WaitingForInput;
 
       /// <summary>Handles the CommandEntered event of the Console buffer</summary>
       /// <param name="command">The command.</param>
       private void OnCommand(string command)
       {
-         if (_waitingForInput)
+         if (WaitingForInput)
          {
             _lastInputString = command.TrimEnd();
             _gotInputLine.Set();
@@ -366,10 +355,10 @@ namespace Huddled.WPF.Controls
                                           }
                                        }), DispatcherPriority.Render);
          Thread.Sleep(0);
-         _waitingForInput = true;
+         WaitingForInput = true;
          _gotInputLine.Reset();
          _gotInputLine.WaitOne();
-         _waitingForInput = false;
+         WaitingForInput = false;
 
          Dispatcher.Invoke((Action)(() =>
                                        {
@@ -402,10 +391,10 @@ namespace Huddled.WPF.Controls
          }), DispatcherPriority.Render);
 
          Thread.Sleep(0);
-         _waitingForInput = true;
+         WaitingForInput = true;
          _gotInputLine.Reset();
          _gotInputLine.WaitOne();
-         _waitingForInput = false;
+         WaitingForInput = false;
 
          Dispatcher.Invoke((Action)(() =>
          {
@@ -463,7 +452,7 @@ namespace Huddled.WPF.Controls
          if (allowedCredentialTypes > PSCredentialTypes.Generic)
          {
             // and no domain
-            if (userName.IndexOfAny(new[] { '\\', '@' }) < 0)
+            if (userName != null && userName.IndexOfAny(new[] { '\\', '@' }) < 0)
             {
                userName = string.Format("{0}\\{1}", targetName, userName);
             }
@@ -590,19 +579,19 @@ namespace Huddled.WPF.Controls
          Write(_brushes.WarningForeground, _brushes.WarningBackground, String.Format("WARNING: {0}\n", message), _current);
       }
 
-      void IPSConsole.WriteNativeLine(string message)
+      void IPSConsole.WriteNativeOutput(string message)
       {
          // Write is Dispatcher checked
-         Write(_brushes.NativeOutputForeground, _brushes.NativeOutputBackground, message + "\n", _current);
-         Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
+         Write(_brushes.NativeOutputForeground, _brushes.NativeOutputBackground, message, _current);
+         Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(SetPrompt));
          // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
       }
 
-      void IPSConsole.WriteNativeErrorLine(string message)
+      void IPSConsole.WriteNativeError(string message)
       {
          // Write is Dispatcher checked
-         Write(_brushes.NativeErrorForeground, _brushes.NativeErrorBackground, message + "\n", _current);
-         Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)(() => SetPrompt()));
+         Write(_brushes.NativeErrorForeground, _brushes.NativeErrorBackground, message, _current);
+         Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(SetPrompt));
       }
 
       #endregion

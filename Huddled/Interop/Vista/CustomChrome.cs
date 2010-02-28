@@ -87,7 +87,6 @@ namespace Huddled.Wpf
          yield return new MessageMapping(NativeMethods.WindowMessage.Size, _HandleSize);
          yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanged, _HandleWindowPosChanged);
          yield return new MessageMapping(NativeMethods.WindowMessage.DwmCompositionChanged, _HandleDwmCompositionChanged);
-
       }
 
       /// <summary>

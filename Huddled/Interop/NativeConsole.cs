@@ -1,4 +1,4 @@
-// Copyright (c) 2008 Joel Bennett http://HuddledMasses.org/
+// Copyright (c) 2010 Joel Bennett http://HuddledMasses.org/
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 // SOFTWARE.
 // *****************************************************************************
-// NOTE: YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
+// YOU MAY *ALSO* DISTRIBUTE THIS FILE UNDER ANY OF THE FOLLOWING...
 // PERMISSIVE LICENSES:
 // BSD:	 http://www.opensource.org/licenses/bsd-license.php
 // MIT:   http://www.opensource.org/licenses/mit-license.html
@@ -45,7 +45,7 @@ namespace Huddled.Interop
       /// <summary>
       /// Initializes a new instance of the <see cref="ConsoleInteropException"/> class.
       /// </summary>
-      public ConsoleInteropException() : base() { }
+      public ConsoleInteropException() { }
       /// <summary>
       /// Initializes a new instance of the <see cref="ConsoleInteropException"/> 
       /// class with the specified message
@@ -74,41 +74,47 @@ namespace Huddled.Interop
 
          #region  Fields (5)
 
-         public const UInt32 DUPLICATE_SAME_ACCESS = 0x00000002;
-         public const int LWA_ALPHA = 0x2;
-         public const int LWA_COLORKEY = 0x1;
-         public const int WS_EX_LAYERED = 0x80000;
-         public const int WS_EX_TRANSPARENT = 0x00000020;
+         public const UInt32 DuplicateSameAccess = 0x00000002;
+         public const int LwaAlpha = 0x2;
+         public const int LwaColorkey = 0x1;
+         public const int WsExLayered = 0x80000;
+         public const int WsExTransparent = 0x00000020;
 
          #endregion
 
          #region  Enums (3)
 
-         public enum ShowState : int
+         public enum ShowState
          {
-            SW_HIDE = 0
-            /// and lots of others
+            SwHide = 0
+            // and lots of others
          }
-         public enum GwlIndex : int
+         public enum GwlIndex
          {
             Id = (-12),
             Style = (-16),
             ExStyle = (-20)
          }
-         public enum StdHandle : int
+         public enum StdHandle
          {
             /// <summary>
             /// The standard input device
             /// </summary>
-            INPUT_HANDLE = -10, //(DWORD)-10 	The standard input device.
+            InputHandle = -10, //(DWORD)-10 	The standard input device.
             /// <summary>
             /// The standard output device.
             /// </summary>
-            OUTPUT_HANDLE = -11, //(DWORD)-11 	The standard output device.
+            OutputHandle = -11, //(DWORD)-11 	The standard output device.
             /// <summary>
             /// The standard error device.
             /// </summary>
-            ERROR_HANDLE = -12 //(DWORD)-12 	The standard error device.
+            ErrorHandle = -12 //(DWORD)-12 	The standard error device.
+         }
+
+         public enum ConsoleCtrlEvent : uint
+         {
+            CtrlC = 0,
+            CtrlBreak = 1
          }
 
          #endregion
@@ -128,7 +134,7 @@ namespace Huddled.Interop
          [DllImport("kernel32.dll", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]
          public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, 
-                                    ref SECURITY_ATTRIBUTES lpPipeAttributes, uint nSize);
+                                    ref SecurityAttributes lpPipeAttributes, uint nSize);
 
          [DllImport("kernel32.dll", SetLastError = true)]
          public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle,
@@ -173,10 +179,14 @@ namespace Huddled.Interop
          public static extern int WriteFile(IntPtr hFile, byte[] buffer,
            int numBytesToWrite, out int numBytesWritten, IntPtr lpOverlapped);
 
+         [DllImport("kernel32.dll")]
+         [return: MarshalAs(UnmanagedType.Bool)]
+         public static extern bool GenerateConsoleCtrlEvent(ConsoleCtrlEvent dwCtrlEvent, uint dwProcessGroupId);
+
          #endregion
 
          [StructLayout(LayoutKind.Sequential)]
-         public struct SECURITY_ATTRIBUTES
+         public struct SecurityAttributes
          {
             public int nLength;
             public IntPtr lpSecurityDescriptor;
@@ -198,28 +208,28 @@ namespace Huddled.Interop
       public delegate void OutputDelegate(object source, OutputEventArgs args);
 
       /// <summary>Occurs when we write an error line.</summary>
-      public event OutputDelegate WriteErrorLine;
+      public event OutputDelegate WriteError;
       /// <summary>Occurs when we write an output line.</summary>
-      public event OutputDelegate WriteOutputLine;
+      public event OutputDelegate WriteOutput;
       #endregion
 
       #region  Private Fields
       /// <summary> Make sure we don't do anything until we're successfully initialized.</summary>
-      private ConsoleInteropException initializationException = null;
+      private readonly ConsoleInteropException _initializationException;
       /// <summary> Track if we've been initialized.</summary>
-      private bool initialized = false;
+      private bool _initialized;
       /// <summary> Track whether Dispose has been called.</summary>
-      private bool disposed = false;
+      private bool _disposed;
       /// <summary> A nice handle to our console Window</summary>
-      private IntPtr handle;
+      private IntPtr _handle;
       /// <summary> And our process</summary>
-      private System.Diagnostics.Process process;
+      private Process _process;
       /// <summary> Our two threads</summary>
-      private Thread outputThread, errorThread;
+      private Thread _outputThread, _errorThread;
       /// <summary> and the original handles to the console</summary>
-      private IntPtr stdOutRead, stdOutWrite, stdInRead, stdInWrite, stdErrRead, stdErrWrite;
+      private IntPtr _stdOutRead, _stdOutWrite, _stdInRead, _stdInWrite, _stdErrRead, _stdErrWrite;
       /// <summary> and the copy handles ...</summary>
-      private IntPtr stdOutReadCopy, stdInWriteCopy, stdErrReadCopy;
+      private IntPtr _stdOutReadCopy, _stdInWriteCopy, _stdErrReadCopy;
       #endregion
 
       #region  Constructors and Destructors
@@ -238,7 +248,7 @@ namespace Huddled.Interop
             }
             catch (ConsoleInteropException cie)
             {
-               initializationException = cie;
+               _initializationException = cie;
             }
          }
       }
@@ -251,7 +261,7 @@ namespace Huddled.Interop
       /// </summary>
       public ConsoleInteropException InitializationException
       {
-         get { return initializationException; }
+         get { return _initializationException; }
       }
 
       /// <summary>
@@ -259,7 +269,7 @@ namespace Huddled.Interop
       /// </summary>
       public bool IsInitialized
       {
-         get { return initialized; }
+         get { return _initialized; }
       }
 
       /// <summary>
@@ -268,7 +278,7 @@ namespace Huddled.Interop
       /// <returns></returns>
       public bool Initialize()
       {
-         if (!initialized)
+         if (!_initialized)
          {
             // Make ourselves a nice console
             if (!NativeMethods.AllocConsole())
@@ -278,10 +288,10 @@ namespace Huddled.Interop
             }
 
             // hide the Window ...
-            handle = NativeMethods.GetConsoleWindow();
-            if (handle != IntPtr.Zero)
+            _handle = NativeMethods.GetConsoleWindow();
+            if (_handle != IntPtr.Zero)
             {
-               NativeMethods.ShowWindow(handle, NativeMethods.ShowState.SW_HIDE);
+               NativeMethods.ShowWindow(_handle, NativeMethods.ShowState.SwHide);
             }
 
             //NativeMethods.SetWindowLong(handle, NativeMethods.GwlIndex.ExStyle, 
@@ -289,11 +299,11 @@ namespace Huddled.Interop
             // NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TRANSPARENT));
             //NativeMethods.SetLayeredWindowAttributes(handle, 0, 0, NativeMethods.LWA_ALPHA);
 
-            process = System.Diagnostics.Process.GetCurrentProcess();
-            NativeMethods.SECURITY_ATTRIBUTES saAttr;
+            _process = Process.GetCurrentProcess();
+            NativeMethods.SecurityAttributes saAttr;
 
             // Set the bInheritHandle flag so pipe handles are inherited.
-            saAttr.nLength = Marshal.SizeOf(typeof(NativeMethods.SECURITY_ATTRIBUTES));
+            saAttr.nLength = Marshal.SizeOf(typeof(NativeMethods.SecurityAttributes));
             saAttr.bInheritHandle = true;
             saAttr.lpSecurityDescriptor = IntPtr.Zero;
 
@@ -304,58 +314,58 @@ namespace Huddled.Interop
             // * Create a (noninheritable) duplicate of the read handle, and...
             // * Close the inheritable read handle.
 
-            if (!NativeMethods.CreatePipe(out stdOutRead, out stdOutWrite, ref saAttr, 0))
+            if (!NativeMethods.CreatePipe(out _stdOutRead, out _stdOutWrite, ref saAttr, 0))
             {
                throw new ConsoleInteropException("Couldn't create the STDOUT pipe",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.OUTPUT_HANDLE, stdOutWrite))
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.OutputHandle, _stdOutWrite))
             {
                throw new ConsoleInteropException("Couldn't redirect STDOUT!",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
             // Create noninheritable read handle and close the inheritable read handle.
-            if (!NativeMethods.DuplicateHandle(process.Handle, stdOutRead, process.Handle,
-                           out stdOutReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            if (!NativeMethods.DuplicateHandle(_process.Handle, _stdOutRead, _process.Handle,
+                           out _stdOutReadCopy, 0, false, NativeMethods.DuplicateSameAccess))
             {
                throw new ConsoleInteropException("Couldn't Duplicate STDOUT Handle",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            NativeMethods.CloseHandle(stdOutRead);
+            NativeMethods.CloseHandle(_stdOutRead);
 
             // For the output handles we need a thread to read them
-            outputThread = new Thread(OutputThread);
-            outputThread.SetApartmentState(ApartmentState.STA);
-            outputThread.Start();
+            _outputThread = new Thread(OutputThread);
+            _outputThread.SetApartmentState(ApartmentState.STA);
+            _outputThread.Start();
 
             // The steps for redirecting STDERR are the same:
             // * Create anonymous pipe to be STDERR for us.
             // * Set STDERR of our process to be WRITE handle to the pipe.
             // * Create a (noninheritable) duplicate of the read handle and 
             // * Close the inheritable read handle.
-            if (!NativeMethods.CreatePipe(out stdErrRead, out stdErrWrite, ref saAttr, 0))
+            if (!NativeMethods.CreatePipe(out _stdErrRead, out _stdErrWrite, ref saAttr, 0))
             {
                throw new ConsoleInteropException("Couldn't create the STDERR pipe",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.ERROR_HANDLE, stdErrWrite))
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.ErrorHandle, _stdErrWrite))
             {
                throw new ConsoleInteropException("Couldn't redirect STDERR!",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
             // Create noninheritable read handle and close the inheritable read handle.
-            if (!NativeMethods.DuplicateHandle(process.Handle, stdErrRead, process.Handle,
-               out stdErrReadCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            if (!NativeMethods.DuplicateHandle(_process.Handle, _stdErrRead, _process.Handle,
+               out _stdErrReadCopy, 0, false, NativeMethods.DuplicateSameAccess))
             {
                throw new ConsoleInteropException("Couldn't Duplicate STDERR Handle",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            NativeMethods.CloseHandle(stdErrRead);
+            NativeMethods.CloseHandle(_stdErrRead);
 
             // For the output handles we need a thread to read them
-            errorThread = new Thread(ErrorThread);
-            errorThread.SetApartmentState(ApartmentState.STA);
-            errorThread.Start();
+            _errorThread = new Thread(ErrorThread);
+            _errorThread.SetApartmentState(ApartmentState.STA);
+            _errorThread.Start();
 
             // The steps for redirecting STDIN:
             // * Create anonymous pipe to be STDIN for us.
@@ -363,28 +373,28 @@ namespace Huddled.Interop
             // * Create a (noninheritable) duplicate of the WRITE handle and 
             // * Close the inheritable WRITE handle.
 
-            if (!NativeMethods.CreatePipe(out stdInRead, out stdInWrite, ref saAttr, 0))
+            if (!NativeMethods.CreatePipe(out _stdInRead, out _stdInWrite, ref saAttr, 0))
             {
                throw new ConsoleInteropException("Couldn't create the StdIn pipe",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.INPUT_HANDLE, stdInRead))
+            if (!NativeMethods.SetStdHandle(NativeMethods.StdHandle.InputHandle, _stdInRead))
             {
                throw new ConsoleInteropException("Couldn't redirect StdIn!",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
             // Create noninheritable read handle and close the inheritable read handle.
-            if (!NativeMethods.DuplicateHandle(process.Handle, stdInWrite, process.Handle,
-                  out stdInWriteCopy, 0, false, NativeMethods.DUPLICATE_SAME_ACCESS))
+            if (!NativeMethods.DuplicateHandle(_process.Handle, _stdInWrite, _process.Handle,
+                  out _stdInWriteCopy, 0, false, NativeMethods.DuplicateSameAccess))
             {
                throw new ConsoleInteropException("Couldn't Duplicate StdIn Handle",
                   Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()));
             }
-            NativeMethods.CloseHandle(stdInWrite);
+            NativeMethods.CloseHandle(_stdInWrite);
          }
          // declare that it worked!
-         initialized = true;
-         return initialized;
+         _initialized = true;
+         return _initialized;
       }
 
       /// <summary>Releases unmanaged resources and performs other cleanup operations 
@@ -392,8 +402,7 @@ namespace Huddled.Interop
       /// Use C# destructor syntax for finalization code.
       /// This destructor will run only if the Dispose method does not get called.
       /// </summary>
-      /// <remarks>NOTE: Do not provide destructors in types derived from this class.
-      /// </remarks>
+      /// <remarks>Do not provide destructors in types derived from this class.</remarks>
       ~NativeConsole()
       {
          // Instead of cleaning up in BOTH Dispose() and here ...
@@ -426,19 +435,30 @@ namespace Huddled.Interop
       /// <param name="input">The input.</param>
       public void WriteInput(string input)
       {
-         if (!initialized) { 
+         if (!_initialized) { 
             throw new InvalidOperationException("Can't write input. Must call Initialize() first.");
          }
 
-         byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes(input);
+         byte[] bytes = Encoding.Default.GetBytes(input);
          int written;
 
-         int hresult = NativeMethods.WriteFile(stdInWriteCopy, bytes, 
+         int hresult = NativeMethods.WriteFile(_stdInWriteCopy, bytes, 
                                  bytes.Length, out written, IntPtr.Zero);
          if (hresult != 1)
          {
-            throw new Exception("Error Writing to StdIn, HRESULT: " + hresult.ToString());
+            throw new Exception("Error Writing to StdIn, HRESULT: " + hresult);
          }
+      }
+
+
+      public void SendCtrlC()
+      {
+         NativeMethods.GenerateConsoleCtrlEvent( NativeMethods.ConsoleCtrlEvent.CtrlC, 0);
+      }
+
+      public void SendCtrlBreak()
+      {
+         NativeMethods.GenerateConsoleCtrlEvent( NativeMethods.ConsoleCtrlEvent.CtrlBreak, 0);
       }
 
       /// <summary>
@@ -452,22 +472,22 @@ namespace Huddled.Interop
       private void Dispose(bool disposing)
       {
          // Check to see if Dispose has already been called.
-         if (!disposed)
+         if (!_disposed)
          {
             try
             {
                // // If disposing equals true, dispose all managed resources ALSO.
                if (disposing)
                {
-                  errorThread.Abort();
-                  outputThread.Abort();
+                  _errorThread.Abort();
+                  _outputThread.Abort();
                   //WriteInput("\n");
 
-                  byte[] bytes = System.Text.UTF8Encoding.Default.GetBytes("\n" + (char)26);
+                  byte[] bytes = Encoding.Default.GetBytes("\n" + (char)26);
                   int written;
-                  NativeMethods.WriteFile(stdErrWrite, bytes, bytes.Length, 
+                  NativeMethods.WriteFile(_stdErrWrite, bytes, bytes.Length, 
                                                       out written, IntPtr.Zero);
-                  NativeMethods.WriteFile(stdOutWrite, bytes, bytes.Length, 
+                  NativeMethods.WriteFile(_stdOutWrite, bytes, bytes.Length, 
                                                       out written, IntPtr.Zero);
                   //errorThread.Join();
                   //outputThread.Join();
@@ -480,8 +500,8 @@ namespace Huddled.Interop
                //NativeMethods.CloseHandle(stdOutReadCopy);
                //NativeMethods.CloseHandle(stdErrWrite);
                //NativeMethods.CloseHandle(stdErrReadCopy);
-               NativeMethods.CloseHandle(stdInWriteCopy);
-               NativeMethods.CloseHandle(stdInRead);
+               NativeMethods.CloseHandle(_stdInWriteCopy);
+               NativeMethods.CloseHandle(_stdInRead);
             }
             catch (Exception e)
             {
@@ -491,7 +511,7 @@ namespace Huddled.Interop
             }
 
          }
-         disposed = true;
+         _disposed = true;
       }
 
       /// <summary>
@@ -499,26 +519,24 @@ namespace Huddled.Interop
       /// </summary>
       private void ErrorThread()
       {
-         int BytesRead;
-         byte[] BufBytes = new byte[4096];
+         var bufBytes = new byte[4096];
          // consider wrapping this in a System.IO.FileStream
          try
          {
-            while (NativeMethods.ReadFile(stdErrReadCopy, BufBytes, 4096, 
-                                                      out BytesRead, IntPtr.Zero))
+            int bytesRead;
+            while (NativeMethods.ReadFile(_stdErrReadCopy, bufBytes, 4096, out bytesRead, IntPtr.Zero))
             {
-               if (WriteErrorLine != null)
+               if (WriteError != null)
                {
-                  WriteErrorLine(this, new OutputEventArgs {
-                     Text = UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead) });
+                  WriteError(this, new OutputEventArgs { Text = Encoding.Default.GetString(bufBytes, 0, bytesRead) });
                }
             }
          }
          catch (ThreadAbortException) { }
          finally
          {
-            NativeMethods.CloseHandle(stdErrWrite);
-            NativeMethods.CloseHandle(stdErrReadCopy);
+            NativeMethods.CloseHandle(_stdErrWrite);
+            NativeMethods.CloseHandle(_stdErrReadCopy);
          }
       }
 
@@ -527,28 +545,28 @@ namespace Huddled.Interop
       /// </summary>
       private void OutputThread()
       {
-         int BytesRead;
-         byte[] BufBytes = new byte[4096];
+         var bufBytes = new byte[4096];
          // consider wrapping this in a System.IO.FileStream
          try
          {
-            while (NativeMethods.ReadFile(stdOutReadCopy, BufBytes, 4096, 
-                                                      out BytesRead, IntPtr.Zero))
+            int bytesRead;
+            while (NativeMethods.ReadFile(_stdOutReadCopy, bufBytes, 4096, out bytesRead, IntPtr.Zero))
             {
-               if (WriteOutputLine != null)
+               if (WriteOutput != null)
                {
-                  WriteOutputLine(this, new OutputEventArgs { 
-                     Text = UTF8Encoding.Default.GetString(BufBytes, 0, BytesRead) });
+                  WriteOutput(this, new OutputEventArgs { Text = Encoding.Default.GetString(bufBytes, 0, bytesRead) });
                }
             }
          }
          catch (ThreadAbortException) { }
          finally
          {
-            NativeMethods.CloseHandle(stdOutWrite);
-            NativeMethods.CloseHandle(stdOutReadCopy);
+            NativeMethods.CloseHandle(_stdOutWrite);
+            NativeMethods.CloseHandle(_stdOutReadCopy);
          }
       }
+
+
       #endregion
    }
 }

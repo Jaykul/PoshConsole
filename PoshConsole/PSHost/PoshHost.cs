@@ -231,8 +231,8 @@ namespace PoshConsole.Host
                _console = new NativeConsole(false);
                // this way, we can handle (report) any exception...
                _console.Initialize();
-               _console.WriteOutputLine += (source, args) => _buffer.WriteNativeLine(args.Text.TrimEnd('\n'));
-               _console.WriteErrorLine += (source, args) => _buffer.WriteNativeErrorLine(args.Text.TrimEnd('\n'));
+               _console.WriteOutput += (source, args) => _buffer.WriteNativeOutput(args.Text.TrimEnd('\n'));
+               _console.WriteError += (source, args) => _buffer.WriteNativeError(args.Text.TrimEnd('\n'));
             }
             catch (ConsoleInteropException cie)
             {
@@ -277,7 +277,14 @@ namespace PoshConsole.Host
       /// </summary>
       public void StopPipeline()
       {
-         _runner.StopPipeline();
+         if (_native > 0)
+         {
+            _console.SendCtrlC();
+         }
+         else
+         {
+            _runner.StopPipeline();
+         }
          if (_buffer.CurrentCommand.Length > 0) { _buffer.CurrentCommand = ""; }
       }
       //public void StopPipeline()
@@ -695,7 +702,7 @@ namespace PoshConsole.Host
       //    }
       //    else
       //    {
-      //        _buffer.WriteErrorLine("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
+      //        _buffer.WriteError("Timeout - Console Busy, To Cancel Running Pipeline press Esc");
       //    }
       //}
       #endregion ConsoleRichTextBox Event Handlers

@@ -23,7 +23,7 @@ namespace Huddled.WPF.Controls
 
       void _passwordBox_PreviewKeyDown(object sender, KeyEventArgs e)
       {
-         if (_waitingForInput)
+         if (WaitingForInput)
             switch (e.Key)
             {
                case Key.Enter:
@@ -283,7 +283,7 @@ namespace Huddled.WPF.Controls
          {
 
             // we expect it to parse as legal script except when we're waiting for input
-            if (!_waitingForInput)
+            if (!WaitingForInput)
             {
                // TODO: Find a way to do this IF v2, and not otherwise.
                // BUGBUG: Make sure we're handling the exceptions right.
@@ -303,8 +303,8 @@ namespace Huddled.WPF.Controls
                         _commandBox.Document.ContentStart.GetPositionAtOffset(
                            err.Token.Start + (2*(err.Token.EndLine - 1)) + err.Token.Length, LogicalDirection.Backward) ??
                         _commandBox.Document.ContentEnd);
-                     error.ApplyPropertyValue(Run.TextDecorationsProperty, TextDecorations.Underline);
-                     error.ApplyPropertyValue(Run.ForegroundProperty, System.Windows.Media.Brushes.Red);
+                     error.ApplyPropertyValue(Inline.TextDecorationsProperty, TextDecorations.Underline);
+                     error.ApplyPropertyValue(TextElement.ForegroundProperty, System.Windows.Media.Brushes.Red);
                      // TODO: put in some sort of milder "clunk" sound here, since this isn't necessarily an error...
                      System.Media.SystemSounds.Exclamation.Play();
                   }
@@ -322,10 +322,13 @@ namespace Huddled.WPF.Controls
                // put the text in instead
                _current.Inlines.Add(cmd + "\n");
                // and move the _commandContainer to the "next" paragraph
-               _current.Inlines.Remove(_commandContainer);
-               _next = new Paragraph(_commandContainer);
+               if (_current.Inlines.Contains(_commandContainer))
+               {
+                  _current.Inlines.Remove(_commandContainer);
+                  _next = new Paragraph(_commandContainer);
+                  Document.Blocks.Add(_next);
+               }
             }
-            Document.Blocks.Add(_next);
             UpdateLayout();
             OnCommand(cmd);
 

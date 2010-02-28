@@ -398,7 +398,7 @@ namespace Huddled.WPF.Controls
          list.Sort();// TODO: Minor: Sort this intelligently, by type...
          list = list.Distinct().ToList(); 
          // And filter it too
-         _tabbing = currentCommand;
+         _tabbing = currentCommand.TrimEnd('\r','\n');
          _lastWord = _tabbing.GetLastWord();
          // the sweet typeahead auto-filter
          _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);

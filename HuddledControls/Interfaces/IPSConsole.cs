@@ -57,7 +57,7 @@ namespace System.Management.Automation.Host
       void WriteVerboseLine(string message);
       void WriteWarningLine(string message);
       // I added these so I could offer to color 'native' interactions differently
-      void WriteNativeLine(string message);
-      void WriteNativeErrorLine(string message);
+      void WriteNativeOutput(string message);
+      void WriteNativeError(string message);
    }
 }

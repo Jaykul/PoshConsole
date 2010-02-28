@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System;
 using System.Windows.Markup;
 
 // General Information about an assembly is controlled through the following 
@@ -57,7 +55,8 @@ using System.Windows.Markup;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.2010.213")]
-[assembly: AssemblyFileVersion("1.0.2010.213")]
+[assembly: AssemblyVersion("1.0.2010.227")]
+[assembly: AssemblyFileVersion("1.0.2010.227")]
+[assembly: AssemblyInformationalVersion("1.0.2010.227")]
 [assembly: GuidAttribute("959f8985-f26b-47ee-827e-f7ad81367475")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

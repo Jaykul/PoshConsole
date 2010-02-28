@@ -201,8 +201,8 @@ namespace PoshConsole
                                                                  "Controls the output level of the thread interaction tracers",
                                                                  "4");
 #else
-        protected static TraceSwitch parseTrace = new TraceSwitch("parsing", "Controls the output level of the parsing tracers", "1");
-        protected static TraceSwitch threadTrace = new TraceSwitch("threading", "Controls the output level of the thread interaction tracers", "0");
+        protected static TraceSwitch ParseTrace = new TraceSwitch("parsing", "Controls the output level of the parsing tracers", "1");
+        protected static TraceSwitch ThreadTrace = new TraceSwitch("threading", "Controls the output level of the thread interaction tracers", "0");
 #endif
       protected Queue<InputBoundCommand> CommandQueue;
       protected Thread WorkerThread;
@@ -246,8 +246,7 @@ namespace PoshConsole
          InitialSessionState iss = InitialSessionState.CreateDefault();
 
          Assembly poshModule = Assembly.GetEntryAssembly();
-         string currentUserProfilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                                                      "WindowsPowerShell");
+         string currentUserProfilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell");
          string allUsersProfilePath = Path.Combine(Environment.SystemDirectory, "WindowsPowerShell\\v1.0");
 
 
@@ -504,6 +503,7 @@ namespace PoshConsole
          {
             _pipeline.StopAsync();
          }
+
       }
 
       public InitialSessionState InitialSessionState
@@ -539,12 +539,11 @@ namespace PoshConsole
          // just for the sake of the profiles...
          var existing = new List<string>(new[]
             {
+               // Global Exit Profiles
                Path.GetFullPath(Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\profile_exit.ps1")), 
-               // Put this back if we can get our custom runspace working again.
-               // Path.GetFullPath(Path.Combine(Environment.SystemDirectory , @"WindowsPowerShell\v1.0\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
-               Path.GetFullPath(Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")), Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")), 
-               // Put this back if we can get our custom runspace working again.
-               // Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\" + _runSpace.RunspaceConfiguration.ShellId + "_profile_exit.ps1")),
+               Path.GetFullPath(Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
+               // User Exit Profiles
+               Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")), 
                Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
             }.Where(File.Exists));
 
