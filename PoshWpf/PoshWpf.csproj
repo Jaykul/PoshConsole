@@ -44,7 +44,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS PowerShell2</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -84,6 +84,8 @@
     <Compile Include="Commands\BootsTemplate-Get-Command.cs" />
     <Compile Include="Commands\BootsElement-Select-Command.cs" />
     <Compile Include="Commands\BootsEvent-Register-Command.cs" />
+    <Compile Include="Commands\Xaml-ConvertFrom-Command.cs" />
+    <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
     <Compile Include="Commands\ExportBootsImageCommand.cs" />
     <Compile Include="Commands\BootsWindow-Remove-Command.cs" />
     <Compile Include="GlobalSuppressions.cs" />

@@ -492,8 +492,7 @@ namespace PoshConsole
       public void Dispose()
       {
          _syncEvents.ExitThreadEvent.Set();
-         WorkerThread.Join();
-
+         WorkerThread.Join(3000);
          _runSpace.Dispose();
       }
 
