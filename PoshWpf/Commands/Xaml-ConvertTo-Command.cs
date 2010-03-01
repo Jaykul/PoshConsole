@@ -30,8 +30,6 @@ namespace PoshWpf.Commands
       {
          if (AsDocument.ToBool())
          {
-            //var builder = new StringBuilder();
-            //var xmlWriter = XmlWriter.Create(builder);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(System.Xaml.XamlServices.Save(inputs.ToArray()));
             WriteObject(xmlDocument);

@@ -366,7 +366,7 @@ namespace Huddled.WPF.Controls
       {
          if (ScrollViewer.ViewportWidth > 0 && _next.Inlines.Count > 1 )
          {
-            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left;
+            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _commandContainer.SiblingInlines.Where(run=>run != _commandContainer).Sum(run => run.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
          }
 
          base.OnRenderSizeChanged(sizeInfo);
