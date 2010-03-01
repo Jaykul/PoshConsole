@@ -319,8 +319,6 @@ namespace Huddled.WPF.Controls
             ((IPSRawConsole)this).FlushInputBuffer();
             lock (_commandContainer)
             {
-               // put the text in instead
-               _current.Inlines.Add(cmd + "\n");
                // and move the _commandContainer to the "next" paragraph
                if (_current.Inlines.Contains(_commandContainer))
                {

@@ -24,7 +24,7 @@ namespace Huddled.WPF.Controls
    /// <summary>
    /// The ConsoleControl is a <see cref="FlowDocumentScrollViewer"/> where all input goes to a sub-textbox after the "prompt"
    /// </summary>
-   public partial class ConsoleControl : FlowDocumentScrollViewer
+   public partial class ConsoleControl : FlowDocumentScrollViewer, ISupportInitialize
    {
       //static readonly ConsoleBrushes ConsoleBrushes = new ConsoleBrushes();
 
@@ -32,7 +32,7 @@ namespace Huddled.WPF.Controls
       {
          InitializeCommands();
 
-         DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
+			DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
       }
 
       private static void InitializeCommands()
@@ -100,11 +100,10 @@ namespace Huddled.WPF.Controls
          SetPrompt();
       }
 
-
-
-      public override void EndInit()
+		void ISupportInitialize.EndInit()
       {
-         base.EndInit();
+			// Pre-call the base init code, so it will be finished ...
+         base.EndInit(); 
 
          //// Initialize the document ...
 

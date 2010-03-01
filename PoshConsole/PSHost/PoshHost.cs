@@ -430,7 +430,9 @@ namespace PoshConsole.Host
          string commandLine = command.Command;
          if (_native == 0)
          {
-            Execute(commandLine);
+				// output the text back to the console control (is this weird, or is it just me?)
+				_buffer.WriteLine( command.Command );
+				Execute(commandLine);
          }
          else
          {

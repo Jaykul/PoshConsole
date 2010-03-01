@@ -1,23 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management.Automation;
 using System.Management.Automation.Host;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using Huddled.Wpf;
 using Huddled.Interop;
-using Huddled.Interop.Windows;
-using Huddled.WPF.Controls;
+using Huddled.Wpf;
 using PoshConsole.Controls;
-using PoshConsole.Properties;
 using PoshConsole.Host;
-using System.Collections.Generic;
+using PoshConsole.Properties;
+using System.ComponentModel;
 
 namespace PoshConsole
 {
@@ -25,7 +23,7 @@ namespace PoshConsole
    /// <summary>
    /// Implementation of a WPF host for PowerShell
    /// </summary>
-   public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
+	public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
    {
 
       #region  Fields (11)
@@ -164,98 +162,8 @@ namespace PoshConsole
 
       private HotkeysBehavior _Hotkeys;
 
-      protected override void OnSourceInitialized(EventArgs e)
-      {
-         base.OnSourceInitialized(e);
 
-
-         // so now we can ask which keys are still unregistered.
-         foreach (var behavior in NativeBehaviors.GetBehaviors(this))
-         {
-            if (behavior is HotkeysBehavior)
-            {
-               _Hotkeys = behavior as HotkeysBehavior;
-            }
-         }
-
-         if(_Hotkeys != null)
-         {
-            int k = -1;
-            int count = _Hotkeys.UnregisteredKeys.Count;
-            while (++k < count)
-            {
-               KeyBinding key = _Hotkeys.UnregisteredKeys[k];
-               // hypothetically, you would show them a GUI for changing the hotkeys... 
-
-               // but you could try modifying them yourself ...
-               ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
-               if (mk != ModifierKeys.None)
-               {
-                  // TODO: store this string somewhere for printing in the banner.
-                  // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}\n\nWe'll try registering it as {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk));
-                  key.Modifiers |= mk;
-                  _Hotkeys.Hotkeys.Add(key);
-               }
-               //else
-               //{
-               //   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
-               //   //key.Modifiers |= mk;
-               //   //hk.Add(key);
-               //}
-            }
-         }
-
-      }
-
-
-      public override void EndInit()
-      {
-         base.EndInit();
-         // LOAD the startup banner only when it's set (instead of removing it after)
-         if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
-         {
-            try
-            {
-               Paragraph banner;
-               System.Management.Automation.ErrorRecord error;
-               System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
-               if (startup.TryLoadXaml(out banner, out error))
-               {
-                  // Copy over *all* resources from the DOCUMENT to the BANNER
-                  // NOTE: be careful not to put resources in the document you're not willing to expose
-                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
-                  foreach (string key in buffer.Document.Resources.Keys)
-                  {
-                     banner.Resources[key] = buffer.Document.Resources[key];
-                  }
-                  banner.Padding = new Thickness(5);
-                  buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
-                  //_current = new Paragraph();
-                  //_current.ClearFloaters = WrapDirection.Both;
-                  //buffer.Document.Blocks.Add(_current);
-               }
-               else
-               {
-                  ((IPSConsole)buffer).Write("PoshConsole 1.0.2010.227");
-               }
-
-               // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
-               // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
-            }
-            catch (Exception ex)
-            {
-               System.Diagnostics.Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
-               buffer.Document.Blocks.Clear();
-               ((IPSConsole)buffer).Write("PoshConsole 1.0.2010.227");
-            }
-         }
-         else
-         {
-            ((IPSConsole)buffer).Write("PoshConsole 1.0.2010.227");
-         }
-      }
-
-      //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
+   	//private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
       //{
       //    RecalculateSizes();
       //}
@@ -615,11 +523,89 @@ namespace PoshConsole
          Cursor = Cursors.AppStarting;
          this.TryExtendFrameIntoClientArea(new Thickness(-1));
 
+
+
+			var initWarnings = new StringBuilder();
+
+			// so now we can ask which keys are still unregistered.
+			foreach (var behavior in NativeBehaviors.GetBehaviors(this))
+			{
+				if (behavior is HotkeysBehavior)
+				{
+					_Hotkeys = behavior as HotkeysBehavior;
+				}
+			}
+
+			if (_Hotkeys != null)
+			{
+				int k = -1;
+				int count = _Hotkeys.UnregisteredKeys.Count;
+				while (++k < count)
+				{
+					KeyBinding key = _Hotkeys.UnregisteredKeys[k];
+					// hypothetically, you would show them a GUI for changing the hotkeys... 
+
+					// but you could try modifying them yourself ...
+					ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
+					if (mk != ModifierKeys.None)
+					{
+						initWarnings.AppendFormat("Hotkey taken: {0}+{1} for {2}\n\nModifying it to {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk);
+						key.Modifiers |= mk;
+						_Hotkeys.Hotkeys.Add(key);
+					}
+					else
+					{
+						initWarnings.AppendFormat("Can't register hotkey for {2}\n\nWe tried registering it as {0}+{1}.", key.Modifiers, key.Key, key.Command);
+						//   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
+						//   //key.Modifiers |= mk;
+						//   //hk.Add(key);
+					}
+				}
+			}
+			// LOAD the startup banner only when it's set (instead of removing it after)
+			if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
+			{
+				try
+				{
+					Paragraph banner;
+					ErrorRecord error;
+					System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
+					if (startup.TryLoadXaml(out banner, out error))
+					{
+						// Copy over *all* resources from the DOCUMENT to the BANNER
+						// NOTE: be careful not to put resources in the document you're not willing to expose
+						// NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+						foreach (string key in buffer.Document.Resources.Keys)
+						{
+							banner.Resources[key] = buffer.Document.Resources[key];
+						}
+						banner.Padding = new Thickness(5);
+						buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
+					}
+					else
+					{
+						((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.227");
+					}
+
+					// Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+					// Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
+				}
+				catch (Exception ex)
+				{
+					Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
+					buffer.Document.Blocks.Clear();
+					((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.227");
+				}
+			}
+
+			((IPSConsole)buffer).WriteWarningLine(initWarnings.ToString());
+
          // hook mousedown and call DragMove() to make the whole Window a drag handle
          Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
          buffer.Focus();
+
       }
 
       void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

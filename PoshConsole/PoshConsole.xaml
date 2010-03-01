@@ -188,7 +188,7 @@
         			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		   </StatusBar.BitmapEffect>-->
          <GridSplitter Grid.Column="2" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" Margin="0,0,150,0" />
-         <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" BorderThickness="1,1,1,1" Width="200"  VerticalAlignment="Top" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" />
+         <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" BorderThickness="1,1,1,1" Width="Auto" MinWidth="200" VerticalAlignment="Top" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" />
          <huddle:ImageButton x:Name="FindButton" 
 						Click="OnFindButtonClick" Cursor="Arrow"
 						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
