@@ -584,7 +584,7 @@ namespace PoshConsole
 					}
 					else
 					{
-						((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.227");
+						((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.302");
 					}
 
 					// Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
@@ -594,7 +594,7 @@ namespace PoshConsole
 				{
 					Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
 					buffer.Document.Blocks.Clear();
-					((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.227");
+					((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.302");
 				}
 			}
 
