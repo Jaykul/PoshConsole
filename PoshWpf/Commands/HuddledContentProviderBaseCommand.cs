@@ -18,23 +18,13 @@ namespace PoshWpf
 
 		protected Dictionary<string,IContentReader> GetReaders()
 		{
-			var readers = new Dictionary<string, IContentReader>();
-			foreach (var path in ProviderPaths)
-			{
-				readers.Add(path, TryGetReader(path));
-			}
-			return readers;
+			return ProviderPaths.ToDictionary(path => path, path => TryGetReader(path));
 		}
 
 
 		protected Dictionary<string, IContentWriter> GetWriters()
 		{
-			var writers = new Dictionary<string, IContentWriter>();
-			foreach (var path in ProviderPaths)
-			{
-				writers.Add(path, TryGetWriter(path));
-			}
-			return writers;
+			return ProviderPaths.ToDictionary(path => path, path => TryGetWriter(path));
 		}
 
 		protected IContentReader TryGetReader(string path)
@@ -44,7 +34,7 @@ namespace PoshWpf
 			} 
 			catch(Exception ex)
 			{
-				WriteError( new ErrorRecord(ex,"CantGetContent",ErrorCategory.ReadError,path));
+				WriteError( new ErrorRecord(ex,"CantGetReader",ErrorCategory.ReadError,path));
 			}
 			return null;
 		}
@@ -54,10 +44,11 @@ namespace PoshWpf
 			try
 			{
 				return InvokeProvider.Content.GetWriter(WildcardPattern.Escape(path)).Single();
+				// return InvokeProvider.Content.GetWriter(new[]{WildcardPattern.Escape(path)}, true, true ).Single();
 			} 
 			catch(Exception ex)
 			{
-				WriteError( new ErrorRecord(ex,"CantGetContent",ErrorCategory.ReadError,path));
+				WriteError( new ErrorRecord(ex,"CantGetWriter",ErrorCategory.ReadError,path));
 			}
 			return null;
 		}

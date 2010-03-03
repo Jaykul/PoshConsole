@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Provider;
 using Microsoft.PowerShell.Commands;
@@ -86,12 +87,12 @@ namespace PoshWpf
    				// if path is just "foo.txt," it will return unchanged.
 					try
 					{
-						var providerPaths = GetResolvedProviderPathFromPSPath(path, out provider);
+						var providerPaths = SessionState.Path.GetResolvedPSPathFromPSPath(path);
 						// ensure that this path or set of paths is on the filesystem. 
 						// FYI: A wildcard can never expand to span multiple providers.
-						if (providerConstraint == null || providerConstraint(provider, path))
+						if (providerConstraint == null || providerConstraint(providerPaths.First().Provider, path))
 						{
-							resolvedPaths.AddRange(providerPaths);
+							resolvedPaths.AddRange(from p in providerPaths select p.Path);
 						}
 						else continue;
 					}
@@ -100,7 +101,19 @@ namespace PoshWpf
 						// does the input contain wildcards? should it -Exist?
 						if (!WildcardPattern.ContainsWildcardCharacters(ex.ItemName) && !Exists)
 						{
-							resolvedPaths.Add(ex.ItemName);
+							// no wildcards, so don't try to expand any * or ? symbols.                    
+							PSDriveInfo drive;
+							var literal = SessionState.Path.GetUnresolvedProviderPathFromPSPath(ex.ItemName, out provider, out drive);
+							// ensure that this path is on an acceptable provider. 
+							if (providerConstraint != null && !providerConstraint(provider, path))
+								continue;
+
+							// Ensure we have a provider-qualified path
+							if (!SessionState.Path.IsProviderQualified(literal))
+							{
+								literal = provider.Name + "::" + literal;
+							}
+							resolvedPaths.Add(literal);
 						}
 					}
    			}
@@ -108,13 +121,18 @@ namespace PoshWpf
    			{
    				// no wildcards, so don't try to expand any * or ? symbols.                    
    				PSDriveInfo drive;
-   				var literal = SessionState.Path.GetUnresolvedProviderPathFromPSPath( path, out provider, out drive);
-					// ensure that this path is on the filesystem. 
-					if (providerConstraint == null || providerConstraint(provider, path))
+					
+					var literal = SessionState.Path.GetUnresolvedProviderPathFromPSPath(path, out provider, out drive);
+					// ensure that this path is on an acceptable provider. 
+					if (providerConstraint != null && !providerConstraint(provider, path))
+						continue;
+
+					// Ensure we have a provider-qualified path
+					if (!SessionState.Path.IsProviderQualified(literal))
 					{
-						resolvedPaths.Add(literal);
+						literal = provider.Name + "::" + literal;
 					}
-					else continue;
+					resolvedPaths.Add(literal);
 				}
    		}
 			return resolvedPaths;
@@ -130,7 +148,7 @@ namespace PoshWpf
       protected bool IsFileSystemProvider(ProviderInfo provider, string path)
       {
          // check that this provider is the filesystem
-			if (typeof(FileSystemProvider).IsAssignableFrom(provider.ImplementingType))
+			if (!typeof(FileSystemProvider).IsAssignableFrom(provider.ImplementingType))
          {
             // create a .NET exception wrapping our error text
             var ex = new ArgumentException(path + " does not resolve to a path on the FileSystem provider.");
@@ -155,7 +173,7 @@ namespace PoshWpf
 		protected bool IsContentProvider(ProviderInfo provider, string path)
 		{
 			// check that this provider is the filesystem
-			if (typeof(IContentCmdletProvider).IsAssignableFrom(provider.ImplementingType))
+			if (!typeof(IContentCmdletProvider).IsAssignableFrom(provider.ImplementingType))
 			{
 				// create a .NET exception wrapping our error text
 				var ex = new ArgumentException(path + " does not resolve to a path on a Content provider.");
