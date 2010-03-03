@@ -598,9 +598,12 @@ namespace PoshConsole
 				}
 			}
 
-			((IPSConsole)buffer).WriteWarningLine(initWarnings.ToString());
+			if (initWarnings.Length > 0)
+			{
+				((IPSConsole) buffer).WriteWarningLine(initWarnings.ToString());
+			}
 
-         // hook mousedown and call DragMove() to make the whole Window a drag handle
+      	// hook mousedown and call DragMove() to make the whole Window a drag handle
          Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;

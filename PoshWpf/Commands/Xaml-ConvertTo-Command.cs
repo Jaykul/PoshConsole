@@ -9,7 +9,7 @@ namespace PoshWpf.Commands
    public enum XamlOutput { String, XmlDocument, XDocument }
 
    [Cmdlet(VerbsData.ConvertTo, "Xaml")]
-   public class ConvertToXamlCommand : Cmdlet
+	public class XamlConvertToCommand : Cmdlet
    {
       [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
       public PSObject[] InputObject { get; set; }
@@ -21,8 +21,7 @@ namespace PoshWpf.Commands
 
       protected override void ProcessRecord()
       {
-
-         inputs.AddRange(from obj in InputObject select obj.BaseObject);
+			inputs.AddRange(from obj in InputObject select obj.BaseObject);
          base.ProcessRecord();
       }
 

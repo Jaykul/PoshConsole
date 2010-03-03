@@ -5,7 +5,7 @@ namespace PoshWpf.Commands
 {
 #if CLR4
    [Cmdlet(VerbsData.ConvertFrom, "Xaml", DefaultParameterSetName = "Xaml")]
-   public class ConvertFromXamlCommand : Cmdlet
+   public class XamlConvertFromCommand : Cmdlet
    {
       [Parameter(ParameterSetName = "Document", Mandatory = true, ValueFromPipeline = true)]
       public XmlDocument Document { get; set; }
@@ -13,12 +13,6 @@ namespace PoshWpf.Commands
       [Parameter(ParameterSetName = "Xaml", Mandatory = true, Position = 0, ValueFromPipeline = true)]
       [Alias("Source")]
       public string Xaml { get; set; }
-
-      protected override void BeginProcessing()
-      {
-
-         base.BeginProcessing();
-      }
 
       protected override void ProcessRecord()
       {

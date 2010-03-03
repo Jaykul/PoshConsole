@@ -84,6 +84,11 @@
     <Compile Include="Commands\BootsTemplate-Get-Command.cs" />
     <Compile Include="Commands\BootsElement-Select-Command.cs" />
     <Compile Include="Commands\BootsEvent-Register-Command.cs" />
+    <Compile Include="Commands\HuddledFileSystemBaseCommand.cs" />
+    <Compile Include="Commands\HuddledContentProviderBaseCommand.cs" />
+    <Compile Include="Commands\HuddledProviderBaseCommand.cs" />
+    <Compile Include="Commands\Xaml-Import-Command.cs" />
+    <Compile Include="Commands\Xaml-Export-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertFrom-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
     <Compile Include="Commands\ExportBootsImageCommand.cs" />
