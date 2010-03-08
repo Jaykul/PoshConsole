@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -7,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>PoshConsoleInstaller</OutputName>
     <OutputType>Package</OutputType>
-    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.0\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.5\Wix2010.targets</WixTargetsPath>
     <SccProjectName>SAK</SccProjectName>
     <SccProvider>SAK</SccProvider>
     <SccAuxPath>SAK</SccAuxPath>
@@ -22,6 +23,20 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <LinkerAdditionalOptions>
+    </LinkerAdditionalOptions>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <LinkerAdditionalOptions>-dWixUILicenseRtf=License.rtf -loc WixUI_en-us.wxl</LinkerAdditionalOptions>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <LinkerAdditionalOptions>
+    </LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="MyUI_Mondo.wxs" />
@@ -29,15 +44,20 @@
     <Compile Include="SetShortcuts.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <WixExtension Include="WixUIExtension">
-      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
-    </WixExtension>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="License.rtf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WixUI_en-us.wxl" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DevTools\Windows Installer XML v3.5\bin\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DevTools\Windows Installer XML v3.5\bin\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

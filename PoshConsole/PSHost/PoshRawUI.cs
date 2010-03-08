@@ -7,14 +7,7 @@
 // PARTICULAR PURPOSE.
 //
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Management.Automation;
 using System.Management.Automation.Host;
-using System.Management.Automation.Runspaces;
-using System.Windows.Threading;
-using System.Windows.Documents;
-using Huddled.WPF.Controls.Interfaces;
 
 namespace PoshConsole.Host
 {

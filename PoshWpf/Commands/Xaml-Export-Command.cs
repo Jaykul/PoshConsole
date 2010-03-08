@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if CLR4
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using System.Linq;
@@ -7,7 +8,6 @@ using System.Xml;
 
 namespace PoshWpf.Commands
 {
-#if CLR4
 	[Cmdlet(VerbsData.Export, "Xaml", DefaultParameterSetName = ParamSetPath)]
 	public class XamlExportCommand : HuddledContentProviderBaseCommand
    {
@@ -48,7 +48,7 @@ namespace PoshWpf.Commands
          base.EndProcessing();
       }
    }
-#endif
 }
+#endif
 
 
