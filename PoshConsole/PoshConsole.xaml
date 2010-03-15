@@ -107,8 +107,6 @@
     Top="{Binding Path=WindowTop, Mode=Default, Source={StaticResource SettingsDS}}"
     Topmost="{Binding Path=AlwaysOnTop, Mode=Default, Source={StaticResource SettingsDS}}"
     -->
-    <Window.Triggers>
-    </Window.Triggers>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
         <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
@@ -194,7 +192,7 @@
 						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
 						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1"  VerticalAlignment="Top" Margin="0,2,0,0"/>
         </Grid>
-        <DockPanel Grid.Row="1" Background="Transparent">
+        <DockPanel Grid.Row="1" Background="Transparent" x:Name="Dock">
             <!--huddled:CustomChrome.ClientConstrained="True" -->
             <Grid x:Name="ConsoleArea" Background="Transparent">
                 <Grid.RowDefinitions>
