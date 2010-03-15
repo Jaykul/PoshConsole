@@ -11,7 +11,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{3F848AAE-C60F-4FF8-9DE0-77E96E47765A}"
 	ProjectSection(SolutionItems) = preProject
 		PoshWpf\Install.ps1 = PoshWpf\Install.ps1
-		PoshWpf\PoshWpf.dll = PoshWpf\PoshWpf.dll
 		PoshWpf\UnInstall.ps1 = PoshWpf\UnInstall.ps1
 		PoshWpf\WpfTypes.format.ps1xml = PoshWpf\WpfTypes.format.ps1xml
 		PoshWpf\WpfTypes.types.ps1xml = PoshWpf\WpfTypes.types.ps1xml
@@ -42,30 +41,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf", "PoshWpf\PoshWpf.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Huddled\\Huddled.csproj
-		SccProjectName1 = Huddled
-		SccLocalPath1 = Huddled
-		SccProjectUniqueName2 = PoshConsole\\PoshConsole.csproj
-		SccProjectName2 = PoshConsole
-		SccLocalPath2 = PoshConsole
-		SccProjectUniqueName3 = FontLibrary\\FontLibrary.csproj
-		SccProjectName3 = FontLibrary
-		SccLocalPath3 = FontLibrary
-		SccProjectUniqueName4 = HuddledControls\\HuddledControls.csproj
-		SccProjectName4 = HuddledControls
-		SccLocalPath4 = HuddledControls
-		SccProjectUniqueName5 = PoshConsoleInstaller\\PoshConsoleInstaller.wixproj
-		SccProjectName5 = PoshConsoleInstaller
-		SccLocalPath5 = PoshConsoleInstaller
-		SccProjectUniqueName6 = PoshWpf\\PoshWpf.csproj
-		SccProjectName6 = PoshWpf
-		SccLocalPath6 = PoshWpf
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -176,7 +151,7 @@ Global
 		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 EndGlobal
