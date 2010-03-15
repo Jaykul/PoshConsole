@@ -28,50 +28,50 @@
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
     WindowStyle="ThreeDBorderWindow" Height="371" Width="911">
-   <!-- SingleBorderWindow is important for the CustomChrome behavior -->
-   <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
-   
-   <Window.Resources>
-      <!--<PoshProps:Settings x:Key="SettingsDS" />-->
-      <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
-      <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
-      <BitmapImage x:Key="exclamationIcon" UriSource="pack://application:,,,/Artwork/exclamation.png" DecodePixelHeight="16" />
-      <BitmapImage x:Key="informationIcon" UriSource="pack://application:,,,/Artwork/information.png" DecodePixelHeight="16" />
-      <BitmapImage x:Key="onTopIcon" UriSource="pack://application:,,,/Artwork/AppOnTop.png" DecodePixelHeight="16" />
-      <BitmapImage x:Key="offTopIcon" UriSource="pack://application:,,,/Artwork/AppOffTop.png" DecodePixelHeight="16" />
+    <!-- SingleBorderWindow is important for the CustomChrome behavior -->
+    <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
 
-      <Style TargetType="{x:Type PoshControls:ProgressPanel}">
-         <Setter Property="Background" Value="{Binding Path=Background, ElementName=buffer, Mode=Default, FallbackValue=#33000000}" />
-         <Setter Property="Foreground" Value="{Binding Path=Foreground, ElementName=buffer, Mode=Default, FallbackValue=White}" />
-      </Style>
-      
-      <Style TargetType="{x:Type TextBox}" x:Key="SearchBox">
-         <Style.Triggers>
-            <Trigger Property="IsFocused" Value="True">
-               <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-            </Trigger>
-         </Style.Triggers>
-         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-      </Style>
-      <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
-         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
-         <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
-         <Setter Property="Background" Value="Transparent"/>
-         <Setter Property="Template">
-            <Setter.Value>
-               <ControlTemplate TargetType="{x:Type ResizeGrip}">
-                  <Grid SnapsToDevicePixels="True" Background="Transparent">
-                     <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
+    <Window.Resources>
+        <!--<PoshProps:Settings x:Key="SettingsDS" />-->
+        <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
+        <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
+        <BitmapImage x:Key="exclamationIcon" UriSource="pack://application:,,,/Artwork/exclamation.png" DecodePixelHeight="16" />
+        <BitmapImage x:Key="informationIcon" UriSource="pack://application:,,,/Artwork/information.png" DecodePixelHeight="16" />
+        <BitmapImage x:Key="onTopIcon" UriSource="pack://application:,,,/Artwork/AppOnTop.png" DecodePixelHeight="16" />
+        <BitmapImage x:Key="offTopIcon" UriSource="pack://application:,,,/Artwork/AppOffTop.png" DecodePixelHeight="16" />
+
+        <Style TargetType="{x:Type PoshControls:ProgressPanel}">
+            <Setter Property="Background" Value="{Binding Path=Background, ElementName=buffer, Mode=Default, FallbackValue=#33000000}" />
+            <Setter Property="Foreground" Value="{Binding Path=Foreground, ElementName=buffer, Mode=Default, FallbackValue=White}" />
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}" x:Key="SearchBox">
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+        </Style>
+        <Style x:Key="{x:Type ResizeGrip}" TargetType="{x:Type ResizeGrip}">
+            <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+            <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                        <Grid SnapsToDevicePixels="True" Background="Transparent">
+                            <Path Fill="#66FFFFFF" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
                               Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                     <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
+                            <Path Fill="{Binding Path=BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"
                               HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
                               Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                  </Grid>
-               </ControlTemplate>
-            </Setter.Value>
-         </Setter>
-      </Style>
-      <!--
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--
         <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
             <Setter Property="BorderBrush">
                 <Setter.Value>
@@ -84,158 +84,163 @@
             <Setter Property="BorderThickness" Value="{Binding Path=BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
         </Style>
        -->
-   </Window.Resources>
-   <huddled:NativeBehaviors.Behaviors>
-      <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
+    </Window.Resources>
+    <huddled:NativeBehaviors.Behaviors>
+        <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
                          Size="{Binding Path=QuakeModeSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
                          Opacity="{Binding Path=Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
-      <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
-      <huddled:HotkeysBehavior>
-         <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
-         <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-         <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C" Modifiers="Win+Shift" />
-      </huddled:HotkeysBehavior>
-      <!-- huddled:CustomChrome CornerRadius="8,8,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" / -->
-   </huddled:NativeBehaviors.Behaviors>
+        <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
+        <huddled:HotkeysBehavior>
+            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C" Modifiers="Win+Shift" />
+        </huddled:HotkeysBehavior>
+        <!-- huddled:CustomChrome CornerRadius="8,8,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" / -->
+    </huddled:NativeBehaviors.Behaviors>
 
-   <!--
+    <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
     Left="{Binding Path=WindowLeft, Mode=Default, Source={StaticResource SettingsDS}}"
     Top="{Binding Path=WindowTop, Mode=Default, Source={StaticResource SettingsDS}}"
     Topmost="{Binding Path=AlwaysOnTop, Mode=Default, Source={StaticResource SettingsDS}}"
     -->
-   <Window.Triggers>
-   </Window.Triggers>
-   <Window.CommandBindings>
-      <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
-      <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
+    <Window.Triggers>
+    </Window.Triggers>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
+        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
 
-      <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
-      <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
-      <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
-      <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
-      <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
-      <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
-   </Window.CommandBindings>
-   <Window.InputBindings>
-      <!-- 
+        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
+        <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
+        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
+        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
+        <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
+        <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <!-- 
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
 
-      <!-- Default Binding -->
-      <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
-      <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
-      <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
-      <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
-      <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
+        <!-- Default Binding -->
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
+        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
 
-      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
 
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
-      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
-   </Window.InputBindings>
-   <Window.ShowInTaskbar>
-      <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
-   </Window.ShowInTaskbar>
-   <Window.Opacity>
-      <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
-   </Window.Opacity>
-   <Window.Left>
-      <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
-   </Window.Left>
-   <Window.Top>
-      <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-   </Window.Top>
-   <Window.Topmost>
-      <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-   </Window.Topmost>
-   <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
-   <Grid x:Name="WindowGrid" Background="Transparent">
-      <Grid.RowDefinitions>
-         <RowDefinition Height="Auto" />
-         <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-      <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="22" Margin="0,0,0,0" Background="Transparent" Cursor="Arrow">
-         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="490*"/>
-            <ColumnDefinition Width="200"/>
-            <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-         </Grid.ColumnDefinitions>
-         <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" huddled:CustomChrome.HitTestable="True">
-            <huddle:ImageToggleButton x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Background="#00000000" BorderThickness="0"
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
+        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
+    </Window.InputBindings>
+    <Window.ShowInTaskbar>
+        <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.ShowInTaskbar>
+    <Window.Opacity>
+        <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Opacity>
+    <Window.Left>
+        <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Left>
+    <Window.Top>
+        <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Top>
+    <Window.Topmost>
+        <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Topmost>
+    <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
+    <Grid x:Name="WindowGrid" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="22" Margin="0,0,0,0" Background="Transparent" Cursor="Arrow">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="490*"/>
+                <ColumnDefinition Width="200"/>
+                <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+            </Grid.ColumnDefinitions>
+            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" huddled:CustomChrome.HitTestable="True">
+                <huddle:ImageToggleButton x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Background="#00000000" BorderThickness="0"
                                       Checked="OnTopmost" CheckedImage="{DynamicResource ResourceKey=onTopIcon}" Margin="2,0,0,0"
                                       Unchecked="OnUnTopmost" DefaultImage="{DynamicResource ResourceKey=offTopIcon}" Content=""/>
-            <huddle:ImageToggleButton x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Background="#00000000" BorderThickness="0" 
+                <huddle:ImageToggleButton x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Background="#00000000" BorderThickness="0" 
                                       Checked="OnAdminToggle" CheckedImage="{DynamicResource ResourceKey=informationIcon}" Margin="2,0,0,0"
                                                               DefaultImage="{DynamicResource ResourceKey=exclamationIcon}" Content=""/>
-         </StackPanel>
-         <!--<StatusBar.BitmapEffect>
+            </StackPanel>
+            <!--<StatusBar.BitmapEffect>
         			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
         		   </StatusBar.BitmapEffect>-->
-         <GridSplitter Grid.Column="2" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" Margin="0,0,150,0" />
-         <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" BorderThickness="1,1,1,1" Width="Auto" MinWidth="200" VerticalAlignment="Top" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" />
-         <huddle:ImageButton x:Name="FindButton" 
+            <GridSplitter Grid.Column="2" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" Margin="0,0,150,0" />
+            <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" BorderThickness="1,1,1,1" Width="Auto" MinWidth="200" VerticalAlignment="Top" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" />
+            <huddle:ImageButton x:Name="FindButton" 
 						Click="OnFindButtonClick" Cursor="Arrow"
 						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
 						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1"  VerticalAlignment="Top" Margin="0,2,0,0"/>
-      </Grid>
-      <Grid Grid.Row="1" x:Name="ConsoleArea" Background="Transparent"><!--huddled:CustomChrome.ClientConstrained="True" -->
-         <Grid.RowDefinitions>
-            <!--progress--><RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
-            <!--console--><RowDefinition Height="*"/>
-            <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
-         </Grid.RowDefinitions>
-         <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
+        </Grid>
+        <DockPanel Grid.Row="1" Background="Transparent">
+            <!--huddled:CustomChrome.ClientConstrained="True" -->
+            <Grid x:Name="ConsoleArea" Background="Transparent">
+                <Grid.RowDefinitions>
+                    <!--progress-->
+                    <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
+                    <!--console-->
+                    <RowDefinition Height="*"/>
+                    <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
+                </Grid.RowDefinitions>
+                <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
 				Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
 				Opacity="0.9" Orientation="Vertical" Background="{x:Null}" Grid.Column="1" >
-         </StackPanel>
-         <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
+                </StackPanel>
+                <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
 				HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
 				IsSelectionEnabled="True"
 				Title="PoshConsole" Grid.Column="1"
 				FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
 				FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
 				PreviewMouseWheel="OnBufferPreviewMouseWheel" >
-            <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-            <FlowDocument>
-               <FlowDocument.Resources>
-                  <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-                  <Style x:Key="POSHFont">
-                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
-                  </Style>
-                  <Style x:Key="ConsoleFont">
-                     <Setter Property="TextElement.FontSize" Value="12" />
-                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-                  </Style>
-                  <Style x:Key="BannerFont">
-                     <Setter Property="TextElement.FontSize" Value="20" />
-                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-                     <Setter Property="Typography.ContextualSwashes" Value="1" />
-                  </Style>
-                  <Style x:Key="SigFont">
-                     <Setter Property="TextElement.FontSize" Value="20" />
-                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-                     <Setter Property="Typography.ContextualSwashes" Value="1" />
-                  </Style>
-               </FlowDocument.Resources>
-               <Paragraph ClearFloaters="Both" />
-            </FlowDocument>
-         </huddle:ConsoleControl>
-      </Grid>
-   </Grid>
+                    <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+                    <FlowDocument>
+                        <FlowDocument.Resources>
+                            <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
+                            <Style x:Key="POSHFont">
+                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
+                            </Style>
+                            <Style x:Key="ConsoleFont">
+                                <Setter Property="TextElement.FontSize" Value="12" />
+                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
+                            </Style>
+                            <Style x:Key="BannerFont">
+                                <Setter Property="TextElement.FontSize" Value="20" />
+                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
+                                <Setter Property="Typography.ContextualSwashes" Value="1" />
+                            </Style>
+                            <Style x:Key="SigFont">
+                                <Setter Property="TextElement.FontSize" Value="20" />
+                                <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
+                                <Setter Property="Typography.ContextualSwashes" Value="1" />
+                            </Style>
+                        </FlowDocument.Resources>
+                        <Paragraph ClearFloaters="Both" />
+                    </FlowDocument>
+                </huddle:ConsoleControl>
+            </Grid>
+        </DockPanel>
+    </Grid>
 </Window>

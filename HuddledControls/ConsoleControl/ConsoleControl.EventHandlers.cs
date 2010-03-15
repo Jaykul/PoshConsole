@@ -243,7 +243,7 @@ namespace Huddled.WPF.Controls
       protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
       {
          ApplicationCommands.Paste.Execute(null, this);
-         e.Handled = true;
+         // e.Handled = true;
       }
 
       protected override void OnPreviewKeyUp(KeyEventArgs e)
@@ -263,8 +263,8 @@ namespace Huddled.WPF.Controls
       {
          //Trace.WriteLine(string.Format("Preview KeyDown, queueing KeyInfo: {0}", e.Key));
          _inputBuffer.Enqueue(e.ToKeyInfo());
-         if ((Keyboard.Modifiers & ModifierKeys.None) == 0 && !_popup.IsOpen) 
-            _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+         //if ((Keyboard.Modifiers & ModifierKeys.None) == 0 && !_popup.IsOpen) 
+         //   _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          base.OnPreviewKeyDown(e);
       }
 
