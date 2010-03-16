@@ -150,14 +150,15 @@
     <Compile Include="Commands\HuddledFileSystemBaseCommand.cs" />
     <Compile Include="Commands\HuddledContentProviderBaseCommand.cs" />
     <Compile Include="Commands\HuddledProviderBaseCommand.cs" />
+    <Compile Include="Commands\ScriptDataSource-New-Command.cs" />
     <Compile Include="Commands\Xaml-Import-Command.cs" />
     <Compile Include="Commands\Xaml-Export-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertFrom-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
     <Compile Include="Commands\ExportBootsImageCommand.cs" />
     <Compile Include="Commands\BootsWindow-Remove-Command.cs" />
+    <Compile Include="Dependencies\Interfaces\IPSWpfConsole.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Dependencies\Interfaces\IPSXamlConsole.cs" />
     <Compile Include="Commands\BootsTemplate-Remove-Command.cs" />
     <Compile Include="Commands\BootsWindow-Invoke-Command.cs" />
     <Compile Include="Commands\BootsWindow-Get-Command.cs" />
