@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Management.Automation.Runspaces;
-using System.Text;
+using System.Management.Automation.Host;
 using System.Windows;
-using PoshConsole.Controls;
-using IPoshConsoleControl = System.Management.Automation.Host.IPoshConsoleControl;
-using Huddled.WPF.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
-using System.Management.Automation.Host;
+using Huddled.WPF.Controls;
+using IPoshConsoleControl = System.Management.Automation.Host.IPoshConsoleControl;
 
 namespace PoshConsole.Host
 {
