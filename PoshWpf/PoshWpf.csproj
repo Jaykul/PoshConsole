@@ -150,6 +150,7 @@
     <Compile Include="Commands\HuddledFileSystemBaseCommand.cs" />
     <Compile Include="Commands\HuddledContentProviderBaseCommand.cs" />
     <Compile Include="Commands\HuddledProviderBaseCommand.cs" />
+    <Compile Include="Commands\PsDataSource.cs" />
     <Compile Include="Commands\ScriptDataSource-New-Command.cs" />
     <Compile Include="Commands\Xaml-Import-Command.cs" />
     <Compile Include="Commands\Xaml-Export-Command.cs" />
