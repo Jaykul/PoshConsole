@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Management.Automation;
@@ -160,5 +161,33 @@ namespace PoshWpf
 
       }
 
+      internal static void Register(Type T, Type TC)
+      {
+         var attr = new Attribute[] { new TypeConverterAttribute(TC) };
+         TypeDescriptor.AddAttributes(T, attr);
+      }
+
+      static XamlHelper()
+      {
+         // this is absolutely vital to the functioning of ConvertToXaml
+         Register(typeof(System.Windows.Data.BindingExpression), typeof(BindingConverter));
+      }
+
+      public static string ConvertToXaml(object ui)
+      {
+         var outstr = new System.Text.StringBuilder();
+         // fix up the formatting a little
+         var settings = new System.Xml.XmlWriterSettings();
+         settings.Indent = true;
+         settings.OmitXmlDeclaration = true;
+
+         var writer = System.Xml.XmlWriter.Create(outstr, settings);
+         var dsm = new System.Windows.Markup.XamlDesignerSerializationManager(writer);
+         // turn on expression saving mode 
+         dsm.XamlWriterMode = System.Windows.Markup.XamlWriterMode.Expression;
+
+         System.Windows.Markup.XamlWriter.Save(ui, dsm);
+         return outstr.ToString();
+      }
    }
 }

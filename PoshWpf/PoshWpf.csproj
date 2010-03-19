@@ -44,11 +44,12 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -143,6 +144,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BindingConverter.cs" />
     <Compile Include="BootsWindowDictionary.cs" />
     <Compile Include="Commands\BootsTemplate-Get-Command.cs" />
     <Compile Include="Commands\BootsElement-Select-Command.cs" />
@@ -229,7 +231,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)"
-copy "$(TargetPath)" "C:\Users\Joel\Documents\WindowsPowershell\Modules\PowerBoots\Binary Assemblies"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
