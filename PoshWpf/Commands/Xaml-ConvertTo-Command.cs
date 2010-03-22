@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿#if CLR_V2
+#if CLR_V4
+#error You can't define CLR_V2 and CLR_V4 at the same time
+#endif
+// code for clr 2
+#elif CLR_V4
+// code for clr 4
+
+using System.Collections.Generic;
 using System.Management.Automation;
 using System.Linq;
 using System.Xml;
 
 namespace PoshWpf.Commands
 {
-#if CLR4
+
    public enum XamlOutput { String, XmlDocument, XDocument }
 
    [Cmdlet(VerbsData.ConvertTo, "Xaml")]
@@ -40,7 +48,9 @@ namespace PoshWpf.Commands
          base.EndProcessing();
       }
    }
-#endif
+
 }
 
-
+#else
+#error Define either CLR_V2 or CLR_V4 to compile
+#endif

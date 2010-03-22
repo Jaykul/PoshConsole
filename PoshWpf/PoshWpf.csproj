@@ -44,7 +44,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -156,8 +156,8 @@
     <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
     <Compile Include="Commands\ExportBootsImageCommand.cs" />
     <Compile Include="Commands\BootsWindow-Remove-Command.cs" />
+    <Compile Include="Dependencies\Interfaces\IPSWpfConsole.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Dependencies\Interfaces\IPSXamlConsole.cs" />
     <Compile Include="Commands\BootsTemplate-Remove-Command.cs" />
     <Compile Include="Commands\BootsWindow-Invoke-Command.cs" />
     <Compile Include="Commands\BootsWindow-Get-Command.cs" />

@@ -1,4 +1,11 @@
-﻿#if CLR4
+﻿#if CLR_V2
+#if CLR_V4
+#error You can't define CLR_V2 and CLR_V4 at the same time
+#endif
+// code for clr 2
+#elif CLR_V4
+// code for clr 4
+
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -49,6 +56,7 @@ namespace PoshWpf.Commands
       }
    }
 }
+
+#else
+#error Define either CLR_V2 or CLR_V4 to compile
 #endif
-
-

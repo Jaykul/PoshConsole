@@ -1,4 +1,12 @@
-﻿using System;
+﻿#if CLR_V2
+#if CLR_V4
+#error You can't define CLR_V2 and CLR_V4 at the same time
+#endif
+// code for clr 2
+#elif CLR_V4
+// code for clr 4
+
+using System;
 using System.Management.Automation;
 using System.Text;
 using System.Xml;
@@ -6,7 +14,7 @@ using System.Linq;
 
 namespace PoshWpf.Commands
 {
-#if CLR4
+
 	[Cmdlet(VerbsData.Import, "Xaml", DefaultParameterSetName = ParamSetPath)]
    public class XamlImportCommand : HuddledContentProviderBaseCommand
    {
@@ -41,7 +49,10 @@ namespace PoshWpf.Commands
       	}
       }
    }
-#endif
+
 }
 
 
+#else
+#error Define either CLR_V2 or CLR_V4 to compile
+#endif
