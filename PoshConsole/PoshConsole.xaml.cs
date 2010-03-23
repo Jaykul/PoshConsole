@@ -157,7 +157,6 @@ namespace PoshConsole
          // // This doesn't fix the COM RCW problem
          // Dispatcher.Invoke((Action)(() => { _host.KillConsole(); }));
          _host.KillConsole();
-
          base.OnClosing(e);
       }
 
@@ -522,15 +521,16 @@ namespace PoshConsole
       /// <summary>
       /// Handles the SourceInitialized event of the Window control.
       /// </summary>
-      /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      private void OnWindowSourceInitialized(object sender, EventArgs e)
-      {
-         Cursor = Cursors.AppStarting;
+		protected override void  OnSourceInitialized(EventArgs e)
+		{
+			// NOTE: we override OnSourceInitialized so we can control the order
+			// this way, the base event (and it's handlers) happen before us
+			// and we can handle the unregistered hotkeys (should probably make that an event on the HotkeysBehavior)
+		 	base.OnSourceInitialized(e);
+
+			Cursor = Cursors.AppStarting;
          this.TryExtendFrameIntoClientArea(new Thickness(-1));
-
-
-
 			var initWarnings = new StringBuilder();
 
 			// so now we can ask which keys are still unregistered.
@@ -555,13 +555,13 @@ namespace PoshConsole
 					ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
 					if (mk != ModifierKeys.None)
 					{
-						initWarnings.AppendFormat("Hotkey taken: {0}+{1} for {2}\n\nModifying it to {3}+{0}+{1}.", key.Modifiers, key.Key, key.Command, mk);
+						initWarnings.AppendFormat("Hotkey taken: {0} + {1} for {2}\nModifying it to {3}, {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command, mk);
 						key.Modifiers |= mk;
 						_Hotkeys.Hotkeys.Add(key);
 					}
 					else
 					{
-						initWarnings.AppendFormat("Can't register hotkey for {2}\n\nWe tried registering it as {0}+{1}.", key.Modifiers, key.Key, key.Command);
+						initWarnings.AppendFormat("Can't register hotkey for {2}\nWe tried registering it as {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command);
 						//   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
 						//   //key.Modifiers |= mk;
 						//   //hk.Add(key);
@@ -762,16 +762,6 @@ namespace PoshConsole
       }
 
       #endregion
-
-
-      private void OnBufferPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-      {
-         if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-         {
-            buffer.FontSize += (e.Delta > 0) ? 1 : -1;
-            e.Handled = true;
-         }
-      }
 
       void OnHandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
       {

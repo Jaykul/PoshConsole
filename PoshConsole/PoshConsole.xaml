@@ -18,7 +18,7 @@
     
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
 
-    SourceInitialized="OnWindowSourceInitialized"
+    
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
@@ -216,8 +216,7 @@
 				IsSelectionEnabled="True"
 				Title="PoshConsole" Grid.Column="1"
 				FontSize="{Binding Path=FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
-				FontFamily="{Binding Path=FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"
-				PreviewMouseWheel="OnBufferPreviewMouseWheel" >
+				FontFamily="{Binding Path=FontFamily, Mode=Default, Source={StaticResource SettingsDS}}" >
                     <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
                     <FlowDocument>
                         <FlowDocument.Resources>
