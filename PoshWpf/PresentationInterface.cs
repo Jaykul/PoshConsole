@@ -274,8 +274,7 @@ namespace PoshWpf
             xamlObject = System.Windows.Markup.XamlReader.Load(new XmlNodeReader(xaml));
          }
 
-         Window w = xamlObject as Window;
-         if (w == null){ w = new Window(); }
+         Window w = xamlObject as Window ?? new Window();
 
          w.LoadTemplates();
 

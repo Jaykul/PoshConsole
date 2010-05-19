@@ -10,7 +10,7 @@ using System.Windows.Markup;
 
 namespace PoshWpf
 {
-   class BindingConverter : ExpressionConverter
+   public class BindingConverter : ExpressionConverter
    {
 
       public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)

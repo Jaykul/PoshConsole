@@ -1,14 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
+using System.Management.Automation;
+using System.Windows;
 
 namespace PoshWpf
 {
@@ -24,17 +18,19 @@ namespace PoshWpf
 
       [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByTitle, ValueFromPipelineByPropertyName = true), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
 		public string[] Title { get; set; }
-		private List<WildcardPattern> windowTitlePatterns;
+		private List<WildcardPattern> _windowTitlePatterns;
 
       [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
 		[Alias("Window")]
 		public UIElement[] Element { get; set; }
 
 
-      [Parameter(Position = 2, Mandatory = false), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+      [Parameter(Position = 2, Mandatory = false, ParameterSetName = ByIndex), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+      [Parameter(Position = 2, Mandatory = false, ParameterSetName = ByTitle), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+      [Parameter(Mandatory = false, ParameterSetName = ByElement), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
 		[ValidateNotNullOrEmpty]
 		public string[] Name { get; set; }
-		private List<WildcardPattern> namePatterns;
+		private List<WildcardPattern> _namePatterns;
 
 
 		[Parameter(Position = 4, Mandatory = true)]
@@ -45,7 +41,7 @@ namespace PoshWpf
 		[ValidateNotNullOrEmpty]
 		public RoutedEventHandler Action { get; set; }
 
-      [Parameter(), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru")]
+      [Parameter, System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru")]
 		public SwitchParameter Passthru{ get; set;}
 		//public object GetDynamicParameters()
 		//{
@@ -70,18 +66,18 @@ namespace PoshWpf
 		{
 			if (ParameterSetName == ByTitle)
 			{
-				windowTitlePatterns = new List<WildcardPattern>(Title.Length);
+				_windowTitlePatterns = new List<WildcardPattern>(Title.Length);
 				foreach (var title in Title)
 				{
-					windowTitlePatterns.Add(new WildcardPattern(title, WildcardOptions.IgnoreCase | WildcardOptions.Compiled));
+					_windowTitlePatterns.Add(new WildcardPattern(title, WildcardOptions.IgnoreCase | WildcardOptions.Compiled));
 				}
 			}
 			if (Name != null) // Name.Length > 0
 			{
-				namePatterns = new List<WildcardPattern>(Name.Length);
+				_namePatterns = new List<WildcardPattern>(Name.Length);
 				foreach (var name in Name)
 				{
-					namePatterns.Add(new WildcardPattern(name, WildcardOptions.IgnoreCase | WildcardOptions.Compiled));
+					_namePatterns.Add(new WildcardPattern(name, WildcardOptions.IgnoreCase | WildcardOptions.Compiled));
 				}
 			}
 			base.BeginProcessing();
@@ -89,29 +85,23 @@ namespace PoshWpf
 
 		public RoutedEvent GetEvent(Type type, String eventName)
 		{
-			RoutedEvent[] re = EventManager.GetRoutedEventsForOwner(type);
+			var re = EventManager.GetRoutedEventsForOwner(type);
 			if (re != null)
 			{
-				foreach (var e in re)
+				foreach (var e in re.Where(e => string.Equals(e.Name, EventName, StringComparison.OrdinalIgnoreCase)))
 				{
-               if (string.Equals(e.Name, EventName, StringComparison.OrdinalIgnoreCase))
-					{
-						return e;
-					}
+				   return e;
 				}
 			}
 			re = EventManager.GetRoutedEvents();
-			if (re != null)
-			{
-				foreach (var e in re)
-				{
-               if (string.Equals(e.Name, EventName, StringComparison.OrdinalIgnoreCase))
-					{
-						return e;
-					}
-				}
-			}
-			ThrowTerminatingError(new ErrorRecord(new NotSupportedException("'" + eventName + "' event not found."), "EventNotFound", ErrorCategory.InvalidArgument, EventName));
+         if (re != null)
+         {
+            foreach (var e in re.Where(e => string.Equals(e.Name, EventName, StringComparison.OrdinalIgnoreCase)))
+            {
+               return e;
+            }
+         }
+		   ThrowTerminatingError(new ErrorRecord(new NotSupportedException("'" + eventName + "' event not found."), "EventNotFound", ErrorCategory.InvalidArgument, EventName));
 			return null;
 		}
 
@@ -131,7 +121,7 @@ namespace PoshWpf
 									{
 										try
 										{
-											List<UIElement> controls = (Name != null) ? FindByName(window, namePatterns) : new List<UIElement>(new[] { window });
+											List<UIElement> controls = (Name != null) ? FindByName(window, _namePatterns) : new List<UIElement>(new[] { window });
 											foreach (var el in controls)
 											{
 												el.AddHandler(GetEvent(el.GetType(), EventName), Action);
@@ -152,15 +142,17 @@ namespace PoshWpf
 							if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
 							{
 								bool w = false;
-								foreach (var title in windowTitlePatterns)
+								foreach (var title in _windowTitlePatterns)
 								{
-									w |= (bool)window.Dispatcher.Invoke((Func<bool>)(() =>
+								   Window window1 = window;
+								   WildcardPattern title1 = title;
+								   w |= (bool)window.Dispatcher.Invoke((Func<bool>)(() =>
 									{
 										try
 										{
-											if (title.IsMatch(window.Title))
+											if (title1.IsMatch(window1.Title))
 											{
-												List<UIElement> controls = (Name != null) ? FindByName(window, namePatterns) : new List<UIElement>(new[] { window });
+												var controls = (Name == null) ? new List<UIElement>(new[] { window1 }) : FindByName(window1, _namePatterns);
 												foreach (var el in controls)
 												{
 													el.AddHandler(GetEvent(el.GetType(), EventName), Action);
@@ -175,30 +167,33 @@ namespace PoshWpf
 										return false;
 									}));
 								}
-								if(w  && Passthru.ToBool()) { WriteObject( window ); }
+							   if(w  && Passthru.ToBool()) { WriteObject( window ); }
 							}
 						} break;
 					case ByElement:
 						foreach (var window in Element)
 						{
 							if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
-								window.Dispatcher.Invoke((Action)(() =>
 							{
-								try
-								{
-									List<UIElement> controls = (Name != null) ? FindByName(window, namePatterns) : new List<UIElement>(new[] { window });
-									foreach (var el in controls)
-									{
-										el.AddHandler(GetEvent(el.GetType(), EventName), Action);
-									}
-								}
-								catch (System.Reflection.TargetInvocationException ex)
-								{
-									WriteError(new ErrorRecord(ex.InnerException, "TargetInvocationException", ErrorCategory.NotSpecified, Element));
-								}
+							   UIElement window1 = window;
+							   window.Dispatcher.Invoke((Action)(() =>
+							      {
+							         try
+							         {
+							            List<UIElement> controls = (Name != null) ? FindByName(window1, _namePatterns) : new List<UIElement>(new[] { window1 });
+							            foreach (var el in controls)
+							            {
+							               el.AddHandler(GetEvent(el.GetType(), EventName), Action);
+							            }
+							         }
+							         catch (System.Reflection.TargetInvocationException ex)
+							         {
+							            WriteError(new ErrorRecord(ex.InnerException, "TargetInvocationException", ErrorCategory.NotSpecified, Element));
+							         }
+							      }
+							   ));
 							}
-							));
-							if(Passthru.ToBool()) { WriteObject( window ); }
+						   if(Passthru.ToBool()) { WriteObject( window ); }
 						} break;
 				}
 			}
@@ -207,9 +202,9 @@ namespace PoshWpf
 
 		}
 
-		List<string> _contentProperties = new List<string>();
+	   readonly List<string> _contentProperties = new List<string>();
 
-		private List<UIElement> FindByName(UIElement element, List<WildcardPattern> patterns)
+		private List<UIElement> FindByName(UIElement element, IEnumerable<WildcardPattern> patterns)
 		{
 			var sb = InvokeCommand.NewScriptBlock("Get-BootsContentProperty");
          foreach (var cont in Invoke(sb))
@@ -222,7 +217,7 @@ namespace PoshWpf
 			return results;
 		}
 
-		private void FindByName(UIElement element, List<WildcardPattern> patterns, ref List<UIElement> results)
+		private void FindByName(UIElement element, IEnumerable<WildcardPattern> patterns, ref List<UIElement> results)
 		{
 			foreach (string content in _contentProperties)
 			{
@@ -238,13 +233,7 @@ namespace PoshWpf
 							var fel = el as FrameworkElement;
 							if (fel != null)
 							{
-								foreach (var pattern in patterns)
-								{
-									if (pattern.IsMatch(fel.Name))
-									{
-										results.Add(fel);
-									}
-								}
+							   results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select fel);
 							}
 						}
 						foreach (object el in enumerable)
@@ -263,14 +252,8 @@ namespace PoshWpf
 							var fel = el as FrameworkElement;
 							if (fel != null)
 							{
-								foreach (var pattern in patterns)
-								{
-									if (pattern.IsMatch(fel.Name))
-									{
-										results.Add(fel);
-									}
-								}
-								FindByName(fel, patterns, ref results);
+							   results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select fel);
+							   FindByName(fel, patterns, ref results);
 							}
 							else
 							{

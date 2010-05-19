@@ -15,34 +15,8 @@ namespace PoshWpf
 {
    public abstract class ScriptBlockBase : PSCmdlet
    {
-      private Object _module;
-      //private static PSModuleInfo _module;
-      private MethodInfo _newBoundScriptBlockMethod;
-      private SessionState _sessionState;
+      //private Object _module;
       private string _moduleBase;
-
-      protected ICollection<PSObject> Invoke(ScriptBlock sb, PSVariable[] variables, params object[] args)
-      {
-         if(variables == null) 
-            throw new ArgumentNullException("variables");
-            
-         foreach (var v in variables) SetScriptVariable(v);
-
-         if (_module != null)
-         {
-            sb = (ScriptBlock)_newBoundScriptBlockMethod.Invoke(_module, new[] { sb });
-         }
-         return sb.Invoke(args);
-      }
-
-      protected ICollection<PSObject> Invoke(ScriptBlock sb, params object[] args)
-      {
-         if (_module != null)
-         {
-            sb = (ScriptBlock)_newBoundScriptBlockMethod.Invoke(_module, new[] { sb });
-         }
-         return sb.Invoke(args);
-      }
 
       protected string ScriptBase
       {
@@ -50,9 +24,9 @@ namespace PoshWpf
          {
             if (String.IsNullOrEmpty(_moduleBase))
             {
-               if (_module != null)
+               if (Invoker.Module != null)
                {
-                  _moduleBase = _module.GetType().GetProperty("ModuleBase").GetValue(_module, null) as string;
+                  _moduleBase = Invoker.Module.ModuleBase;
                }
                if (String.IsNullOrEmpty(_moduleBase))
                {
@@ -71,55 +45,32 @@ namespace PoshWpf
             return _moduleBase;
          }
       }
-      /// <summary>
-      /// Set a variable in the scope that our script blocks execute in
-      /// </summary>
-      /// <param name="name"></param>
-      /// <param name="value"></param>
-      protected void SetScriptVariableValue(string name, object value)
-      {
-         _sessionState.PSVariable.Set(name, value);
-      }
-
-      /// <summary>
-      /// Set a variable in the scope that our script blocks execute in
-      /// </summary>
-      /// <param name="variable"></param>
-      protected void SetScriptVariable(PSVariable variable)
-      {
-         _sessionState.PSVariable.Set(variable);
-      }
-      /// <summary>
-      /// Get the value of a variable from the scope that our script blocks execute in
-      /// </summary>
-      protected object GetScriptVariableValue(string name, object defaultValue)
-      {
-         return _sessionState.PSVariable.GetValue(name, defaultValue);
-      }
-
 
       protected override void BeginProcessing()
       {
-         if (_module == null)
+         if (Invoker.Module == null)
          {
             // For those times when 2.0 is available, we need to grab the method...
             PropertyInfo moduleProp = typeof(CommandInfo).GetProperty("Module");
             if (moduleProp != null)
             {
-               _module = moduleProp.GetValue(MyInvocation.MyCommand, null);
-               if( _module == null || (((ModuleType)_module.GetType().GetProperty("ModuleType").GetValue(_module, null)) != ModuleType.Script)) {
-                  _module = null;
-                  _sessionState = SessionState;
-               } else {
-                  _newBoundScriptBlockMethod = _module.GetType().GetMethod("NewBoundScriptBlock");
-                  _sessionState = _module.GetType().GetProperty("SessionState").GetValue(_module, null) as SessionState;
+               var _module = moduleProp.GetValue(MyInvocation.MyCommand, null) as PSModuleInfo;
+               if( _module != null && (((ModuleType)_module.GetType().GetProperty("ModuleType").GetValue(_module, null)) == ModuleType.Script)) {
+                  Invoker.Module = _module;
                }
             }
          }
-
          base.BeginProcessing();
       }
 
+      protected ICollection<PSObject> Invoke(ScriptBlock sb, PSVariable[] variables, params object[] args)
+      {
+         return Invoker.Invoke(sb, variables, args);
+      }
 
+      protected ICollection<PSObject> Invoke(ScriptBlock sb, params object[] args)
+      {
+         return Invoker.Invoke(sb, args);
+      }
    }
 }

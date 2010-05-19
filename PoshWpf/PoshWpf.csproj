@@ -19,7 +19,7 @@
     <SccProvider>SAK</SccProvider>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>HuddledMasses.org.pfx</AssemblyOriginatorKeyFile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BindingConverter.cs" />
+    <Compile Include="BindingPropertyConverter.cs" />
     <Compile Include="BootsWindowDictionary.cs" />
     <Compile Include="Commands\BootsTemplate-Get-Command.cs" />
     <Compile Include="Commands\BootsElement-Select-Command.cs" />
@@ -167,6 +168,8 @@
     <Compile Include="Commands\BootsWindow-Get-Command.cs" />
     <Compile Include="Commands\BootsWindow-New-Command.cs" />
     <Compile Include="Commands\BootsElement-Out-Command.cs" />
+    <Compile Include="Invoker.cs" />
+    <Compile Include="PoshExtension.cs" />
     <Compile Include="PresentationInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSSnapin.cs">

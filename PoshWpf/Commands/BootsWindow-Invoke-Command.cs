@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 using System.Windows;
 
@@ -47,7 +48,7 @@ namespace PoshWpf
 
       protected override void ProcessRecord()
       {
-
+         WriteCommandDetail(Script.ToString());
          if (BootsWindowDictionary.Instance.Count > 0)
          {
             switch (ParameterSetName)
@@ -56,61 +57,50 @@ namespace PoshWpf
                   foreach (var i in Index)
                   {
                      var window = BootsWindowDictionary.Instance[i];
-                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
-                     {
-                        // don't need to do Window.GetWindow(window) if they're using ByTitle, because it MUST be a root window
-                        var vars = new PSVariable[] { 
-                                  new PSVariable("this", window),
-                                  new PSVariable("window", window) 
-                                };
-                        ICollection<PSObject> result = (ICollection<PSObject>)window.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>)Invoker), vars, Parameters);
-                        if (result != null && result.Count > 0)
-                           WriteObject(result, true);
-                     }
+                     if (!window.Dispatcher.Thread.IsAlive || window.Dispatcher.HasShutdownStarted) continue;
+                     // don't need to do Window.GetWindow(window) if they're using ByTitle, because it MUST be a root window
+                     var vars = new[] { 
+                        new PSVariable("this", window),
+                        new PSVariable("window", window) 
+                     };
+                     var result = (ICollection<PSObject>)window.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>)Invoker), vars, Parameters);
+                     if (result != null && result.Count > 0)
+                        WriteObject(result, true);
                   } break;
                case ByTitle:
-                  foreach (var window in BootsWindowDictionary.Instance.Values)
+                  foreach (var win in BootsWindowDictionary.Instance.Values)
                   {
-                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
-                     {
-                        foreach (var title in _patterns)
-                        {
-                           Window window1 = window;
-                           ICollection<PSObject> result = (ICollection<PSObject>)window.Dispatcher.Invoke((Func<ICollection<PSObject>>)(() =>
-                          {
-                             if (title.IsMatch(window1.Title))
-                             {
-                                // don't need to do Window.GetWindow(window1) if they're using ByTitle, because it MUST be a root window
+                     if (!win.Dispatcher.Thread.IsAlive || win.Dispatcher.HasShutdownStarted) continue;
+                     Window window = win;
+                     foreach (var result in from title in _patterns
+                                            let title1 = title
+                                            select (ICollection<PSObject>) window.Dispatcher.Invoke((Func<ICollection<PSObject>>) (() =>
+                                            {
+                                                if (!title1.IsMatch(window.Title))
+                                                   return null;
 
-                                var vars = new PSVariable[] { 
-                                  new PSVariable("this", window1),
-                                  new PSVariable("window", window1) 
-                                };
-                                return Invoker(vars, Parameters);
-                             }
-                             else return null;
-                          }));
-                           if (result != null && result.Count > 0)
-                              WriteObject(result, true);
-                        }
+                                                // don't need to do Window.GetWindow(window1) if they're using ByTitle, because it MUST be a root window
+                                                var vars = new[]{ new PSVariable("this", window), new PSVariable("window", window) };
+                                                return Invoker(vars, Parameters);
+                                             }))
+                                            into result where result != null && result.Count > 0 
+                                            select result)
+                     {
+                        WriteObject(result, true);
                      }
-                  } break;
+                  }
+                  break;
                case ByElement:
-                  foreach (var element in Element)
+                  foreach (var output in from element in Element
+                                         where element.Dispatcher.Thread.IsAlive && !element.Dispatcher.HasShutdownStarted
+                                         let uie = element
+                                         let window = element.Dispatcher.Invoke((Func<Window>) (() => Window.GetWindow(uie))) as Window
+                                         let vars = new[]{ new PSVariable("this", window), new PSVariable("window", element) }
+                                         select (ICollection<PSObject>) element.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>) Invoker), vars, Parameters)
+                                         into result where result != null && result.Count > 0
+                                         select result)
                   {
-                     if (element.Dispatcher.Thread.IsAlive && !element.Dispatcher.HasShutdownStarted)
-                     {
-                        UIElement uie = element;
-                        Window window = element.Dispatcher.Invoke((Func<Window>) (() => Window.GetWindow(uie))) as Window;
-
-                        var vars = new PSVariable[] { 
-                                  new PSVariable("this", window),
-                                  new PSVariable("window", element) 
-                               };
-                        ICollection<PSObject> result = (ICollection<PSObject>)element.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>)Invoker), vars, Parameters);
-                        if (result != null && result.Count > 0)
-                           WriteObject(result, true);
-                     }
+                     WriteObject(output, true);
                   } break;
             }
 
