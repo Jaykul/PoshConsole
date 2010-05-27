@@ -18,16 +18,15 @@
     
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
 
-    SourceInitialized="OnWindowSourceInitialized"
+    
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
     Deactivated="OnWindowDeactivated"
     LocationChanged="OnWindowLocationChanged"
-    SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
-    WindowStyle="ThreeDBorderWindow" Height="371" Width="911">
+    WindowStyle="ThreeDBorderWindow">
     <!-- SingleBorderWindow is important for the CustomChrome behavior -->
     <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
 
@@ -158,6 +157,12 @@
     <Window.Top>
         <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Top>
+    <Window.Width>
+        <Binding Path="WindowWidth" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Width>
+    <Window.Height>
+        <Binding Path="WindowHeight" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Height>    
     <Window.Topmost>
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
@@ -210,9 +215,8 @@
 				HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
 				IsSelectionEnabled="True"
 				Title="PoshConsole" Grid.Column="1"
-				FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
-				FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
-				PreviewMouseWheel="OnBufferPreviewMouseWheel" >
+				FontSize="{Binding Path=FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
+				FontFamily="{Binding Path=FontFamily, Mode=Default, Source={StaticResource SettingsDS}}" >
                     <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
                     <FlowDocument>
                         <FlowDocument.Resources>

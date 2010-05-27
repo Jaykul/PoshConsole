@@ -1,9 +1,17 @@
-﻿using System.Management.Automation;
+﻿#if CLR_V2
+#if CLR_V4
+#error You can't define CLR_V2 and CLR_V4 at the same time
+#endif
+// code for clr 2
+#elif CLR_V4
+// code for clr 4
+
+using System.Management.Automation;
 using System.Xml;
 
 namespace PoshWpf.Commands
 {
-#if CLR4
+
    [Cmdlet(VerbsData.ConvertFrom, "Xaml", DefaultParameterSetName = "Xaml")]
    public class XamlConvertFromCommand : Cmdlet
    {
@@ -27,7 +35,10 @@ namespace PoshWpf.Commands
          base.ProcessRecord();
       }
    }
-#endif
+
 }
 
 
+#else
+#error Define either CLR_V2 or CLR_V4 to compile
+#endif

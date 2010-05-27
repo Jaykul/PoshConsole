@@ -44,7 +44,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -235,6 +235,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>REM copy $(TargetPath) C:\Users\Joel\Projects\Modules\PowerBoots\BinaryAssemblies</PostBuildEvent>
+    <PostBuildEvent>
+    copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)"
+    REM copy $(TargetPath) C:\Users\Joel\Projects\Modules\PowerBoots\BinaryAssemblies
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
