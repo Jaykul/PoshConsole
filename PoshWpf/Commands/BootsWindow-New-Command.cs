@@ -38,6 +38,7 @@ namespace PoshWpf
       // we're accepting  XmlDocument because that's what PowerShell has.
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"),
        Parameter(Position = 10, Mandatory = true, ValueFromPipeline = false, ParameterSetName = "SourceTemplate", HelpMessage = "XAML template XmlDocument")]
+      [Alias("XamlTemplate")]
       public XmlDocument SourceTemplate { get; set; }
 
       [Parameter(Mandatory = false, ValueFromPipeline = false, HelpMessage = "Do not show in a popup Window (currently only works on PoshConsole)")]

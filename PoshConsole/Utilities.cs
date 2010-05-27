@@ -15,7 +15,7 @@ namespace PoshConsole
         
 		#region [rgn] Fields (1)
 
-		public static Regex chunker = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
+		private static readonly Regex _CHUNKER = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
 
 		#endregion [rgn]
 
@@ -26,7 +26,7 @@ namespace PoshConsole
         public static string GetLastWord(this string cmdline)
         {
             string lastWord = null;
-            MatchCollection words = chunker.Matches(cmdline);
+            MatchCollection words = _CHUNKER.Matches(cmdline);
             if (words.Count >= 1)
             {
                 Match lw = words[words.Count - 1];
