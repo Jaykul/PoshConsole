@@ -23,7 +23,7 @@ namespace PoshConsole.Host
    /// applications. Not all members are implemented. Those that are 
    /// not implemented throw a NotImplementedException exception.
    /// </summary>
-	public partial class PoshHost : PSHost, IPSBackgroundHost
+   public partial class PoshHost : PSHost, IPSBackgroundHost
    {
 
       #region  Fields (16)
@@ -430,9 +430,9 @@ namespace PoshConsole.Host
          string commandLine = command.Command;
          if (_native == 0)
          {
-				// output the text back to the console control (is this weird, or is it just me?)
-				_buffer.WriteLine( command.Command );
-				Execute(commandLine);
+            // output the text back to the console control (is this weird, or is it just me?)
+            _buffer.WriteLine( command.Command );
+            Execute(commandLine);
          }
          else
          {
@@ -789,13 +789,13 @@ namespace PoshConsole.Host
 
       #endregion
 
-		#region IPSXamlHost Members
+      #region IPSXamlHost Members
 
-		public IPSWpfConsole GetWpfConsole()
-		{
-			return _psUi.Console;
-		}
+      public IPSWpfConsole GetWpfConsole()
+      {
+         return _psUi.Console;
+      }
 
-		#endregion
-	}
+      #endregion
+   }
 }

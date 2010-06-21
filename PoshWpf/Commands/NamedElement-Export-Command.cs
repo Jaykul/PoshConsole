@@ -14,12 +14,12 @@ using System.Collections.Generic;
 
 namespace PoshWpf
 {
-	[Cmdlet(VerbsData.Export, "NamedElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
+   [Cmdlet(VerbsData.Export, "NamedElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
    public class ExportNamedElementCommand : ScriptBlockBase
-	{
-		private const string ByTitle = "ByTitle";
-		private const string ByIndex = "ByIndex";
-		private const string ByElement = "ByElement";
+   {
+      private const string ByTitle = "ByTitle";
+      private const string ByIndex = "ByIndex";
+      private const string ByElement = "ByElement";
 
       //[Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true)]
       //[ValidateNotNull]
@@ -30,42 +30,42 @@ namespace PoshWpf
       [ValidateNotNullOrEmpty]
       public string Prefix { get; set; }
 
-	   private string _scope = "3";
+      private string _scope = "0";
       [Parameter(Mandatory = false)]
       [ValidateNotNullOrEmpty]
       [ValidatePattern("^(?:\\d+|Local|Script|Global|Private)$")]
-	   public string Scope
-	   {
-	      get { return _scope; }
-	      set { _scope = value; }
-	   }
+      public string Scope
+      {
+         get { return _scope; }
+         set { _scope = value; }
+      }
 
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       protected override void ProcessRecord()
-		{
-			try
-			{
-			   var active = Thread.CurrentThread;
-				if (BootsWindowDictionary.Instance.Count > 0)
-				{
-				   foreach (var window in BootsWindowDictionary.Instance.Values)
-				   {
-				      if(window.Dispatcher.Thread == active)
-				      {
-				         ExportVisual(window);
-				      }
-				   }
-				}
-			}
-			catch (Exception ex)
-			{
-				WriteError(new ErrorRecord(ex, "TrappedException", ErrorCategory.NotSpecified, Thread.CurrentThread));
-			}
-			base.ProcessRecord();
-		}
+      {
+         try
+         {
+            var active = Thread.CurrentThread;
+            if (BootsWindowDictionary.Instance.Count > 0)
+            {
+               foreach (var window in BootsWindowDictionary.Instance.Values)
+               {
+                  if(window.Dispatcher.Thread == active)
+                  {
+                     ExportVisual(window, Scope);
+                  }
+               }
+            }
+         }
+         catch (Exception ex)
+         {
+            WriteError(new ErrorRecord(ex, "TrappedException", ErrorCategory.NotSpecified, Thread.CurrentThread));
+         }
+         base.ProcessRecord();
+      }
 
       // Enumerate all the descendants of the visual object.
-      public static void ExportVisual(Visual myVisual)
+      public static void ExportVisual(Visual myVisual, string scope)
       {
          for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
          {
@@ -77,14 +77,13 @@ namespace PoshWpf
                string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
                if(!string.IsNullOrEmpty(name))
                {
-                  
-                  Invoker.SetScriptVariableValue(name,childVisual);
+                  Invoker.SetScriptVariableValue(name,childVisual, scope);
                }
             }
             // Enumerate children of the child visual object.
-            ExportVisual(childVisual);
+            ExportVisual(childVisual, scope);
          }
       }
 
-	}
+   }
 }

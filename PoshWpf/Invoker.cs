@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 
 namespace PoshWpf
 {
    public class Invoker
    {
       private static PSModuleInfo _module;
+      private static PSModuleInfo _coModule;
       internal static PSModuleInfo Module
       {
          get { return _module;  }
          set { _module = value; }
+      }
+      internal static PSModuleInfo CoModule
+      {
+         get { return _coModule;  }
+         set { _coModule = value; }
       }
 
       /// <summary>
@@ -75,12 +82,39 @@ namespace PoshWpf
       /// <summary>
       /// Set a variable in the scope that our script blocks execute in
       /// </summary>
-      /// <param name="name"></param>
-      /// <param name="value"></param>
-      internal static void SetScriptVariableValue(string name, object value)
+      /// <param name="name">The name of the variable</param>
+      /// <param name="value">The value of the variable</param>
+      /// <param name="scope">The scope of the variable (either a named scope: global, local, script ... or a number).</param>
+      internal static void SetScriptVariableValue(string name, object value, string scope)
       {
          if (_module != null)
-            _module.SessionState.PSVariable.Set(name, value);
+         {
+            Pipeline pipe;
+            switch (Runspace.DefaultRunspace.RunspaceAvailability)
+            {
+               case RunspaceAvailability.Available:
+                  pipe = Runspace.DefaultRunspace.CreatePipeline();
+                  break;
+               case RunspaceAvailability.AvailableForNestedCommand:
+               case RunspaceAvailability.Busy:
+                  pipe = Runspace.DefaultRunspace.CreateNestedPipeline();
+                  break;
+               default:
+                  throw new InvalidPipelineStateException();
+            }
+            
+            var cmd = new Command("Set-Variable",false,false);
+            cmd.Parameters.Add("Name", name);
+            cmd.Parameters.Add("Value", value);
+            cmd.Parameters.Add("Scope", scope);
+            cmd.Parameters.Add("Option", "AllScope");
+            pipe.Commands.Add(cmd);
+            var results = pipe.Invoke();
+            pipe.Dispose();
+            //var v = new PSVariable(name, value, ScopedItemOptions.AllScope);
+            //_module.SessionState.PSVariable.Set(v);
+            //_module.ExportedVariables.Add(name,v);
+         }
       }
 
       /// <summary>

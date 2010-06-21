@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using System.Reflection;
@@ -48,6 +49,9 @@ namespace PoshWpf
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru")]
       [Parameter(Mandatory = false, HelpMessage = "Write out the window")]
       public SwitchParameter Passthru { get; set; }
+
+      [Parameter(Mandatory = false, HelpMessage = "Export variables for the content of the window")]
+      public SwitchParameter ExportNamedElements { get; set; }
 
 
 
@@ -1537,6 +1541,18 @@ function Global:Write-BootsOutput($inputObject) {
 
       protected override void EndProcessing()
       {
+         if(ExportNamedElements.ToBool())
+         {
+            if (_window.Dispatcher != null && Dispatcher.CurrentDispatcher != _window.Dispatcher)
+            {
+               _window.Dispatcher.Invoke((Action)(() =>
+                  _window.Loaded += (s, a) => ExportNamedElementCommand.ExportVisual(s as Visual, "global")
+               ));
+            } else {
+               _window.Loaded += (s, a) => ExportNamedElementCommand.ExportVisual(s as Visual, "global");
+            }
+         }
+
          try
          {
             //if (Host.PrivateData.BaseObject is IPSWpfOptions && !Popup.ToBool() && !Async.ToBool())
