@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Windows;
 using System.IO;
+using System.Windows.Media;
 using System.Xml;
 using System.Windows.Threading;
 using System.Reflection;
@@ -17,6 +18,8 @@ namespace PoshWpf
    {
       //private Object _module;
       private string _moduleBase;
+
+      protected bool? RunspaceAvailable { get; set; }
 
       protected string ScriptBase
       {
@@ -48,6 +51,7 @@ namespace PoshWpf
 
       protected override void BeginProcessing()
       {
+         RunspaceAvailable = Runspace.DefaultRunspace.RunspaceAvailability == RunspaceAvailability.Available;
          if (Invoker.Module == null)
          {
             // For those times when 2.0 is available, we need to grab the method...
@@ -61,6 +65,49 @@ namespace PoshWpf
             }
          }
          base.BeginProcessing();
+      }
+
+      /// <summary>
+      /// Set a variable in the scope that our script blocks execute in
+      /// </summary>
+      /// <param name="name">The name of the variable</param>
+      /// <param name="value">The value of the variable</param>
+      /// <param name="scope">The scope of the variable (either a named scope: global, local, script ... or a number).</param>
+      protected void ExportVariable(string name, object value, string scope)
+      {
+         using (var pipe = RunspaceAvailable == true ? Runspace.DefaultRunspace.CreatePipeline() : 
+                                                       Runspace.DefaultRunspace.CreateNestedPipeline())
+         {
+            var cmd = new Command("Set-Variable",false,false);
+            cmd.Parameters.Add("Name", name);
+            cmd.Parameters.Add("Value", value);
+            cmd.Parameters.Add("Scope", scope);
+            cmd.Parameters.Add("Option", "AllScope");
+            pipe.Commands.Add(cmd);
+            pipe.Invoke();
+            pipe.Stop();
+         }
+      }
+
+      // Enumerate all the descendants of the visual object.
+      protected void ExportVisual(Visual myVisual, string scope)
+      {
+         for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
+         {
+            // Retrieve child visual at specified index value.
+            Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
+            if (childVisual is FrameworkElement)
+            {
+               // Do processing of the child visual object.
+               string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
+               if (!string.IsNullOrEmpty(name))
+               {
+                  ExportVariable(name, childVisual, scope);
+               }
+            }
+            // Enumerate children of the child visual object.
+            ExportVisual(childVisual, scope);
+         }
       }
 
       protected ICollection<PSObject> Invoke(ScriptBlock sb, PSVariable[] variables, params object[] args)

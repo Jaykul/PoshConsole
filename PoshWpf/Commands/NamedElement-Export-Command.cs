@@ -64,26 +64,7 @@ namespace PoshWpf
          base.ProcessRecord();
       }
 
-      // Enumerate all the descendants of the visual object.
-      public static void ExportVisual(Visual myVisual, string scope)
-      {
-         for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
-         {
-            // Retrieve child visual at specified index value.
-            Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
-            if(childVisual is FrameworkElement)
-            {
-               // Do processing of the child visual object.
-               string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
-               if(!string.IsNullOrEmpty(name))
-               {
-                  Invoker.SetScriptVariableValue(name,childVisual, scope);
-               }
-            }
-            // Enumerate children of the child visual object.
-            ExportVisual(childVisual, scope);
-         }
-      }
+
 
    }
 }

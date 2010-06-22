@@ -1546,10 +1546,10 @@ function Global:Write-BootsOutput($inputObject) {
             if (_window.Dispatcher != null && Dispatcher.CurrentDispatcher != _window.Dispatcher)
             {
                _window.Dispatcher.Invoke((Action)(() =>
-                  _window.Loaded += (s, a) => ExportNamedElementCommand.ExportVisual(s as Visual, "global")
+                  _window.Loaded += (s, a) => ExportVisual(s as Visual, "global")
                ));
             } else {
-               _window.Loaded += (s, a) => ExportNamedElementCommand.ExportVisual(s as Visual, "global");
+               _window.Loaded += (s, a) => ExportVisual(s as Visual, "global");
             }
          }
 
