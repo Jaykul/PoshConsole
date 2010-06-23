@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.Commands;
-namespace PoshWpf
+using PoshWpf.Utility;
+
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsCommon.Remove, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName = "Path")]
    public class RemoveBootsTemplateCommand : PSCmdlet

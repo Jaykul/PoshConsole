@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace PoshWpf
+namespace PoshWpf.Converters
 {
    public class BindingConverter : ExpressionConverter
    {
@@ -23,7 +20,7 @@ namespace PoshWpf
          {
             var bindingExpression = value as BindingExpression;
             if (bindingExpression == null)
-               throw new Exception();
+               throw new ArgumentException("Invalid value, can't convert to BindingExpression", "value");
             return bindingExpression.ParentBinding;
          }
 

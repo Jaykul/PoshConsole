@@ -9,13 +9,11 @@
 using System;
 using System.Management.Automation;
 using System.Text;
-using System.Xml;
-using System.Linq;
 
 namespace PoshWpf.Commands
 {
 
-	[Cmdlet(VerbsData.Import, "Xaml", DefaultParameterSetName = ParamSetPath)]
+	[Cmdlet(VerbsData.Import, "Xaml", DefaultParameterSetName = ParameterSetPath)]
    public class XamlImportCommand : HuddledContentProviderBaseCommand
    {
       protected override void ProcessRecord()

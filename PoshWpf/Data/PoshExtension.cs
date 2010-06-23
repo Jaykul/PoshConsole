@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Windows;
 using System.Windows.Markup;
 using System.Xaml;
-using System.Collections.Generic;
+using PoshWpf.Utility;
 
-namespace PoshWpf
+namespace PoshWpf.Data
 {
    [MarkupExtensionReturnType(typeof(RoutedEventHandler))]
    public class PoshExtension : MarkupExtension

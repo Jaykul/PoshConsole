@@ -1,16 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Management.Automation;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
 	[Cmdlet(VerbsCommon.Get, "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
 	public class GetBootsWindowCommand : PSCmdlet

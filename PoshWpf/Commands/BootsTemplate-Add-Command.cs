@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Management.Automation;
-namespace PoshWpf
+using PoshWpf.Utility;
+
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsCommon.Add, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
    public class AddBootsTemplateCommand : HuddledFileSystemBaseCommand

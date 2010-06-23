@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -7,12 +8,13 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
 using System.Xml;
+using PoshWpf.Utility;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
-    [Cmdlet(VerbsData.Out, "BootsElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-    public class OutWpfCommand : ScriptBlockBase
-	{
+   [Cmdlet(VerbsData.Out, "BootsElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+   public class OutWpfCommand : ScriptBlockBase
+   {
       #region Parameters
 
       [Parameter(
@@ -57,140 +59,140 @@ namespace PoshWpf
       private FrameworkElement _element;
       #endregion
       private ItemsControl _host;
-        // private Huddled.WPF.Controls.Interfaces.IPSXamlConsole xamlUI;
-        // private FlowDocument _document = null;
+      // private Huddled.WPF.Controls.Interfaces.IPSXamlConsole xamlUI;
+      // private FlowDocument _document = null;
 
-		#region Methods
+      #region Methods
       protected override void BeginProcessing()
-     {
-        if (_window == null)
-        {
-           _template = GetXaml();
+      {
+         if (_window == null)
+         {
+            _template = GetXaml();
 
-           if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
-           {
-              //((IPSWpfHost)).GetWpfConsole();
-              _xamlUI = ((IPSWpfOptions)Host.PrivateData.BaseObject).WpfConsole;
-              if (Popup.ToBool())
-              {
-                 //_window = new Window
-                 //{
-                 //    WindowStyle = WindowStyle.ToolWindow,
-                 //    // Content = XamlHelper.NewItemsControl()
-                 //};
-                 //_xamlUI.PopoutWindows.Add(_window);
-                 //_window.Show();
-                 //_dispatcher = _window.Dispatcher;
+            if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
+            {
+               //((IPSWpfHost)).GetWpfConsole();
+               _xamlUI = ((IPSWpfOptions)Host.PrivateData.BaseObject).WpfConsole;
+               if (Popup.ToBool())
+               {
+                  //_window = new Window
+                  //{
+                  //    WindowStyle = WindowStyle.ToolWindow,
+                  //    // Content = XamlHelper.NewItemsControl()
+                  //};
+                  //_xamlUI.PopoutWindows.Add(_window);
+                  //_window.Show();
+                  //_dispatcher = _window.Dispatcher;
 
-                 //////////////////////////////////////////////////////////////
-                 // If they ask for a popup from a IPSWpfOptions, we still use the Presentation
-                 // That way the threading "issues" are the same for both Wpf and non-Wpf hosts
-                 // Otherwise we'd have to deal with two different realities
-                 var result = Presentation.Start(_template, null, null);
-                 _window = result.Window;
-                 _dispatcher = result.Dispatcher;
-              }
-              else
-              {
-                 //_window = _xamlUI.RootWindow;
-                 _dispatcher = _xamlUI.Dispatcher;
-                 _xamlUI.RootWindow.LoadTemplates();
-              }
-           }
-           else
-           {
-              var result = Presentation.Start(_template, null, null);
-              _window = result.Window;
-              _dispatcher = result.Dispatcher;
-           }
+                  //////////////////////////////////////////////////////////////
+                  // If they ask for a popup from a IPSWpfOptions, we still use the Presentation
+                  // That way the threading "issues" are the same for both Wpf and non-Wpf hosts
+                  // Otherwise we'd have to deal with two different realities
+                  var result = Presentation.Start(_template, null, null);
+                  _window = result.Window;
+                  _dispatcher = result.Dispatcher;
+               }
+               else
+               {
+                  //_window = _xamlUI.RootWindow;
+                  _dispatcher = _xamlUI.Dispatcher;
+                  _xamlUI.RootWindow.LoadTemplates();
+               }
+            }
+            else
+            {
+               var result = Presentation.Start(_template, null, null);
+               _window = result.Window;
+               _dispatcher = result.Dispatcher;
+            }
 
-           if (_template != null)
-           {
-              ErrorRecord error = (ErrorRecord)_dispatcher.Invoke((Func<ErrorRecord>)(() =>
-              {
-                 ErrorRecord err = null;
-                 _template.TryLoadXaml(out _element, out err);
+            if (_template != null)
+            {
+               ErrorRecord error = (ErrorRecord)_dispatcher.Invoke((Func<ErrorRecord>)(() =>
+               {
+                  ErrorRecord err = null;
+                  _template.TryLoadXaml(out _element, out err);
 
-                 if (_element is Window)
-                 {
-                    if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
-                    {
-                       _window = (Window)_element;
-                       _window.Show();
-                       _dispatcher = _window.Dispatcher;
-                    }
-                    _element = null;
-                 }
-                 return err;
-              }));
-              if (error != null) { WriteError(error); }
-           }
-        }
-        // internal reference count
-        _windowCount++;
-        base.BeginProcessing();
-     }
-		protected override void ProcessRecord()
-		{
-			_dispatcher.Invoke((Action)(() =>
-			{
-                if (Content != null)
-                {
-                    object output = Content.BaseObject;
+                  if (_element is Window)
+                  {
+                     if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
+                     {
+                        _window = (Window)_element;
+                        _window.Show();
+                        _dispatcher = _window.Dispatcher;
+                     }
+                     _element = null;
+                  }
+                  return err;
+               }));
+               if (error != null) { WriteError(error); }
+            }
+         }
+         // internal reference count
+         _windowCount++;
+         base.BeginProcessing();
+      }
+      protected override void ProcessRecord()
+      {
+         _dispatcher.Invoke((Action)(() =>
+         {
+            if (Content != null)
+            {
+               object output = Content.BaseObject;
 
-                    // If the output is something that goes in a document ....
-                    // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
-                    if (output is Block || output is Inline)
-                    {
-                       DocumentOutput(output);
-                    }
-                    else if(output is Panel)
-                    {
-                         _window.Content = output;
-                    } 
-                    else 
-                    {
-                        if (_host == null) { _host = XamlHelper.NewItemsControl(); }
-                        if (_window == null && _host.Parent == null)
-                        {
-                            _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_host));
-                        }
-                        else if(_host.Items.Count == 0 )
-                        {
-                        //    // TODO: use some template-based magic 
-                        //    // to FIND a predefined ItemsControl, 
-                        //    // or the place where they want the ItemsControl
-                        //    //_window.Content
-                            _window.Content = _host;//.Items.Add();
-                        }
+               // If the output is something that goes in a document ....
+               // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
+               if (output is Block || output is Inline)
+               {
+                  DocumentOutput(output);
+               }
+               else if (output is Panel)
+               {
+                  _window.Content = output;
+               }
+               else
+               {
+                  if (_host == null) { _host = XamlHelper.NewItemsControl(); }
+                  if (_window == null && _host.Parent == null)
+                  {
+                     _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_host));
+                  }
+                  else if (_host.Items.Count == 0)
+                  {
+                     //    // TODO: use some template-based magic 
+                     //    // to FIND a predefined ItemsControl, 
+                     //    // or the place where they want the ItemsControl
+                     //    //_window.Content
+                     _window.Content = _host;//.Items.Add();
+                  }
 
-                        if (_element != null)
-                        {
-                            ErrorRecord err;
-                            FrameworkElement el;
-                            _template.TryLoadXaml(out el, out err);
-                            el.DataContext = output;
-                            _host.Items.Add(el);
-                        }
-                        else
-                        {
-                            _host.Items.Add(output);
-                        }
-                    }
-                }
-                else if (_element != null)
-                {
-                    if (_window == null)
-                    {
-                        _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_element));
-                    }
-                    else
-                    {
-                        _window.Content = _element;
-                    }
-                }
-			}));
-		}
+                  if (_element != null)
+                  {
+                     ErrorRecord err;
+                     FrameworkElement el;
+                     _template.TryLoadXaml(out el, out err);
+                     el.DataContext = output;
+                     _host.Items.Add(el);
+                  }
+                  else
+                  {
+                     _host.Items.Add(output);
+                  }
+               }
+            }
+            else if (_element != null)
+            {
+               if (_window == null)
+               {
+                  _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_element));
+               }
+               else
+               {
+                  _window.Content = _element;
+               }
+            }
+         }));
+      }
       protected override void EndProcessing()
       {
          // release only in OutWPFCommand
@@ -203,6 +205,8 @@ namespace PoshWpf
          //}
          base.EndProcessing();
       }
+
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
       private XmlDocument GetXaml()
       {
          XmlDocument document = null;
@@ -213,17 +217,22 @@ namespace PoshWpf
                   if (!FileTemplate.Exists)
                   {
                      #region roll 10 for a saving throw
-                     string templates = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "XamlTemplates");
-                     string template = null;
+
+
                      // try to magically resolve the file
-                     template = System.IO.Path.Combine(base.CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
+                     string template = Path.Combine(CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
                      if (File.Exists(template))
                      {
                         FileTemplate = new FileInfo(template);
                      }
                      else
                      {
-                        template = Path.Combine(templates, FileTemplate.Name);
+                        var module = Process.GetCurrentProcess().MainModule;
+                        if (module != null)
+                        {
+                           string templates = Path.Combine(Path.GetDirectoryName(module.FileName), "XamlTemplates");
+                           template = Path.Combine(templates, FileTemplate.Name);
+                        }
                         if (File.Exists(template))
                         {
                            document = new XmlDocument();
@@ -231,9 +240,13 @@ namespace PoshWpf
                         }
                         else
                         {
-                           throw new FileNotFoundException("Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.", template);
+                           throw new FileNotFoundException(
+                              "Can't find the template file.  There is currently no default template location, so you must specify the path to the template file.",
+                              template);
                         }
+
                      }
+
                      #endregion saving throw
                   }
                   else
@@ -305,7 +318,7 @@ namespace PoshWpf
             par.Inlines.Add((Inline)output);
          }
       }
-		#endregion
+      #endregion
 
-	}
+   }
 }

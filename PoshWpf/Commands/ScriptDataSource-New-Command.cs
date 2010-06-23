@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
+using PoshWpf.Data;
 
 namespace PoshWpf.Commands
 {
@@ -37,7 +37,7 @@ namespace PoshWpf.Commands
 
       protected override void EndProcessing()
       {
-         WriteObject( new PsDataSource( Script, new PSDataCollection<PSObject>(_input), Each, RunFirst.ToBool()) );
+         WriteObject( new PSDataSource( Script, new PSDataCollection<PSObject>(_input), Each, RunFirst.ToBool()) );
 
          base.EndProcessing();
       }

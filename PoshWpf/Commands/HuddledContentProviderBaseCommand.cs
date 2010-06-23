@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Provider;
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
 	public abstract class HuddledContentProviderBaseCommand : HuddledProviderBaseCommand
    {

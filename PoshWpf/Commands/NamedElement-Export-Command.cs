@@ -1,18 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Host;
 using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
+using PoshWpf.Utility;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsData.Export, "NamedElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
    public class ExportNamedElementCommand : ScriptBlockBase
@@ -45,12 +36,13 @@ namespace PoshWpf
       {
          try
          {
-            var active = Thread.CurrentThread;
+            // var active = Thread.CurrentThread;
             if (BootsWindowDictionary.Instance.Count > 0)
             {
                foreach (var window in BootsWindowDictionary.Instance.Values)
                {
-                  if(window.Dispatcher.Thread == active)
+                  // if (window.Dispatcher.Thread == active)
+                  if (System.Windows.Threading.Dispatcher.CurrentDispatcher == window.Dispatcher)
                   {
                      ExportVisual(window, Scope);
                   }

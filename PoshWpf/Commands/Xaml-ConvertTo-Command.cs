@@ -7,8 +7,8 @@
 // code for clr 4
 
 using System.Collections.Generic;
-using System.Management.Automation;
 using System.Linq;
+using System.Management.Automation;
 using System.Xml;
 
 namespace PoshWpf.Commands

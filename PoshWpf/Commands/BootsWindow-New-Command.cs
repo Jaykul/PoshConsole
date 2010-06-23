@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -11,10 +11,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
-using System.Reflection;
-using System.Diagnostics;
+using PoshWpf.Utility;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
    [Cmdlet(VerbsCommon.New, "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
@@ -444,7 +443,7 @@ namespace PoshWpf
       #region Methods
 
 
-      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       protected override void BeginProcessing()
       {
          base.BeginProcessing();
@@ -458,14 +457,7 @@ namespace PoshWpf
 
             if (!Owner.HasValue)
             {
-               if (OwnerWindow != null)
-               {
-                  Owner = new WindowInteropHelper(OwnerWindow).Handle;
-               }
-               else
-               {
-                  Owner = Process.GetCurrentProcess().MainWindowHandle;
-               }
+               Owner = OwnerWindow != null ? new WindowInteropHelper(OwnerWindow).Handle : Process.GetCurrentProcess().MainWindowHandle;
             }
 
             // If they don't want a popup (or Async Threaded, which forces the issue)
@@ -1617,7 +1609,7 @@ function Global:Write-BootsOutput($inputObject) {
                         }
                         else
                         {
-                           throw new FileNotFoundException("Can't find the template file.  We searched the default XamlTemplates folder, and the current path.", template);
+                           throw new FileNotFoundException("Can't find the template file.  We searched the default $PowerBootsPath\\XamlTemplates folder, and the current path.", template);
                         }
                      }
                      #endregion saving throw

@@ -1,20 +1,14 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.PowerShell.Commands;
-using System.Globalization;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsData.Export, "BootsImage", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
    public class ExportBootsImageCommand : PSCmdlet

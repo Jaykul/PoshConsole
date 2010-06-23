@@ -1,16 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Management.Automation;
+using System.Windows;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsCommon.Remove, "BootsWindow", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium, DefaultParameterSetName = "Cleanup")]
    public class RemoveBootsWindowCommand : PSCmdlet

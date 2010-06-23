@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System;
+using System.Windows;
 
 namespace PoshWpf
 {

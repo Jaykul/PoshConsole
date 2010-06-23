@@ -4,13 +4,13 @@
 // for any purpose either express or implied. 
 
 using System;
+using System.Management.Automation.Runspaces;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
-using System.Xml;
 using System.Windows.Threading;
-using System.Management.Automation.Runspaces;
-using System.Management.Automation;
+using System.Xml;
+using PoshWpf.Utility;
 
 namespace PoshWpf
 {
@@ -172,10 +172,11 @@ namespace PoshWpf
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
       public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize, IntPtr? owner)
       {
-         WindowArgs Args = new WindowArgs()
+         var done = new EventWaitHandle(false, EventResetMode.ManualReset);
+         var windowArgs = new WindowArgs()
          {
             WindowXaml = xaml,
-            AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
+            AsyncResult = new WindowDispatcherAsyncResult(done),
             InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
             Initialize = initialize,
             OwnerHandle = owner,
@@ -183,19 +184,19 @@ namespace PoshWpf
             ShellRunspace = Runspace.DefaultRunspace
          };
 
-         Thread WindowThread = new Thread(new ParameterizedThreadStart(WindowProc))
+         var windowThread = new Thread(WindowProc)
          {
             Name = "Presentation.Thread"
          };
 
-         WindowThread.SetApartmentState(ApartmentState.STA);
-         WindowThread.Start(Args);
+         windowThread.SetApartmentState(ApartmentState.STA);
+         windowThread.Start(windowArgs);
 
-         Args.InitHandle.WaitOne();
+         windowArgs.InitHandle.WaitOne();
 
-         if (Args.InitException != null) throw Args.InitException;
+         if (windowArgs.InitException != null) throw windowArgs.InitException;
 
-         return Args.AsyncResult;
+         return windowArgs.AsyncResult;
       }
 
       // public stop method to retrieve the dialog result 

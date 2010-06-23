@@ -4,16 +4,15 @@ using System.ComponentModel;
 using System.Management.Automation;
 using System.Windows.Threading;
 
-namespace PoshWpf
+namespace PoshWpf.Data
 {
-   public class PsDataSource : INotifyPropertyChanged
+   public class PSDataSource : INotifyPropertyChanged
    {
       public event PropertyChangedEventHandler PropertyChanged;
 
       readonly PowerShell _powerShellCommand;
       readonly PSDataCollection<PSObject> _outputCollection;
       ScriptBlock _script;
-      PSDataCollection<PSObject> _inputCollection;
       private DispatcherTimer _timer;
 
       #region Properties {
@@ -153,10 +152,10 @@ namespace PoshWpf
       {
          if(input != null)
          {
-            _inputCollection = new PSDataCollection<PSObject>(input);
+            Input = new PSDataCollection<PSObject>(input);
          }
 
-         _powerShellCommand.BeginInvoke(_inputCollection, _outputCollection);
+         _powerShellCommand.BeginInvoke(Input, _outputCollection);
       }
 
       public TimeSpan TimeSpan
@@ -186,13 +185,9 @@ namespace PoshWpf
          Invoke();
       }
 
-      public PSDataCollection<PSObject> Input
-      {
-         get { return _inputCollection; } 
-         set { _inputCollection = value; }
-      }
+      public PSDataCollection<PSObject> Input { get; private set; }
 
-      public PsDataSource(
+      public PSDataSource(
          ScriptBlock script = null,  
          PSDataCollection<PSObject> input = null, 
          TimeSpan interval = new TimeSpan(), 

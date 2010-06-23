@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Management.Automation;
-using Microsoft.PowerShell.Commands;
-namespace PoshWpf
+using PoshWpf.Utility;
+
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsCommon.Get, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
    public class GetBootsTemplateCommand : PSCmdlet

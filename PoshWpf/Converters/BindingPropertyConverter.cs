@@ -2,9 +2,8 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
-using System.Windows.Markup;
 
-namespace PoshWpf
+namespace PoshWpf.Converters
 {
    public class BindingTypeDescriptionProvider : TypeDescriptionProvider
    {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
-namespace PoshWpf
+namespace PoshWpf.Utility
 {
    public class Invoker
    {
@@ -13,8 +13,6 @@ namespace PoshWpf
          get { return _module;  }
          set { _module = value; }
       }
-
-      internal static bool? Nested;
 
       /// <summary>
       /// Invoke a <see cref="ScriptBlock"/>, binding it to the module, if possible.
@@ -34,8 +32,60 @@ namespace PoshWpf
          {
             sb = _module.NewBoundScriptBlock(sb);
          }
+
          return sb.Invoke(args);
       }
+
+      //internal static ICollection<PSObject> InvokeNested(ScriptBlock sb, PSVariable[] variables, params object[] args)
+      //{
+      //   if (variables == null)
+      //      throw new ArgumentNullException("variables");
+
+      //   foreach (var v in variables) SetScriptVariable(v);
+
+      //   if (_module != null)
+      //   {
+      //      sb = _module.NewBoundScriptBlock(sb);
+      //   }
+      //   Pipeline pipe = null;
+      //   ICollection<PSObject> results = null;
+      //   try
+      //   {
+      //      pipe = Runspace.DefaultRunspace.CreateNestedPipeline();
+      //      pipe.Commands.AddScript(sb.ToString(), true);
+      //      results = pipe.Invoke(args);
+      //   }
+      //   catch (PSInvalidOperationException ioe)
+      //   {
+      //      if(pipe != null) pipe.Dispose();
+      //      pipe = null;
+      //   }
+
+      //   if(pipe == null)
+      //   {
+      //      try
+      //      {
+      //         pipe = Runspace.DefaultRunspace.CreatePipeline();
+      //         pipe.Commands.AddScript(sb.ToString(), true);
+      //         results = pipe.Invoke(args);
+      //      }
+      //      catch (PSInvalidOperationException ioe)
+      //      {
+      //         if (pipe != null) pipe.Dispose();
+      //         pipe = null;
+      //      }
+      //   }
+      //   if (pipe != null)
+      //   {
+      //      pipe.Stop();
+      //      pipe.Dispose();
+      //   } 
+      //   else
+      //   {
+      //      results = sb.Invoke(args);
+      //   }
+      //   return results;
+      //}
 
       /// <summary>
       /// Invoke a <see cref="ScriptBlock"/>, binding it to the module, if possible.

@@ -10,7 +10,7 @@ namespace PoshConsole.Interop
 {
     public static partial class NativeMethods
     {
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace PoshConsole.Interop
         /// <param name="lpChar">Pointer to the buffer that receives the translated character or characters.</param>
         /// <param name="uFlags">Specifies whether a menu is active. This parameter must be 1 if a menu is active, or 0 otherwise.</param>
         /// <returns></returns>
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags);
 
         /// <summary>

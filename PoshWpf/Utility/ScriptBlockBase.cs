@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management.Automation.Runspaces;
-using System.Text;
 using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Windows;
-using System.IO;
-using System.Windows.Media;
-using System.Xml;
-using System.Windows.Threading;
+using System.Management.Automation.Runspaces;
 using System.Reflection;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 
-namespace PoshWpf
+namespace PoshWpf.Utility
 {
    public abstract class ScriptBlockBase : PSCmdlet
    {
@@ -75,18 +71,25 @@ namespace PoshWpf
       /// <param name="scope">The scope of the variable (either a named scope: global, local, script ... or a number).</param>
       protected void ExportVariable(string name, object value, string scope)
       {
-         using (var pipe = RunspaceAvailable == true ? Runspace.DefaultRunspace.CreatePipeline() : 
-                                                       Runspace.DefaultRunspace.CreateNestedPipeline())
+         int attempts = 0;
+         while (attempts < 2)
          {
-            var cmd = new Command("Set-Variable",false,false);
-            cmd.Parameters.Add("Name", name);
-            cmd.Parameters.Add("Value", value);
-            cmd.Parameters.Add("Scope", scope);
-            cmd.Parameters.Add("Option", "AllScope");
-            pipe.Commands.Add(cmd);
-            pipe.Invoke();
-            pipe.Stop();
+            using (var pipe = attempts == 0 ? Runspace.DefaultRunspace.CreatePipeline() : Runspace.DefaultRunspace.CreateNestedPipeline())
+            {
+               attempts = attempts + 1;
+               var cmd = new Command("Set-Variable", false, false);
+               cmd.Parameters.Add("Name", name);
+               cmd.Parameters.Add("Value", value);
+               cmd.Parameters.Add("Scope", scope);
+               cmd.Parameters.Add("Option", "AllScope");
+               pipe.Commands.Add(cmd);
+               pipe.Invoke();
+               pipe.Stop();
+               return;
+            }
          }
+         WriteError(new ErrorRecord(new InvalidOperationException("Can't export variables here"),
+                                    "Cannot create pipeline to set variable", ErrorCategory.DeadlockDetected, Runspace.DefaultRunspace));
       }
 
       // Enumerate all the descendants of the visual object.
@@ -100,7 +103,7 @@ namespace PoshWpf
             {
                // Do processing of the child visual object.
                string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
-               if (!string.IsNullOrEmpty(name))
+               if (!string.IsNullOrEmpty(name) && Dispatcher.CurrentDispatcher.CheckAccess())
                {
                   ExportVariable(name, childVisual, scope);
                }
@@ -110,6 +113,11 @@ namespace PoshWpf
          }
       }
 
+      protected ICollection<PSObject> InvokeNested(ScriptBlock sb, PSVariable[] variables, params object[] args)
+      {
+         return Invoker.Invoke(sb, variables, args);
+      }
+      
       protected ICollection<PSObject> Invoke(ScriptBlock sb, PSVariable[] variables, params object[] args)
       {
          return Invoker.Invoke(sb, variables, args);

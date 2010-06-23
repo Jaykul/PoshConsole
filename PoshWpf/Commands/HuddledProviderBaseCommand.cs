@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Provider;
 using Microsoft.PowerShell.Commands;
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    public abstract class HuddledProviderBaseCommand : PSCmdlet
    {
-      protected const string ParamSetLiteral = "Literal";
-      protected const string ParamSetPath = "Path";
+      protected const string ParameterSetLiteral = "Literal";
+      protected const string ParameterSetPath = "Path";
 		protected List<string> ProviderPaths;
 
       private string[] _paths;
@@ -21,7 +20,7 @@ namespace PoshWpf
           Mandatory = true,
           ValueFromPipeline = false,
           ValueFromPipelineByPropertyName = true,
-          ParameterSetName = ParamSetLiteral,
+          ParameterSetName = ParameterSetLiteral,
 			 HelpMessage = "Specifies the literal path of the file to process. Wildcard syntax is not handled.")
       ]
       [Alias("PSPath")]
@@ -38,7 +37,7 @@ namespace PoshWpf
           Mandatory = true,
           ValueFromPipeline = true,
           ValueFromPipelineByPropertyName = true,
-          ParameterSetName = ParamSetPath,
+          ParameterSetName = ParameterSetPath,
 			 HelpMessage = "Specifies the path of the file to process. Wildcard syntax is allowed.")
       ]
       [ValidateNotNullOrEmpty]

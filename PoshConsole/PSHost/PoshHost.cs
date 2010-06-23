@@ -63,6 +63,7 @@ namespace PoshConsole.Host
       #region  Constructors (1)
 
       //internal List<string> StringHistory;
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "PoshConsole")]
       public PoshHost(IPSUI psUi)
       {
          _buffer = psUi.Console;
@@ -205,6 +206,7 @@ namespace PoshConsole.Host
       /// <summary>
       /// Not implemented by this example class. The call fails with an exception.
       /// </summary>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "EnterNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
       public override void EnterNestedPrompt()
       {
          // TODO: IMPLEMENT PSHost.EnterNestedPrompt()
@@ -214,6 +216,7 @@ namespace PoshConsole.Host
       /// <summary>
       /// Not implemented by this example class. The call fails with an exception.
       /// </summary>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ExitNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
       public override void ExitNestedPrompt()
       {
          // TODO: IMPLEMENT PSHost.ExitNestedPrompt()

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Management.Automation;
-using System.Management.Automation.Provider;
-using Microsoft.PowerShell.Commands;
-namespace PoshWpf
+﻿namespace PoshWpf.Commands
 {
    public abstract class HuddledFileSystemBaseCommand : HuddledProviderBaseCommand
    {

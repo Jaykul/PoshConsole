@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Management.Automation;
 using System.Windows;
-using System.Windows.Markup;
-using System.IO;
-using System.Xml;
 using System.Windows.Controls;
+using System.Windows.Markup;
+using System.Xml;
+using PoshWpf.Converters;
 
-namespace PoshWpf
+namespace PoshWpf.Utility
 {
    public static class XamlHelper
    {
@@ -64,19 +63,22 @@ namespace PoshWpf
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       public static bool TryLoadXaml<TElement>(this XmlDocument source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
       {
-         error = default(System.Management.Automation.ErrorRecord);
+         error = default(ErrorRecord);
          element = default(TElement);
          try
          {
-            var loaded = XamlReader.Load(new XmlNodeReader(source));
-            if (loaded is TElement)
+            using (var reader = new XmlNodeReader(source))
             {
-               element = (TElement)loaded;
-               return true;
-            }
-            else
-            {
-               error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+               var loaded = XamlReader.Load(reader);
+               if (loaded is TElement)
+               {
+                  element = (TElement)loaded;
+                  return true;
+               }
+               else
+               {
+                  error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+               }
             }
          }
          catch (Exception ex)
@@ -168,7 +170,7 @@ namespace PoshWpf
          TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new TypeConverterAttribute(typeof(BindingConverter)) });
       }
 
-      public static string RoundTripXaml(string xaml)
+      public static string RoundtripXaml(string xaml)
       {
          return XamlWriter.Save(XamlReader.Parse(xaml));
       }
