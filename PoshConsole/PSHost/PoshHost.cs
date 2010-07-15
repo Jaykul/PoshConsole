@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
@@ -481,9 +482,25 @@ namespace PoshConsole.Host
 
       private List<string> BufferTabComplete(string cmdline)
       {
-         List<string> completions = new List<string>();
+         var completions = new List<string>();
          Collection<PSObject> set;
-         string lastWord = Utilities.GetLastWord(cmdline);
+         var lastWord = cmdline.GetLastWord();
+
+         // Finally, call the TabExpansion string
+         try
+         {
+            set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
+            if (set != null)
+            {
+               completions.AddRange(set.Select(opt => opt.ToString()));
+            }
+         } // hide the error
+         catch (RuntimeException) { }
+
+         if(completions.Count > 0)
+         {
+            return completions;
+         }
 
          // Still need to do more Tab Completion
          // WishList: Make PowerTab only necessariy for true POWER users.
@@ -520,14 +537,7 @@ namespace PoshConsole.Host
                   set = InvokePipeline("get-variable " + lastWord.Substring(1) + "*");
                   if (set != null)
                   {
-                     foreach (PSObject opt in set)
-                     {
-                        PSVariable var = opt.ImmediateBaseObject as PSVariable;
-                        if (var != null)
-                        {
-                           completions.Add("$" + var.Name);
-                        }
-                     }
+                     completions.AddRange(set.Select(opt => opt.ImmediateBaseObject).OfType<PSVariable>().Select(var => "$" + var.Name));
                   }
                }
             }// hide the error
@@ -543,15 +553,11 @@ namespace PoshConsole.Host
                set = InvokePipeline("resolve-path \"" + lastWord + "*\"");
                if (set != null)
                {
-                  foreach (PSObject opt in set)
-                  {
-                     string completion = opt.ToString();
-                     if (completion.Contains(" "))
-                     {
-                        completions.Add(string.Format("\"{0}\"", completion));
-                     }
-                     else completions.Add(completion);
-                  }
+                  completions.AddRange(
+                     set.Select(opt => opt.ToString()).Select(
+                        completion => ((String) completion).Contains(" ") ? string.Format("\"{0}\"", completion) : completion
+                     )
+                  );
                }
             }// hide the error
             catch (RuntimeException) { }
@@ -560,19 +566,7 @@ namespace PoshConsole.Host
             //   set = null;
             //}
 
-            // Finally, call the TabExpansion string
-            try
-            {
-               set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
-               if (set != null)
-               {
-                  foreach (PSObject opt in set)
-                  {
-                     completions.Add(opt.ToString());
-                  }
-               }
-            }// hide the error
-            catch (RuntimeException) { }
+
             //finally {
             //    set = null;
             //}
