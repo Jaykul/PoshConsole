@@ -151,7 +151,7 @@ Global
 		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal

@@ -15,7 +15,7 @@ namespace PoshWpf.Commands
       private string[] _paths;
       private bool _shouldExpandWildcards;
 
-      [Parameter(
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(
           Position = 0,
           Mandatory = true,
           ValueFromPipeline = false,
@@ -32,7 +32,7 @@ namespace PoshWpf.Commands
       }
 
 
-      [Parameter(
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(
           Position = 0,
           Mandatory = true,
           ValueFromPipeline = true,

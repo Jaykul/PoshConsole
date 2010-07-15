@@ -17,9 +17,9 @@ namespace PoshWpf.Commands
    public enum XamlOutput { String, XmlDocument, XDocument }
 
    [Cmdlet(VerbsData.ConvertTo, "Xaml")]
-	public class XamlConvertToCommand : Cmdlet
+   public class XamlConvertToCommand : Cmdlet
    {
-      [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
       public PSObject[] InputObject { get; set; }
 
       [Parameter(Mandatory = false)]
@@ -29,7 +29,7 @@ namespace PoshWpf.Commands
 
       protected override void ProcessRecord()
       {
-			inputs.AddRange(from obj in InputObject select obj.BaseObject);
+         inputs.AddRange(from obj in InputObject select obj.BaseObject);
          base.ProcessRecord();
       }
 

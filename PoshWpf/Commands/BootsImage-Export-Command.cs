@@ -16,7 +16,7 @@ namespace PoshWpf.Commands
       private const string ParamSetLiteral = "Literal";
       private const string ParmamSetPath = "Path";
 
-      [Parameter(Position = 1, Mandatory = true, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 1, Mandatory = true, ValueFromPipeline = true)]
       public Control[] Control { get; set; }
 
       [Parameter(Position = 0, Mandatory = false, ParameterSetName = ParmamSetPath)]
@@ -153,9 +153,10 @@ namespace PoshWpf.Commands
                         fileName = Path.GetFileNameWithoutExtension(imageFileName) + String.Format(CultureInfo.InvariantCulture, "{0:000}", i++) + Path.GetExtension(imageFileName);
                      }
 
-                     var stream = File.Create(Path.Combine(Path.GetDirectoryName(imageFileName), fileName));
-                     encoder.Save(stream);
-                     stream.Dispose();
+                     using(var stream = File.Create(Path.Combine(Path.GetDirectoryName(imageFileName), fileName)))
+                     {
+                        encoder.Save(stream);
+                     }
                      Environment.CurrentDirectory = now;
                      return new FileInfo(fileName);
                   }

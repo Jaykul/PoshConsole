@@ -15,7 +15,7 @@ namespace PoshWpf.Commands
       [Alias("TimeSpan")]
       public TimeSpan Each { get; set; }
 
-      [Parameter(Mandatory = true, Position = 10, HelpMessage = "Input parameters to the ScriptBlock", ValueFromRemainingArguments = true, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = true, Position = 10, HelpMessage = "Input parameters to the ScriptBlock", ValueFromRemainingArguments = true, ValueFromPipeline = true)]
       [Alias("IO")]
       public PSObject[] InputObject { get; set; }
 
@@ -35,9 +35,10 @@ namespace PoshWpf.Commands
          base.ProcessRecord();
       }
 
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
       protected override void EndProcessing()
       {
-         WriteObject( new PSDataSource( Script, new PSDataCollection<PSObject>(_input), Each, RunFirst.ToBool()) );
+         WriteObject( new PSDataSource( Script, _input, Each, RunFirst.ToBool()) );
 
          base.EndProcessing();
       }

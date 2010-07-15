@@ -15,22 +15,22 @@ namespace PoshWpf.Commands
       private const string ByIndex = "ByIndex";
       private const string ByElement = "ByElement";
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByIndex, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByIndex, ValueFromPipeline = true)]
       public int[] Index { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByTitle, ValueFromPipelineByPropertyName = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByTitle, ValueFromPipelineByPropertyName = true)]
       [Alias("Name")]
       public string[] Title { get; set; }
 
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true)]
       [Alias("Window")]
       public UIElement[] Element { get; set; }
 
       [Parameter(Position = 1, Mandatory = true)]
       public ScriptBlock Script { get; set; }
 
-      [Parameter(Position = 2, Mandatory = false, ValueFromRemainingArguments = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 2, Mandatory = false, ValueFromRemainingArguments = true)]
       [Alias("Args", "Params")]
       public PSObject[] Parameters { get; set; }
 
@@ -66,8 +66,6 @@ namespace PoshWpf.Commands
             if (output != null)
                foreach(var o in output)
                   WriteObject(o,true);
-
-            if (_error != null) WriteError(_error);
          }
 
          base.ProcessRecord();
@@ -129,7 +127,6 @@ namespace PoshWpf.Commands
       delegate ICollection<PSObject> InvokeDelegate(PSVariable[] variables, params object[] arguments);
 
 
-      ErrorRecord _error;
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       private ICollection<PSObject> Invoker(PSVariable[] variables, params object[] arguments)
       {

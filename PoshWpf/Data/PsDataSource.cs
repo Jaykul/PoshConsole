@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Management.Automation;
 using System.Windows.Threading;
 
 namespace PoshWpf.Data
 {
-   public class PSDataSource : INotifyPropertyChanged
+   public class PSDataSource : INotifyPropertyChanged, IDisposable
    {
       public event PropertyChangedEventHandler PropertyChanged;
 
@@ -152,10 +154,10 @@ namespace PoshWpf.Data
       {
          if(input != null)
          {
-            Input = new PSDataCollection<PSObject>(input);
+            _inputCollection = new PSDataCollection<PSObject>(input);
          }
 
-         _powerShellCommand.BeginInvoke(Input, _outputCollection);
+         _powerShellCommand.BeginInvoke(_inputCollection, _outputCollection);
       }
 
       public TimeSpan TimeSpan
@@ -185,11 +187,12 @@ namespace PoshWpf.Data
          Invoke();
       }
 
-      public PSDataCollection<PSObject> Input { get; private set; }
+      private PSDataCollection<PSObject> _inputCollection;
+      public PSDataCollection<PSObject> Input { get { return _inputCollection; } }
 
       public PSDataSource(
          ScriptBlock script = null,  
-         PSDataCollection<PSObject> input = null, 
+         List<PSObject> input = null, 
          TimeSpan interval = new TimeSpan(), 
          bool invokeImmediately = false)
       {
@@ -205,7 +208,7 @@ namespace PoshWpf.Data
 
          Script = script;
          TimeSpan = TimeSpan.Zero;
-         Input = input ?? new PSDataCollection<PSObject>();
+         _inputCollection = input == null ? new PSDataCollection<PSObject>() : new PSDataCollection<PSObject>(input);
          
          if (invokeImmediately || TimeSpan.Zero < interval) { Invoke(); }
          
@@ -273,6 +276,70 @@ namespace PoshWpf.Data
          LastOutput = collection[e.Index];
          PropertyChanged(this, new PropertyChangedEventArgs("Output"));
          PropertyChanged(this, new PropertyChangedEventArgs("LastOutput"));
+      }
+
+      /// <summary>Releases unmanaged resources and performs other cleanup operations 
+      /// before the <see cref="PSDataSource"/> is reclaimed by garbage collection.
+      /// Use C# destructor syntax for finalization code.
+      /// This destructor will run only if the Dispose method does not get called.
+      /// </summary>
+      /// <remarks>Do not provide destructors in types derived from this class.</remarks>
+      ~PSDataSource()
+      {
+         // Instead of cleaning up in BOTH Dispose() and here ...
+         // We call Dispose(false) for the best readability and maintainability.
+         Dispose(false);
+      }
+      /// <summary>
+      /// Implement IDisposable
+      /// Performs application-defined tasks associated with 
+      /// freeing, releasing, or resetting unmanaged resources.
+      /// </summary>
+      public void Dispose()
+      {
+         // This object will be cleaned up by the Dispose method.
+         // Therefore, we call GC.SupressFinalize to tell the runtime 
+         // that we dont' need to be finalized (we would clean up twice)
+         Dispose(true);
+         GC.SuppressFinalize(this);
+
+      }
+
+      private bool _disposed;
+      /// <summary>
+      /// Handles actual cleanup actions, under two different scenarios
+      /// </summary>
+      /// <param name="disposing">if set to <c>true</c> we've been called directly or 
+      /// indirectly by user code and can clean up both managed and unmanaged resources.
+      /// Otherwise it's been called from the destructor/finalizer and we can't
+      /// reference other managed objects (they might already be disposed).
+      ///</param>
+      private void Dispose(bool disposing)
+      {
+         // Check to see if Dispose has already been called.
+         if (!_disposed)
+         {
+            try
+            {
+               // // If disposing equals true, dispose all managed resources ALSO.
+               if (disposing)
+               {
+                  _outputCollection.Dispose();
+                  _inputCollection.Dispose();
+               }
+
+               // Clean up UnManaged resources
+               // If disposing is false, only the following code is executed.
+            }
+            catch (Exception e)
+            {
+               Trace.WriteLine(e.Message);
+               Trace.WriteLine(e.StackTrace);
+               throw;
+            }
+
+         }
+         _disposed = true;
       }
    }
 }

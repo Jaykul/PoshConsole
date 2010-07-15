@@ -8,7 +8,7 @@ namespace PoshWpf.Commands
    public class GetBootsTemplateCommand : PSCmdlet
    {
 
-      [Parameter( Position = 0, Mandatory = false)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = false)]
       public string[] Filter
       {
          get { return _filter; } 

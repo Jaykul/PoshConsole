@@ -8,13 +8,13 @@ namespace PoshWpf.Commands
    [Cmdlet(VerbsCommon.Remove, "BootsWindow", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium, DefaultParameterSetName = "Cleanup")]
    public class RemoveBootsWindowCommand : PSCmdlet
    {
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
       public int[] Index { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle", HelpMessage = "The window title to remove (accepts wildcards)")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle", HelpMessage = "The window title to remove (accepts wildcards)")]
       public string[] Name { get; set; }
 
-      [Parameter(Mandatory = true, ParameterSetName = "ByWindow", ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = true, ParameterSetName = "ByWindow", ValueFromPipeline = true)]
       public Window[] Window { get; set; }
 
       private List<WildcardPattern> patterns;

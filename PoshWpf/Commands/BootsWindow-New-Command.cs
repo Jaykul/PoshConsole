@@ -20,10 +20,10 @@ namespace PoshWpf.Commands
    public class NewBootsWindowCommand : ScriptBlockBase
    {
       #region Parameters
-      [Parameter(Position = 0, Mandatory = false, ValueFromPipeline = true, HelpMessage = "The Content for the WPF window ...")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = false, ValueFromPipeline = true, HelpMessage = "The Content for the WPF window ...")]
       public ScriptBlock[] Content { get; set; }
 
-      [Parameter(Position = 1, Mandatory = false, ValueFromRemainingArguments = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 1, Mandatory = false, ValueFromRemainingArguments = true)]
       [Alias("Args", "Params")]
       public Object[] Parameters { get; set; }
 
@@ -145,11 +145,11 @@ namespace PoshWpf.Commands
       public HorizontalAlignment? HorizontalAlignment { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public HorizontalAlignment? HorizontalContentAlignment { get; set; }
-      [Parameter(Mandatory = false, ValueFromPipeline = false)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = false, ValueFromPipeline = false)]
       public System.Windows.Input.CommandBinding[] CommandBindings { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public System.Windows.Input.Cursor Cursor { get; set; }
-      [Parameter(Mandatory = false, ValueFromPipeline = false)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = false, ValueFromPipeline = false)]
       public System.Windows.Input.InputBinding[] InputBindings { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public System.Windows.Input.InputScope InputScope { get; set; }
@@ -185,7 +185,7 @@ namespace PoshWpf.Commands
       public ResizeMode? ResizeMode { get; set; }
       // These collection things expect ARE read-only, EXCEPT that we accept them as parameters
 
-      [Parameter(Mandatory = false, ValueFromPipeline = false)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), Parameter(Mandatory = false, ValueFromPipeline = false)]
       public ResourceDictionary Resources { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public System.Windows.Size? RenderSize { get; set; }
@@ -201,7 +201,7 @@ namespace PoshWpf.Commands
       public Thickness? Margin { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public Thickness? Padding { get; set; }
-      [Parameter(Mandatory = false, ValueFromPipeline = false)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), Parameter(Mandatory = false, ValueFromPipeline = false)]
       public TriggerCollection Triggers { get; set; }
       [Parameter(Mandatory = false, ValueFromPipeline = false)]
       public VerticalAlignment? VerticalAlignment { get; set; }
@@ -1583,6 +1583,7 @@ function Global:Write-BootsOutput($inputObject) {
       }
 
 
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "XamlTemplates"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "PowerBootsPath")]
       private XmlDocument GetXaml()
       {
          XmlDocument document = null;

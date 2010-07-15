@@ -14,43 +14,42 @@ using System.Xaml;
 
 namespace PoshWpf.Commands
 {
-	[Cmdlet(VerbsData.Export, "Xaml", DefaultParameterSetName = ParameterSetPath)]
-	public class XamlExportCommand : HuddledContentProviderBaseCommand
+   [Cmdlet(VerbsData.Export, "Xaml", DefaultParameterSetName = ParameterSetPath)]
+   public class XamlExportCommand : HuddledContentProviderBaseCommand
    {
-      [Parameter(Mandatory = true, Position = 10, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Mandatory = true, Position = 10, ValueFromPipeline = true)]
       public PSObject[] InputObject { get; set; }
 
-		private readonly List<object> _inputs = new List<object>();
+      private readonly List<object> _inputs = new List<object>();
 
       protected override void ProcessRecord()
       {
          _inputs.AddRange(from obj in InputObject select obj.BaseObject);
-      	//inputs.AddRange(InputObject);
+         //inputs.AddRange(InputObject);
          base.ProcessRecord();
       }
 
       protected override void EndProcessing()
       {
-      	foreach (var path in ProviderPaths)
-      	{
-      		using(var writer = TryGetWriter(path))
-      		{
-      		   if (writer != null)
-      			{
-						try
-						{
-							object arr = _inputs.ToArray();
-							var xaml = XamlServices.Save(arr);
-							writer.Write(new List<string>(new[]{xaml}));
-						} 
-						catch (Exception ex)
-						{
-							WriteError(new ErrorRecord(ex, "CantWriteContent", ErrorCategory.ReadError, path));
-						}
-      			}
-      		   if (writer != null) writer.Close();
-      		}
-      	}
+         foreach (var path in ProviderPaths)
+         {
+            using(var writer = TryGetWriter(path))
+            {
+               if (writer != null)
+               {
+                  try
+                  {
+                     object arr = _inputs.ToArray();
+                     var xaml = XamlServices.Save(arr);
+                     writer.Write(new List<string>(new[]{xaml}));
+                  } 
+                  catch (Exception ex)
+                  {
+                     WriteError(new ErrorRecord(ex, "CantWriteContent", ErrorCategory.ReadError, path));
+                  }
+               }
+            }
+         }
          base.EndProcessing();
       }
    }

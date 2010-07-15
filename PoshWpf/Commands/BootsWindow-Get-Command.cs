@@ -10,7 +10,7 @@ namespace PoshWpf.Commands
       [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
       public int[] Index { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByTitle")]
       public string[] Name { get; set; }
 
       private List<WildcardPattern> patterns;
