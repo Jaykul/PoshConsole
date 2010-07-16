@@ -23,7 +23,7 @@ namespace PoshConsole
    /// <summary>
    /// Implementation of a WPF host for PowerShell
    /// </summary>
-	public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
+   public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
    {
 
       #region  Fields (11)
@@ -96,11 +96,11 @@ namespace PoshConsole
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
          buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) => 
-				Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-	            {
-	               progress.Children.Clear();
-	               progressRecords.Clear();
-	            }));
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+               {
+                  progress.Children.Clear();
+                  progressRecords.Clear();
+               }));
          //// problems with data binding 
          //WindowStyle = Properties.Settings.Default.WindowStyle;
          //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
@@ -163,7 +163,7 @@ namespace PoshConsole
       private HotkeysBehavior _Hotkeys;
 
 
-   	//private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
+      //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
       //{
       //    RecalculateSizes();
       //}
@@ -374,13 +374,13 @@ namespace PoshConsole
       /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
       private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
       {
-			// save our current location for next time
-			Properties.Settings.Default.WindowTop = Top;
-			Properties.Settings.Default.WindowLeft = Left;
-			Properties.Settings.Default.WindowWidth = Width;
-			Properties.Settings.Default.WindowHeight = Height; 
-			
-			Properties.Settings.Default.Save();
+         // save our current location for next time
+         Properties.Settings.Default.WindowTop = Top;
+         Properties.Settings.Default.WindowLeft = Left;
+         Properties.Settings.Default.WindowWidth = Width;
+         Properties.Settings.Default.WindowHeight = Height; 
+         
+         Properties.Settings.Default.Save();
          Properties.Colors.Default.Save();
 
          if (_host != null)
@@ -499,117 +499,117 @@ namespace PoshConsole
          }
       }
 
-		///// <summary>
-		///// Handles the SizeChanged event of the Window control.
-		///// </summary>
-		///// <param name="sender">The source of the event.</param>
-		///// <param name="e">The <see cref="System.Windows.SizeChangedEventArgs"/> instance containing the event data.</param>
-		//private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
-		//{
-		//   // we only reset the saved settings when something other than animation changes the Window size
-		//   double h = (double)this.GetAnimationBaseValue(HeightProperty);
-		//   if (Properties.Settings.Default.WindowHeight != h)
-		//   {
-		//      Properties.Settings.Default.WindowHeight = h;
-		//      double w = (double)this.GetAnimationBaseValue(WidthProperty);
-		//      if(!Double.IsNaN(w)) {
-		//         Properties.Settings.Default.WindowWidth = w;
-		//      }
-		//   }
-		//}
+      ///// <summary>
+      ///// Handles the SizeChanged event of the Window control.
+      ///// </summary>
+      ///// <param name="sender">The source of the event.</param>
+      ///// <param name="e">The <see cref="System.Windows.SizeChangedEventArgs"/> instance containing the event data.</param>
+      //private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
+      //{
+      //   // we only reset the saved settings when something other than animation changes the Window size
+      //   double h = (double)this.GetAnimationBaseValue(HeightProperty);
+      //   if (Properties.Settings.Default.WindowHeight != h)
+      //   {
+      //      Properties.Settings.Default.WindowHeight = h;
+      //      double w = (double)this.GetAnimationBaseValue(WidthProperty);
+      //      if(!Double.IsNaN(w)) {
+      //         Properties.Settings.Default.WindowWidth = w;
+      //      }
+      //   }
+      //}
 
       /// <summary>
       /// Handles the SourceInitialized event of the Window control.
       /// </summary>
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-		protected override void  OnSourceInitialized(EventArgs e)
-		{
-			// NOTE: we override OnSourceInitialized so we can control the order
-			// this way, the base event (and it's handlers) happen before us
-			// and we can handle the unregistered hotkeys (should probably make that an event on the HotkeysBehavior)
-		 	base.OnSourceInitialized(e);
+      protected override void  OnSourceInitialized(EventArgs e)
+      {
+         // NOTE: we override OnSourceInitialized so we can control the order
+         // this way, the base event (and it's handlers) happen before us
+         // and we can handle the unregistered hotkeys (should probably make that an event on the HotkeysBehavior)
+         base.OnSourceInitialized(e);
 
-			Cursor = Cursors.AppStarting;
+         Cursor = Cursors.AppStarting;
          this.TryExtendFrameIntoClientArea(new Thickness(-1));
-			var initWarnings = new StringBuilder();
+         var initWarnings = new StringBuilder();
 
-			// so now we can ask which keys are still unregistered.
-			foreach (var behavior in NativeBehaviors.GetBehaviors(this))
-			{
-				if (behavior is HotkeysBehavior)
-				{
-					_Hotkeys = behavior as HotkeysBehavior;
-				}
-			}
+         // so now we can ask which keys are still unregistered.
+         foreach (var behavior in NativeBehaviors.GetBehaviors(this))
+         {
+            if (behavior is HotkeysBehavior)
+            {
+               _Hotkeys = behavior as HotkeysBehavior;
+            }
+         }
 
-			if (_Hotkeys != null)
-			{
-				int k = -1;
-				int count = _Hotkeys.UnregisteredKeys.Count;
-				while (++k < count)
-				{
-					KeyBinding key = _Hotkeys.UnregisteredKeys[k];
-					// hypothetically, you would show them a GUI for changing the hotkeys... 
+         if (_Hotkeys != null)
+         {
+            int k = -1;
+            int count = _Hotkeys.UnregisteredKeys.Count;
+            while (++k < count)
+            {
+               KeyBinding key = _Hotkeys.UnregisteredKeys[k];
+               // hypothetically, you would show them a GUI for changing the hotkeys... 
 
-					// but you could try modifying them yourself ...
-					ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
-					if (mk != ModifierKeys.None)
-					{
-						initWarnings.AppendFormat("Hotkey taken: {0} + {1} for {2}\nModifying it to {3}, {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command, mk);
-						key.Modifiers |= mk;
-						_Hotkeys.Hotkeys.Add(key);
-					}
-					else
-					{
-						initWarnings.AppendFormat("Can't register hotkey for {2}\nWe tried registering it as {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command);
-						//   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
-						//   //key.Modifiers |= mk;
-						//   //hk.Add(key);
-					}
-				}
-			}
-			// LOAD the startup banner only when it's set (instead of removing it after)
-			if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
-			{
-				try
-				{
-					Paragraph banner;
-					ErrorRecord error;
-					System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
-					if (startup.TryLoadXaml(out banner, out error))
-					{
-						// Copy over *all* resources from the DOCUMENT to the BANNER
-						// NOTE: be careful not to put resources in the document you're not willing to expose
-						// NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
-						foreach (string key in buffer.Document.Resources.Keys)
-						{
-							banner.Resources[key] = buffer.Document.Resources[key];
-						}
-						banner.Padding = new Thickness(5);
-						buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
-					}
-					else
-					{
-						((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
-					}
+               // but you could try modifying them yourself ...
+               ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
+               if (mk != ModifierKeys.None)
+               {
+                  initWarnings.AppendFormat("Hotkey taken: {0} + {1} for {2}\nModifying it to {3}, {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command, mk);
+                  key.Modifiers |= mk;
+                  _Hotkeys.Hotkeys.Add(key);
+               }
+               else
+               {
+                  initWarnings.AppendFormat("Can't register hotkey for {2}\nWe tried registering it as {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command);
+                  //   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
+                  //   //key.Modifiers |= mk;
+                  //   //hk.Add(key);
+               }
+            }
+         }
+         // LOAD the startup banner only when it's set (instead of removing it after)
+         if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
+         {
+            try
+            {
+               Paragraph banner;
+               ErrorRecord error;
+               System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
+               if (startup.TryLoadXaml(out banner, out error))
+               {
+                  // Copy over *all* resources from the DOCUMENT to the BANNER
+                  // NOTE: be careful not to put resources in the document you're not willing to expose
+                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+                  foreach (string key in buffer.Document.Resources.Keys)
+                  {
+                     banner.Resources[key] = buffer.Document.Resources[key];
+                  }
+                  banner.Padding = new Thickness(5);
+                  buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
+               }
+               else
+               {
+                  ((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
+               }
 
-					// Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
-					// Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
-				}
-				catch (Exception ex)
-				{
-					Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
-					buffer.Document.Blocks.Clear();
-					((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
-				}
-			}
+               // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+               // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
+            }
+            catch (Exception ex)
+            {
+               Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
+               buffer.Document.Blocks.Clear();
+               ((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
+            }
+         }
 
-			if (initWarnings.Length > 0)
-			{
-				((IPSConsole) buffer).WriteWarningLine(initWarnings.ToString());
-			}
+         if (initWarnings.Length > 0)
+         {
+            ((IPSConsole) buffer).WriteWarningLine(initWarnings.ToString());
+         }
 
-      	// hook mousedown and call DragMove() to make the whole Window a drag handle
+         // hook mousedown and call DragMove() to make the whole Window a drag handle
          Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
@@ -662,7 +662,7 @@ namespace PoshConsole
                } break;
             case "WindowWidth":
                {
-						// do nothing, this setting is set when width changes, so we don't want to get into a loop.
+                  // do nothing, this setting is set when width changes, so we don't want to get into a loop.
                   //this.Width = Properties.Settings.Default.WindowWidth;
                } break;
             case "WindowTop":
@@ -737,15 +737,15 @@ namespace PoshConsole
                   _Hotkeys.Hotkeys.Add(focusKey);
 
                } break;
-				case "FontSize":
-					{
-						buffer.FontSize = Properties.Settings.Default.FontSize;
-					} break;
-				case "FontFamily":
-					{
-						buffer.FontFamily = Properties.Settings.Default.FontFamily;
-					} break;
-				default: break;
+            case "FontSize":
+               {
+                  buffer.FontSize = Properties.Settings.Default.FontSize;
+               } break;
+            case "FontFamily":
+               {
+                  buffer.FontFamily = Properties.Settings.Default.FontFamily;
+               } break;
+            default: break;
          }
       }
 

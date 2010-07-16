@@ -1,20 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Text.RegularExpressions;
-using System.Windows.Input;
-using System.Windows;
-using System.Management.Automation.Host;
-using System.Windows.Controls.Primitives;
 using System.Diagnostics;
-using Huddled.WPF.Controls.Interfaces;
+using System.Linq;
+using System.Management.Automation.Host;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using Huddled.WPF.Controls.Utility;
-using System.Management.Automation;
 namespace Huddled.WPF.Controls
 {
-   public class PopupMenu : System.Windows.Controls.Primitives.Popup
+   public class PopupMenu : Popup
    {
 
       #region [rgn] Fields (6)
@@ -32,12 +29,12 @@ namespace Huddled.WPF.Controls
 
       public PopupMenu(IPoshConsoleControl console)
       {
-         Closed += new EventHandler(Closed_TabComplete);
-         Closed += new EventHandler(Closed_History);
+         Closed += ClosedTabComplete;
+         Closed += ClosedHistory;
 
          StaysOpen = false;
          _intellisense.SelectionMode = SelectionMode.Single;
-         _intellisense.SelectionChanged += new SelectionChangedEventHandler(Intellisense_SelectionChanged);
+         _intellisense.SelectionChanged += IntellisenseSelectionChanged;
          _intellisense.IsTextSearchEnabled = true;
          //_intellisense.PreviewTextInput   += new TextCompositionEventHandler(popup_TextInput);
 
@@ -55,7 +52,7 @@ namespace Huddled.WPF.Controls
       // [rgn] Protected Methods (3)
 
       /// <summary>
-      /// Responds when the value of the <see cref="P:System.Windows.Controls.Primitives.Popup.IsOpen"></see> property changes from to true to false.
+      /// Responds when the value of the <see cref="P:System.Windows.Controls.Primitives.Popup.IsOpen"/> property changes from to true to false.
       /// </summary>
       /// <param name="e">The event data.</param>
       protected override void OnClosed(EventArgs e)
@@ -69,7 +66,7 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Extensions.PreviewKeyDown"></see>�attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Extensions.PreviewKeyDown"/> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
       /// </summary>
       /// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
       protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -92,12 +89,12 @@ namespace Huddled.WPF.Controls
                } break;
             case Key.Back:
                {
-						// BUGBUG: if you tab back past where TAB was pressed.
-						//         this doesn't actually expand the _intellsense!
-						//  WORSE: it doesn't update the text on the fly.
-					
+                  // BUGBUG: if you tab back past where TAB was pressed.
+                  //         this doesn't actually expand the _intellsense!
+                  //  WORSE: it doesn't update the text on the fly.
+               
                   // Update the filter
-						_tabbing = (_tabbing.Length == 0) ? "" : _tabbing.Substring(0, _tabbing.Length - 1);
+                  _tabbing = (_tabbing.Length == 0) ? "" : _tabbing.Substring(0, _tabbing.Length - 1);
                   _lastWord = (_lastWord.Length == 0) ? "" : _lastWord.Substring(0, _lastWord.Length - 1);
 
                   _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
@@ -187,7 +184,7 @@ namespace Huddled.WPF.Controls
             // intellisense.Items.Count  //tabbingCount
          }
          base.OnTextInput(e);
-         this.Focus();
+         Focus();
          _intellisense.Focus();
       }
 
@@ -198,7 +195,7 @@ namespace Huddled.WPF.Controls
       /// </summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      void Closed_History(object sender, EventArgs ea)
+      void ClosedHistory(object sender, EventArgs ea)
       {
          if (_tabbing == null)
          {
@@ -214,7 +211,7 @@ namespace Huddled.WPF.Controls
       /// </summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      void Closed_TabComplete(object sender, EventArgs ea)
+      void ClosedTabComplete(object sender, EventArgs ea)
       {
          if (_tabbing != null)
          {
@@ -222,7 +219,8 @@ namespace Huddled.WPF.Controls
             if (_intellisense.SelectedValue != null)
             {
                Trace.TraceInformation("CurrentCommand: {0}", cmd);
-               _console.CurrentCommand = cmd.Substring(0, cmd.Length - cmd.GetLastWord().Length) + _intellisense.SelectedValue.ToString() + _terminalString;
+               Trace.TraceInformation("TabExpansion: {0}", _intellisense.SelectedValue);
+               _console.CurrentCommand = cmd.Substring(0, cmd.Length - cmd.GetLastWord(false).Length) + _intellisense.SelectedValue + _terminalString;
             }
             else
             {
@@ -232,10 +230,10 @@ namespace Huddled.WPF.Controls
          }
       }
 
-      /// <summary>
-      /// Called when [navigate history].
-      /// </summary>
-      /// <param name="count">The count.</param>
+      // /// <summary>
+      // /// Called when [navigate history].
+      // /// </summary>
+      // /// <param name="count">The count.</param>
       //private void OnNavigateHistory(int count)
       //{
       //    historyIndex += count;
@@ -329,7 +327,16 @@ namespace Huddled.WPF.Controls
       //    }
       //    base.OnPreviewTextInput(e);
       //}
-      private void ShowPopup(Rect PlacementRectangle, List<string> items, bool number, bool FilterDupes)
+
+
+      /// <summary>
+      /// Shows the popup.
+      /// </summary>
+      /// <param name="placementRectangle">The placement rectangle.</param>
+      /// <param name="items">The items.</param>
+      /// <param name="number">if set to <c>true</c> [number].</param>
+      /// <param name="filterDupes">if set to <c>true</c> [filter dupes].</param>
+      private void ShowPopup(Rect placementRectangle, List<string> items, bool number, bool filterDupes)
       {
          _intellisense.Items.Clear();
          if (number)
@@ -337,7 +344,7 @@ namespace Huddled.WPF.Controls
             _intellisense.Items.Filter = null;
             for (int i = items.Count - 1; i >= 0; i--)
             {
-               if (!FilterDupes || !_intellisense.Items.Contains(items[i]))
+               if (!filterDupes || !_intellisense.Items.Contains(items[i]))
                {
                   ListBoxItem item = new ListBoxItem();
                   TextSearch.SetText(item, items[i]); // A name must start with a letter or the underscore character (_), and must contain only letters, digits, or underscores
@@ -350,7 +357,7 @@ namespace Huddled.WPF.Controls
          {
             for (int i = items.Count - 1; i >= 0; i--)
             {
-               if (!FilterDupes || !_intellisense.Items.Contains(items[i]))
+               if (!filterDupes || !_intellisense.Items.Contains(items[i]))
                {
                   _intellisense.Items.Insert(0, items[i]);
                }
@@ -362,11 +369,11 @@ namespace Huddled.WPF.Controls
          _intellisense.SelectedIndex = number ? items.Count - 1 : 0;
          _intellisense.ScrollIntoView(_intellisense.SelectedItem);
 
-         this.PlacementRectangle = PlacementRectangle;
-         this.Placement = PlacementMode.RelativePoint;
+         PlacementRectangle = placementRectangle;
+         Placement = PlacementMode.RelativePoint;
 
          IsOpen = true;          // show the popup
-         this.Focus();
+         Focus();
          _intellisense.Focus();  // focus the keyboard on the popup
       }
 
@@ -382,20 +389,21 @@ namespace Huddled.WPF.Controls
 
       // [rgn] Internal Methods (2)
 
-      internal void ShowHistoryPopup(Rect PlacementRectangle, List<string> list)
+      internal void ShowHistoryPopup(Rect placementRectangle, List<string> list)
       {
-         ShowPopup(PlacementRectangle, list, true, Properties.Settings.Default.HistoryMenuFilterDupes);
+         ShowPopup(placementRectangle, list, true, Properties.Settings.Default.HistoryMenuFilterDupes);
       }
 
       /// <summary>
       /// Shows the tab-expansion popup.
       /// </summary>
+      /// <param name="placementRectangle">The position to show the popup in.</param>
       /// <param name="list">The list of options</param>
-      /// <param name="number">if set to <c>true</c> [number].</param>
-      /// <param name="filterDupes">if set to <c>true</c> [filter dupes].</param>
-      internal void ShowTabPopup(Rect PlacementRectangle, List<string> list, string currentCommand)
+      /// <param name="currentCommand">The current command</param>
+      internal void ShowTabPopup(Rect placementRectangle, List<string> list, string currentCommand)
       {
-         list.Sort();// TODO: Minor: Sort this intelligently, by type...
+         // TODO: Minor: Sort this intelligently, by type...
+         // list.Sort();
          list = list.Distinct().ToList(); 
          // And filter it too
          _tabbing = currentCommand.TrimEnd('\r','\n');
@@ -403,16 +411,16 @@ namespace Huddled.WPF.Controls
          // the sweet typeahead auto-filter
          _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
 
-         ShowPopup(PlacementRectangle, list, false, false);
+         ShowPopup(placementRectangle, list, false, false);
       }
 
       #endregion [rgn]
 
-      private string _lastWord, _tabbing = null;
+      private string _lastWord, _tabbing;
 
       #region Handle Clicks on the Intellisense popup.
-      private bool _popupClicked = false;
-      private void Intellisense_SelectionChanged(object sender, SelectionChangedEventArgs e)
+      private bool _popupClicked;
+      private void IntellisenseSelectionChanged(object sender, SelectionChangedEventArgs e)
       {
          // if they clicked, then when the selection changes we close.
          if (_popupClicked) IsOpen = false;

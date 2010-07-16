@@ -19,7 +19,7 @@ namespace Huddled.WPF.Controls.Utility
 
       // [rgn] Public Methods (2)
 
-      public static string GetLastWord(this string cmdline)
+      public static string GetLastWord(this string cmdline, bool removeQuotes = true)
       {
          string lastWord = null;
          MatchCollection words = chunker.Matches(cmdline);
@@ -27,13 +27,16 @@ namespace Huddled.WPF.Controls.Utility
          {
             Match lw = words[words.Count - 1];
             lastWord = lw.Value;
-            if (lastWord[0] == '"')
+            if (removeQuotes)
             {
-               lastWord = lastWord.Replace("\"", string.Empty);
-            }
-            else if (lastWord[0] == '\'')
-            {
-               lastWord = lastWord.Replace("'", string.Empty);
+               if (lastWord[0] == '"')
+               {
+                  lastWord = lastWord.Replace("\"", string.Empty);
+               }
+               else if (lastWord[0] == '\'')
+               {
+                  lastWord = lastWord.Replace("'", string.Empty);
+               }
             }
          }
          return lastWord;
