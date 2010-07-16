@@ -66,21 +66,43 @@ namespace Huddled.WPF.Controls
       }
 
       /// <summary>
-      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Extensions.PreviewKeyDown"/> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Keyboard.PreviewKeyDown"/> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
       /// </summary>
-      /// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"></see> that contains the event data.</param>
+      /// <param name="e">The <see cref="T:System.Windows.Input.KeyEventArgs"/> that contains the event data.</param>
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
          Trace.TraceInformation("Entering popup_PreviewKeyDown:");
          Trace.Indent();
          //Trace.WriteLine("Event:  {0}" + e.RoutedEvent);
-         //Trace.WriteLine("Key:    {0}" + e.Key);
+         Trace.WriteLine("Key:    " + e.Key);
+         Trace.WriteLine("Index:  " + _intellisense.SelectedIndex);
+         Trace.WriteLine("Count:  " + _intellisense.Items.Count);
          //Trace.WriteLine("Source: {0}" + e.Source);
 
          _terminalString = string.Empty;
 
          switch (e.Key)
          {
+            case Key.Up:
+               {
+                 if(_intellisense.SelectedIndex <= 0)
+                 {
+                    _intellisense.SelectedIndex = _intellisense.Items.Count - 1;
+                    _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+                    e.Handled = false;
+                 }
+                 Trace.WriteLine("Key.Up: " + _intellisense.SelectedIndex);
+               } break;
+            case Key.Down:
+               {
+                  if (_intellisense.SelectedIndex >= _intellisense.Items.Count - 1)
+                  {
+                     _intellisense.SelectedIndex = 0;
+                    _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+                    e.Handled = false;
+                  }
+                  Trace.WriteLine("Key.Dn: " + _intellisense.SelectedIndex);
+               } break;
             case Key.Space:
                {
                   _terminalString = " ";
@@ -344,13 +366,11 @@ namespace Huddled.WPF.Controls
             _intellisense.Items.Filter = null;
             for (int i = items.Count - 1; i >= 0; i--)
             {
-               if (!filterDupes || !_intellisense.Items.Contains(items[i]))
-               {
-                  ListBoxItem item = new ListBoxItem();
-                  TextSearch.SetText(item, items[i]); // A name must start with a letter or the underscore character (_), and must contain only letters, digits, or underscores
-                  item.Content = string.Format("{0,2} {1}", i, items[i]);
-                  _intellisense.Items.Insert(0, item);
-               }
+               if (filterDupes && _intellisense.Items.Contains(items[i])) continue;
+               ListBoxItem item = new ListBoxItem();
+               TextSearch.SetText(item, items[i]); // A name must start with a letter or the underscore character (_), and must contain only letters, digits, or underscores
+               item.Content = string.Format("{0,2} {1}", i, items[i]);
+               _intellisense.Items.Insert(0, item);
             }
          }
          else
@@ -423,13 +443,45 @@ namespace Huddled.WPF.Controls
       private void IntellisenseSelectionChanged(object sender, SelectionChangedEventArgs e)
       {
          // if they clicked, then when the selection changes we close.
-         if (_popupClicked) IsOpen = false;
-         _popupClicked = false;
+         if (_popupClicked)
+         {
+            IsOpen = false;
+            _popupClicked = false;
+         }
       }
       protected override void OnMouseDown(MouseButtonEventArgs e)
       {
          _popupClicked = true;
          base.OnMouseDown(e);
+      }
+      protected override void OnMouseWheel(MouseWheelEventArgs e)
+      {
+         if(e.Delta > 0 )
+         {
+            if(_intellisense.SelectedIndex + e.Delta < _intellisense.Items.Count)
+            {
+               _intellisense.SelectedIndex = _intellisense.SelectedIndex + e.Delta;
+               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+            } else
+            {
+               _intellisense.SelectedIndex = (_intellisense.SelectedIndex + e.Delta) - _intellisense.Items.Count;
+               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+            }
+         } 
+         else
+         {
+            if (_intellisense.SelectedIndex - e.Delta > 0)
+            {
+               _intellisense.SelectedIndex = _intellisense.SelectedIndex - e.Delta;
+               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+            }
+            else
+            {
+               _intellisense.SelectedIndex = _intellisense.Items.Count - (_intellisense.SelectedIndex - e.Delta);
+               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+            }
+         }
+         // base.OnMouseWheel(e);
       }
       #endregion
 

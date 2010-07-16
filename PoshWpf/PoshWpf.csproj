@@ -96,7 +96,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\$(Platform)\$(Configuration)</OutputPath>
-    <DefineConstants>CODE_ANALYSIS;TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V4</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <RunCodeAnalysis>true</RunCodeAnalysis>

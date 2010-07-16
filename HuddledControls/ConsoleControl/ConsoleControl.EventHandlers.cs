@@ -207,11 +207,11 @@ namespace Huddled.WPF.Controls
             {
                if (e.IsModifierOn(ModifierKeys.Shift))
                {
-                  CurrentCommand = _expansion.Previous(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
+                  CurrentCommand = CurrentCommand.Substring(0, CurrentCommand.Length - CurrentCommand.GetLastWord(false).Length) + _expansion.Previous(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
                }
                else
                {
-                  CurrentCommand = _expansion.Next(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
+                  CurrentCommand = CurrentCommand.Substring(0, CurrentCommand.Length - CurrentCommand.GetLastWord(false).Length) + _expansion.Next(cmdline) + (hasMore ? CurrentCommandPostCursor : string.Empty);
                }
             }
             _tabTime = DateTime.Now;
