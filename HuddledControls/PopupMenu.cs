@@ -25,8 +25,6 @@ namespace Huddled.WPF.Controls
 
       #endregion [rgn]
 
-      #region [rgn] Constructors (1)
-
       public PopupMenu(IPoshConsoleControl console)
       {
          Closed += ClosedTabComplete;
@@ -45,11 +43,6 @@ namespace Huddled.WPF.Controls
 
       }
 
-      #endregion [rgn]
-
-      #region [rgn] Methods (9)
-
-      // [rgn] Protected Methods (3)
 
       /// <summary>
       /// Responds when the value of the <see cref="P:System.Windows.Controls.Primitives.Popup.IsOpen"/> property changes from to true to false.
@@ -85,22 +78,14 @@ namespace Huddled.WPF.Controls
          {
             case Key.Up:
                {
-                 if(_intellisense.SelectedIndex <= 0)
-                 {
-                    _intellisense.SelectedIndex = _intellisense.Items.Count - 1;
-                    _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-                    e.Handled = false;
-                 }
+                 MovePrevious();
+                  e.Handled = true;
                  Trace.WriteLine("Key.Up: " + _intellisense.SelectedIndex);
                } break;
             case Key.Down:
                {
-                  if (_intellisense.SelectedIndex >= _intellisense.Items.Count - 1)
-                  {
-                     _intellisense.SelectedIndex = 0;
-                    _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-                    e.Handled = false;
-                  }
+                  MoveNext();
+                  e.Handled = true;
                   Trace.WriteLine("Key.Dn: " + _intellisense.SelectedIndex);
                } break;
             case Key.Space:
@@ -134,25 +119,11 @@ namespace Huddled.WPF.Controls
                {
                   if (e.IsModifierOn(ModifierKeys.Shift))
                   {
-                     if (_intellisense.SelectedIndex > 0)
-                     {
-                        _intellisense.SelectedIndex -= 1;
-                     }
-                     else
-                     {
-                        _intellisense.SelectedIndex = _intellisense.Items.Count - 1;
-                     }
+                     MovePrevious();
                   }
                   else
                   {
-                     if (_intellisense.SelectedIndex < _intellisense.Items.Count - 1)
-                     {
-                        _intellisense.SelectedIndex += 1;
-                     }
-                     else
-                     {
-                        _intellisense.SelectedIndex = 0;
-                     }
+                     MoveNext();
                   }
                   e.Handled = true;
                } break;
@@ -165,6 +136,31 @@ namespace Huddled.WPF.Controls
          Trace.Unindent();
          Trace.TraceInformation("Exiting popup_PreviewKeyDown");
          base.OnPreviewKeyDown(e);
+      }
+
+      internal void MoveNext()
+      {
+         if (_intellisense.SelectedIndex == _intellisense.Items.Count - 1)
+         {
+            _intellisense.SelectedIndex = 0;
+         } else {
+            _intellisense.SelectedIndex++;
+         }
+         _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 3, "Selection Changed (MoveNext): {0}", _intellisense.SelectedItem);
+      }
+
+      internal void MovePrevious()
+      {
+         if(_intellisense.SelectedIndex == 0)
+         {
+            // (_intellisense.ItemContainerGenerator.ContainerFromIndex(_intellisense.Items.Count - 1) as ListBoxItem).IsSelected = true;
+            _intellisense.SelectedIndex = _intellisense.Items.Count - 1;
+         } else {
+            _intellisense.SelectedIndex--;
+         }
+         _intellisense.ScrollIntoView(_intellisense.SelectedItem);
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 3, "Selection Changed (MovePrevious): {0}", _intellisense.SelectedItem);
       }
 
       /// <summary>
@@ -205,12 +201,13 @@ namespace Huddled.WPF.Controls
             //intellisense.Items.Refresh();
             // intellisense.Items.Count  //tabbingCount
          }
-         base.OnTextInput(e);
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 3, "Selection Changed (Typing): {0}", _intellisense.SelectedItem);
+         base.OnPreviewTextInput(e);
          Focus();
          _intellisense.Focus();
       }
 
-      // [rgn] Private Methods (4)
+      #region Closing Handlers
 
       /// <summary>
       /// Handles the Closed event of the History popup menu.
@@ -219,7 +216,7 @@ namespace Huddled.WPF.Controls
       /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       void ClosedHistory(object sender, EventArgs ea)
       {
-         if (_tabbing == null)
+         if (_tabbing == null && IsParentActive())
          {
             if (_intellisense.SelectedValue != null)
             {
@@ -235,122 +232,38 @@ namespace Huddled.WPF.Controls
       /// <param name="ea">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       void ClosedTabComplete(object sender, EventArgs ea)
       {
-         if (_tabbing != null)
+         if (_tabbing == null || !IsParentActive()) return;
+
+         var cmd = _console.CurrentCommand;
+         if (_intellisense.SelectedValue != null)
          {
-            string cmd = _console.CurrentCommand;
-            if (_intellisense.SelectedValue != null)
-            {
-               Trace.TraceInformation("CurrentCommand: {0}", cmd);
-               Trace.TraceInformation("TabExpansion: {0}", _intellisense.SelectedValue);
-               _console.CurrentCommand = cmd.Substring(0, cmd.Length - cmd.GetLastWord(false).Length) + _intellisense.SelectedValue + _terminalString;
-            }
-            else
-            {
-               _console.CurrentCommand = _tabbing;
-            }
-            _console.CommandBox.Focus();
+            ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 4, "Popup Closed: {0}", _intellisense.SelectedValue);
+            _console.CurrentCommand = cmd.Substring(0, cmd.Length - cmd.GetLastWord(false).Length) + _intellisense.SelectedValue + _terminalString;
          }
+         else
+         {
+            _console.CurrentCommand = _tabbing;
+         }
+         _console.CommandBox.Focus();
       }
 
-      // /// <summary>
-      // /// Called when [navigate history].
-      // /// </summary>
-      // /// <param name="count">The count.</param>
-      //private void OnNavigateHistory(int count)
-      //{
-      //    historyIndex += count;
+      private bool IsParentActive()
+      {
+         var active = false;
+         var console = _console as DependencyObject;
+         if(console != null)
+         {
+            var window = console.TryFindParent<Window>();
+            if(window != null)
+            {
+               active = window.IsActive;
+            }
+         }
+         return active;
+      }
 
-      //    if (null != GetHistory)
-      //    {
-      //        CurrentCommand = GetHistory(ref historyIndex);
-      //    }
-      //    else
-      //    {
-      //        if (historyIndex == -1)
-      //        {
-      //            historyIndex = myHistory.Count;
-      //        }
-      //        if (historyIndex > 0 && historyIndex <= myHistory.Count)
-      //        {
-      //            CurrentCommand = myHistory[myHistory.Count - historyIndex];
-      //        }
-      //        else
-      //        {
-      //            historyIndex = 0;
-      //            CurrentCommand = string.Empty;
-      //        }
-      //    }
-      //}
-      ///// <summary>
-      ///// Called when [tab complete].
-      ///// </summary>
-      ///// <param name="shift">if set to <c>true</c> [shift].</param>
-      //private void OnTabComplete(int count)
-      //{
-      //    tabbingCount += count;
-      //    if (tabbing == null)
-      //    {
-      //        tabbing = CurrentCommand;
-      //        if (!string.IsNullOrEmpty(tabbing))
-      //        {
-      //            lastWord = GetLastWord(tabbing);
-      //            Cursor = Cursors.Wait;
-      //            completions = TabComplete(tabbing, lastWord);
-
-      //            Cursor = Cursors.IBeam;
-      //        } // make sure it's never an empty string.
-      //        else tabbing = null;
-      //    }
-      //    if (tabbing != null)
-      //    {
-      //        if (tabbingCount >= completions.Count)
-      //        {
-      //            tabbingCount = 0;
-      //        }
-      //        else if (tabbingCount < 0)
-      //        {
-      //            tabbingCount = completions.Count - 1;
-      //        }
-
-      //        // show the menu if:
-      //        // TabCompleteMenuThreshold > 0 and there are more items than the threshold
-      //        // OR they tabbed twice really fast
-      //        if ((Properties.Settings.Default.TabCompleteMenuThreshold > 0
-      //                && completions.Count > Properties.Settings.Default.TabCompleteMenuThreshold)
-      //            || (((TimeSpan)(DateTime.Now - tabTime)).TotalMilliseconds < Properties.Settings.Default.TabCompleteDoubleTapMilliseconds))
-      //        {
-      //            string prefix = tabbing.Substring(0, tabbing.Length - lastWord.Length);
-      //            popupClosing = new EventHandler(TabComplete_Closed);
-      //            popup.Closed += popupClosing;
-      //            completions.Sort(); // TODO: Sort this intelligently...
-      //            ShowPopup(completions, false, false);
-      //        }
-      //        else if (tabbingCount < completions.Count)
-      //        {
-      //            CurrentCommand = tabbing.Substring(0, tabbing.Length - lastWord.Length) + completions[tabbingCount];
-      //        }
-      //    }
-      //    tabTime = DateTime.Now;
-      //}
-      //protected override void OnPreviewTextInput(TextCompositionEventArgs e)
-      //{
-      //    // if they're trying to input text, they will overwrite the selection
-      //    // lets make sure they don't overwrite the history buffer
-      //    if (!Selection.IsEmpty)
-      //    {
-      //        if (Selection.Start.GetOffsetToPosition(commandStart) >= 0)
-      //        {
-      //            Selection.Select(commandStart.GetInsertionPosition(LogicalDirection.Forward), Selection.End);
-      //        }
-      //        if (Selection.End.GetOffsetToPosition(commandStart) >= 0)
-      //        {
-      //            Selection.Select(Selection.Start, commandStart.GetInsertionPosition(LogicalDirection.Forward));
-      //        }
-      //    }
-      //    base.OnPreviewTextInput(e);
-      //}
-
-
+      #endregion
+      
       /// <summary>
       /// Shows the popup.
       /// </summary>
@@ -384,7 +297,7 @@ namespace Huddled.WPF.Controls
             }
          }
 
-         _intellisense.Visibility = Visibility.Visible;
+         _intellisense.Visibility = System.Windows.Visibility.Visible;
          // if it's numbered, default to the last item
          _intellisense.SelectedIndex = number ? items.Count - 1 : 0;
          _intellisense.ScrollIntoView(_intellisense.SelectedItem);
@@ -406,9 +319,7 @@ namespace Huddled.WPF.Controls
       {
          return (item.ToString()).ToLower().StartsWith(_lastWord.ToLower());
       }
-
-      // [rgn] Internal Methods (2)
-
+      
       internal void ShowHistoryPopup(Rect placementRectangle, List<string> list)
       {
          ShowPopup(placementRectangle, list, true, Properties.Settings.Default.HistoryMenuFilterDupes);
@@ -434,12 +345,16 @@ namespace Huddled.WPF.Controls
          ShowPopup(placementRectangle, list, false, false);
       }
 
-      #endregion [rgn]
 
       private string _lastWord, _tabbing;
 
       #region Handle Clicks on the Intellisense popup.
       private bool _popupClicked;
+      /// <summary>
+      /// Intellisenses the selection changed.
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="e">The <see cref="System.Windows.Controls.SelectionChangedEventArgs"/> instance containing the event data.</param>
       private void IntellisenseSelectionChanged(object sender, SelectionChangedEventArgs e)
       {
          // if they clicked, then when the selection changes we close.
@@ -449,39 +364,34 @@ namespace Huddled.WPF.Controls
             _popupClicked = false;
          }
       }
-      protected override void OnMouseDown(MouseButtonEventArgs e)
+
+      /// <summary>
+      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Mouse.MouseDown"/> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+      /// </summary>
+      /// <param name="e">The <see cref="T:System.Windows.Input.MouseButtonEventArgs"/> that contains the event data. This event data reports details about the mouse button that was pressed and the handled state.</param>
+      protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
       {
          _popupClicked = true;
-         base.OnMouseDown(e);
+         base.OnPreviewMouseDown(e);
       }
-      protected override void OnMouseWheel(MouseWheelEventArgs e)
+
+      /// <summary>
+      /// Invoked when an unhandled <see cref="E:System.Windows.Input.Mouse.PreviewMouseWheel"/> attached event reaches an element in its route that is derived from this class. Implement this method to add class handling for this event.
+      /// </summary>
+      /// <param name="e">The <see cref="T:System.Windows.Input.MouseWheelEventArgs"/> that contains the event data.</param>
+      protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
       {
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information,-1,"Mouse Wheel: {0}", e.Delta);
          if(e.Delta > 0 )
          {
-            if(_intellisense.SelectedIndex + e.Delta < _intellisense.Items.Count)
-            {
-               _intellisense.SelectedIndex = _intellisense.SelectedIndex + e.Delta;
-               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-            } else
-            {
-               _intellisense.SelectedIndex = (_intellisense.SelectedIndex + e.Delta) - _intellisense.Items.Count;
-               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-            }
+            MovePrevious();
          } 
          else
          {
-            if (_intellisense.SelectedIndex - e.Delta > 0)
-            {
-               _intellisense.SelectedIndex = _intellisense.SelectedIndex - e.Delta;
-               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-            }
-            else
-            {
-               _intellisense.SelectedIndex = _intellisense.Items.Count - (_intellisense.SelectedIndex - e.Delta);
-               _intellisense.ScrollIntoView(_intellisense.SelectedItem);
-            }
+            MoveNext();
          }
-         // base.OnMouseWheel(e);
+         e.Handled = true;
+         base.OnPreviewMouseWheel(e);
       }
       #endregion
 

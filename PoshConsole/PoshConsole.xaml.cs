@@ -414,8 +414,6 @@ namespace PoshConsole
          try
          {
             _host = new PoshHost((IPSUI)this);
-            // // This doesn't actually solve the COM RCW problem
-            // Dispatcher.Invoke((Action)(() => { _host.MakeConsole(); }));
          }
          catch (Exception ex)
          {
