@@ -15,7 +15,7 @@ namespace PoshConsole
         
       #region [rgn] Fields (1)
 
-      private static readonly Regex _CHUNKER = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
+      private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
       #endregion [rgn]
 
@@ -30,14 +30,14 @@ namespace PoshConsole
             if (words.Count >= 1)
             {
                 Match lw = words[words.Count - 1];
-                lastWord = lw.Value;
-                if (lastWord[0] == '"')
+                lastWord = lw.Value.Trim();
+                if(lastWord.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    lastWord = lastWord.Replace("\"", string.Empty);
+                    lastWord = lastWord.Substring(1);
                 }
-                else if (lastWord[0] == '\'')
+                if (lastWord.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    lastWord = lastWord.Replace("'", string.Empty);
+                    lastWord = lastWord.Substring(0,lastWord.Length - 1);
                 }
             }
             return lastWord;

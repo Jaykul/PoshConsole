@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
@@ -485,11 +486,11 @@ namespace PoshConsole.Host
          var completions = new List<string>();
          Collection<PSObject> set;
          var lastWord = cmdline.GetLastWord();
-
-         // Finally, call the TabExpansion string
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 1, "Line: '{0}'\nWord: '{1}'", cmdline, lastWord);
+         // Finally, call the TabExpansion string);
          try
          {
-            set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
+            set = InvokePipeline("TabExpansion -Line '" + cmdline + "' -LastWord '" + lastWord + "'");
             if (set != null)
             {
                completions.AddRange(set.Select(opt => opt.ToString()));
