@@ -17,6 +17,7 @@ using Huddled.Interop;
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
 using Huddled.WPF.Controls.Interfaces;
+using Huddled.WPF.Controls.Utility.StringHelper;
 
 namespace PoshConsole.Host
 {

@@ -9,33 +9,25 @@ namespace Huddled.WPF.Controls.Utility
    public static class StringHelper
    {
 
-      #region [rgn] Fields (1)
 
-      public static Regex chunker = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
-
-      #endregion [rgn]
-
-      #region [rgn] Methods (2)
-
-      // [rgn] Public Methods (2)
-
-      public static string GetLastWord(this string cmdline, bool removeQuotes = true)
+      private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      public static string GetLastWord(this string cmdline, bool trimQuotes = false)
       {
          string lastWord = null;
-         MatchCollection words = chunker.Matches(cmdline);
+         MatchCollection words = _CHUNKER.Matches(cmdline);
          if (words.Count >= 1)
          {
             Match lw = words[words.Count - 1];
-            lastWord = lw.Value;
-            if (removeQuotes)
+            if (trimQuotes)
             {
-               if (lastWord[0] == '"')
+               lastWord = lw.Value.Trim();
+               if (lastWord.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                {
-                  lastWord = lastWord.Replace("\"", string.Empty);
+                  lastWord = lastWord.Substring(1);
                }
-               else if (lastWord[0] == '\'')
+               if (lastWord.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                {
-                  lastWord = lastWord.Replace("'", string.Empty);
+                  lastWord = lastWord.Substring(0, lastWord.Length - 1);
                }
             }
          }
@@ -44,7 +36,7 @@ namespace Huddled.WPF.Controls.Utility
 
       public static int LineCount(this string text)
       {
-         char[] lineends = new char[] { '\r', '\n' };
+         var lineends = new char[] { '\r', '\n' };
          int index = 0, count = 0;
          while ((index = 1 + text.IndexOfAny(lineends, index)) > 0)
          {
@@ -53,8 +45,5 @@ namespace Huddled.WPF.Controls.Utility
          }
          return count;
       }
-      #endregion [rgn]
-
    }
-
 }
