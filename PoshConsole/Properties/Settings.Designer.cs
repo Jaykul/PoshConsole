@@ -358,5 +358,17 @@ namespace PoshConsole.Properties {
                 this["QuakeModeSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Win+C")]
+        public string FocusKey {
+            get {
+                return ((string)(this["FocusKey"]));
+            }
+            set {
+                this["FocusKey"] = value;
+            }
+        }
     }
 }

@@ -103,21 +103,21 @@ namespace Huddled.WPF.Controls
 
       private void OnDownPressed(KeyEventArgs e)
       {
-			if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPostCursor == 1)
-			{
-				CurrentCommand = _cmdHistory.Next(CurrentCommand);
-				if (!e.IsModifierOn(ModifierKeys.Control))
-					e.Handled = true;
-			}
+         if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPostCursor == 1)
+         {
+            CurrentCommand = _cmdHistory.Next(CurrentCommand);
+            if (!e.IsModifierOn(ModifierKeys.Control))
+               e.Handled = true;
+         }
       }
 
       private void OnUpPressed(KeyEventArgs e)
       {
-			if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPreCursor == 1)
+         if (!e.KeyboardDevice.IsScrollLockToggled() || CurrentCommandLineCountPreCursor == 1)
          {
             CurrentCommand = _cmdHistory.Previous(CurrentCommand);
-				if(!e.IsModifierOn(ModifierKeys.Control))
-					e.Handled = true;
+            if(!e.IsModifierOn(ModifierKeys.Control))
+               e.Handled = true;
          }
       }
 
@@ -142,13 +142,13 @@ namespace Huddled.WPF.Controls
       {
          if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
          {
-				try
-				{
-					Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
-				}
-				catch {
-					// TODO: Should we warn if we can't set the clipboard?
-				}
+            try
+            {
+               Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
+            }
+            catch {
+               // TODO: Should we warn if we can't set the clipboard?
+            }
          }
 
          base.OnPreviewMouseLeftButtonUp(e);

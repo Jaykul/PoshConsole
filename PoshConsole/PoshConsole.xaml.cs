@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Text;
@@ -93,7 +94,7 @@ namespace PoshConsole
          }
 
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
-         Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
+         Settings.Default.PropertyChanged += SettingsPropertyChanged;
 
          buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) => 
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
@@ -717,6 +718,7 @@ namespace PoshConsole
                {
                   BorderThickness = Properties.Settings.Default.BorderThickness;
                } break;
+            case "FocusKeyGesture":
             case "FocusKey":
                {
                   KeyBinding focusKey = null;
@@ -727,12 +729,28 @@ namespace PoshConsole
                         focusKey = hk;
                      }
                   }
-                  if(focusKey != null)
+                  var kv = new KeyValueSerializer();
+                  var km = new ModifierKeysValueSerializer();
+                  KeyGesture newGesture = null;
+                  try
+                  {
+                     var modifiers = Settings.Default.FocusKey.Split(new[] {'+'}).ToList();
+                     var character = modifiers.Last();
+                     modifiers.Remove(character);
+                     newGesture = new KeyGesture((Key) kv.ConvertFromString(character, null),
+                                       (ModifierKeys) km.ConvertFromString(string.Join("+", modifiers), null));
+                  } 
+                  catch (Exception)
+                  {
+                     if (focusKey != null)
+                        Settings.Default.FocusKey = focusKey.Modifiers.ToString().Replace(", ","+") + "+" + focusKey.Key;
+                  }
+
+                  if (focusKey != null && newGesture != null)
                   {
                      _Hotkeys.Hotkeys.Remove(focusKey);
+                     _Hotkeys.Hotkeys.Add(new KeyBinding(GlobalCommands.ActivateWindow, newGesture));
                   }
-                  focusKey.Gesture = Properties.Settings.Default.FocusKey;
-                  _Hotkeys.Hotkeys.Add(focusKey);
 
                } break;
             case "FontSize":
