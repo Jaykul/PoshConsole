@@ -246,10 +246,13 @@ namespace Huddled.Wpf
 
 
       /// <summary>Occurs when changes occur which affect whether or not the command should execute.
-      /// (Is never fired for WindowCommand).
+      /// (Is never fired for WindowCommand, but might be on derived types)
       /// </summary>
-      public event EventHandler CanExecuteChanged;
-
+	  public virtual event EventHandler CanExecuteChanged
+	  {
+		  add { throw new NotSupportedException(); }
+		  remove { }
+	  }
       #endregion
    }
 

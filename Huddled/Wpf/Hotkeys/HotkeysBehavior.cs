@@ -54,14 +54,11 @@ namespace Huddled.Wpf
       /// The Window Handle for the Window we're managing
       /// </summary>
       private IntPtr _windowHandle;
-      /// <summary>
-      /// The Hwnd Presentation source fo the Window we're managing
-      /// </summary>
-      private HwndSource _hwndSource;
+
       /// <summary>
       /// The collection of registered hotkeys
       /// </summary>
-      private KeyBindingCollection _entries;
+      private readonly KeyBindingCollection _entries;
       /// <summary>
       /// Whether the window has been SourceInitialized 
       /// and the Hotkeys registered
@@ -70,7 +67,7 @@ namespace Huddled.Wpf
       /// <summary>
       /// The collection of hotkeys that are waiting to be registered
       /// </summary>
-      private List<KeyBinding> _keysPending;
+      private readonly List<KeyBinding> _keysPending;
 
       /// <summary>
       /// Gets a value indicating whether this instance has been initialized.

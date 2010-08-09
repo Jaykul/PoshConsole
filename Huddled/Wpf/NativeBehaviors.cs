@@ -48,7 +48,8 @@ namespace Huddled.Wpf
       /// <summary>Gets the collection of active handlers.</summary>
       /// <value>A List of the mappings from <see cref="NativeMethods.WindowMessage"/>s
       /// to <see cref="NativeMethods.MessageHandler"/> delegates.</value>
-      protected List<MessageMapping> Handlers { get; set; }
+	  [CLSCompliant(false)]
+	  protected List<MessageMapping> Handlers { get; set; }
       /// <summary>
       /// The reference to the Target or "owner" window 
       /// should be accessed through the <see cref="NativeBehaviors.Window"/> property.

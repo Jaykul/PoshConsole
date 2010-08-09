@@ -45,14 +45,14 @@ namespace Huddled.Wpf
 {
    public class QuakeMode : NativeBehavior
    {
-      private double _height;
+      // private double _height;
       private Window _window;
-      public List<EventTrigger> _triggers = new List<EventTrigger>();
+      private readonly List<EventTrigger> _triggers = new List<EventTrigger>();
       public override void AddTo(Window window)
       {
          _window = window;
          var duration = new Duration(TimeSpan.FromSeconds(Duration));
-         var sizeProperty = new PropertyPath((Dimension == Direction.Height) ? Window.HeightProperty : Window.WidthProperty);
+         var sizeProperty = new PropertyPath((Dimension == Direction.Height) ? FrameworkElement.HeightProperty : FrameworkElement.WidthProperty);
 
          var lostFocus = new Storyboard();
          var gotFocus = new Storyboard();

@@ -6,3 +6,7 @@ glob:*/bin/*/Release/*
 glob:*/bin/*/Debug/*
 glob:_ReSharper.*/*
 glob:*.suo
+glob:*/obj/*/Release/*
+glob:*/obj/*/Debug/*
+glob:*.ReSharper.user
+glob:*.vs10x

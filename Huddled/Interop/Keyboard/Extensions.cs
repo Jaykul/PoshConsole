@@ -29,6 +29,7 @@
 // *****************************************************************************
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 
+using System;
 using System.Management.Automation.Host;
 using System.Text;
 using System.Windows.Input;
@@ -44,6 +45,7 @@ namespace Huddled.Interop.Keyboard
       /// </summary>
       /// <param name="e">The KeyEventArgs</param>
       /// <returns>A KeyInfo struct</returns>
+	  [CLSCompliant(false)]
       public static KeyInfo ToKeyInfo(this KeyEventArgs e)
       {
          int vk = KeyInterop.VirtualKeyFromKey(e.Key);

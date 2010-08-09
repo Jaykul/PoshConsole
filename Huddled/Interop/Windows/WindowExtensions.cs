@@ -22,13 +22,16 @@ namespace Huddled.Interop.Windows
             return GetLocalWorkAreaRect(handle).DPITransformFromWindow(source);
          }
 
+		 [CLSCompliant(false)]
          public static Huddled.Interop.NativeMethods.ApiRect GetLocalWorkAreaRect(this Window window)
          {
             // Get handle for nearest monitor to this window
             var wih = new WindowInteropHelper(window);
             return GetLocalWorkAreaRect(wih.Handle);
          }
-         public static Huddled.Interop.NativeMethods.ApiRect GetLocalWorkAreaRect(IntPtr handle)
+
+		 [CLSCompliant(false)]
+		 public static Huddled.Interop.NativeMethods.ApiRect GetLocalWorkAreaRect(IntPtr handle)
          {
             // Get handle for nearest monitor to this window
             IntPtr hMonitor = NativeMethods.MonitorFromWindow(handle, NativeMethods.MonitorDefault.ToNearest);

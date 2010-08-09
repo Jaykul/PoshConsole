@@ -35,6 +35,7 @@ using System.Text;
 
 namespace Huddled.Interop
 {
+	[CLSCompliant(false)]
     public static partial class NativeMethods
     {
         #region user32!RegisterHotKey
@@ -124,7 +125,7 @@ namespace Huddled.Interop
         public static extern bool GetKeyboardState(byte[] lpKeyState);
 
         [DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+		public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
 
         [DllImport("user32.dll")]
         public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
