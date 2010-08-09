@@ -289,10 +289,6 @@
     <Resource Include="Artwork\PoshConsoleWindow.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PoshWpf\PoshWpf.csproj">
-      <Project>{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}</Project>
-      <Name>PoshWpf</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FontLibrary\FontLibrary.csproj">
       <Project>{BB5102A9-8BC9-4051-8A09-A1CEB623B50A}</Project>
       <Name>FontLibrary</Name>
@@ -304,6 +300,10 @@
     <ProjectReference Include="..\Huddled\Huddled.csproj">
       <Project>{23A411B5-657B-4B8E-9B10-D7256D39AD08}</Project>
       <Name>Huddled</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PoshWpf\PoshWpf.csproj">
+      <Project>{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}</Project>
+      <Name>PoshWpf</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

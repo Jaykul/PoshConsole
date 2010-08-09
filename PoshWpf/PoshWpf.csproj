@@ -19,11 +19,11 @@
     <SccProvider>SAK</SccProvider>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>HuddledMasses.org.pfx</AssemblyOriginatorKeyFile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -157,7 +157,7 @@
     <Compile Include="Commands\ExportBootsImageCommand.cs" />
     <Compile Include="Commands\BootsWindow-Remove-Command.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Dependencies\Interfaces\IPSXamlConsole.cs" />
+    <Compile Include="Dependencies\Interfaces\IPSWpfConsole.cs" />
     <Compile Include="Commands\BootsTemplate-Remove-Command.cs" />
     <Compile Include="Commands\BootsWindow-Invoke-Command.cs" />
     <Compile Include="Commands\BootsWindow-Get-Command.cs" />
@@ -227,7 +227,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)"
-copy "$(TargetPath)" "C:\Users\Joel\Documents\WindowsPowershell\Modules\PowerBoots\Binary Assemblies"</PostBuildEvent>
+    <PostBuildEvent>IF EXIST %25USERPROFILE%25\Documents\WindowsPowerShell\Modules\PowerBoots  ( copy "$(TargetPath)" "%25USERPROFILE%25\Documents\WindowsPowerShell\Modules\PowerBoots\Binary Assemblies" )</PostBuildEvent>
   </PropertyGroup>
 </Project>
