@@ -238,7 +238,7 @@ namespace Huddled.WPF.Controls
          if (_intellisense.SelectedValue != null)
          {
             ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 4, "Popup Closed: {0}", _intellisense.SelectedValue);
-            _console.CurrentCommand = cmd.Substring(0, cmd.Length - cmd.GetLastWord(false).Length) + _intellisense.SelectedValue + _terminalString;
+            _console.CurrentCommand = cmd.Substring(0, cmd.TrimEnd('\r','\n').Length - cmd.GetLastWord(false).Length) + _intellisense.SelectedValue + _terminalString;
          }
          else
          {

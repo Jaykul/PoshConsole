@@ -11,7 +11,7 @@ namespace Huddled.WPF.Controls.Utility
 
 
       private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      public static string GetLastWord(this string cmdline, bool trimQuotes = false)
+      public static string GetLastWord(this string cmdline, bool trimQuotes = true)
       {
          string lastWord = null;
          MatchCollection words = _CHUNKER.Matches(cmdline);
@@ -21,15 +21,20 @@ namespace Huddled.WPF.Controls.Utility
             if (trimQuotes)
             {
                lastWord = lw.Value.Trim();
-               if (lastWord.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase))
-               {
-                  lastWord = lastWord.Substring(1);
-               }
-               if (lastWord.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
-               {
-                  lastWord = lastWord.Substring(0, lastWord.Length - 1);
-               }
+               lastWord = lastWord.Replace("\"", "");
+               //if (lastWord.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+               //{
+               //   lastWord = lastWord.Substring(1);
+               //}
+               //if (lastWord.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+               //{
+               //   lastWord = lastWord.Substring(0, lastWord.Length - 1);
+               //}
             }
+            else
+            {
+               lastWord = lw.Value.TrimEnd('\r', '\n');
+            }           
          }
          return lastWord;
       }
