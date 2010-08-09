@@ -9,39 +9,39 @@ namespace Huddled.WPF.Controls.Utility
    public static class StringHelper
    {
 
-      #region [rgn] Fields (1)
 
-      public static Regex chunker = new Regex(@"[^ ""']+|([""'])[^\1]*?\1[^ ""']*|([""'])[^\1]*$", RegexOptions.Compiled);
-
-      #endregion [rgn]
-
-      #region [rgn] Methods (2)
-
-      // [rgn] Public Methods (2)
-
-      public static string GetLastWord(this string cmdline)
+      private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      public static string GetLastWord(this string cmdline, bool trimQuotes = true)
       {
          string lastWord = null;
-         MatchCollection words = chunker.Matches(cmdline);
+         MatchCollection words = _CHUNKER.Matches(cmdline);
          if (words.Count >= 1)
          {
             Match lw = words[words.Count - 1];
-            lastWord = lw.Value;
-            if (lastWord[0] == '"')
+            if (trimQuotes)
             {
-               lastWord = lastWord.Replace("\"", string.Empty);
+               lastWord = lw.Value.Trim();
+               lastWord = lastWord.Replace("\"", "");
+               //if (lastWord.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+               //{
+               //   lastWord = lastWord.Substring(1);
+               //}
+               //if (lastWord.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+               //{
+               //   lastWord = lastWord.Substring(0, lastWord.Length - 1);
+               //}
             }
-            else if (lastWord[0] == '\'')
+            else
             {
-               lastWord = lastWord.Replace("'", string.Empty);
-            }
+               lastWord = lw.Value.TrimEnd('\r', '\n');
+            }           
          }
          return lastWord;
       }
 
       public static int LineCount(this string text)
       {
-         char[] lineends = new char[] { '\r', '\n' };
+         var lineends = new char[] { '\r', '\n' };
          int index = 0, count = 0;
          while ((index = 1 + text.IndexOfAny(lineends, index)) > 0)
          {
@@ -50,8 +50,5 @@ namespace Huddled.WPF.Controls.Utility
          }
          return count;
       }
-      #endregion [rgn]
-
    }
-
 }

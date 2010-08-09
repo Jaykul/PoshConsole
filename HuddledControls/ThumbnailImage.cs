@@ -98,10 +98,10 @@ namespace Huddled.WPF.Controls
             }
          }
       }
-      private HwndSource target;
-      private IntPtr thumb;
+      private HwndSource _target;
+      private IntPtr _thumb;
 
-      /// <summary>Initializes the <see cref="ThumbnailButton"/> class.
+      /// <summary>Initializes the <see cref="ThumbnailImage"/> class.
       /// </summary>
       static ThumbnailImage()
       {
@@ -120,7 +120,7 @@ namespace Huddled.WPF.Controls
 
       }
 
-      /// <summary>Initializes a new instance of the <see cref="ThumbnailButton"/> class.
+      /// <summary>Initializes a new instance of the <see cref="ThumbnailImage"/> class.
       /// </summary>
       public ThumbnailImage(IntPtr source)
          : this()
@@ -180,7 +180,7 @@ namespace Huddled.WPF.Controls
       /// <param name="source">The source.</param>
       private void InitialiseThumbnail(IntPtr source)
       {
-         if (IntPtr.Zero != thumb)
+         if (IntPtr.Zero != _thumb)
          {   // release the old thumbnail
             ReleaseThumbnail();
          }
@@ -190,11 +190,11 @@ namespace Huddled.WPF.Controls
             // find our parent hwnd
             // [System.Windows.Interop.HwndSource]::FromHwnd( [Diagnostics.Process]::GetCurrentProcess().MainWindowHandle )
             //target = HwndSource.FromHwnd(System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle);
-            target = (HwndSource)HwndSource.FromVisual((UIElement)this);
+            _target = (HwndSource)HwndSource.FromVisual((UIElement)this);
             
             // if we have one, we can attempt to register the thumbnail
-            if (target != null ) {
-               int result = Win32.NativeMethods.DwmRegisterThumbnail(target.Handle, source, out this.thumb);
+            if (_target != null ) {
+               int result = Win32.NativeMethods.DwmRegisterThumbnail(_target.Handle, source, out this._thumb);
                if( 0 == result)
                {
                   Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
@@ -203,7 +203,7 @@ namespace Huddled.WPF.Controls
                   props.Opacity = (byte)(255 * this.Opacity);
                   props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly
                       | Win32.NativeMethods.ThumbnailFlags.Opacity;
-                  Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+                  Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
                }
             }
          }
@@ -213,25 +213,25 @@ namespace Huddled.WPF.Controls
       /// </summary>
       private void ReleaseThumbnail()
       {
-         if (IntPtr.Zero != thumb)
+         if (IntPtr.Zero != _thumb)
          {
-            Win32.NativeMethods.DwmUnregisterThumbnail(thumb);
-            this.thumb = IntPtr.Zero;
+            Win32.NativeMethods.DwmUnregisterThumbnail(_thumb);
+            this._thumb = IntPtr.Zero;
          }
-         this.target = null;
+         this._target = null;
       }
 
       /// <summary>Updates the thumbnail
       /// </summary>
       private void UpdateThumbnail()
       {
-         if (IntPtr.Zero != thumb)
+         if (IntPtr.Zero != _thumb)
          {
             Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
             props.ClientAreaOnly = this.ClientAreaOnly;
             props.Opacity = (byte)(255 * this.Opacity);
             props.Flags = Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Win32.NativeMethods.ThumbnailFlags.Opacity;
-            Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+            Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
          }
       }
 
@@ -251,20 +251,20 @@ namespace Huddled.WPF.Controls
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       private void Thumbnail_LayoutUpdated(object sender, EventArgs e)
       {
-         if (IntPtr.Zero.Equals(thumb))
+         if (IntPtr.Zero.Equals(_thumb))
          {
             InitialiseThumbnail(this.WindowSource);
          }
-         else if (null != target)
+         else if (null != _target)
          {
-            if (!target.RootVisual.IsAncestorOf(this))
+            if (!_target.RootVisual.IsAncestorOf(this))
             {
                //we are no longer in the visual tree
                ReleaseThumbnail();
                return;
             }
 
-            GeneralTransform transform = TransformToAncestor(target.RootVisual);
+            GeneralTransform transform = TransformToAncestor(_target.RootVisual);
             Point a = transform.Transform(new Point(0, 0));
             Point b = transform.Transform(new Point(this.ActualWidth, this.ActualHeight));
 
@@ -274,7 +274,7 @@ namespace Huddled.WPF.Controls
                 2 + (int)Math.Ceiling(a.X), 2 + (int)Math.Ceiling(a.Y),
                 -2 + (int)Math.Ceiling(b.X), -2 + (int)Math.Ceiling(b.Y));
             props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.RectDestination;
-            Win32.NativeMethods.DwmUpdateThumbnailProperties(thumb, ref props);
+            Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
          }
       }
 
@@ -288,12 +288,12 @@ namespace Huddled.WPF.Controls
       /// </returns>
       protected override Size MeasureOverride(Size availableSize)
       {
-         if (IntPtr.Zero == thumb)
+         if (IntPtr.Zero == _thumb)
          {
             InitialiseThumbnail(this.WindowSource);
          }
          System.Drawing.Size size;
-         Win32.NativeMethods.DwmQueryThumbnailSourceSize(thumb, out size);
+         Win32.NativeMethods.DwmQueryThumbnailSourceSize(_thumb, out size);
 
          double scale = 1;
 
@@ -314,7 +314,7 @@ namespace Huddled.WPF.Controls
       protected override Size ArrangeOverride(Size finalSize)
       {
          System.Drawing.Size size;
-         Win32.NativeMethods.DwmQueryThumbnailSourceSize(this.thumb, out size);
+         Win32.NativeMethods.DwmQueryThumbnailSourceSize(this._thumb, out size);
 
          // scale to fit whatever size we were allocated
          double scale = finalSize.Width / size.Width;

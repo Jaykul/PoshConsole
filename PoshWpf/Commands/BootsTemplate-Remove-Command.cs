@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.Commands;
-namespace PoshWpf
+using PoshWpf.Utility;
+
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsCommon.Remove, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName = "Path")]
    public class RemoveBootsTemplateCommand : PSCmdlet
@@ -14,7 +15,7 @@ namespace PoshWpf
 
       private string[] _paths;
       private bool _shouldExpandWildcards;
-      [Parameter(
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(
           Position = 0,
           Mandatory = true,
           ValueFromPipeline = false,
@@ -30,7 +31,7 @@ namespace PoshWpf
       }
 
 
-      [Parameter(
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(
           Position = 0,
           Mandatory = true,
           ValueFromPipeline = true,

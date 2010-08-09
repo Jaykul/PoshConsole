@@ -25,19 +25,34 @@
             // Add code to handle the SettingsSaving event here.
         }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Win+C")]
-        public global::System.Windows.Input.KeyGesture FocusKey
-        {
-           get
-           {
-              return ((global::System.Windows.Input.KeyGesture)(this["FocusKey"]));
-           }
-           set
-           {
-              this["FocusKey"] = value;
-           }
-        }
+        //[global::System.Configuration.UserScopedSettingAttribute()]
+        //[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        //[global::System.Configuration.DefaultSettingValueAttribute("C")]
+        //public global::System.Windows.Input.Key FocusKey
+        //{
+        //   get
+        //   {
+        //      return ((global::System.Windows.Input.Key)(this["FocusKey"]));
+        //   }
+        //   set
+        //   {
+        //      this["FocusKey"] = value;
+        //   }
+        //}
+       
+        //[global::System.Configuration.UserScopedSettingAttribute()]
+        //[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        //[global::System.Configuration.DefaultSettingValueAttribute("Win")]
+        //public global::System.Windows.Input.ModifierKeys FocusKeyModifier
+        //{
+        //   get
+        //   {
+        //      return ((global::System.Windows.Input.ModifierKeys)(this["FocusKeyModifier"]));
+        //   }
+        //   set
+        //   {
+        //      this["FocusKeyModifier"] = value;
+        //   }
+        //}
     }
 }

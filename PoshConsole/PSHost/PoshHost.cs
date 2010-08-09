@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
@@ -15,6 +17,7 @@ using Huddled.Interop;
 using Huddled.Wpf;
 using Huddled.WPF.Controls;
 using Huddled.WPF.Controls.Interfaces;
+using Huddled.WPF.Controls.Utility;
 
 namespace PoshConsole.Host
 {
@@ -23,7 +26,7 @@ namespace PoshConsole.Host
    /// applications. Not all members are implemented. Those that are 
    /// not implemented throw a NotImplementedException exception.
    /// </summary>
-	public partial class PoshHost : PSHost, IPSBackgroundHost
+   public partial class PoshHost : PSHost, IPSBackgroundHost
    {
 
       #region  Fields (16)
@@ -63,6 +66,7 @@ namespace PoshConsole.Host
       #region  Constructors (1)
 
       //internal List<string> StringHistory;
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "PoshConsole")]
       public PoshHost(IPSUI psUi)
       {
          _buffer = psUi.Console;
@@ -205,6 +209,7 @@ namespace PoshConsole.Host
       /// <summary>
       /// Not implemented by this example class. The call fails with an exception.
       /// </summary>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "EnterNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
       public override void EnterNestedPrompt()
       {
          // TODO: IMPLEMENT PSHost.EnterNestedPrompt()
@@ -214,6 +219,7 @@ namespace PoshConsole.Host
       /// <summary>
       /// Not implemented by this example class. The call fails with an exception.
       /// </summary>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ExitNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
       public override void ExitNestedPrompt()
       {
          // TODO: IMPLEMENT PSHost.ExitNestedPrompt()
@@ -430,9 +436,9 @@ namespace PoshConsole.Host
          string commandLine = command.Command;
          if (_native == 0)
          {
-				// output the text back to the console control (is this weird, or is it just me?)
-				_buffer.WriteLine( command.Command );
-				Execute(commandLine);
+            // output the text back to the console control (is this weird, or is it just me?)
+            _buffer.WriteLine( command.Command );
+            Execute(commandLine);
          }
          else
          {
@@ -478,9 +484,25 @@ namespace PoshConsole.Host
 
       private List<string> BufferTabComplete(string cmdline)
       {
-         List<string> completions = new List<string>();
+         var completions = new List<string>();
          Collection<PSObject> set;
-         string lastWord = Utilities.GetLastWord(cmdline);
+         var lastWord = cmdline.GetLastWord();
+         ConsoleControl.TabExpansionTrace.TraceEvent(TraceEventType.Information, 1, "Line: '{0}'\nWord: '{1}'", cmdline, lastWord);
+         // Finally, call the TabExpansion string);
+         try
+         {
+            set = InvokePipeline("TabExpansion -Line '" + cmdline + "' -LastWord '" + lastWord + "'");
+            if (set != null)
+            {
+               completions.AddRange(set.Select(opt => opt.ToString()));
+            }
+         } // hide the error
+         catch (RuntimeException) { }
+
+         if(completions.Count > 0)
+         {
+            return completions;
+         }
 
          // Still need to do more Tab Completion
          // WishList: Make PowerTab only necessariy for true POWER users.
@@ -517,14 +539,7 @@ namespace PoshConsole.Host
                   set = InvokePipeline("get-variable " + lastWord.Substring(1) + "*");
                   if (set != null)
                   {
-                     foreach (PSObject opt in set)
-                     {
-                        PSVariable var = opt.ImmediateBaseObject as PSVariable;
-                        if (var != null)
-                        {
-                           completions.Add("$" + var.Name);
-                        }
-                     }
+                     completions.AddRange(set.Select(opt => opt.ImmediateBaseObject).OfType<PSVariable>().Select(var => "$" + var.Name));
                   }
                }
             }// hide the error
@@ -540,15 +555,11 @@ namespace PoshConsole.Host
                set = InvokePipeline("resolve-path \"" + lastWord + "*\"");
                if (set != null)
                {
-                  foreach (PSObject opt in set)
-                  {
-                     string completion = opt.ToString();
-                     if (completion.Contains(" "))
-                     {
-                        completions.Add(string.Format("\"{0}\"", completion));
-                     }
-                     else completions.Add(completion);
-                  }
+                  completions.AddRange(
+                     set.Select(opt => opt.ToString()).Select(
+                        completion => ((String) completion).Contains(" ") ? string.Format("\"{0}\"", completion) : completion
+                     )
+                  );
                }
             }// hide the error
             catch (RuntimeException) { }
@@ -557,19 +568,7 @@ namespace PoshConsole.Host
             //   set = null;
             //}
 
-            // Finally, call the TabExpansion string
-            try
-            {
-               set = InvokePipeline("TabExpansion '" + cmdline + "' '" + lastWord + "'");
-               if (set != null)
-               {
-                  foreach (PSObject opt in set)
-                  {
-                     completions.Add(opt.ToString());
-                  }
-               }
-            }// hide the error
-            catch (RuntimeException) { }
+
             //finally {
             //    set = null;
             //}
@@ -789,13 +788,13 @@ namespace PoshConsole.Host
 
       #endregion
 
-		#region IPSXamlHost Members
+      #region IPSXamlHost Members
 
-		public IPSWpfConsole GetWpfConsole()
-		{
-			return _psUi.Console;
-		}
+      public IPSWpfConsole GetWpfConsole()
+      {
+         return _psUi.Console;
+      }
 
-		#endregion
-	}
+      #endregion
+   }
 }

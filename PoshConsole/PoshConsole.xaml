@@ -1,7 +1,8 @@
 ﻿<Window
     x:Class="PoshConsole.PoshConsoleWindow" x:Name="window"
     Title="{Binding Path=Title, ElementName=buffer, Mode=Default}"
-    
+    TextOptions.TextFormattingMode = "Display"
+    TextOptions.TextRenderingMode = "ClearType"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    
@@ -18,16 +19,15 @@
     
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
 
-    SourceInitialized="OnWindowSourceInitialized"
+    
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
     Deactivated="OnWindowDeactivated"
     LocationChanged="OnWindowLocationChanged"
-    SizeChanged="OnWindowSizeChanged"
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
-    WindowStyle="ThreeDBorderWindow" Height="371" Width="911">
+    WindowStyle="ThreeDBorderWindow">
     <!-- SingleBorderWindow is important for the CustomChrome behavior -->
     <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
 
@@ -158,6 +158,12 @@
     <Window.Top>
         <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Top>
+    <Window.Width>
+        <Binding Path="WindowWidth" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Width>
+    <Window.Height>
+        <Binding Path="WindowHeight" Mode="Default" Source="{StaticResource SettingsDS}"/>
+    </Window.Height>    
     <Window.Topmost>
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
@@ -183,14 +189,14 @@
                                                               DefaultImage="{DynamicResource ResourceKey=exclamationIcon}" Content=""/>
             </StackPanel>
             <!--<StatusBar.BitmapEffect>
-        			   <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
-        		   </StatusBar.BitmapEffect>-->
+                       <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
+                   </StatusBar.BitmapEffect>-->
             <GridSplitter Grid.Column="2" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Path=Background, ElementName=window, Mode=Default}" Margin="0,0,150,0" />
             <TextBox Grid.Column="2" x:Name="Search" Padding="4,0,22,0" Text="Search" HorizontalAlignment="Stretch" BorderThickness="1,1,1,1" Width="Auto" MinWidth="200" VerticalAlignment="Top" Style="{StaticResource SearchBox}"  PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" />
             <huddle:ImageButton x:Name="FindButton" 
-						Click="OnFindButtonClick" Cursor="Arrow"
-						Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
-						ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1"  VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        Click="OnFindButtonClick" Cursor="Arrow"
+                        Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"  Foreground="{x:Null}"
+                        ToolTip="Search" Image="pack://application:,,,/Artwork/Find.png" Width="Auto" Height="Auto" HorizontalAlignment="Right" Grid.Column="2" Panel.ZIndex="1"  VerticalAlignment="Top" Margin="0,2,0,0"/>
         </Grid>
         <DockPanel Grid.Row="1" Background="Transparent" x:Name="Dock">
             <!--huddled:CustomChrome.ClientConstrained="True" -->
@@ -203,16 +209,15 @@
                     <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
                 </Grid.RowDefinitions>
                 <StackPanel x:Name="progress" Grid.Row="1" Panel.ZIndex="1"
-				Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
-				Opacity="0.9" Orientation="Vertical" Background="{x:Null}" Grid.Column="1" >
+                Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
+                Opacity="0.9" Orientation="Vertical" Background="{x:Null}" Grid.Column="1" >
                 </StackPanel>
                 <huddle:ConsoleControl Grid.Row="1" x:Name="buffer"
-				HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-				IsSelectionEnabled="True"
-				Title="PoshConsole" Grid.Column="1"
-				FontSize="{Binding Path=FontSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
-				FontFamily="{Binding Path=FontFamily, Mode=OneWay, Source={StaticResource SettingsDS}}"
-				PreviewMouseWheel="OnBufferPreviewMouseWheel" >
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsSelectionEnabled="True"
+                Title="PoshConsole" Grid.Column="1"
+                FontSize="{Binding Path=FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
+                FontFamily="{Binding Path=FontFamily, Mode=Default, Source={StaticResource SettingsDS}}" >
                     <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
                     <FlowDocument>
                         <FlowDocument.Resources>

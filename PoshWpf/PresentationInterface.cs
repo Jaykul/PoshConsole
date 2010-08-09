@@ -4,13 +4,13 @@
 // for any purpose either express or implied. 
 
 using System;
+using System.Management.Automation.Runspaces;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
-using System.Xml;
 using System.Windows.Threading;
-using System.Management.Automation.Runspaces;
-using System.Management.Automation;
+using System.Xml;
+using PoshWpf.Utility;
 
 namespace PoshWpf
 {
@@ -18,12 +18,13 @@ namespace PoshWpf
    public struct PresentationResult
    {
       // Contains the value of the DialogResult property of the window
-      public bool DialogResult {get; set;}
+      public bool DialogResult { get; set; }
       // Contains the value of the Tag property of the window
       // may be used if a bool is insufficient
-      public object WindowTag {get; set;}
+      public object WindowTag { get; set; }
 
-      public PresentationResult(bool dialogResult, object tag) : this()
+      public PresentationResult(bool dialogResult, object tag)
+         : this()
       {
          DialogResult = dialogResult;
          WindowTag = tag;
@@ -51,10 +52,10 @@ namespace PoshWpf
       {
          return DialogResult.GetHashCode() + WindowTag.GetHashCode();
       }
-      
+
       public static bool operator ==(PresentationResult one, PresentationResult two)
       {
-            return one.DialogResult == two.DialogResult && one.WindowTag == two.WindowTag;
+         return one.DialogResult == two.DialogResult && one.WindowTag == two.WindowTag;
       }
       public static bool operator !=(PresentationResult one, PresentationResult two)
       {
@@ -172,30 +173,33 @@ namespace PoshWpf
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
       public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize, IntPtr? owner)
       {
-         WindowArgs Args = new WindowArgs()
-         {
-            WindowXaml = xaml,
-            AsyncResult = new WindowDispatcherAsyncResult(new EventWaitHandle(false, EventResetMode.ManualReset)),
-            InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
-            Initialize = initialize,
-            OwnerHandle = owner,
-            //ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
-            ShellRunspace = Runspace.DefaultRunspace
-         };
+         var done = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-         Thread WindowThread = new Thread(new ParameterizedThreadStart(WindowProc))
-         {
-            Name = "Presentation.Thread"
-         };
+         var windowArgs = new WindowArgs()
+                             {
+                                WindowXaml = xaml,
+                                AsyncResult = new WindowDispatcherAsyncResult(done),
+                                InitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
+                                Initialize = initialize,
+                                OwnerHandle = owner,
+                                //ShellDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher,
+                                ShellRunspace = Runspace.DefaultRunspace
+                             };
 
-         WindowThread.SetApartmentState(ApartmentState.STA);
-         WindowThread.Start(Args);
+         var windowThread = new Thread(WindowProc)
+                               {
+                                  Name = "Presentation.Thread"
+                               };
 
-         Args.InitHandle.WaitOne();
+         windowThread.SetApartmentState(ApartmentState.STA);
+         windowThread.Start(windowArgs);
 
-         if (Args.InitException != null) throw Args.InitException;
+         windowArgs.InitHandle.WaitOne();
 
-         return Args.AsyncResult;
+         if (windowArgs.InitException != null) throw windowArgs.InitException;
+
+         return windowArgs.AsyncResult;
+
       }
 
       // public stop method to retrieve the dialog result 
@@ -269,13 +273,16 @@ namespace PoshWpf
       {
          object xamlObject = null;
          // initialize from xaml
+
          if (xaml != null)
          {
-            xamlObject = System.Windows.Markup.XamlReader.Load(new XmlNodeReader(xaml));
+            using (var xamlStream = new XmlNodeReader(xaml))
+            {
+               xamlObject = System.Windows.Markup.XamlReader.Load(xamlStream);
+            }
          }
 
-         Window w = xamlObject as Window;
-         if (w == null){ w = new Window(); }
+         Window w = xamlObject as Window ?? new Window();
 
          w.LoadTemplates();
 

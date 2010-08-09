@@ -26,13 +26,14 @@ namespace Huddled.WPF.Controls
    /// </summary>
    public partial class ConsoleControl : FlowDocumentScrollViewer, ISupportInitialize
    {
+      public static TraceSource TabExpansionTrace = new TraceSource("TabExpansion");
       //static readonly ConsoleBrushes ConsoleBrushes = new ConsoleBrushes();
 
       static ConsoleControl()
       {
          InitializeCommands();
 
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
+         DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
       }
 
       private static void InitializeCommands()
@@ -79,9 +80,9 @@ namespace Huddled.WPF.Controls
                              AcceptsTab = true,
                              AcceptsReturn = true,
                              VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-									  Padding = new Thickness(0.0),
-								  };
-			// _commandBox.Document.TextAlignment = TextAlignment.Left;
+                             Padding = new Thickness(0.0),
+                          };
+         // _commandBox.Document.TextAlignment = TextAlignment.Left;
          _passwordBox = new PasswordBox()
                            {
                               IsEnabled = true,
@@ -92,6 +93,8 @@ namespace Huddled.WPF.Controls
 
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
 
+
+
          //ScrollViewer.SizeChanged += new SizeChangedEventHandler(ScrollViewer_SizeChanged);
       }
 
@@ -100,9 +103,9 @@ namespace Huddled.WPF.Controls
          SetPrompt();
       }
 
-		void ISupportInitialize.EndInit()
+      void ISupportInitialize.EndInit()
       {
-			// Pre-call the base init code, so it will be finished ...
+         // Pre-call the base init code, so it will be finished ...
          base.EndInit(); 
 
          //// Initialize the document ...
@@ -113,8 +116,8 @@ namespace Huddled.WPF.Controls
          Document.Blocks.Add(_current);
          // We need to crush the PagePadding so that the "Width" values work...
          Document.PagePadding = new Thickness(0.0);
-			// Default the text alignment correctly
-			Document.TextAlignment = TextAlignment.Left;
+         // Default the text alignment correctly
+         Document.TextAlignment = TextAlignment.Left;
          //   IsOptimalParagraphEnabled = true,
          //};
 
@@ -122,6 +125,7 @@ namespace Huddled.WPF.Controls
          _next = new Paragraph();
          Document.Blocks.Add(_next);
          _next.Inlines.Add(_commandContainer);
+         _commandContainer.Focus();
 
          Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
          Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
@@ -381,34 +385,34 @@ namespace Huddled.WPF.Controls
          }
       }
 
-		private int CurrentCommandLineCountPreCursor
-		{
-			get
-			{
-				var lineCount = _commandBox.Document.Blocks.Count;
-				if (lineCount > 0)
-				{
-					_commandBox.CaretPosition.GetLineStartPosition(int.MinValue, out lineCount);
-					lineCount--;
-				}
-				else { lineCount = 1; }
-				return Math.Abs(lineCount);
-			}
-		}
-		private int CurrentCommandLineCountPostCursor
-		{
-			get
-			{
-				var lineCount = _commandBox.Document.Blocks.Count;
-				if (lineCount > 0)
-				{
-					_commandBox.CaretPosition.GetLineStartPosition(int.MaxValue, out lineCount);
-					lineCount++; // because we're about to be on the next line ...
-				}
-				else { lineCount = 1; }
-				return Math.Abs(lineCount);
-			}
-		}
+      private int CurrentCommandLineCountPreCursor
+      {
+         get
+         {
+            var lineCount = _commandBox.Document.Blocks.Count;
+            if (lineCount > 0)
+            {
+               _commandBox.CaretPosition.GetLineStartPosition(int.MinValue, out lineCount);
+               lineCount--;
+            }
+            else { lineCount = 1; }
+            return Math.Abs(lineCount);
+         }
+      }
+      private int CurrentCommandLineCountPostCursor
+      {
+         get
+         {
+            var lineCount = _commandBox.Document.Blocks.Count;
+            if (lineCount > 0)
+            {
+               _commandBox.CaretPosition.GetLineStartPosition(int.MaxValue, out lineCount);
+               lineCount++; // because we're about to be on the next line ...
+            }
+            else { lineCount = 1; }
+            return Math.Abs(lineCount);
+         }
+      }
       private int CurrentCommandLineCount
       {
          get

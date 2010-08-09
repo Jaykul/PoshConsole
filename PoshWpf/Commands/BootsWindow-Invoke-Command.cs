@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 using System.Windows;
+using System.Windows.Threading;
+using PoshWpf.Utility;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [Cmdlet("Invoke", "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
    public class InvokeBootsWindowCommand : ScriptBlockBase
@@ -12,22 +15,22 @@ namespace PoshWpf
       private const string ByIndex = "ByIndex";
       private const string ByElement = "ByElement";
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByIndex, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByIndex, ValueFromPipeline = true)]
       public int[] Index { get; set; }
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByTitle, ValueFromPipelineByPropertyName = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByTitle, ValueFromPipelineByPropertyName = true)]
       [Alias("Name")]
       public string[] Title { get; set; }
 
 
-      [Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = ByElement, ValueFromPipeline = true)]
       [Alias("Window")]
       public UIElement[] Element { get; set; }
 
       [Parameter(Position = 1, Mandatory = true)]
       public ScriptBlock Script { get; set; }
 
-      [Parameter(Position = 2, Mandatory = false, ValueFromRemainingArguments = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 2, Mandatory = false, ValueFromRemainingArguments = true)]
       [Alias("Args", "Params")]
       public PSObject[] Parameters { get; set; }
 
@@ -47,96 +50,87 @@ namespace PoshWpf
 
       protected override void ProcessRecord()
       {
-
+         WriteCommandDetail(Script.ToString());
          if (BootsWindowDictionary.Instance.Count > 0)
          {
+            IEnumerable<ICollection<PSObject>> output = null;
             switch (ParameterSetName)
             {
                case ByIndex:
-                  foreach (var i in Index)
-                  {
-                     var window = BootsWindowDictionary.Instance[i];
-                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
-                     {
-                        // don't need to do Window.GetWindow(window) if they're using ByTitle, because it MUST be a root window
-                        var vars = new PSVariable[] { 
-                                  new PSVariable("this", window),
-                                  new PSVariable("window", window) 
-                                };
-                        ICollection<PSObject> result = (ICollection<PSObject>)window.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>)Invoker), vars, Parameters);
-                        if (result != null && result.Count > 0)
-                           WriteObject(result, true);
-                     }
-                  } break;
+                  output = ProcessIndexRecord(); break;
                case ByTitle:
-                  foreach (var window in BootsWindowDictionary.Instance.Values)
-                  {
-                     if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
-                     {
-                        foreach (var title in _patterns)
-                        {
-                           Window window1 = window;
-                           ICollection<PSObject> result = (ICollection<PSObject>)window.Dispatcher.Invoke((Func<ICollection<PSObject>>)(() =>
-                          {
-                             if (title.IsMatch(window1.Title))
-                             {
-                                // don't need to do Window.GetWindow(window1) if they're using ByTitle, because it MUST be a root window
-
-                                var vars = new PSVariable[] { 
-                                  new PSVariable("this", window1),
-                                  new PSVariable("window", window1) 
-                                };
-                                return Invoker(vars, Parameters);
-                             }
-                             else return null;
-                          }));
-                           if (result != null && result.Count > 0)
-                              WriteObject(result, true);
-                        }
-                     }
-                  } break;
+                  output = ProcessTitleRecord(); break;
                case ByElement:
-                  foreach (var element in Element)
-                  {
-                     if (element.Dispatcher.Thread.IsAlive && !element.Dispatcher.HasShutdownStarted)
-                     {
-                        UIElement uie = element;
-                        Window window = element.Dispatcher.Invoke((Func<Window>) (() => Window.GetWindow(uie))) as Window;
-
-                        var vars = new PSVariable[] { 
-                                  new PSVariable("this", window),
-                                  new PSVariable("window", element) 
-                               };
-                        ICollection<PSObject> result = (ICollection<PSObject>)element.Dispatcher.Invoke(((Func<PSVariable[], Object[], ICollection<PSObject>>)Invoker), vars, Parameters);
-                        if (result != null && result.Count > 0)
-                           WriteObject(result, true);
-                     }
-                  } break;
+                  output = ProcessElementRecord(); break;
             }
-
-            if (_error != null)
-            {
-               WriteError(_error);
-            }
+            if (output != null)
+               foreach(var o in output)
+                  WriteObject(o,true);
          }
 
          base.ProcessRecord();
       }
 
-      ErrorRecord _error;
+      private IEnumerable<ICollection<PSObject>> ProcessElementRecord()
+      {
+        return from element in Element
+               where element.Dispatcher.Thread.IsAlive && !element.Dispatcher.HasShutdownStarted
+               let uie = element
+               let window = element.Dispatcher.Invoke((Func<Window>) (() => Window.GetWindow(uie))) as Window
+               let vars = new[]{ new PSVariable("this", window), new PSVariable("window", element) }
+               select Invoke(window, vars, Parameters)
+               into result where result != null && result.Count > 0
+               select result;
+
+      }
+
+      private IEnumerable<ICollection<PSObject>> ProcessTitleRecord()
+      {
+         return from win in BootsWindowDictionary.Instance.Values
+                where win.Dispatcher.Thread.IsAlive && !win.Dispatcher.HasShutdownStarted
+                from title in _patterns
+                select (ICollection<PSObject>)win.Dispatcher.Invoke((Func<ICollection<PSObject>>) (() =>
+                     {
+                        if (!title.IsMatch(win.Title))
+                           return null;
+
+                        // don't need to do Window.GetWindow(window1) if they're using ByTitle, because it MUST be a root window
+                        var vars = new[] { new PSVariable("this", win), new PSVariable("window", win) };
+                        return Invoke(Script, vars, Parameters);
+                     }))
+               into result where result != null && result.Count > 0
+               select result;
+      }
+
+      private IEnumerable<ICollection<PSObject>> ProcessIndexRecord()
+      {
+         return from i in Index
+                select BootsWindowDictionary.Instance[i]
+                into window
+                where window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted
+                let vars = new[]
+                              {
+                                 new PSVariable("this", window), new PSVariable("window", window)
+                              }
+                select Invoke(window, vars, Parameters)
+                into result
+                where result != null && result.Count > 0
+                select result;
+      }
+
+
+      private ICollection<PSObject> Invoke(DispatcherObject uie, PSVariable[] variables, params object[] arguments)
+      {
+         return uie.Dispatcher.Invoke((InvokeDelegate)Invoker, variables, arguments) as ICollection<PSObject>;
+      }
+
+      delegate ICollection<PSObject> InvokeDelegate(PSVariable[] variables, params object[] arguments);
+
+
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       private ICollection<PSObject> Invoker(PSVariable[] variables, params object[] arguments)
       {
-         ICollection<PSObject> result = null;
-         try
-         {
-            result = Invoke(Script, variables, arguments);
-         }
-         catch (Exception ex)
-         {
-            _error = new ErrorRecord(ex, "Error during invoke", ErrorCategory.OperationStopped, Script);
-         }
-         return result;
+         return InvokeNested(Script, variables, arguments);
       }
 
    }

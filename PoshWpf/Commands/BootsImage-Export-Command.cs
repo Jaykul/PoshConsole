@@ -1,20 +1,14 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using System.Xml;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.PowerShell.Commands;
-using System.Globalization;
 
-namespace PoshWpf
+namespace PoshWpf.Commands
 {
    [Cmdlet(VerbsData.Export, "BootsImage", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
    public class ExportBootsImageCommand : PSCmdlet
@@ -22,7 +16,7 @@ namespace PoshWpf
       private const string ParamSetLiteral = "Literal";
       private const string ParmamSetPath = "Path";
 
-      [Parameter(Position = 1, Mandatory = true, ValueFromPipeline = true)]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 1, Mandatory = true, ValueFromPipeline = true)]
       public Control[] Control { get; set; }
 
       [Parameter(Position = 0, Mandatory = false, ParameterSetName = ParmamSetPath)]
@@ -100,24 +94,24 @@ namespace PoshWpf
 
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling"),
        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-      private void TakeScreenCapture(Control visual, string imageFileName)
+      private void TakeScreenCapture(Control control, string imageFileName)
       {
-         if (visual.Dispatcher.Thread.IsAlive && !visual.Dispatcher.HasShutdownStarted)
+         UIElement element = control;
+         if (element.Dispatcher.Thread.IsAlive && !element.Dispatcher.HasShutdownStarted)
          {
             WriteObject(
-            visual.Dispatcher.Invoke((Func<object>)(() =>
+            element.Dispatcher.Invoke((Func<object>)(() =>
             {
                try
                {
-
-                  Window w;
-                  if (null != (w = visual as Window))
+                  Window w = element as Window;
+                  if (w != null && w.Content is UIElement)
                   {
-                     visual = (w.Content as Control) ?? visual;
+                     element = ((Window)element).Content as UIElement;
                   }
 
-                  var rtb = new RenderTargetBitmap((int)visual.ActualWidth, (int)visual.ActualHeight, _resolution.Width, _resolution.Height, _pixelFormat);
-                  rtb.Render(visual);
+                  var rtb = new RenderTargetBitmap((int)element.RenderSize.Width, (int)element.RenderSize.Height, _resolution.Width, _resolution.Height, _pixelFormat);
+                  rtb.Render(element);
 
                   if (string.IsNullOrEmpty(imageFileName))
                   {
@@ -159,22 +153,23 @@ namespace PoshWpf
                         fileName = Path.GetFileNameWithoutExtension(imageFileName) + String.Format(CultureInfo.InvariantCulture, "{0:000}", i++) + Path.GetExtension(imageFileName);
                      }
 
-                     var stream = File.Create(Path.Combine(Path.GetDirectoryName(imageFileName), fileName));
-                     encoder.Save(stream);
-                     stream.Dispose();
+                     using(var stream = File.Create(Path.Combine(Path.GetDirectoryName(imageFileName), fileName)))
+                     {
+                        encoder.Save(stream);
+                     }
                      Environment.CurrentDirectory = now;
                      return new FileInfo(fileName);
                   }
                }
                catch (Exception ex)
                {
-                  return new ErrorRecord(ex, "ScreenCaptureError", ErrorCategory.InvalidOperation, visual);
+                  return new ErrorRecord(ex, "ScreenCaptureError", ErrorCategory.InvalidOperation, element);
                }
             })));
          }
          else
          {
-            WriteError(new ErrorRecord(new System.Threading.ThreadStateException("Can't take screenshot of a window that's not running"), "WindowStopped", ErrorCategory.ResourceUnavailable, visual));
+            WriteError(new ErrorRecord(new System.Threading.ThreadStateException("Can't take screenshot of a window that's not running"), "WindowStopped", ErrorCategory.ResourceUnavailable, element));
          }
       }
 

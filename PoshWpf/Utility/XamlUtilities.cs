@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
+using System.IO;
 using System.Management.Automation;
 using System.Windows;
-using System.Windows.Markup;
-using System.IO;
-using System.Xml;
 using System.Windows.Controls;
+using System.Windows.Markup;
+using System.Xml;
+using PoshWpf.Converters;
 
-namespace PoshWpf
+namespace PoshWpf.Utility
 {
    public static class XamlHelper
    {
@@ -63,19 +63,22 @@ namespace PoshWpf
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
       public static bool TryLoadXaml<TElement>(this XmlDocument source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
       {
-         error = default(System.Management.Automation.ErrorRecord);
+         error = default(ErrorRecord);
          element = default(TElement);
          try
          {
-            var loaded = XamlReader.Load(new XmlNodeReader(source));
-            if (loaded is TElement)
+            using (var reader = new XmlNodeReader(source))
             {
-               element = (TElement)loaded;
-               return true;
-            }
-            else
-            {
-               error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+               var loaded = XamlReader.Load(reader);
+               if (loaded is TElement)
+               {
+                  element = (TElement)loaded;
+                  return true;
+               }
+               else
+               {
+                  error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+               }
             }
          }
          catch (Exception ex)
@@ -160,5 +163,40 @@ namespace PoshWpf
 
       }
 
+      static XamlHelper()
+      {
+         //TypeDescriptor.AddProvider(new BindingTypeDescriptionProvider(), typeof(System.Windows.Data.Binding));
+         // this one is absolutely vital to the functioning of ConvertToXaml
+         TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new TypeConverterAttribute(typeof(BindingConverter)) });
+      }
+
+      public static string RoundtripXaml(string xaml)
+      {
+         return XamlWriter.Save(XamlReader.Parse(xaml));
+      }
+
+      public static string ConvertToXaml(object ui)
+      {
+         return XamlWriter.Save(ui);
+      }
+
+      //public static string FormatXaml(object ui)
+      //{
+      //   TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new TypeConverterAttribute(typeof(BindingConverter)) });
+
+      //   var outstr = new System.Text.StringBuilder();
+      //   // fix up the formatting a little
+      //   var settings = new System.Xml.XmlWriterSettings();
+      //   settings.Indent = true;
+      //   settings.OmitXmlDeclaration = true;
+
+      //   var writer = System.Xml.XmlWriter.Create(outstr, settings);
+      //   var dsm = new System.Windows.Markup.XamlDesignerSerializationManager(writer);
+      //   // turn on expression saving mode 
+      //   dsm.XamlWriterMode = System.Windows.Markup.XamlWriterMode.Expression;
+
+      //   System.Windows.Markup.XamlWriter.Save(ui, dsm);
+      //   return outstr.ToString();
+      //}
    }
 }
