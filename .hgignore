@@ -1,12 +1,7 @@
-glob:*/bin/Debug/*
-glob:*/obj/Debug/*
-glob:*/obj/Release/*
-glob:*/bin/Release/*
-glob:*/bin/*/Release/*
-glob:*/bin/*/Debug/*
 glob:_ReSharper.*/*
 glob:*.suo
-glob:*/obj/*/Release/*
-glob:*/obj/*/Debug/*
-glob:*.ReSharper.user
 glob:*.vs10x
+glob:*/bin/*
+glob:*/obj/*
+glob:*.user
+glob:PoshConsole/PoshWpf.dll

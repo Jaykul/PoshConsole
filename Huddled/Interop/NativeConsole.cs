@@ -32,6 +32,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 
@@ -40,7 +41,8 @@ namespace Huddled.Interop
    /// <summary>
    /// A custom exception class to make it easy to trap initialization errors.
    /// </summary>
-   public class ConsoleInteropException : ApplicationException
+   [Serializable]
+   public class ConsoleInteropException : Exception
    {
       /// <summary>
       /// Initializes a new instance of the <see cref="ConsoleInteropException"/> class.
@@ -59,6 +61,14 @@ namespace Huddled.Interop
       /// <param name="message">The message.</param>
       /// <param name="innerException">The inner exception.</param>
       public ConsoleInteropException(String message, Exception innerException) : base(message, innerException) { }
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="ConsoleInteropException"/> class.
+      /// </summary>
+      /// <param name="serializationInfo">The serialization info.</param>
+      /// <param name="streamingContext">The streaming context.</param>
+      protected ConsoleInteropException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo,streamingContext) { }
+
    }
 
    /// <summary>
@@ -69,7 +79,7 @@ namespace Huddled.Interop
       /// <summary>
       /// The API/Interop/PInvoke methods for the NativeConsole 
       /// </summary>
-      internal class NativeMethods
+      internal static class NativeMethods
       {
 
          #region  Fields (5)
@@ -196,7 +206,7 @@ namespace Huddled.Interop
       }
 
       /// <summary>The arguments to the output events</summary>
-      public class OutputEventArgs
+      public class OutputEventArgs : EventArgs
       {
          /// <summary>The text to be output</summary>
          public string Text;
@@ -205,12 +215,12 @@ namespace Huddled.Interop
       #region Delegate and Events
       // Delegate, I changed this to be compatible with normal wpf/forms events
       /// <summary>The delegate for the output events</summary>
-      public delegate void OutputDelegate(object source, OutputEventArgs args);
+      public delegate void OutputEventHandler(object sender, OutputEventArgs e);
 
       /// <summary>Occurs when we write an error line.</summary>
-      public event OutputDelegate WriteError;
+      public event OutputEventHandler WriteError;
       /// <summary>Occurs when we write an output line.</summary>
-      public event OutputDelegate WriteOutput;
+      public event OutputEventHandler WriteOutput;
       #endregion
 
       #region  Private Fields
@@ -276,6 +286,7 @@ namespace Huddled.Interop
       /// Initializes this instance.
       /// </summary>
       /// <returns></returns>
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "StdIn"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "FreeConsole")]
       public bool Initialize()
       {
          if (!_initialized)
@@ -421,12 +432,11 @@ namespace Huddled.Interop
       /// </summary>
       public void Dispose()
       {
+         Dispose(true);
          // This object will be cleaned up by the Dispose method.
          // Therefore, we call GC.SupressFinalize to tell the runtime 
          // that we dont' need to be finalized (we would clean up twice)
          GC.SuppressFinalize(this);
-
-         Dispose(true);
       }
 
       /// <summary>
@@ -451,12 +461,12 @@ namespace Huddled.Interop
       }
 
 
-      public void SendCtrlC()
+      public static void SendCtrlC()
       {
          NativeMethods.GenerateConsoleCtrlEvent( NativeMethods.ConsoleCtrlEvent.CtrlC, 0);
       }
 
-      public void SendCtrlBreak()
+      public static void SendCtrlBreak()
       {
          NativeMethods.GenerateConsoleCtrlEvent( NativeMethods.ConsoleCtrlEvent.CtrlBreak, 0);
       }
@@ -485,10 +495,8 @@ namespace Huddled.Interop
 
                   byte[] bytes = Encoding.Default.GetBytes("\n" + (char)26);
                   int written;
-                  NativeMethods.WriteFile(_stdErrWrite, bytes, bytes.Length, 
-                                                      out written, IntPtr.Zero);
-                  NativeMethods.WriteFile(_stdOutWrite, bytes, bytes.Length, 
-                                                      out written, IntPtr.Zero);
+                  var ignored = NativeMethods.WriteFile(_stdErrWrite, bytes, bytes.Length, out written, IntPtr.Zero);
+                      ignored = NativeMethods.WriteFile(_stdOutWrite, bytes, bytes.Length, out written, IntPtr.Zero);
                   //errorThread.Join();
                   //outputThread.Join();
                }

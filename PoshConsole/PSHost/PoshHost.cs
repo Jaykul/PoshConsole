@@ -107,8 +107,8 @@ namespace PoshConsole.Host
          // this.ShouldExit += new ExitHandler(WeShouldExit);
          //myUI.ProgressUpdate += new PoshUI.WriteProgressDelegate( delegate(long sourceId, ProgressRecord record){if(ProgressUpdate!=null) ProgressUpdate(sourceId, record);} );
          //myUI.Input += new PoshUI.InputDelegate(GetInput);
-         //myUI.Output += new PoshUI.OutputDelegate(OnOutput);
-         //myUI.OutputLine += new PoshUI.OutputDelegate(OnOutputLine);
+         //myUI.Output += new PoshUI.OutputEventHandler(OnOutput);
+         //myUI.OutputLine += new PoshUI.OutputEventHandler(OnOutputLine);
          //myUI.WritePrompt += new PoshUI.PromptDelegate(WritePrompt);
 
          // Some delegates we think we can get away with making only once...

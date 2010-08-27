@@ -151,6 +151,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interop\Vista\CustomChrome.cs" />
     <Compile Include="Interop\Utilities.cs" />
     <Compile Include="Interop\Windows\WindowExtensions.cs" />

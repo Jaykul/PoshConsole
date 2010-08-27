@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -604,6 +605,7 @@ function Global:Write-BootsOutput($inputObject) {
       // duh.....
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1505:AvoidUnmaintainableCode"),
        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
+      [GeneratedCode("PowerShell","2.0")]
       private void SetWindowParams(Window window)
       {
          BootsWindowDictionary.Instance.Add(window);

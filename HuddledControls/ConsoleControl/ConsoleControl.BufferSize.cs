@@ -72,13 +72,13 @@ namespace Huddled.WPF.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-                (int)((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / (FontSize * _characterWidth)) - 1,
-                (int)(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
+                (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / (FontSize * (Zoom / 100.0) * _characterWidth)) - (1.75 * (Zoom / 100.0))),
+                (int)Math.Floor(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
          }
          set
          {
             // ToDo: The "Height" of the buffer SHOULD control how much buffer history we keep, in lines...
-            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
+            this.Width = (value.Width * FontSize * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
             //this.Height = (value.Width * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - sv.ViewportHeight);
          }
       }
@@ -92,14 +92,14 @@ namespace Huddled.WPF.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-                (int)((ScrollViewer.ViewportWidth - (Padding.Left + Padding.Right)) / (FontSize * _characterWidth)) - 1,
-                (int)(ScrollViewer.ViewportHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
+                (int)Math.Floor(((ScrollViewer.ViewportWidth - (Padding.Left + Padding.Right)) / (FontSize * (Zoom / 100.0) * _characterWidth)) - (1.75 * (Zoom / 100.0))),
+                (int)Math.Floor(ScrollViewer.ViewportHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
          }
          set
          {
-            this.Width = (value.Width * FontSize * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
-            this.Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - ScrollViewer.ViewportHeight); 
+            this.Width = (value.Width * FontSize * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
+            this.Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)) + (ActualHeight - ScrollViewer.ViewportHeight); 
          }
       }
 
@@ -115,9 +115,9 @@ namespace Huddled.WPF.Controls
             // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
             return new System.Management.Automation.Host.Size(
                 (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)
-                        / (FontSize * _characterWidth)) - 1,
+                        / (FontSize * (Zoom / 100.0) * _characterWidth)) - 1,
                 (int)(System.Windows.SystemParameters.PrimaryScreenHeight - (Padding.Top + Padding.Bottom)
-                        / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)));
+                        / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
          }
          //set { myMaxWindowSize = value; }
@@ -172,7 +172,7 @@ namespace Huddled.WPF.Controls
          // Calculate the font width (as a percentage of it's height)            
          foreach (Typeface tf in FontFamily.GetTypefaces())
          {
-            if (tf.Weight == FontWeights.Normal && tf.Style == FontStyles.Normal)
+            if (tf.Weight == FontWeights.Light && tf.Style == FontStyles.Normal)
             {
                GlyphTypeface glyph;// = new GlyphTypeface();
                if (tf.TryGetGlyphTypeface(out glyph))

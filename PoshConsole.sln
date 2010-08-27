@@ -154,4 +154,7 @@ Global
 		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
+	GlobalSection(NDepend) = preSolution
+		Project = ".\PoshConsole.ndproj"
+	EndGlobalSection
 EndGlobal
