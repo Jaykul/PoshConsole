@@ -285,7 +285,8 @@ namespace PoshConsole.Host
       {
          if (_native > 0)
          {
-            _console.SendCtrlC();
+            NativeConsole.SendCtrlC();
+            //_console.SendCtrlC();
          }
          else
          {

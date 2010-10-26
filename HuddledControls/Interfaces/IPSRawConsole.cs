@@ -15,7 +15,6 @@ namespace System.Management.Automation.Host
    /// control, it seems problematic at best to have them as separate base classes.
    /// </remarks>
    /// <seealso cref="IPSXamlConsole"/>
-   /// <seealso cref="IPSXamlConsole"/>
    /// <seealso cref="IPoshConsoleControl"/>
    /// <seealso cref="IPSConsole"/>
    public interface IPSRawConsole

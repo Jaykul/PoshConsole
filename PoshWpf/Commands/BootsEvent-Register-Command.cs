@@ -234,7 +234,7 @@ namespace PoshWpf.Commands
                      var fel = el as FrameworkElement;
                      if (fel != null)
                      {
-                        results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select fel);
+                        results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select (UIElement)fel);
                      }
                   }
                   foreach (object el in enumerable)
@@ -253,7 +253,7 @@ namespace PoshWpf.Commands
                      var fel = el as FrameworkElement;
                      if (fel != null)
                      {
-                        results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select fel);
+                        results.AddRange(from pattern in patterns where pattern.IsMatch(fel.Name) select (UIElement)fel);
                         FindByName(fel, patterns, ref results);
                      }
                      else

@@ -5,3 +5,5 @@ glob:*/bin/*
 glob:*/obj/*
 glob:*.user
 glob:PoshConsole/PoshWpf.dll
+glob:NDependOut/*
+glob:SyncToy*
