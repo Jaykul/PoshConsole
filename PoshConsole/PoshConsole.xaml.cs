@@ -427,13 +427,14 @@ namespace PoshConsole
          //Binding statusBinding = new Binding("StatusText"){ Source = _host.Options };
          //statusTextBlock.SetBinding(TextBlock.TextProperty, statusBinding);
 
+         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
 
          if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
          {
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
             ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
             ElevatedButton.IsEnabled = false;
-            ElevatedButton.IsChecked = true;
             //el = status.Items[2] as StatusBarItem;
             //if (el != null)
             //{
@@ -830,13 +831,11 @@ namespace PoshConsole
 
       private void OnTopmost(object sender, RoutedEventArgs e)
       {
-         Settings.Default.AlwaysOnTop = true;
+         Settings.Default.AlwaysOnTop = !Settings.Default.AlwaysOnTop;
+         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
       }
 
-      private void OnUnTopmost(object sender, RoutedEventArgs e)
-      {
-         Settings.Default.AlwaysOnTop = false;
-      }
 
       // Handles F3 by default
       private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
@@ -854,8 +853,11 @@ namespace PoshConsole
       // Handles Ctrl+F by default
       private void OnFindCommand(object sender, ExecutedRoutedEventArgs e)
       {
-         Search.Select(0, Search.Text.Length - 1);
-         Search.Focus();
+         if (Search.Text.Length > 1)
+         {
+            Search.Select(0, Search.Text.Length - 1);
+            Search.Focus();
+         }
       }
 
 
@@ -895,9 +897,30 @@ namespace PoshConsole
          }
       }
 
-      private void progress1_Loaded(object sender, RoutedEventArgs e)
+      private void Minimize_Click(object sender, RoutedEventArgs e)
       {
-
+         WindowState = WindowState.Minimized;
       }
+
+      private void Restore_Click(object sender, RoutedEventArgs e)
+      {
+         if (WindowState != WindowState.Maximized)
+         {
+            WindowState = WindowState.Maximized;
+            ((Button)sender).ToolTip = "Restore Down";
+         }
+         else
+         {
+            WindowState = WindowState.Normal;
+            ((Button)sender).ToolTip = "Maximize";
+         }
+      }
+
+      private void Close_Click(object sender, RoutedEventArgs e)
+      {
+         Close();
+      }
+
+
    }
 }

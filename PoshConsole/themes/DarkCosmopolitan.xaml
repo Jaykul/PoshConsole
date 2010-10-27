@@ -7,46 +7,6 @@
     	<ResourceDictionary Source="Fonts.xaml"/>
     	<ResourceDictionary Source="CoreStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <!-- *************COLORS START************* -->
-    <!--BASE COLORS-->
-    <Color x:Key="BlackColor">#FF000000</Color>
-    <Color x:Key="WhiteColor">#FFFFFFFF</Color>
-
-    <Color x:Key="BackgroundColor">#FF000000</Color>
-    <Color x:Key="ForegroundColor">#FFFFFFFF</Color>
-
-
-    <!--LIGHT COLOR TRANSPARENCIES-->
-    <!--0%-->
-    <Color x:Key="TransparentWhiteColor">#00000000</Color>
-    <!--10%-->
-    <Color x:Key="TransparentWhiteLightColor">#19000000</Color>
-    <!--25%-->
-    <Color x:Key="TransparentLightestColor">#34000000</Color>
-    <!--65%-->
-    <Color x:Key="TransparentLightLightColor">#A5000000</Color>
-    <!--85%-->
-    <Color x:Key="TransparentLightColor">#D8000000</Color>
-
-
-    <!--DARK COLOR TRANSPARENCIES-->
-    <!--0%-->
-    <Color x:Key="TransparentBlackColor">#00FFFFFF</Color>
-    <!--25%-->
-    <Color x:Key="TransparentDarkColor">#3FFFFFFF</Color>
-    <!--35%-->
-    <Color x:Key="TransparentDarkDarkColor">#59FFFFFF</Color>
-    <!--60%-->
-    <Color x:Key="TransparentDarkDarkDarkColor">#99FFFFFF</Color>
-    <!--80%-->
-    <Color x:Key="TransparentDarkestColor">#CCFFFFFF</Color>
-
-    <!-- UNIVERSAL CONTROL BRUSHES -->
-    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="ControlForegroundBrush" Color="{StaticResource BlackColor}"/>
-    <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
-    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
-    
     
     <Style x:Key="LayoutRootGridStyle" TargetType="{x:Type Grid}">
         <Setter Property="Margin" Value="10,10,0,10"/>
@@ -155,11 +115,7 @@
     <SolidColorBrush x:Key="GlyphMouseOver" Color="#FFE8E8E8"/>
 
     <SolidColorBrush x:Key="LightColorBrush" Color="#DDD" />
-	<LinearGradientBrush x:Key="TextBoxBorder" EndPoint="0,20" MappingMode="Absolute" StartPoint="0,0">
-		<GradientStop Color="#ABADB3" Offset="0.05"/>
-		<GradientStop Color="#E2E3EA" Offset="0.07"/>
-		<GradientStop Color="#E3E9EF" Offset="1"/>
-	</LinearGradientBrush>
+	<SolidColorBrush x:Key="TextBoxBorder" Color="Black"/>
     
     
 </ResourceDictionary>

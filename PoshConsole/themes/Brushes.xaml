@@ -37,11 +37,12 @@
     <Color x:Key="Gray11">#7FA9A9A9</Color>
     <Color x:Key="Gray12">#A5F7F7F7</Color>
     <Color x:Key="Gray13">#5EC9C9C9</Color>
-    <Color x:Key="TextBoxText">#FF414141</Color>
+    <Color x:Key="TextBoxText">#FFF1F1F1</Color>
     <Color x:Key="NormalForegroundColor">#FF000000</Color>
     <Color x:Key="HoverForegroundColor">#FFFFFFFF</Color>
     <!--Note: For the best design BaseColor2 should be a contrast of BaseColor1-->
-    <Color x:Key="BaseColor2">#FFFFFFFF</Color>
+    <Color x:Key="BaseColor1">#FF0D0D12</Color>
+    <Color x:Key="BaseColor2">#FF173664</Color>
     <Color x:Key="BaseColor5">#FFBABABA</Color>
     <Color x:Key="BaseColor3">#FF303030</Color>
 
@@ -143,12 +144,12 @@
     <!-- UNIVERSAL CONTROL BRUSHES -->
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
-    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="ControlForegroundBrush" Color="{StaticResource BlackColor}"/>
+    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource BlackColor}"/>
+    <SolidColorBrush x:Key="ControlForegroundBrush" Color="{StaticResource WhiteColor}"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}" />
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource BlackColor}" />
-    <SolidColorBrush x:Key="TextBrush" Color="{DynamicResource BaseColor2}" />
-    <SolidColorBrush x:Key="LabelTextBrush" Color="{StaticResource BlackColor}" />
+    <SolidColorBrush x:Key="TextBrush" Color="{DynamicResource BaseColor5}" />
+    <SolidColorBrush x:Key="LabelTextBrush" Color="{DynamicResource TextBoxText}" />
     <SolidColorBrush x:Key="WhiteColorBrush" Color="{StaticResource WhiteColor}" />
     <SolidColorBrush x:Key="BlackColorBrush" Color="{StaticResource BlackColor}" />
 
@@ -196,7 +197,7 @@
     <SolidColorBrush x:Key="HoverHyperlinkForegroundBrush" Color="{StaticResource BlackColor}"/>
     <SolidColorBrush x:Key="HoverHyperlinkBackgroundBrush" Color="{StaticResource WhiteColor}"/>
 
-    <SolidColorBrush x:Key="TextBoxBorderBrush" Color="{DynamicResource TransparentDarkDarkColor}"/>
+    <SolidColorBrush x:Key="TextBoxBorderBrush" Color="{DynamicResource BackgroundColor}"/>
     <SolidColorBrush x:Key="ControlBorderBrush" Color="{StaticResource Gray1}" />
     <SolidColorBrush x:Key="TextBoxMouseOverBorderBrush" Color="{StaticResource HighlightDarkColor}" />
     <SolidColorBrush x:Key="TextBoxMouseOverInnerBorderBrush" Color="{StaticResource HighlightLightColor}" />

@@ -11,14 +11,14 @@
                 <ResourceDictionary Source="Controls\ControlStyles.xaml"/>
                 <ResourceDictionary Source="Controls\CaptionButtons.xaml"/>-->
                 <ResourceDictionary Source="themes/DarkCosmopolitan.xaml"/>
+                <!--
                 <ResourceDictionary Source="themes/Brushes.xaml"/>
                 <ResourceDictionary Source="themes/CoreStyles.xaml"/>
                 <ResourceDictionary Source="themes/Fonts.xaml"/>
-                <!--ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/-->
-                <!--
-				<ResourceDictionary Source="Controls/BusyIndicator.xaml"/>
+                <ResourceDictionary Source="Controls/BusyIndicator.xaml"/>
                 <ResourceDictionary Source="Assets/SDKStyles.xaml"/>
                 <ResourceDictionary Source="Assets/ToolkitStyles.xaml"/> 				
+                <ResourceDictionary Source="XamlTemplates\PipelineObjectTypes.xaml"/>
 				-->
             </ResourceDictionary.MergedDictionaries>
         	<LinearGradientBrush x:Key="PoshConsoleIconBrush" EndPoint="0,1" StartPoint="0,0">
