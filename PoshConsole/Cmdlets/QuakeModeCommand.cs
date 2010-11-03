@@ -38,7 +38,7 @@ namespace PoshConsole.Cmdlets
                   {
                      // make sure it's active so we don't turn off quakemode while it's hidden
                      _options.WpfConsole.RootWindow.Activate();
-                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
+                     foreach (QuakeMode quake in NativeWpf.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
                      {
                         quake.Enabled = false;
                         //quake.Duration = 0;
@@ -59,7 +59,7 @@ namespace PoshConsole.Cmdlets
                      _options.Settings.SettingsKey = "Quake";
                      _options.Settings.Reload();
 
-                     foreach (QuakeMode quake in NativeBehaviors.SelectBehaviors<QuakeMode>(win))
+                     foreach (QuakeMode quake in NativeWpf.SelectBehaviors<QuakeMode>(win))
                      {
                         quake.Enabled = true;
                         // TODO: expose the duration as a setting

@@ -5,7 +5,7 @@
     xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
     <Style TargetType="{x:Type FrameworkElement}" x:Key="PlexiGlass">
         <Style.Triggers>
-            <!-- Comment out both of these DataTriggers if you need to edit in Blend...-->
+            <!-- Comment out both of these DataTriggers if you need to edit in Blend...
 
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>
@@ -16,26 +16,24 @@
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="True">
                 <Setter Property="Visibility" Value="Hidden"/>
             </DataTrigger>
-			
-            <!--
-         <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassEnabled}" Value="False">
-            <Setter Property="Visibility" Value="Visible"/>
-         </DataTrigger>
--->
-            <!--<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=huddled:NativeMethod.IsGlassEnabled}" Value="False">
+			-->
+            <!-- This is the syntax that I wish I could write instead:
+			<DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=huddled:NativeMethod.IsGlassEnabled}" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>
-            </DataTrigger>-->
+            </DataTrigger>
+			-->
         </Style.Triggers>
     </Style>
     <Style TargetType="{x:Type FrameworkElement}" x:Key="GlassRequired">
         <Style.Triggers>
-            <!-- Comment out both of these DataTriggers if you need to edit in Blend...-->
+            <!-- Comment out both of these DataTriggers if you need to edit in Blend...
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassAvailable}" Value="True">
                 <Setter Property="Visibility" Value="Visible"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=(huddled:NativeBehaviors.NativeBehaviors)[2].IsGlassAvailable}" Value="False">
                 <Setter Property="Visibility" Value="Collapsed"/>
             </DataTrigger>
+			-->
         </Style.Triggers>
     </Style>
     <Style TargetType="{x:Type FrameworkElement}" x:Key="Clickable">
@@ -227,7 +225,6 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
-
     <ControlTemplate x:Key="GlassCaptionButtonRight" TargetType="{x:Type ButtonBase}">
         <ControlTemplate.Resources>
             <Storyboard x:Key="MouseEnter">

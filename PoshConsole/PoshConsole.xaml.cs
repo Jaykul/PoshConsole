@@ -88,7 +88,7 @@ namespace PoshConsole
          //_hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
          //_hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
 
-         foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+         foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
          {
             _defaultCornerRadius = chrome.CornerRadius;
          }
@@ -485,14 +485,14 @@ namespace PoshConsole
                cornerRadius.BottomLeft = 0.0;
             }
 
-            foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+            foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
             {
                chrome.CornerRadius = cornerRadius;
             }
          }
          else
          {
-            foreach (CustomChrome chrome in NativeBehaviors.SelectBehaviors<CustomChrome>(this))
+            foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
             {
                chrome.CornerRadius = _defaultCornerRadius;
             }
@@ -534,14 +534,7 @@ namespace PoshConsole
          var initWarnings = new StringBuilder();
 
          // so now we can ask which keys are still unregistered.
-         foreach (var behavior in NativeBehaviors.GetBehaviors(this))
-         {
-            if (behavior is HotkeysBehavior)
-            {
-               _Hotkeys = behavior as HotkeysBehavior;
-            }
-         }
-
+         _Hotkeys = NativeWpf.SelectBehaviors<HotkeysBehavior>(this).FirstOrDefault();
          if (_Hotkeys != null)
          {
             int k = -1;

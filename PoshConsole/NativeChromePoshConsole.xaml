@@ -12,6 +12,7 @@
 
     xmlns:huddle="clr-namespace:Huddled.WPF.Controls;assembly=Huddled.WPF.Controls"
     xmlns:huddled="clr-namespace:Huddled.Wpf;assembly=Huddled.Interop"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
    
@@ -85,10 +86,7 @@
         </Style>
        -->
     </Window.Resources>
-    <huddled:NativeBehaviors.Behaviors>
-        <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
-                         Size="{Binding Path=QuakeModeSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
-                         Opacity="{Binding Path=Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
+    <i:Interaction.Behaviors>
         <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
         <huddled:HotkeysBehavior>
             <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
@@ -98,7 +96,7 @@
             <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C" Modifiers="Win+Shift" />
         </huddled:HotkeysBehavior>
         <!-- huddled:CustomChrome CornerRadius="8,8,8,8" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" / -->
-    </huddled:NativeBehaviors.Behaviors>
+    </i:Interaction.Behaviors>
 
     <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"

@@ -7,6 +7,7 @@
 
     xmlns:huddle="clr-namespace:Huddled.WPF.Controls;assembly=Huddled.WPF.Controls"
     xmlns:huddled="clr-namespace:Huddled.Wpf;assembly=Huddled.Interop"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
    
@@ -21,6 +22,10 @@
     
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
     
+	BorderThickness="4"
+	BorderBrush="White"
+    Background="{x:Null}"
+	
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
@@ -75,20 +80,21 @@
             <Setter Property="BorderThickness" Value="{Binding BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
         </Style>
     </Window.Resources>
-    <huddled:NativeBehaviors.Behaviors>
+    <i:Interaction.Behaviors>
         <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
                          Size="{Binding QuakeModeSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
                          Opacity="{Binding Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
         <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
         <huddled:HotkeysBehavior>
-            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"  Key="C"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"   Key="F4" Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.HideWindow"    Key="S"  Modifiers="Win+Shift" />
-            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"    Key="S"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C" Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="C"  Modifiers="Windows" />
+            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Windows" />
+            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="S"  Modifiers="Windows,Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Windows" />
+            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Windows,Shift" />
         </huddled:HotkeysBehavior>
-        <!-- huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" UseGlassFrame="True" / -->
-    </huddled:NativeBehaviors.Behaviors>
+        <huddled:MetroWindow />
+        <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
+    </i:Interaction.Behaviors>
 
     <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
@@ -158,19 +164,19 @@
         <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
     </Window.Topmost>
     <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
-    <Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">
-    <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Background="{DynamicResource BackgroundBrush}" Margin="10">
+    <!--<Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">-->
+    <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Background="{DynamicResource BackgroundBrush}" Margin="0">
         <!--<Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>-->
-        <Border x:Name="BackgroundBorder" />
+        <!--<Border x:Name="BackgroundBorder" />-->
         <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Margin="10,0" Background="Transparent" Cursor="Arrow">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="0.213*"/>
                 <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="100"/>
                 <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
             </Grid.ColumnDefinitions>
            	<Path Data="M0.33333333,2.6666667 L128.66667,3.3333333" StrokeStartLineCap="Square" Stretch="Fill" StrokeEndLineCap="Square" StrokeThickness="7" Height="7" VerticalAlignment="Top">
@@ -207,7 +213,7 @@
                     PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="16" MinHeight="24" />
                 <Button Grid.Column="2" Panel.ZIndex="1" Style="{StaticResource SearchButtonStyle}" 
                         VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" />
-            <StackPanel HorizontalAlignment="Right" Grid.Column="3" Orientation="Horizontal">
+            <StackPanel HorizontalAlignment="Right" Grid.Column="3" Orientation="Horizontal" Visibility="Collapsed">
                 <Button x:Name="Minimize" ToolTip="Minimize" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource MinimizeButtonStyle}" Click="Minimize_Click"/>
                 <Button x:Name="Restore" ToolTip="Maximize" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource RestoreButtonStyle}" Click="Restore_Click"/>
                 <Button x:Name="Close" ToolTip="Close" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource CloseButtonStyle}" Click="Close_Click"/>
@@ -264,5 +270,5 @@
         </DockPanel>
         </Grid>
     </Grid>
-	</Border>	
+	<!--</Border>-->	
 </Window>

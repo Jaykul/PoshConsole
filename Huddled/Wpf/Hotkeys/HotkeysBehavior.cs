@@ -32,28 +32,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Markup;
 using Huddled.Interop;
-using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 using KeyBindingCollection = System.Collections.ObjectModel.ObservableCollection<System.Windows.Input.KeyBinding>;
+using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
 namespace Huddled.Wpf
 {
    [Serializable, ContentProperty("Hotkeys")]
    public class HotkeysBehavior : NativeBehavior
    {
-
-      /// <summary>
-      /// A reference to the Window this command is for
-      /// </summary>
-      private WeakReference _weakWindow;
-      /// <summary>
-      /// The Window Handle for the Window we're managing
-      /// </summary>
-      private IntPtr _windowHandle;
 
       /// <summary>
       /// The collection of registered hotkeys
@@ -76,34 +65,7 @@ namespace Huddled.Wpf
       /// 	<c>true</c> if this instance is initialized; otherwise, <c>false</c>.
       /// </value>
       public bool IsInitialized { get { return _isInitialized; } }
-      /// <summary>Gets or sets the Window that is the target of this command
-      /// </summary>
-      /// <value>The Window.</value>
-      public Window Target
-      {
-         get
-         {
-            if (_weakWindow == null)
-            {
-               return null;
-            }
-            else
-            {
-               return _weakWindow.Target as Window;
-            }
-         }
-         set
-         {
-            if (value == null)
-            {
-               _weakWindow = null;
-            }
-            else
-            {
-               _weakWindow = new WeakReference(value);
-            }
-         }
-      }
+
 
       /// <summary>
       /// Gets the hotkeys.
@@ -161,49 +123,32 @@ namespace Huddled.Wpf
       }
 
       /// <summary>
-      /// Gets the <see cref="MessageMapping"/>s for this behavior 
-      /// (one for each Window Message you need to handle)
+      /// Gets the collection of active handlers.
       /// </summary>
-      /// <value>A collection of <see cref="MessageMapping"/> objects.</value>
-      public override IEnumerable<MessageMapping> GetHandlers()
+      /// <value>
+      /// A List of the mappings from <see cref="NativeMethods.WindowMessage"/>s
+      /// to <see cref="NativeMethods.MessageHandler"/> delegates.
+      /// </value>
+      protected override IEnumerable<MessageMapping> Handlers
       {
-         yield return new MessageMapping(Huddled.Interop.NativeMethods.WindowMessage.Hotkey, OnHotkeyPressed);
+         get
+         {
+            yield return new MessageMapping(Huddled.Interop.NativeMethods.WindowMessage.Hotkey, OnHotkeyPressed);
+         }
       }
 
-      /// <summary>
-      /// Called when this behavior is initially hooked up to a <see cref="System.Windows.Window"/>
-      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
-      /// on the actual window (the Chrome behavior uses this to change the template)
-      /// </summary>
-      /// <param name="window"></param>
-      override public void AddTo(Window window)
-      {
-         Target = window;
-         // get the handle from it
-         _windowHandle = new WindowInteropHelper(window).Handle;
-         // if we got a handle, yay.
-         if (_windowHandle != IntPtr.Zero)
-         {
-            OnWindowSourceInitialized(window, EventArgs.Empty);
-         }
-         else // otherwise, hook something up for later.
-         {
-            window.SourceInitialized += OnWindowSourceInitialized;
-         }
-      }
 
       /// <summary>
       /// Called when this behavior is unhooked from a <see cref="System.Windows.Window"/>
       /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
       /// on the actual window.
       /// </summary>
-      /// <param name="window"></param>
-      override public void RemoveFrom(Window window)
+      protected override void OnDetaching()
       {
          _entries.Clear();
-         Target = null;
-         _windowHandle = IntPtr.Zero;
+         base.OnDetaching();
       }
+
 
       /// <summary>
       /// Handles the WM_HOTKEY message
@@ -221,7 +166,7 @@ namespace Huddled.Wpf
             // BUGBUG: RoutedCommands are disabled byt the WPF system unless Window.IsFocused
             if (_entries[id].Command is RoutedCommand)
             {
-               Target.Focus();
+               AssociatedObject.Focus();
             }
 
             if (_entries[id].Command.CanExecute(_entries[id].CommandParameter))
@@ -235,25 +180,18 @@ namespace Huddled.Wpf
       }
 
       /// <summary>
-      /// Handles the SourceInitialized event of the Window to perform registration of hotkeys.
+      /// Called after the window source is initialized, the WindowHandle property has been set, and the window has been hooked by the behavior.
       /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      private void OnWindowSourceInitialized(object sender, EventArgs e)
+      protected new void OnWindowSourceInitialized()
       {
-         lock (_entries)
+         if (!_isInitialized)
          {
-            if (!_isInitialized)
+            foreach (KeyBinding key in _entries)
             {
-               _windowHandle = new WindowInteropHelper(Target).Handle;
-               foreach (KeyBinding key in _entries)
-               {
-                  RegisterHotkey(key);
-               }
-               _isInitialized = true;
+               RegisterHotkey(key);
             }
+            _isInitialized = true;
          }
-         //_keysPending.Clear();
       }
 
       /// <summary>
@@ -277,7 +215,7 @@ namespace Huddled.Wpf
       {
          if (key.Command is WindowCommand)
          {
-            ((WindowCommand)key.Command).Window = Target;
+            ((WindowCommand)key.Command).Window = AssociatedObject;
          }
          if (!RegisterHotkey(_entries.IndexOf(key), key.Key, key.Modifiers))
          {
@@ -296,14 +234,14 @@ namespace Huddled.Wpf
       /// <returns></returns>
       private bool RegisterHotkey(int id, Key key, ModifierKeys modifiers)
       {
-         if (_windowHandle == IntPtr.Zero)
+         if (WindowHandle == IntPtr.Zero)
          {
             return false;
          }
          else
          {
             int virtualkey = KeyInterop.VirtualKeyFromKey(key);
-            return NativeMethods.RegisterHotKey(_windowHandle, id, (int)(modifiers), virtualkey);
+            return NativeMethods.RegisterHotKey(WindowHandle, id, (int)(modifiers), virtualkey);
          }
       }
 
@@ -330,7 +268,7 @@ namespace Huddled.Wpf
       /// <returns></returns>
       private bool UnregisterHotkey(int nativeId)
       {
-         return NativeMethods.UnregisterHotKey(_windowHandle, nativeId);
+         return NativeMethods.UnregisterHotKey(WindowHandle, nativeId);
       }
 
       /// <summary>
@@ -372,5 +310,7 @@ namespace Huddled.Wpf
             return ModifierKeys.None;
          }
       }
+
+
    }
 }

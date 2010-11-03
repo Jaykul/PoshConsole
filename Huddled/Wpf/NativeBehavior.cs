@@ -32,9 +32,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Interactivity;
 using Huddled.Interop;
 using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
@@ -42,123 +46,116 @@ namespace Huddled.Wpf
 {
 
    /// <summary>A behavior based on hooking a window message</summary>
-   public abstract class NativeBehavior : DependencyObject
+   public abstract class NativeBehavior : Behavior<Window>
    {
-      /// <summary>
-      /// Called when this behavior is initially hooked up to an initialized <see cref="System.Windows.Window"/>
-      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
-      /// on the actual window (the Chrome behavior uses this to change the template)
-      /// </summary>
-      /// <remarks>Implementations should NOT depend on this being exectued before 
-      /// the Window is SourceInitialized, and should use a WeakReference if they need 
-      /// to keep track of the window object...
-      /// </remarks>
-      /// <param name="window"></param>
-      virtual public void AddTo(Window window) { }
+      /// <summary>Gets the collection of active handlers.</summary>
+      /// <value>A List of the mappings from <see cref="NativeMethods.WindowMessage"/>s
+      /// to <see cref="NativeMethods.MessageHandler"/> delegates.</value>
+      [CLSCompliant(false)]
+      protected abstract IEnumerable<MessageMapping> Handlers { get; }
+
+      /// <summary>The HWND handle to our window</summary>
+      protected IntPtr WindowHandle { get; private set; }
 
       /// <summary>
-      /// Called when this behavior is unhooked from a <see cref="System.Windows.Window"/>
-      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
-      /// on the actual window.
+      /// Called after the window source is initialized, 
+      /// after the WindowHandle property has been set, 
+      /// and after the window has been hooked by the NativeBehavior WndProc
       /// </summary>
-      /// <param name="window"></param>
-      virtual public void RemoveFrom(Window window) { }
+      protected virtual void OnWindowSourceInitialized() {}
 
       /// <summary>
-      /// Gets the <see cref="MessageMapping"/>s for this behavior 
-      /// (one for each Window Message you need to handle)
+      /// Called after the behavior is attached to an AssociatedObject.
       /// </summary>
-      /// <value>A collection of <see cref="MessageMapping"/> objects.</value>
-      public abstract IEnumerable<MessageMapping> GetHandlers();
+      /// <remarks>Override this to hook up functionality to the AssociatedObject.</remarks>
+      protected override void OnAttached()
+      {
+         // design mode bailout (in Design mode there's no window, and no wndproc)
+         // this doesn't happen in System.Windows.Interactivity.Behaviors
+         if (DesignerProperties.GetIsInDesignMode(AssociatedObject))
+         {
+            return;
+         }
+
+         // If we can get a handle, then the window has already been initialized.
+         WindowHandle = new WindowInteropHelper(AssociatedObject).Handle;
+         if (IntPtr.Zero == WindowHandle)
+         {
+            AssociatedObject.SourceInitialized += (sender, e) =>
+            {
+               WindowHandle = new WindowInteropHelper(AssociatedObject).Handle;
+
+               var source = HwndSource.FromHwnd(WindowHandle);
+               if (source != null)
+               {
+                  source.AddHook(WndProc);
+               }
+
+               OnWindowSourceInitialized();
+            };
+         }
+         else
+         {
+            var source = HwndSource.FromHwnd(WindowHandle);
+            if (source != null)
+            {
+               source.AddHook(WndProc);
+            }
+            OnWindowSourceInitialized();
+         }
+
+         base.OnAttached();
+      }
+
+      /// <summary>
+      /// Called when the behavior is being detached from its AssociatedObject, but before it has actually occurred.
+      /// </summary>
+      /// <remarks>Override this to unhook functionality from the AssociatedObject.</remarks>
+      protected override void OnDetaching()
+      {
+         if (IntPtr.Zero != WindowHandle)
+         {
+            var source = HwndSource.FromHwnd(WindowHandle);
+            if (source != null)
+            {
+               source.RemoveHook(WndProc);
+            }
+         }
+         WindowHandle = IntPtr.Zero;
+         base.OnDetaching();
+      }
+
+
+      /// <summary>
+      /// A Window Process Message Handler delegate
+      /// which processes all the registered message mappings
+      /// </summary>
+      /// <param name="hwnd">The window handle.</param>
+      /// <param name="msg">The message.</param>
+      /// <param name="wParam">The wParam.</param>
+      /// <param name="lParam">The lParam.</param>
+      /// <param name="handled">Set to true if the message has been handled</param>
+      /// <returns>IntPtr.Zero</returns>
+      [DebuggerNonUserCode]
+      private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+      {
+         Contract.Assert(hwnd == WindowHandle); // Only expecting messages for our cached HWND.
+
+         // cast and cache the message
+         var message = (NativeMethods.WindowMessage)msg;
+
+         // NOTE: we may process a message multiple times
+         // and we have no good way to handle that...
+         var result = IntPtr.Zero;
+         foreach (var handlePair in Handlers.Where(handlePair => handlePair.Key == message))
+         {
+            var r = handlePair.Value(wParam, lParam, ref handled);
+            // So, we'll return the last non-zero result (if any)
+            if (r != IntPtr.Zero) { result = r; }
+         }
+         return result;
+      }
+
    }
-
-   ///// <summary>A collection of <see cref="NativeBehavior"/>s</summary>
-   //public class WindowBehaviors : ObservableCollection<NativeBehavior>
-   //{
-   //   private WeakReference _target;
-   //   protected IntPtr WindowHandle;
-
-   //   /// <summary>
-   //   /// Initializes a new instance of the <see cref="WindowBehaviors"/> class.
-   //   /// </summary>
-   //   public WindowBehaviors()
-   //   {
-   //      Handlers = new List<MessageMapping>();
-   //   }
-
-
-   //   /// <summary>
-   //   /// Gets or sets the target <see cref="Window"/>
-   //   /// </summary>
-   //   /// <value>The Window being altered by this behavior.</value>
-   //   public Window Target
-   //   {
-   //      get
-   //      {
-   //         if (_target != null)
-   //         {
-   //            return _target.Target as Window;
-   //         } else return null;
-   //      }
-   //      set
-   //      {
-   //         if (_target != null && WindowHandle != IntPtr.Zero)
-   //         {
-   //            HwndSource.FromHwnd(WindowHandle).RemoveHook(WndProc);
-   //         }
-
-   //         Debug.Assert(null != value);
-   //         _target = new WeakReference(value);
-
-   //         // Use whether we can get an HWND to determine if the Window has been loaded.
-   //         WindowHandle = new WindowInteropHelper(value).Handle;
-
-
-   //         if (IntPtr.Zero == WindowHandle)
-   //         {
-   //            value.SourceInitialized += (sender, e) =>
-   //            {
-   //               WindowHandle = new WindowInteropHelper((Window)sender).Handle;
-   //               HwndSource.FromHwnd(WindowHandle).AddHook(WndProc);
-   //            };
-   //         }
-   //         else
-   //         {
-   //            HwndSource.FromHwnd(WindowHandle).AddHook(WndProc);
-   //         }
-   //      }
-   //   }
-
-   //   /// <summary>
-   //   /// Gets the collection of active handlers.
-   //   /// </summary>
-   //   /// <value>The handlers.</value>
-   //   public List<MessageMapping> Handlers { get; private set; }
-
-   //   /// <summary>
-   //   /// A WndProc handler which processes all the registered message mappings
-   //   /// </summary>
-   //   /// <param name="hwnd">The window handle.</param>
-   //   /// <param name="msg">The message.</param>
-   //   /// <param name="wParam">The wParam.</param>
-   //   /// <param name="lParam">The lParam.</param>
-   //   /// <param name="handled">Set to true if the message has been handled</param>
-   //   /// <returns>IntPtr.Zero</returns>
-   //   [DebuggerNonUserCode]
-   //   private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-   //   {
-   //      Debug.Assert(hwnd == WindowHandle); // Only expecting messages for our cached HWND.
-   //      var message = (NativeMethods.WindowMessage)msg;
-
-   //      foreach (var handlePair in Handlers)
-   //      {
-   //         if (handlePair.Key == message)
-   //         {
-   //            return handlePair.Value(wParam, lParam, ref handled);
-   //         }
-   //      }
-   //      return IntPtr.Zero;
-   //   }
-   //}
 
 }

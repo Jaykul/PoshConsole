@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Huddled.Interop;
@@ -45,12 +46,12 @@ namespace Huddled.Wpf
 {
    public class QuakeMode : NativeBehavior
    {
-      // private double _height;
-      private Window _window;
+
       private readonly List<EventTrigger> _triggers = new List<EventTrigger>();
-      public override void AddTo(Window window)
+      protected override void OnAttached()
       {
-         _window = window;
+         base.OnAttached();
+
          var duration = new Duration(TimeSpan.FromSeconds(Duration));
          var sizeProperty = new PropertyPath((Dimension == Direction.Height) ? FrameworkElement.HeightProperty : FrameworkElement.WidthProperty);
 
@@ -59,50 +60,52 @@ namespace Huddled.Wpf
 
          if (Dimension == Direction.Height)
          {
-            window.Deactivated += new EventHandler((sender, ea) => { 
-               Size = ((Window)sender).Height;
-               if (Enabled)
-               {
-                  lostFocus.Begin();
-               }
-            });
+            AssociatedObject.Deactivated += (sender, ea) =>
+                                               { 
+                                                  Size = ((Window)sender).Height;
+                                                  if (Enabled)
+                                                  {
+                                                     lostFocus.Begin();
+                                                  }
+                                               };
          }
          else
          {
-            window.Deactivated += new EventHandler((sender, ea) => { 
-               Size = ((Window)sender).Width;
-               if (Enabled)
-               {
-                  lostFocus.Begin();
-               }
-            });
+            AssociatedObject.Deactivated += (sender, ea) =>
+                                               { 
+                                                  Size = ((Window)sender).Width;
+                                                  if (Enabled)
+                                                  {
+                                                     lostFocus.Begin();
+                                                  }
+                                               };
          }
-         window.Activated += new EventHandler((sender, ea) =>
-         {
-            if (Enabled)
-            {
-               gotFocus.Begin();
-            } 
-         });
+         AssociatedObject.Activated += (sender, ea) =>
+                                          {
+                                             if (Enabled)
+                                             {
+                                                gotFocus.Begin();
+                                             } 
+                                          };
 
 
          // The HIDING animations
          // Animate the opacity 
          var fade = new DoubleAnimation { To = 0.0, Duration = duration };
-         Storyboard.SetTarget(fade, window);
+         Storyboard.SetTarget(fade, AssociatedObject);
          Storyboard.SetTargetProperty(fade, new PropertyPath(UIElement.OpacityProperty));
 
          // The HIDING animations
          // Animate the height
          var shrink = new DoubleAnimation { To = 0.0, Duration = duration };
-         Storyboard.SetTarget(shrink, window);
+         Storyboard.SetTarget(shrink, AssociatedObject);
          Storyboard.SetTargetProperty(shrink, sizeProperty);
 
          // The HIDING animations
          // Toggle the visibility AFTER it should be hidden
          var hide = new ObjectAnimationUsingKeyFrames();
          hide.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Collapsed, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(Duration))));
-         Storyboard.SetTarget(hide, window);
+         Storyboard.SetTarget(hide, AssociatedObject);
          Storyboard.SetTargetProperty(hide, new PropertyPath(UIElement.VisibilityProperty));
          
          //var normalize = new ObjectAnimationUsingKeyFrames();
@@ -121,7 +124,7 @@ namespace Huddled.Wpf
          var unfade = new DoubleAnimation { To = 1.0, Duration = duration };
          var toOpacity = new Binding("OpacityProperty") { Source = this };
          BindingOperations.SetBinding(unfade, DoubleAnimation.ToProperty, toOpacity);
-         Storyboard.SetTarget(unfade, window);
+         Storyboard.SetTarget(unfade, AssociatedObject);
          Storyboard.SetTargetProperty(unfade, new PropertyPath(UIElement.OpacityProperty));
 
          // The SHOWING animations
@@ -129,14 +132,14 @@ namespace Huddled.Wpf
          var grow = new DoubleAnimation { To = 250.0, Duration = duration };
          var toBinding = new Binding("SizeProperty") { Source = this };
          BindingOperations.SetBinding(grow, DoubleAnimation.ToProperty, toBinding);
-         Storyboard.SetTarget(grow, window);
+         Storyboard.SetTarget(grow, AssociatedObject);
          Storyboard.SetTargetProperty(grow, sizeProperty);
 
          // The SHOWING animations
          // Toggle the visibility BEFORE we try to animate it
          var show = new ObjectAnimationUsingKeyFrames();
          show.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0))));
-         Storyboard.SetTarget(show, window);
+         Storyboard.SetTarget(show, AssociatedObject);
          Storyboard.SetTargetProperty(show, new PropertyPath(UIElement.VisibilityProperty));
 
          //// The SHOWING animations
@@ -150,23 +153,26 @@ namespace Huddled.Wpf
          gotFocus.Children.Add(grow);
          gotFocus.Children.Add(unfade);
          //gotFocus.Children.Add(maximize);
-
-         base.AddTo(window);
       }
 
 
-      public override void RemoveFrom(Window window)
+      protected override void OnDetaching()
       {
          foreach (var trigger in _triggers)
          {
-            window.Triggers.Remove(trigger);
+            AssociatedObject.Triggers.Remove(trigger);
          }
-         base.RemoveFrom(window);
+         base.OnDetaching();
       }
 
-      public override IEnumerable<MessageMapping> GetHandlers()
+
+
+      protected override IEnumerable<MessageMapping> Handlers
       {
-         yield return new MessageMapping(NativeMethods.WindowMessage.GetMinMaxInfo, OnGetMinMaxInfo);
+         get
+         {
+            yield return new MessageMapping(NativeMethods.WindowMessage.GetMinMaxInfo, OnGetMinMaxInfo);
+         }
       }
 
       /// <summary>Handles the GetMinMaxInfo Window Message.
@@ -180,13 +186,13 @@ namespace Huddled.Wpf
          if (Enabled)
          {
             var minMaxInfo = (NativeMethods.MinMaxInfo)Marshal.PtrToStructure(lParam, typeof(NativeMethods.MinMaxInfo));
-            var handle = (new WindowInteropHelper(_window)).Handle;
+            var handle = new WindowInteropHelper(AssociatedObject).Handle;
             IntPtr hMonitor = NativeMethods.MonitorFromWindow(handle, NativeMethods.MonitorDefault.ToNearest);
             NativeMethods.MonitorInfo mi = NativeMethods.GetMonitorInfo(hMonitor);
             minMaxInfo.MaxPosition.x = mi.MonitorWorkingSpaceRect.Left;
             minMaxInfo.MaxPosition.y = mi.MonitorWorkingSpaceRect.Top;
             minMaxInfo.MaxSize.x = mi.MonitorWorkingSpaceRect.Width;
-            minMaxInfo.MaxSize.y = mi.MonitorWorkingSpaceRect.Top + (int)Math.Floor(Size);
+            minMaxInfo.MaxSize.y = (int)Math.Floor(Size);
 
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
          }
@@ -200,16 +206,10 @@ namespace Huddled.Wpf
       public bool Enabled
       {
          get { return (bool)GetValue(EnabledProperty); }
-         set { 
+         set
+         {
             SetValue(EnabledProperty, value);
-            if (value)
-            {
-               _window.WindowStyle = WindowStyle.None;
-            }
-            else
-            {
-               _window.WindowStyle = WindowStyle.ThreeDBorderWindow;
-            }
+            AssociatedObject.WindowStyle = value ? WindowStyle.None : WindowStyle.ThreeDBorderWindow;
          }
       }
 

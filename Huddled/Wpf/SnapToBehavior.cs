@@ -41,22 +41,6 @@ namespace Huddled.Wpf
 {
    public class SnapToBehavior : NativeBehavior
    {
-      Window _target;
-      public override void AddTo(Window window)
-      {
-         _target = window;
-         base.AddTo(window);
-      }
-
-      /// <summary>
-      /// Gets the <see cref="MessageMapping"/>s for this behavior:
-      /// A single mapping of a handler for WM_WINDOWPOSCHANGING.
-      /// </summary>
-      /// <returns>A collection of <see cref="MessageMapping"/> objects.</returns>
-      public override IEnumerable<MessageMapping> GetHandlers()
-      {
-         yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanging, OnPreviewPositionChange);          
-      }
       /// <summary>Handles the WindowPositionChanging Window Message.
       /// </summary>
       /// <param name="wParam">The wParam.</param>
@@ -71,9 +55,9 @@ namespace Huddled.Wpf
          if ((windowPosition.Flags & NativeMethods.WindowPositionFlags.NoMove) == 0)
          {
             // If we use the WPF SystemParameters, these should be "Logical" pixels
-            Rect validArea = _target.GetLocalWorkArea();
+            Rect validArea = AssociatedObject.GetLocalWorkArea();
 
-            Rect snapToBorder = new Rect( validArea.Left   + SnapDistance.Left,
+            var snapToBorder = new Rect( validArea.Left   + SnapDistance.Left,
                                           validArea.Top    + SnapDistance.Top,
                                           validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
                                           validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
@@ -132,5 +116,13 @@ namespace Huddled.Wpf
          set { SetValue(SnapDistanceProperty, value); }
       }
       #endregion Additional Dependency Properties
+
+      protected override IEnumerable<MessageMapping> Handlers
+      {
+         get
+         {
+            yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanging, OnPreviewPositionChange);
+         }
+      }
    }
 }

@@ -1,18 +1,12 @@
-﻿<Window x:Name="window" Title="GlobalHotkeys" Height="300" Width="480" x:Class="GlobalHotkeys.DemoWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
+﻿<Window x:Name="window" Title="GlobalHotkeys" Height="300" Width="480" 
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:huddled="http://schemas.huddledmasses.org/wpf" xmlns:Interactivity="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" x:Class="GlobalHotkeys.DemoWindow" 
     WindowStyle="SingleBorderWindow" ><!-- The SingleBorderWindow is important for the CustomChrome behavior -->
-    <huddled:NativeBehaviors.Behaviors>
+    <i:Interaction.Behaviors>
         <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
-      <huddled:HotkeysBehavior>
-            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="K"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="S"  Modifiers="Win" />
-            <!-- the next two should cause conflicts for the sake of the demo -->
-            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="H"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="H"  Modifiers="Win+Shift" />
-      </huddled:HotkeysBehavior>
-      <huddled:CustomChrome UseGlassFrame="True" />
-    </huddled:NativeBehaviors.Behaviors>
+    </i:Interaction.Behaviors>
     <Grid>
       <Label HorizontalAlignment="Center" VerticalAlignment="Top" Content="{Binding Path=Title, ElementName=window, Mode=Default, FallbackValue=Window Title}" FontFamily="{DynamicResource {x:Static SystemFonts.CaptionFontFamilyKey}}" FontSize="{DynamicResource {x:Static SystemFonts.CaptionFontSizeKey}}" FontWeight="{DynamicResource {x:Static SystemFonts.CaptionFontWeightKey}}" FontStyle="{DynamicResource {x:Static SystemFonts.CaptionFontStyleKey}}" Panel.ZIndex="4">
          <!-- this label replaces the window "Caption" -->

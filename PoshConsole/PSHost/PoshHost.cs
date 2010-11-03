@@ -743,7 +743,7 @@ namespace PoshConsole.Host
 
       public bool RemoveHotkey(KeyGesture key)
       {
-         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
+         foreach (HotkeysBehavior behavior in NativeWpf.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
          {
                behavior.Hotkeys.Remove(new KeyBinding(new ScriptCommand(OnGotUserInput, null), key));
                return true;
@@ -757,15 +757,14 @@ namespace PoshConsole.Host
          {
             try
             {
-               foreach (var behavior in NativeBehaviors.GetBehaviors(_psUi as Window))
-               {
-                  if (behavior is HotkeysBehavior)
-                  {
-                     HotkeysBehavior hk = behavior as HotkeysBehavior;
-                     hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
-                     return true;
-                  }
-               }
+
+                     HotkeysBehavior hk =  NativeWpf.SelectBehaviors<HotkeysBehavior>(_psUi as Window).FirstOrDefault();
+                     if (hk != null)
+                     {
+                        hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
+                        return true;
+                     }
+             
                return false;
             }
             catch { return false; }
@@ -774,7 +773,7 @@ namespace PoshConsole.Host
 
       public IEnumerable<KeyValuePair<KeyGesture, ScriptBlock>> Hotkeys()
       {
-         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
+         foreach (HotkeysBehavior behavior in NativeWpf.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
          {
             foreach (var keyBinding in behavior.Hotkeys)
             {
