@@ -31,8 +31,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interactivity;
 using Huddled.Interop;
 using Huddled.Interop.Windows;
 using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
@@ -41,6 +43,7 @@ namespace Huddled.Wpf
 {
    public class SnapToBehavior : NativeBehavior
    {
+
       /// <summary>Handles the WindowPositionChanging Window Message.
       /// </summary>
       /// <param name="wParam">The wParam.</param>
@@ -51,6 +54,12 @@ namespace Huddled.Wpf
       {
          bool updated = false;
          var windowPosition = (NativeMethods.WindowPosition)Marshal.PtrToStructure(lParam, typeof(NativeMethods.WindowPosition));
+         //if (_removeMargin)
+         //{
+         //   windowPosition.RemoveBorder(AssociatedObject.Margin);
+         //}
+
+         bool top = false, bottom = false, right = false, left = false;
 
          if ((windowPosition.Flags & NativeMethods.WindowPositionFlags.NoMove) == 0)
          {
@@ -58,40 +67,106 @@ namespace Huddled.Wpf
             Rect validArea = AssociatedObject.GetLocalWorkArea();
 
             var snapToBorder = new Rect( validArea.Left   + SnapDistance.Left,
-                                          validArea.Top    + SnapDistance.Top,
-                                          validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
-                                          validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
-
-            // Enforce left boundary
-            if (windowPosition.Left < snapToBorder.Left && windowPosition.Left >= validArea.Left)
-            {
-               windowPosition.Left = (int)validArea.Left;
-               updated = true;
-            }
-
-            // Enforce top boundary
-            if (windowPosition.Top < snapToBorder.Y && windowPosition.Top >= validArea.Top)
-            {
-               windowPosition.Top = (int)validArea.Top;
-               updated = true;
-            }
-
-            // Enforce right boundary
-            if (windowPosition.Right > snapToBorder.Right && windowPosition.Right <= validArea.Right)
-            {
-               windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
-               updated = true;
-            }
+                                         validArea.Top    + SnapDistance.Top,
+                                         validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
+                                         validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
 
             // Enforce bottom boundary
-            if (windowPosition.Bottom > snapToBorder.Bottom && windowPosition.Bottom <= validArea.Bottom)
+            bottom = windowPosition.Bottom > snapToBorder.Bottom && windowPosition.Bottom <= validArea.Bottom;
+            right = windowPosition.Right > snapToBorder.Right && windowPosition.Right <= validArea.Right;
+            top = windowPosition.Top < snapToBorder.Y && windowPosition.Top >= validArea.Top;
+            left = windowPosition.Left < snapToBorder.Left && windowPosition.Left >= validArea.Left;
+
+            if (bottom && top)
+            {
+               windowPosition.Top = (int)validArea.Top;
+               windowPosition.Height = (int)validArea.Height;
+               if(left && right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "Maximized", true);
+                  windowPosition.Left = (int) validArea.Left;
+                  windowPosition.Width = (int) validArea.Width;
+               } 
+               else if (left)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedFullLeft", true);
+                  windowPosition.Left = (int) validArea.Left;
+               }
+               else if (right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedFullRight", true);
+                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+               }
+               else
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedFullHeight", true);
+               }
+
+            }
+            else if (bottom)
             {
                windowPosition.Top = (int)(validArea.Bottom - windowPosition.Height);
-               updated = true;
+               if (left && right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedFullBottom", true);
+                  windowPosition.Left = (int)validArea.Left;
+                  windowPosition.Width = (int)validArea.Width;
+               }
+               else if (left)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedBottomLeft", true);
+                  windowPosition.Left = (int)validArea.Left;
+               }
+               else if (right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedBottomRight", true);
+                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+               }
+               else
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedBottom", true);
+               }
             }
-
+            else if (top)
+            {
+               windowPosition.Top = (int)validArea.Top;
+               if (left && right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedFullTop", true);
+                  windowPosition.Left = (int)validArea.Left;
+                  windowPosition.Width = (int)validArea.Width;
+               }
+               else if (left)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedTopLeft", true);
+                  windowPosition.Left = (int)validArea.Left;
+               }
+               else if (right)
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedTopRight", true);
+                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+               }
+               else
+               {
+                  VisualStateManager.GoToState(AssociatedObject, "DockedTop", true);
+               }
+            }
+            else if (right)
+            {
+               windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+               VisualStateManager.GoToState(AssociatedObject, "DockedRight", true);
+            }
+            else if (left)
+            {
+               windowPosition.Left = (int)validArea.Left;
+               VisualStateManager.GoToState(AssociatedObject, "DockedLeft", true);
+            }
+            else
+            {
+               VisualStateManager.GoToState(AssociatedObject, "Normal", true);
+            }
          }
-         if (updated)
+         if (left || top || right || bottom)
          {
             Marshal.StructureToPtr(windowPosition, lParam, true);
          }

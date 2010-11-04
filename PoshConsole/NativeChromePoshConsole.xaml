@@ -25,7 +25,7 @@
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
     Deactivated="OnWindowDeactivated"
-    LocationChanged="OnWindowLocationChanged"
+    
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
     WindowStyle="ThreeDBorderWindow">

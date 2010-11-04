@@ -22,7 +22,8 @@
     
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
     
-	BorderThickness="4"
+	Margin="18" 
+    BorderThickness="1"
 	BorderBrush="White"
     Background="{x:Null}"
 	
@@ -30,10 +31,9 @@
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
     Deactivated="OnWindowDeactivated"
-    LocationChanged="OnWindowLocationChanged"
+    
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
-    WindowStyle="None" AllowsTransparency="True">
-    <!-- SingleBorderWindow is important for the CustomChrome behavior -->
+    WindowStyle="ThreeDBorderWindow" AllowsTransparency="False">
     <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
 
     <Window.Resources>
@@ -84,15 +84,15 @@
         <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
                          Size="{Binding QuakeModeSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
                          Opacity="{Binding Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
-        <huddled:SnapToBehavior SnapDistance="20,20,20,80" />
+        <huddled:SnapToBehavior SnapDistance="22" />
         <huddled:HotkeysBehavior>
-            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="C"  Modifiers="Windows" />
-            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Windows" />
-            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="S"  Modifiers="Windows,Shift" />
-            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Windows" />
-            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Windows,Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="C"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="S"  Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win" />
+            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Win+Shift" />
         </huddled:HotkeysBehavior>
-        <huddled:MetroWindow />
+        <!--<huddled:MetroWindow />-->
         <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
     </i:Interaction.Behaviors>
 

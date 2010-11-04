@@ -12,6 +12,7 @@
     xmlns:huddled="http://schemas.huddledmasses.org/wpf"
     TargetType="{x:Type Window}">
     <ControlTemplate.Resources>
+    	<huddled:MetroWindow x:Key="MetroWindowDataSource" d:IsDataSource="True"/>
         <Color x:Key="HighlightDarkColor">#FF119EDA</Color>
         <Color x:Key="HighlightLightColor">#FFB2E0F4</Color>
         <Color x:Key="BackgroundColor">#FF000000</Color>
@@ -116,49 +117,52 @@
                       Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
                       Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
                       Background="Transparent">-->
-    <Grid Background="Transparent">
+    <Grid Background="Transparent" Height="Auto">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowStateGroup">
                 <VisualStateGroup.Transitions>
                     <VisualTransition GeneratedDuration="0"/>
                 </VisualStateGroup.Transitions>
-                <VisualState x:Name="NormalState"/>
-                <VisualState x:Name="MaximizedState">
-
+                <VisualState x:Name="Normal"/>
+                <VisualState x:Name="Minimized"/>
+                <VisualState x:Name="Maximized">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="EdgeBorder" >
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ThicknessAnimation Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+                    </Storyboard>
                 </VisualState>
+                <VisualState x:Name="DockedFullLeft"><Storyboard><ThicknessAnimation x:Name="DockedFullLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedFullRight"><Storyboard><ThicknessAnimation x:Name="DockedFullRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedFullTop"><Storyboard><ThicknessAnimation x:Name="DockedFullTopThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedFullBottom"><Storyboard><ThicknessAnimation x:Name="DockedFullBottomThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedFullHeight"><Storyboard><ThicknessAnimation x:Name="DockedFullHeightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedLeft"><Storyboard><ThicknessAnimation x:Name="DockedLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedRight"><Storyboard><ThicknessAnimation x:Name="DockedRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedTop"><Storyboard><ThicknessAnimation x:Name="DockedTopThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedBottom"><Storyboard><ThicknessAnimation x:Name="DockedBottomThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedTopLeft"><Storyboard><ThicknessAnimation x:Name="DockedTopLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedTopRight"><Storyboard><ThicknessAnimation x:Name="DockedTopRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedBottomLeft"><Storyboard><ThicknessAnimation x:Name="DockedBottomLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
+                <VisualState x:Name="DockedBottomRight"><Storyboard><ThicknessAnimation x:Name="DockedBottomRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" /></Storyboard></VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        
-        <!--<VisualStateManager.CustomVisualStateManager>
-            <ei:ExtendedVisualStateManager/>
-        </VisualStateManager.CustomVisualStateManager>-->
-
-        <!--<i:Interaction.Triggers>
-           
-            <n:ValueMatchTrigger Source="{Binding WindowState, ElementName=window}" Value="Maximized">
-                <ei:GoToStateAction StateName="MaximizedState" UseTransitions="False"/>
-            </n:ValueMatchTrigger>
-            <n:ValueMatchTrigger Negate="True" Source="{Binding WindowState, ElementName=window}" Value="Maximized">
-                <ei:GoToStateAction StateName="NormalState" UseTransitions="False"/>
-            </n:ValueMatchTrigger>
-        </i:Interaction.Triggers>-->
-        
-        <Border x:Name="EdgeBorder" IsHitTestVisible="False" Margin="18" IsEnabled="False"
+        <Border x:Name="EdgeBorder" IsHitTestVisible="False" Margin="{TemplateBinding Margin}" IsEnabled="False"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderThickness="{TemplateBinding Margin}"
                             Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Height}"
                             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Width}">
-            <!--<Border x:Name="EdgeBorder" Margin="18" Background="White" IsHitTestVisible="False" IsEnabled="False" d:IsLocked="True">-->
             <Border.Effect>
-                <DropShadowEffect Opacity="1" BlurRadius="18" ShadowDepth="0"/>
+                <DropShadowEffect x:Name="DropShadow" Opacity="1" BlurRadius="{Binding Margin.Top, ElementName=EdgeBorder}" ShadowDepth="0"/>
             </Border.Effect>
         </Border>
-        <Grid x:Name="ContentGrid" Background="{TemplateBinding Background}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid x:Name="ContentGrid" Background="{TemplateBinding Background}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <AdornerDecorator x:Name="PART_Adorner" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <ContentPresenter />
+                <ContentPresenter Margin="{TemplateBinding Padding}" />
             </AdornerDecorator>
             <StackPanel x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Background="{x:Null}" huddled:MetroWindow.HitTestable="True"  Margin="0,2,5,0"><!-- -->
                 <Button Foreground="White" x:Name="MinimizeButton" ToolTip="Minimize" Style="{StaticResource SimpleButton}"  >
@@ -183,42 +187,5 @@
             <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Visible" IsTabStop="False" Foreground="Black"/>
         </Grid>
     </Grid>
-	<ControlTemplate.Triggers>
-        <Trigger Property="WindowState" Value="Normal">
-            <Trigger.EnterActions>
-                <BeginStoryboard>
-                    <BeginStoryboard.Storyboard>
-                        <Storyboard>
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="EdgeBorder">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
-                            </ObjectAnimationUsingKeyFrames>
-                            <ThicknessAnimation Duration="0" To="19" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
-
-                            <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FrameGrid">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
-                            </ObjectAnimationUsingKeyFrames>-->
-                        </Storyboard>
-                    </BeginStoryboard.Storyboard>
-                </BeginStoryboard>
-            </Trigger.EnterActions>
-        </Trigger>
-            <Trigger Property="WindowState" Value="Maximized">
-			<Trigger.EnterActions>
-				<BeginStoryboard>
-					<BeginStoryboard.Storyboard>
-					    <Storyboard>
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="EdgeBorder" >
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
-                            </ObjectAnimationUsingKeyFrames>
-                            <ThicknessAnimation Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
-                            <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FrameGrid">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
-                            </ObjectAnimationUsingKeyFrames>-->
-                        </Storyboard>
-					</BeginStoryboard.Storyboard>
-				</BeginStoryboard>
-			</Trigger.EnterActions>
-		</Trigger>
-	</ControlTemplate.Triggers>
 </ControlTemplate>
     

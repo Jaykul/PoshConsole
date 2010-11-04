@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using Huddled.Interop;
 using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
 
@@ -18,12 +19,10 @@ namespace Huddled.Wpf
    public class MetroWindow : NativeBehavior
    {
 
-      private const int _shadowSize = 18;
-      
-
       /// <summary>Template for chromeless window.</summary>
       private ControlTemplate _template;
 
+      
       #region ResizeBorder Dependency Property
 
       // Not exposing a public setter for this property as it would have surprising results to the end-user.
@@ -109,6 +108,8 @@ namespace Huddled.Wpf
          AssociatedObject.AllowsTransparency = true;
 
          AssociatedObject.Template = _template;
+         AssociatedObject.StateChanged += OnWindowStateChanged;
+         OnWindowStateChanged(AssociatedObject,null);
       }
 
       protected override void OnWindowSourceInitialized()
@@ -117,14 +118,66 @@ namespace Huddled.Wpf
          ((Button)AssociatedObject.Template.FindName("MaximizeButton", AssociatedObject)).Click += OnMaximizeClick;
          ((Button)AssociatedObject.Template.FindName("CloseButton", AssociatedObject)).Click += OnCloseClick;
 
-         var margin = AssociatedObject.BorderThickness;
-         margin.Top += _shadowSize;
-         margin.Left += _shadowSize;
-         margin.Right += _shadowSize;
-         margin.Bottom += _shadowSize;
-
-         ((Grid) AssociatedObject.Template.FindName("ContentGrid", AssociatedObject)).Margin = margin;
+         InitializeDockedViewStates();
       }
+
+      private void InitializeDockedViewStates()
+      {
+         var originalMargin = AssociatedObject.BorderThickness.Union(AssociatedObject.Margin);
+         ((Grid)AssociatedObject.Template.FindName("ContentGrid", AssociatedObject)).Margin = originalMargin;
+         // ((ThicknessAnimation)AssociatedObject.Template.FindName("NormalThickness", AssociatedObject)).To = originalMargin;
+
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullHeightThickness", AssociatedObject)).To =
+            originalMargin.Clone(top:0, bottom: 0);
+            
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullLeftThickness", AssociatedObject)).To =
+            originalMargin.Clone(left:0, top:0, bottom: 0);
+            
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullRightThickness", AssociatedObject)).To =
+            originalMargin.Clone(top: 0, right: 0, bottom: 0);
+
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullTopThickness", AssociatedObject)).To =
+            originalMargin.Clone(left: 0, right: 0, bottom: 0);
+
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullBottomThickness", AssociatedObject)).To =
+            originalMargin.Clone(left: 0, top: 0, right: 0);
+
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedLeftThickness", AssociatedObject)).To =
+            originalMargin.Clone(left: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedRightThickness", AssociatedObject)).To =
+            originalMargin.Clone(right: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedTopThickness", AssociatedObject)).To =
+            originalMargin.Clone(top: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedBottomThickness", AssociatedObject)).To =
+            originalMargin.Clone(bottom: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedTopLeftThickness", AssociatedObject)).To =
+            originalMargin.Clone(left: 0, top: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedTopRightThickness", AssociatedObject)).To =
+            originalMargin.Clone(top:0, right: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedBottomLeftThickness", AssociatedObject)).To =
+            originalMargin.Clone(left: 0, bottom: 0);
+         ((ThicknessAnimation)AssociatedObject.Template.FindName("DockedBottomRightThickness", AssociatedObject)).To =
+            originalMargin.Clone(bottom:0, right: 0);
+      }
+
+
+      void OnWindowStateChanged(object sender, EventArgs e)
+      {
+         var window = (Window)sender;
+         switch (window.WindowState)
+         {
+            case WindowState.Normal:
+               VisualStateManager.GoToState(window, "Normal", true);
+               break;
+            case WindowState.Minimized:
+               VisualStateManager.GoToState(window, "Minimized", true);
+               break;
+            case WindowState.Maximized:
+               VisualStateManager.GoToState(window, "Maximized", true);
+               break;
+         }
+      }
+
 
       void OnMinimizeClick(object sender, RoutedEventArgs e)
       {
@@ -358,9 +411,13 @@ namespace Huddled.Wpf
          bool onResizeBorder = false;
 
          // Determine if the point is at the top or bottom of the window.
-         if (mousePosition.Y >= windowPosition.Top + _shadowSize && mousePosition.Y < windowPosition.Top + ResizeBorder.Top + CaptionHeight + _shadowSize && mousePosition.X > windowPosition.Left + _shadowSize && mousePosition.X < windowPosition.Right - _shadowSize)
+         if (mousePosition.Y >= windowPosition.Top + AssociatedObject.Margin.Top &&
+             mousePosition.Y < windowPosition.Top + ResizeBorder.Top + CaptionHeight + AssociatedObject.Margin.Top &&
+             // and within the width of the window
+             mousePosition.X > windowPosition.Left + AssociatedObject.Margin.Left && 
+             mousePosition.X < windowPosition.Right - AssociatedObject.Margin.Right)
          {
-            onResizeBorder = (mousePosition.Y < (windowPosition.Top + ResizeBorder.Top + _shadowSize));
+            onResizeBorder = (mousePosition.Y < (windowPosition.Top + ResizeBorder.Top + AssociatedObject.Margin.Top));
             //if (!onResizeBorder && (_CaptionElement != null))
             //{
             //   Trace.WriteLine(String.Format("[{0},{1}]", mousePosition.X, mousePosition.Y));
@@ -368,17 +425,29 @@ namespace Huddled.Wpf
             //}
             uRow = 0; // top (caption or resize border)
          }
-         else if (mousePosition.Y < windowPosition.Bottom - _shadowSize && mousePosition.Y >= windowPosition.Bottom - (int)ResizeBorder.Bottom - _shadowSize && mousePosition.X > windowPosition.Left + _shadowSize && mousePosition.X < windowPosition.Right - _shadowSize)
+         else if (mousePosition.Y < windowPosition.Bottom - AssociatedObject.Margin.Bottom &&
+                  mousePosition.Y >= windowPosition.Bottom - (int)ResizeBorder.Bottom - AssociatedObject.Margin.Bottom &&
+                  // and within the width of the window
+                  mousePosition.X > windowPosition.Left + AssociatedObject.Margin.Left &&
+                  mousePosition.X < windowPosition.Right - AssociatedObject.Margin.Right)
          {
             uRow = 2; // bottom
          }
 
          // Determine if the point is at the left or right of the window.
-         if (mousePosition.X >= windowPosition.Left + _shadowSize && mousePosition.X < windowPosition.Left + (int)ResizeBorder.Left + _shadowSize && mousePosition.Y > windowPosition.Top + _shadowSize && mousePosition.Y < windowPosition.Bottom - _shadowSize)
+         if (mousePosition.X >= windowPosition.Left + AssociatedObject.Margin.Left &&
+             mousePosition.X < windowPosition.Left + (int)ResizeBorder.Left + AssociatedObject.Margin.Left &&
+             // and within the height of the window
+             mousePosition.Y > windowPosition.Top + AssociatedObject.Margin.Top &&
+             mousePosition.Y < windowPosition.Bottom - AssociatedObject.Margin.Bottom)
          {
             uCol = 0; // left side
          }
-         else if (mousePosition.X < windowPosition.Right - _shadowSize && mousePosition.X >= windowPosition.Right - ResizeBorder.Right - _shadowSize && mousePosition.Y > windowPosition.Top + _shadowSize && mousePosition.Y < windowPosition.Bottom - _shadowSize)
+         else if (mousePosition.X < windowPosition.Right - AssociatedObject.Margin.Right &&
+                  mousePosition.X >= windowPosition.Right - ResizeBorder.Right - AssociatedObject.Margin.Right &&
+                  // and within the height of the window
+                  mousePosition.Y > windowPosition.Top + AssociatedObject.Margin.Top &&
+                  mousePosition.Y < windowPosition.Bottom - AssociatedObject.Margin.Bottom)
          {
             uCol = 2; // right side
          }

@@ -579,6 +579,22 @@ namespace Huddled.Interop
 
          public int Right { get { return Left + Width; } }
          public int Bottom { get { return Top + Height; } }
+
+         public void RemoveBorder(Thickness border)
+         {
+            Top += (int)border.Top;
+            Left += (int)border.Left;
+            Width -= (int)(border.Left + border.Right);
+            Height -= (int)(border.Top + border.Bottom);
+         }
+
+         public void AddBorder(Thickness border)
+         {
+            Top -= (int)border.Top;
+            Left -= (int)border.Left;
+            Width += (int)(border.Left + border.Right);
+            Height += (int)(border.Top + border.Bottom);            
+         }
       }
 
       /// <summary>A Win32 Margins structure for the DWM api calls.

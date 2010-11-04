@@ -88,10 +88,10 @@ namespace PoshConsole
          //_hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
          //_hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
 
-         foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
-         {
-            _defaultCornerRadius = chrome.CornerRadius;
-         }
+         //foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
+         //{
+         //   _defaultCornerRadius = chrome.CornerRadius;
+         //}
 
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Settings.Default.PropertyChanged += SettingsPropertyChanged;
@@ -446,57 +446,57 @@ namespace PoshConsole
          Cursor = Cursors.IBeam;
       }
 
-      /// <summary>Handles the LocationChanged event of the Window control.</summary>
-      /// <param name="sender">The source of the event.</param>
-      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      private void OnWindowLocationChanged(object sender, EventArgs e)
-      {
-         if (WindowState == WindowState.Normal)
-         {
-            CornerRadius cornerRadius = _defaultCornerRadius;
-            if (_defaultCornerRadius == default(CornerRadius))
-            {
-               cornerRadius = new CornerRadius(20, 0, 5, 5);
-            }
-            Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
-                                      SystemParameters.VirtualScreenTop,
-                                      SystemParameters.VirtualScreenWidth,
-                                      SystemParameters.VirtualScreenHeight);
+      ///// <summary>Handles the LocationChanged event of the Window control.</summary>
+      ///// <param name="sender">The source of the event.</param>
+      ///// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+      //private void OnWindowLocationChanged(object sender, EventArgs e)
+      //{
+      //   if (WindowState == WindowState.Normal)
+      //   {
+      //      CornerRadius cornerRadius = _defaultCornerRadius;
+      //      if (_defaultCornerRadius == default(CornerRadius))
+      //      {
+      //         cornerRadius = new CornerRadius(20, 0, 5, 5);
+      //      }
+      //      Rect workarea = new Rect(SystemParameters.VirtualScreenLeft,
+      //                                SystemParameters.VirtualScreenTop,
+      //                                SystemParameters.VirtualScreenWidth,
+      //                                SystemParameters.VirtualScreenHeight);
 
-            if (this.Left == workarea.Left)
-            {
-               cornerRadius.BottomLeft = 0.0;
-               cornerRadius.TopLeft = 0.0;
-            }
-            if (this.Top == workarea.Top)
-            {
-               cornerRadius.TopLeft = 0.0;
-               cornerRadius.TopRight = 0.0;
-            }
-            if (this.RestoreBounds.Right == workarea.Right)
-            {
-               cornerRadius.TopRight = 0.0;
-               cornerRadius.BottomRight = 0.0;
-            }
-            if (this.RestoreBounds.Bottom >= workarea.Bottom)
-            {
-               cornerRadius.BottomRight = 0.0;
-               cornerRadius.BottomLeft = 0.0;
-            }
+      //      if (this.Left == workarea.Left)
+      //      {
+      //         cornerRadius.BottomLeft = 0.0;
+      //         cornerRadius.TopLeft = 0.0;
+      //      }
+      //      if (this.Top == workarea.Top)
+      //      {
+      //         cornerRadius.TopLeft = 0.0;
+      //         cornerRadius.TopRight = 0.0;
+      //      }
+      //      if (this.RestoreBounds.Right == workarea.Right)
+      //      {
+      //         cornerRadius.TopRight = 0.0;
+      //         cornerRadius.BottomRight = 0.0;
+      //      }
+      //      if (this.RestoreBounds.Bottom >= workarea.Bottom)
+      //      {
+      //         cornerRadius.BottomRight = 0.0;
+      //         cornerRadius.BottomLeft = 0.0;
+      //      }
 
-            foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
-            {
-               chrome.CornerRadius = cornerRadius;
-            }
-         }
-         else
-         {
-            foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
-            {
-               chrome.CornerRadius = _defaultCornerRadius;
-            }
-         }
-      }
+      //      foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
+      //      {
+      //         chrome.CornerRadius = cornerRadius;
+      //      }
+      //   }
+      //   else
+      //   {
+      //      foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
+      //      {
+      //         chrome.CornerRadius = _defaultCornerRadius;
+      //      }
+      //   }
+      //}
 
       ///// <summary>
       ///// Handles the SizeChanged event of the Window control.
@@ -532,7 +532,7 @@ namespace PoshConsole
          this.TryExtendFrameIntoClientArea(new Thickness(-1));
          var initWarnings = new StringBuilder();
 
-         _Hotkeys = NativeWpf.SelectBehaviors<HotkeysBehavior>(this).FirstOrDefault();
+         // _Hotkeys = NativeWpf.SelectBehaviors<HotkeysBehavior>(this).FirstOrDefault();
 
          if (_Hotkeys != null)
          {

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.IO;
+using System.Windows.Interactivity;
 using System.Windows.Media;
 using Huddled.Wpf;
 using Huddled.Interop;
@@ -38,7 +39,7 @@ namespace PoshConsole.Cmdlets
                   {
                      // make sure it's active so we don't turn off quakemode while it's hidden
                      _options.WpfConsole.RootWindow.Activate();
-                     foreach (QuakeMode quake in NativeWpf.SelectBehaviors<QuakeMode>(_options.WpfConsole.RootWindow))
+                     foreach (QuakeMode quake in Interaction.GetBehaviors(_options.WpfConsole.RootWindow).OfType<QuakeMode>())
                      {
                         quake.Enabled = false;
                         //quake.Duration = 0;
@@ -59,7 +60,7 @@ namespace PoshConsole.Cmdlets
                      _options.Settings.SettingsKey = "Quake";
                      _options.Settings.Reload();
 
-                     foreach (QuakeMode quake in NativeWpf.SelectBehaviors<QuakeMode>(win))
+                     foreach (QuakeMode quake in Interaction.GetBehaviors(win).OfType<QuakeMode>())
                      {
                         quake.Enabled = true;
                         // TODO: expose the duration as a setting
