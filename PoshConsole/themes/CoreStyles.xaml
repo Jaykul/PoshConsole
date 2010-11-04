@@ -16,85 +16,85 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!--SearchButtonStyle: Hyperlink -->
-    <Style x:Key="SearchButtonStyle" TargetType="Button">
-        <Setter Property="MinHeight" Value="24"/>
-        <Setter Property="MinWidth" Value="24"/>
+	<!-- Close Button Style -->
+	<Style x:Key="SimpleButton" TargetType="{x:Type Button}">
+		<Setter Property="MinHeight" Value="12"/>
+		<Setter Property="MinWidth" Value="12"/>
+		<!--Margin="0" Padding="0" Width="22" Height="22"-->
 		<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
-        <Setter Property="ContentTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <Grid Width="14" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
-                        <Rectangle Fill="{StaticResource GrayBrush7}" HorizontalAlignment="Right" Height="8" Margin="0" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource GrayBrush7}" UseLayoutRounding="False" VerticalAlignment="Bottom" Width="4">
-                            <Rectangle.RenderTransform>
-                                <RotateTransform Angle="-45"/>
-                            </Rectangle.RenderTransform>
-                        </Rectangle>
-                        <Ellipse Fill="Transparent" Margin="0,0,1,3" Stroke="{StaticResource GrayBrush7}" StrokeThickness="2"/>
-                    </Grid>
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
-                        <Grid.Background>
-                            <SolidColorBrush Color="{TemplateBinding Background}"/>
-                        </Grid.Background>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal"/>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" d:IsOptimized="True"/>
-                                        <ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <Storyboard>
-                                        <ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-                                        <DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
-                                            <DiscreteObjectKeyFrame KeyTime="0">
-                                                <DiscreteObjectKeyFrame.Value>
-                                                    <Visibility>Visible</Visibility>
-                                                </DiscreteObjectKeyFrame.Value>
-                                            </DiscreteObjectKeyFrame>
-                                        </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
-                                <VisualState x:Name="Focused"/>
-                                <VisualState x:Name="Unfocused"/>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type Button}">
+					<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
+						<Grid.Background>
+							<SolidColorBrush Color="{TemplateBinding Background}"/>
+						</Grid.Background>
+						<VisualStateManager.VisualStateGroups>
+							<VisualStateGroup x:Name="CommonStates">
+								<VisualState x:Name="Normal"/>
+								<VisualState x:Name="MouseOver">
+									<Storyboard>
+										<!--<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" />-->
+										<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" />-->
+										<DoubleAnimation Duration="0" To="2"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
+										<DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Pressed">
+									<Storyboard>
+										<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid"/>-->
+										<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid"/>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Disabled">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
+											<DiscreteObjectKeyFrame KeyTime="0">
+												<DiscreteObjectKeyFrame.Value>
+													<Visibility>Visible</Visibility>
+												</DiscreteObjectKeyFrame.Value>
+											</DiscreteObjectKeyFrame>
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</VisualState>
+							</VisualStateGroup>
+							<VisualStateGroup x:Name="FocusStates">
+								<VisualState x:Name="Focused"/>
+								<VisualState x:Name="Unfocused"/>
+							</VisualStateGroup>
+						</VisualStateManager.VisualStateGroups>
+						<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             <TextBlock.Foreground>
                                 <SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
                             </TextBlock.Foreground>
-                        </TextBlock>
-                        <TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Canvas.ZIndex="1"/>
-                        <ContentControl>
-                            <ContentControl.Foreground>
-                                <SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
-                            </ContentControl.Foreground>
-                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="21" Margin="2,3,0,0"/>
-                        </ContentControl>
-                        <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
-                            <Rectangle.Stroke>
-                                <SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
-                            </Rectangle.Stroke>
-                        </Rectangle>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+						</TextBlock>
+						<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
+						<ContentControl>
+							<ContentControl.Foreground>
+								<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
+							</ContentControl.Foreground>
+							<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="16" Height="16" Margin="0,0,0,0">
+								<ContentPresenter.Effect>
+									<DropShadowEffect Color="{StaticResource Gray5}" BlurRadius="0" Opacity="0" ShadowDepth="0"/>
+								</ContentPresenter.Effect>
+							</ContentPresenter>
+						</ContentControl>
+						<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+							<Rectangle.Stroke>
+								<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
+							</Rectangle.Stroke>
+						</Rectangle>
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="VerticalAlignment" Value="Stretch"/>
+		<Setter Property="Padding" Value="0"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+		<Setter Property="UseLayoutRounding" Value="False"/>
+	</Style>
     <!--Control Label Style-->
     <Style x:Key="ControlLabelStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource LabelTextBrush}"/>
@@ -153,92 +153,8 @@
             </Border>
         </Grid>
     </ControlTemplate>
-	
-	<!-- Close Button Style -->
-    <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
-    	<Setter Property="MinHeight" Value="24"/>
-    	<Setter Property="MinWidth" Value="24"/>
-		 <!--Margin="0" Padding="0" Width="22" Height="22"-->
-    	<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
-    	<Setter Property="ContentTemplate">
-    		<Setter.Value>
-    			<DataTemplate>
-					<Grid>
-						<Path Data="M8.625,8.375 L29.5,29.75" Height="14" Width="14" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle"/>
-						<Path Data="M17.375,0 L1.625,16.25" Height="14" Width="14" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" />
-					</Grid>
-    			</DataTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="Template">
-    		<Setter.Value>
-    			<ControlTemplate TargetType="{x:Type Button}">
-    				<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
-    					<Grid.Background>
-    						<SolidColorBrush Color="{TemplateBinding Background}"/>
-    					</Grid.Background>
-    					<VisualStateManager.VisualStateGroups>
-    						<VisualStateGroup x:Name="CommonStates">
-    							<VisualState x:Name="Normal"/>
-    							<VisualState x:Name="MouseOver">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" d:IsOptimized="True"/>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Pressed">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    									<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Disabled">
-    								<Storyboard>
-    									<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
-    										<DiscreteObjectKeyFrame KeyTime="0">
-    											<DiscreteObjectKeyFrame.Value>
-    												<Visibility>Visible</Visibility>
-    											</DiscreteObjectKeyFrame.Value>
-    										</DiscreteObjectKeyFrame>
-    									</ObjectAnimationUsingKeyFrames>
-    								</Storyboard>
-    							</VisualState>
-    						</VisualStateGroup>
-    						<VisualStateGroup x:Name="FocusStates">
-    							<VisualState x:Name="Focused"/>
-    							<VisualState x:Name="Unfocused"/>
-    						</VisualStateGroup>
-    					</VisualStateManager.VisualStateGroups>
-    					<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-    						<TextBlock.Foreground>
-    							<SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
-    						</TextBlock.Foreground>
-    					</TextBlock>
-    					<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
-    					<ContentControl>
-    						<ContentControl.Foreground>
-    							<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
-    						</ContentControl.Foreground>
-    						<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="21" Margin="0,0,0,0"/>
-    					</ContentControl>
-    					<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
-    						<Rectangle.Stroke>
-    							<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
-    						</Rectangle.Stroke>
-    					</Rectangle>
-    				</Grid>
-    			</ControlTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="HorizontalAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalAlignment" Value="Stretch"/>
-    	<Setter Property="Padding" Value="0"/>
-    	<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-    	<Setter Property="UseLayoutRounding" Value="False"/>
-    </Style>
 
-    <!--CommonValidationToolTipTemplate Style-->
+	<!--CommonValidationToolTipTemplate Style-->
     <ControlTemplate x:Key="CommonValidationToolTipTemplate" TargetType="ToolTip">
         <Grid x:Name="Root" Margin="5,0" Opacity="0" RenderTransformOrigin="0,0">
             <VisualStateManager.VisualStateGroups>
@@ -352,87 +268,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="RestoreButtonStyle" TargetType="{x:Type Button}">
-    	<Setter Property="MinHeight" Value="24"/>
-    	<Setter Property="MinWidth" Value="24"/>
-    	<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
-    	<Setter Property="ContentTemplate">
-    		<Setter.Value>
-    			<DataTemplate>
-					<Grid>
-						<Rectangle Height="14" StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" Width="14"/>
-						<Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" Height="6" Width="14" Margin="3,7,0,0"/>					
-					</Grid>
-    			</DataTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="Template">
-    		<Setter.Value>
-    			<ControlTemplate TargetType="{x:Type Button}">
-    				<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
-    					<Grid.Background>
-    						<SolidColorBrush Color="{TemplateBinding Background}"/>
-    					</Grid.Background>
-    					<VisualStateManager.VisualStateGroups>
-    						<VisualStateGroup x:Name="CommonStates">
-    							<VisualState x:Name="Normal"/>
-    							<VisualState x:Name="MouseOver">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" d:IsOptimized="True"/>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Pressed">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    									<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Disabled">
-    								<Storyboard>
-    									<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
-    										<DiscreteObjectKeyFrame KeyTime="0">
-    											<DiscreteObjectKeyFrame.Value>
-    												<Visibility>Visible</Visibility>
-    											</DiscreteObjectKeyFrame.Value>
-    										</DiscreteObjectKeyFrame>
-    									</ObjectAnimationUsingKeyFrames>
-    								</Storyboard>
-    							</VisualState>
-    						</VisualStateGroup>
-    						<VisualStateGroup x:Name="FocusStates">
-    							<VisualState x:Name="Focused"/>
-    							<VisualState x:Name="Unfocused"/>
-    						</VisualStateGroup>
-    					</VisualStateManager.VisualStateGroups>
-    					<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-    						<TextBlock.Foreground>
-    							<SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
-    						</TextBlock.Foreground>
-    					</TextBlock>
-    					<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
-    					<ContentControl>
-    						<ContentControl.Foreground>
-    							<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
-    						</ContentControl.Foreground>
-    						<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="21" Margin="0,0,0,0"/>
-    					</ContentControl>
-    					<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
-    						<Rectangle.Stroke>
-    							<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
-    						</Rectangle.Stroke>
-    					</Rectangle>
-    				</Grid>
-    			</ControlTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="HorizontalAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalAlignment" Value="Stretch"/>
-    	<Setter Property="Padding" Value="0"/>
-    	<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-    	<Setter Property="UseLayoutRounding" Value="False"/>
-    </Style>
 
     <!--Hyperlink Style-->
     <Style TargetType="Button" x:Key="DefaultHyperlinkButtonStyle">
@@ -461,9 +296,6 @@
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
-                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenterWrapperColor" Storyboard.TargetProperty="Color">
-                                            <EasingColorKeyFrame KeyTime="0" Value="{StaticResource HighlightLightColor}"/>
-                                        </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
@@ -489,7 +321,7 @@
                                     </Storyboard>
                                 </VisualState>
                             </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
+                            <!--<VisualStateGroup x:Name="FocusStates">
                                 <VisualState x:Name="Focused">
                                     <Storyboard>
                                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisualElement">
@@ -498,7 +330,7 @@
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Unfocused"/>
-                            </VisualStateGroup>
+                            </VisualStateGroup>-->
                         </VisualStateManager.VisualStateGroups>
                         <TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             <TextBlock.Foreground>
@@ -512,11 +344,11 @@
                             </ContentControl.Foreground>
                             <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </ContentControl>
-                        <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+                        <!--<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
                             <Rectangle.Stroke>
                                 <SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
                             </Rectangle.Stroke>
-                        </Rectangle>
+                        </Rectangle>-->
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -644,87 +476,8 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="MinimizeButtonStyle" TargetType="{x:Type Button}">
-    	<Setter Property="MinHeight" Value="24"/>
-    	<Setter Property="MinWidth" Value="24"/>
-    	<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
-    	<Setter Property="ContentTemplate">
-    		<Setter.Value>
-    			<DataTemplate>
-    				<Grid>
-    					<Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>					
-    				</Grid>
-    			</DataTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="Template">
-    		<Setter.Value>
-    			<ControlTemplate TargetType="{x:Type Button}">
-    				<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
-    					<Grid.Background>
-    						<SolidColorBrush Color="{TemplateBinding Background}"/>
-    					</Grid.Background>
-    					<VisualStateManager.VisualStateGroups>
-    						<VisualStateGroup x:Name="CommonStates">
-    							<VisualState x:Name="Normal"/>
-    							<VisualState x:Name="MouseOver">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" d:IsOptimized="True"/>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Pressed">
-    								<Storyboard>
-    									<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    									<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid" d:IsOptimized="True"/>
-    								</Storyboard>
-    							</VisualState>
-    							<VisualState x:Name="Disabled">
-    								<Storyboard>
-    									<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
-    										<DiscreteObjectKeyFrame KeyTime="0">
-    											<DiscreteObjectKeyFrame.Value>
-    												<Visibility>Visible</Visibility>
-    											</DiscreteObjectKeyFrame.Value>
-    										</DiscreteObjectKeyFrame>
-    									</ObjectAnimationUsingKeyFrames>
-    								</Storyboard>
-    							</VisualState>
-    						</VisualStateGroup>
-    						<VisualStateGroup x:Name="FocusStates">
-    							<VisualState x:Name="Focused"/>
-    							<VisualState x:Name="Unfocused"/>
-    						</VisualStateGroup>
-    					</VisualStateManager.VisualStateGroups>
-    					<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-    						<TextBlock.Foreground>
-    							<SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
-    						</TextBlock.Foreground>
-    					</TextBlock>
-    					<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
-    					<ContentControl>
-    						<ContentControl.Foreground>
-    							<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
-    						</ContentControl.Foreground>
-    						<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="21" Margin="0,0,0,0"/>
-    					</ContentControl>
-    					<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
-    						<Rectangle.Stroke>
-    							<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
-    						</Rectangle.Stroke>
-    					</Rectangle>
-    				</Grid>
-    			</ControlTemplate>
-    		</Setter.Value>
-    	</Setter>
-    	<Setter Property="HorizontalAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalAlignment" Value="Stretch"/>
-    	<Setter Property="Padding" Value="0"/>
-    	<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    	<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-    	<Setter Property="UseLayoutRounding" Value="False"/>
-    </Style>
-    <!--TextBox Style-->
+
+	<!--TextBox Style-->
     <Style TargetType="TextBox" x:Key="SearchBoxStyle">
         <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>

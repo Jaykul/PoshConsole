@@ -35,6 +35,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interactivity;
+using System.Windows.Interop;
 using Huddled.Interop;
 using Huddled.Interop.Windows;
 using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.NativeMethods.WindowMessage, Huddled.Interop.NativeMethods.MessageHandler>;
@@ -64,38 +65,44 @@ namespace Huddled.Wpf
          if ((windowPosition.Flags & NativeMethods.WindowPositionFlags.NoMove) == 0)
          {
             // If we use the WPF SystemParameters, these should be "Logical" pixels
-            Rect validArea = AssociatedObject.GetLocalWorkArea();
+         	var source = PresentationSource.FromVisual(AssociatedObject);
+			 // MUST use the position from the lParam, NOT the current position of the AssociatedObject
+			Rect validArea = windowPosition.GetLocalWorkAreaRect().DPITransformFromWindow(source);
 
-            var snapToBorder = new Rect( validArea.Left   + SnapDistance.Left,
-                                         validArea.Top    + SnapDistance.Top,
-                                         validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
-                                         validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
+			var innerBorder = new Rect(validArea.Left + SnapDistance.Left,
+                                       validArea.Top    + SnapDistance.Top,
+                                       validArea.Width  - (SnapDistance.Left + SnapDistance.Right),
+                                       validArea.Height - (SnapDistance.Top  + SnapDistance.Bottom));
 
+			var outerBorder = new Rect(validArea.Left - SnapDistance.Left,
+										validArea.Top - SnapDistance.Top,
+										validArea.Width + (SnapDistance.Left + SnapDistance.Right),
+										validArea.Height + (SnapDistance.Top + SnapDistance.Bottom));
             // Enforce bottom boundary
-            bottom = windowPosition.Bottom > snapToBorder.Bottom && windowPosition.Bottom <= validArea.Bottom;
-            right = windowPosition.Right > snapToBorder.Right && windowPosition.Right <= validArea.Right;
-            top = windowPosition.Top < snapToBorder.Y && windowPosition.Top >= validArea.Top;
-            left = windowPosition.Left < snapToBorder.Left && windowPosition.Left >= validArea.Left;
+			bottom = windowPosition.Bottom > innerBorder.Bottom && windowPosition.Bottom <= outerBorder.Bottom;
+			right = windowPosition.Right > innerBorder.Right && windowPosition.Right <= outerBorder.Right;
+			top = windowPosition.Top < innerBorder.Y && windowPosition.Top >= outerBorder.Top;
+			left = windowPosition.Left < innerBorder.Left && windowPosition.Left >= outerBorder.Left;
 
             if (bottom && top)
             {
-               windowPosition.Top = (int)validArea.Top;
+               windowPosition.Top = (int)(validArea.Top);
                windowPosition.Height = (int)validArea.Height;
                if(left && right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "Maximized", true);
-                  windowPosition.Left = (int) validArea.Left;
+				  windowPosition.Left = (int)(validArea.Left);
                   windowPosition.Width = (int) validArea.Width;
                } 
                else if (left)
                {
                   VisualStateManager.GoToState(AssociatedObject, "DockedFullLeft", true);
-                  windowPosition.Left = (int) validArea.Left;
+				  windowPosition.Left = (int)(validArea.Left);
                }
                else if (right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "DockedFullRight", true);
-                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+				  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
                }
                else
                {
@@ -105,31 +112,32 @@ namespace Huddled.Wpf
             }
             else if (bottom)
             {
-               windowPosition.Top = (int)(validArea.Bottom - windowPosition.Height);
+				windowPosition.Top = (int)(validArea.Bottom - windowPosition.Height + SnapMargin);
                if (left && right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "DockedFullBottom", true);
-                  windowPosition.Left = (int)validArea.Left;
+                  windowPosition.Left = (int)(validArea.Left);
                   windowPosition.Width = (int)validArea.Width;
                }
                else if (left)
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedBottomLeft", true);
-                  windowPosition.Left = (int)validArea.Left;
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedBottomLeft", true);
+				  windowPosition.Left = (int)(validArea.Left - SnapMargin);
                }
                else if (right)
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedBottomRight", true);
-                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedBottomRight", true);
+                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width + SnapMargin);
                }
                else
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedBottom", true);
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedBottom", true);
+				   VisualStateManager.GoToState(AssociatedObject, "Normal", true);
                }
             }
             else if (top)
             {
-               windowPosition.Top = (int)validArea.Top;
+				windowPosition.Top = (int)(validArea.Top - SnapMargin);
                if (left && right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "DockedFullTop", true);
@@ -138,28 +146,29 @@ namespace Huddled.Wpf
                }
                else if (left)
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedTopLeft", true);
-                  windowPosition.Left = (int)validArea.Left;
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedTopLeft", true);
+				  windowPosition.Left = (int)(validArea.Left - SnapMargin);
                }
                else if (right)
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedTopRight", true);
-                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedTopRight", true);
+                  windowPosition.Left = (int)(validArea.Right - windowPosition.Width + SnapMargin);
                }
                else
                {
-                  VisualStateManager.GoToState(AssociatedObject, "DockedTop", true);
+                  //VisualStateManager.GoToState(AssociatedObject, "DockedTop", true);
+				   VisualStateManager.GoToState(AssociatedObject, "Normal", true);
                }
             }
             else if (right)
             {
-               windowPosition.Left = (int)(validArea.Right - windowPosition.Width);
-               VisualStateManager.GoToState(AssociatedObject, "DockedRight", true);
+               //VisualStateManager.GoToState(AssociatedObject, "DockedRight", true);
+               windowPosition.Left = (int)((validArea.Right - windowPosition.Width) + (double)SnapMargin);
             }
             else if (left)
             {
-               windowPosition.Left = (int)validArea.Left;
-               VisualStateManager.GoToState(AssociatedObject, "DockedLeft", true);
+               //VisualStateManager.GoToState(AssociatedObject, "DockedLeft", true);
+               windowPosition.Left = (int)(validArea.Left - SnapMargin);
             }
             else
             {
@@ -191,6 +200,26 @@ namespace Huddled.Wpf
          set { SetValue(SnapDistanceProperty, value); }
       }
       #endregion Additional Dependency Properties
+
+
+	  #region Additional Dependency Properties
+	  /// <summary>
+	  /// The DependencyProperty as the backing store for SnapDistance. <remarks>Just you can set it from XAML.</remarks>
+	  /// </summary>
+	  public static readonly DependencyProperty SnapMarginProperty =
+		  DependencyProperty.Register("SnapMargin", typeof(double), typeof(SnapToBehavior), new UIPropertyMetadata(0.0));
+
+	  /// <summary>
+	  /// Gets or sets the snap distance.
+	  /// </summary>
+	  /// <value>The snap distance.</value>
+	  public double SnapMargin
+	  {
+		  get { return (double)GetValue(SnapMarginProperty); }
+		  set { SetValue(SnapMarginProperty, value); }
+	  }
+	  #endregion Additional Dependency Properties
+
 
       protected override IEnumerable<MessageMapping> Handlers
       {

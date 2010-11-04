@@ -84,7 +84,8 @@
         <huddled:QuakeMode Dimension="Height" Duration="1" Enabled="False" 
                          Size="{Binding QuakeModeSize, Mode=OneWay, Source={StaticResource SettingsDS}}" 
                          Opacity="{Binding Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
-        <huddled:SnapToBehavior SnapDistance="22" />
+        <huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />
+        <huddled:SnapToBehavior SnapDistance="22" SnapMargin="18" />
         <huddled:HotkeysBehavior>
             <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="C"  Modifiers="Win" />
             <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
@@ -92,7 +93,6 @@
             <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win" />
             <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Win+Shift" />
         </huddled:HotkeysBehavior>
-        <!--<huddled:MetroWindow />-->
         <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
     </i:Interaction.Behaviors>
 
@@ -171,12 +171,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>-->
         <!--<Border x:Name="BackgroundBorder" />-->
-        <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Margin="10,0" Background="Transparent" Cursor="Arrow">
+        <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Margin="0,0" Background="Transparent" Cursor="Arrow">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="0.213*"/>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="240"/>
                 <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
             </Grid.ColumnDefinitions>
            	<Path Data="M0.33333333,2.6666667 L128.66667,3.3333333" StrokeStartLineCap="Square" Stretch="Fill" StrokeEndLineCap="Square" StrokeThickness="7" Height="7" VerticalAlignment="Top">
@@ -191,35 +190,33 @@
            			<SolidColorBrush Color="{DynamicResource AccentColor}"/>
            		</Path.Fill>
            	</Path>
-            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" huddled:CustomChrome.HitTestable="True">
+			<StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"  huddled:MetroWindow.HitTestable="True" Margin="5,0,0,0">
             	<Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top" BorderThickness="0" Margin="2,0,0,0" Click="OnTopmost" Background="#00F7F7F7"/>
             	<Button x:Name="ElevatedButton" Content="User" ToolTip="Click to re-start as administrator" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" Click="OnAdminToggle" />
-<!--									  
-                <huddle:ImageToggleButton x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Background="#00000000" BorderThickness="0"
-                                      Checked="OnTopmost" CheckedImage="{DynamicResource ResourceKey=onTopIcon}" Margin="2,0,0,0"
-                                      Unchecked="OnUnTopmost" DefaultImage="{DynamicResource ResourceKey=offTopIcon}" Content=""/>
-                <huddle:ImageToggleButton x:Name="ElevatedButton" ToolTip="Click to re-start as administrator" Background="#00000000" BorderThickness="0" 
-                                      Checked="OnAdminToggle" CheckedImage="{DynamicResource ResourceKey=informationIcon}" Margin="2,0,0,0"
-                                                              DefaultImage="{DynamicResource ResourceKey=exclamationIcon}" Content=""/>
--->															  
+											  
             </StackPanel>
             <!--<StatusBar.BitmapEffect>
                        <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
                    </StatusBar.BitmapEffect>-->
-            <GridSplitter Grid.Column="2" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,200,0" />
+			<GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,0"  huddled:MetroWindow.HitTestable="True"/>
                 <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="2" x:Name="Search" Text="Search" 
-                    Padding="4,0,22,0" Width="Auto" MinWidth="200" 
+                    Padding="4,0,22,0" Width="Auto" MinWidth="200"  huddled:MetroWindow.HitTestable="True"
                     HorizontalAlignment="Stretch" BorderThickness="0" BorderBrush="{x:Null}" VerticalAlignment="Top" 
-                    PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="16" MinHeight="24" />
-                <Button Grid.Column="2" Panel.ZIndex="1" Style="{StaticResource SearchButtonStyle}" 
-                        VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" />
-            <StackPanel HorizontalAlignment="Right" Grid.Column="3" Orientation="Horizontal" Visibility="Collapsed">
-                <Button x:Name="Minimize" ToolTip="Minimize" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource MinimizeButtonStyle}" Click="Minimize_Click"/>
-                <Button x:Name="Restore" ToolTip="Maximize" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource RestoreButtonStyle}" Click="Restore_Click"/>
-                <Button x:Name="Close" ToolTip="Close" Margin="0" Padding="0" Width="22" Height="22" Style="{StaticResource CloseButtonStyle}" Click="Close_Click"/>
-            </StackPanel>	
-            
-        </Grid>
+                    PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="16" MinHeight="24" Margin="0,0,60,0" Panel.ZIndex="2" />
+			<Button Grid.Column="2" Panel.ZIndex="3" Style="{StaticResource SimpleButton}"  huddled:MetroWindow.HitTestable="True"
+                        VerticalAlignment="Stretch" Width="{Binding Height}" HorizontalAlignment="Right" Background="Transparent" Margin="0,0,60,0" >
+				    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+                        <Rectangle Fill="{StaticResource GrayBrush7}" HorizontalAlignment="Right" Height="8" Margin="0" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource GrayBrush7}" UseLayoutRounding="False" VerticalAlignment="Bottom" Width="4">
+                            <Rectangle.RenderTransform>
+                                <RotateTransform Angle="-45"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <Ellipse Fill="Transparent" Margin="0,0,1,3" Stroke="{StaticResource GrayBrush7}" StrokeThickness="2"/>
+                    </Grid>
+			</Button>
+
+
+		</Grid>
         <Grid Margin="0,24,0,0">
         <DockPanel Grid.Row="1" Background="Transparent" x:Name="Dock" Margin="0">
             <!--huddled:CustomChrome.ClientConstrained="True" -->

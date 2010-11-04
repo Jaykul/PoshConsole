@@ -580,21 +580,24 @@ namespace Huddled.Interop
          public int Right { get { return Left + Width; } }
          public int Bottom { get { return Top + Height; } }
 
-         public void RemoveBorder(Thickness border)
-         {
-            Top += (int)border.Top;
-            Left += (int)border.Left;
-            Width -= (int)(border.Left + border.Right);
-            Height -= (int)(border.Top + border.Bottom);
-         }
+      	public Point Position
+      	{
+      		get { return new Point(Left, Top); }
+      	}
 
-         public void AddBorder(Thickness border)
-         {
-            Top -= (int)border.Top;
-            Left -= (int)border.Left;
-            Width += (int)(border.Left + border.Right);
-            Height += (int)(border.Top + border.Bottom);            
-         }
+		public Size Size
+		{
+			get { return new Size(Width, Height); }
+		}
+
+      	public ApiRect ToApiRect()
+      	{
+      		return new ApiRect(Left, Top, Left + Width, Top + Height);
+      	}
+		public Rect ToRect()
+		{
+			return new Rect(Left, Top, Left + Width, Top + Height);
+		}
       }
 
       /// <summary>A Win32 Margins structure for the DWM api calls.
@@ -676,7 +679,7 @@ namespace Huddled.Interop
          }
 
          // Create working area dimensions, converted to DPI-independent values
-         public Rect DPITransformFromWindow(System.Windows.Interop.HwndSource source)
+		 public Rect DPITransformFromWindow(PresentationSource source)
          {
             if (source == null) throw new ArgumentNullException("source"); // Should never be null
             if (source.CompositionTarget == null) throw new ArgumentException("Provided HwndSource has no composition target"); // Should never be null
@@ -733,6 +736,36 @@ namespace Huddled.Interop
 
          #endregion
       }
+	         
+	  [StructLayout(LayoutKind.Sequential)]
+      public struct ApiPoint
+      {
+         public int x;
+         public int y;
+
+	  	public ApiPoint(int x, int y)
+	  	{
+	  		this.x = x;
+	  		this.y = y;
+	  	}
+
+		  public ApiPoint(Point source)
+		  {
+		  	x = (int)source.X;
+		  	y = (int) source.Y;
+		  }
+
+		 public static implicit operator Point(ApiPoint source)
+		 {
+		 	return new Point(source.x, source.y);
+		 }
+
+		 public static implicit operator ApiPoint(Point source)
+		 {
+			 return new ApiPoint(source);
+		 }
+      }
+
 
 
       [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -841,14 +874,6 @@ namespace Huddled.Interop
          public ApiPoint MinTrackSize;
          public ApiPoint MaxTrackSize;
       }
-
-      [StructLayout(LayoutKind.Sequential)]
-      public struct ApiPoint
-      {
-         public int x;
-         public int y;
-      }
-
 
 
       [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -1069,6 +1094,13 @@ namespace Huddled.Interop
 
          [DllImport("user32.dll")]
          public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefault flags);
+
+		 [DllImport("user32.dll")]
+		 public static extern IntPtr MonitorFromPoint(ApiPoint pt, MonitorDefault flags);
+
+		 [DllImport("user32.dll")]
+		 public static extern IntPtr MonitorFromRect([In] ref ApiRect lprc, MonitorDefault flags);
+
 
          [DllImport("user32.dll", EntryPoint = "PostMessage", SetLastError = true)]
          [return: MarshalAs(UnmanagedType.Bool)]
