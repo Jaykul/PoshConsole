@@ -182,7 +182,8 @@ namespace Huddled.Wpf
       /// <summary>
       /// Called after the window source is initialized, the WindowHandle property has been set, and the window has been hooked by the behavior.
       /// </summary>
-      protected new void OnWindowSourceInitialized()
+
+      protected override void OnWindowSourceInitialized()
       {
          if (!_isInitialized)
          {

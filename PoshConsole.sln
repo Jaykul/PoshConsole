@@ -21,14 +21,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamlTemplates", "XamlTempla
 		PoshWpf\XamlTemplates\DavesGlossyLight.xaml = PoshWpf\XamlTemplates\DavesGlossyLight.xaml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code Style Enforcer", "{8E22457A-2B70-47B4-BC56-4AE2636124D1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer (2)", "Code Style Enforcer (2)", "{1CA34475-A354-492A-A357-8CEE5AAFB9C7}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\ImplementationRules.xml = ..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\ImplementationRules.xml
 		..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\NameRules.xml = ..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\NameRules.xml
 		..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml = ..\..\Program Files\DevTools\VS8 Plugins\Code Style Enforcer\CustomRules\VisibilityRules.xml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{3F848AAE-C60F-4FF8-9DE0-77E96E47765A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies (2)", "Dependencies (2)", "{73F773AE-42B1-4DA9-B151-0CC74B1F670E}"
 	ProjectSection(SolutionItems) = preProject
 		PoshWpf\Install.ps1 = PoshWpf\Install.ps1
 		PoshWpf\UnInstall.ps1 = PoshWpf\UnInstall.ps1
@@ -36,7 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 		PoshWpf\WpfTypes.types.ps1xml = PoshWpf\WpfTypes.types.ps1xml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamlTemplates", "XamlTemplates", "{71AB38E8-825C-494F-8B6F-E9140C01A49E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamlTemplates", "XamlTemplates", "{F00DCE34-8BF6-4A96-8E4B-C272717BC8E4}"
 	ProjectSection(SolutionItems) = preProject
 		PoshWpf\XamlTemplates\DavesGlossyLight.xaml = PoshWpf\XamlTemplates\DavesGlossyLight.xaml
 	EndProjectSection
@@ -60,7 +60,9 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller", "Pos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshWpf", "PoshWpf\PoshWpf.csproj", "{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMOGlobalHotkeys", "DEMOGlobalHotkeys\DEMOGlobalHotkeys.csproj", "{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Windows.Shell", "Microsoft.Windows.Shell\Microsoft.Windows.Shell.csproj", "{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechTest", "TechTest\TechTest.csproj", "{B51D71EE-1DD1-457A-9A4C-1507A245A531}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -165,18 +167,32 @@ Global
 		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|x64.Build.0 = Release|x64
 		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|x86.ActiveCfg = Release|x86
 		{CF7BB5E9-5C58-4E0F-A37A-96A3C1753370}.Release|x86.Build.0 = Release|x86
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|x64.ActiveCfg = Release|Any CPU
-		{FE1012D2-EA0C-42B4-A5B3-F0416AFC6A34}.Release|x86.ActiveCfg = Release|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|x64.ActiveCfg = Debug|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|x86.ActiveCfg = Debug|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|x86.Build.0 = Debug|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x64.ActiveCfg = Release|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x86.ActiveCfg = Release|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x86.Build.0 = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|x64.ActiveCfg = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|x86.ActiveCfg = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Debug|x86.Build.0 = Debug|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|Any CPU.ActiveCfg = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|Mixed Platforms.Build.0 = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|x64.ActiveCfg = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|x86.ActiveCfg = Release|x86
+		{B51D71EE-1DD1-457A-9A4C-1507A245A531}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,8 +201,8 @@ Global
 		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 0
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
 		Project = ".\PoshConsole.ndproj"

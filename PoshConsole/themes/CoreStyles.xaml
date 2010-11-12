@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-	mc:Ignorable="d">
+    mc:Ignorable="d">
 <!--
     xmlns:controls="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls" 
     xmlns:System_Windows_Controls_Primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=System.Windows.Controls"
@@ -16,85 +16,88 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!--SearchButtonStyle: Hyperlink -->
-	<!-- Close Button Style -->
-	<Style x:Key="SimpleButton" TargetType="{x:Type Button}">
-		<Setter Property="MinHeight" Value="12"/>
-		<Setter Property="MinWidth" Value="12"/>
-		<!--Margin="0" Padding="0" Width="22" Height="22"-->
-		<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type Button}">
-					<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
-						<Grid.Background>
-							<SolidColorBrush Color="{TemplateBinding Background}"/>
-						</Grid.Background>
-						<VisualStateManager.VisualStateGroups>
-							<VisualStateGroup x:Name="CommonStates">
-								<VisualState x:Name="Normal"/>
-								<VisualState x:Name="MouseOver">
-									<Storyboard>
-										<!--<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" />-->
-										<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" />-->
-										<DoubleAnimation Duration="0" To="2"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
-										<DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
-									</Storyboard>
-								</VisualState>
-								<VisualState x:Name="Pressed">
-									<Storyboard>
-										<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid"/>-->
-										<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid"/>
-									</Storyboard>
-								</VisualState>
-								<VisualState x:Name="Disabled">
-									<Storyboard>
-										<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
-											<DiscreteObjectKeyFrame KeyTime="0">
-												<DiscreteObjectKeyFrame.Value>
-													<Visibility>Visible</Visibility>
-												</DiscreteObjectKeyFrame.Value>
-											</DiscreteObjectKeyFrame>
-										</ObjectAnimationUsingKeyFrames>
-									</Storyboard>
-								</VisualState>
-							</VisualStateGroup>
-							<VisualStateGroup x:Name="FocusStates">
-								<VisualState x:Name="Focused"/>
-								<VisualState x:Name="Unfocused"/>
-							</VisualStateGroup>
-						</VisualStateManager.VisualStateGroups>
-						<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+    <!-- Close Button Style -->
+    <Style x:Key="SimpleButton" TargetType="{x:Type Button}">
+        <Setter Property="MinHeight" Value="12"/>
+        <Setter Property="MinWidth" Value="12"/>
+        <!--Margin="0" Padding="0" Width="22" Height="22"-->
+        <Setter Property="Background" Value="{StaticResource GrayBrush1}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0" d:DesignWidth="63.875">
+                        <Grid.Background>
+                            <SolidColorBrush Color="{TemplateBinding Background}"/>
+                        </Grid.Background>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <!--<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" />-->
+                                        <!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" />-->
+                                        <DoubleAnimation Duration="0" To="2"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
+                                        <DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)" Storyboard.TargetName="contentPresenter">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="3"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid"/>-->
+                                        <DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused"/>
+                                <VisualState x:Name="Unfocused"/>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             <TextBlock.Foreground>
                                 <SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
                             </TextBlock.Foreground>
-						</TextBlock>
-						<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
-						<ContentControl>
-							<ContentControl.Foreground>
-								<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
-							</ContentControl.Foreground>
-							<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="16" Height="16" Margin="0,0,0,0">
-								<ContentPresenter.Effect>
-									<DropShadowEffect Color="{StaticResource Gray5}" BlurRadius="0" Opacity="0" ShadowDepth="0"/>
-								</ContentPresenter.Effect>
-							</ContentPresenter>
-						</ContentControl>
-						<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
-							<Rectangle.Stroke>
-								<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
-							</Rectangle.Stroke>
-						</Rectangle>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-		<Setter Property="HorizontalAlignment" Value="Stretch"/>
-		<Setter Property="VerticalAlignment" Value="Stretch"/>
-		<Setter Property="Padding" Value="0"/>
-		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-		<Setter Property="UseLayoutRounding" Value="False"/>
-	</Style>
+                        </TextBlock>
+                        <TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
+                        <ContentControl>
+                            <ContentControl.Foreground>
+                                <SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
+                            </ContentControl.Foreground>
+                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Margin="2">
+                                <ContentPresenter.Effect>
+                                    <DropShadowEffect Color="{StaticResource Gray5}" ShadowDepth="1"/>
+                                </ContentPresenter.Effect>
+                            </ContentPresenter>
+                        </ContentControl>
+                        <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+                            <Rectangle.Stroke>
+                                <SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
+                            </Rectangle.Stroke>
+                        </Rectangle>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="UseLayoutRounding" Value="False"/>
+    </Style>
     <!--Control Label Style-->
     <Style x:Key="ControlLabelStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource LabelTextBrush}"/>
@@ -154,7 +157,7 @@
         </Grid>
     </ControlTemplate>
 
-	<!--CommonValidationToolTipTemplate Style-->
+    <!--CommonValidationToolTipTemplate Style-->
     <ControlTemplate x:Key="CommonValidationToolTipTemplate" TargetType="ToolTip">
         <Grid x:Name="Root" Margin="5,0" Opacity="0" RenderTransformOrigin="0,0">
             <VisualStateManager.VisualStateGroups>
@@ -269,6 +272,69 @@
         </Setter>
     </Style>
 
+    <!--Button Style-->
+    <Style TargetType="Button" x:Key="FocusFreeButtonStyle">
+        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
+        <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
+        <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver" >
+                                    <Storyboard>
+                                       <DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
+                                                 <DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
+                                                 <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Color)" Storyboard.TargetName="contentPresenter">
+                                                    <EasingColorKeyFrame KeyTime="0" Value="{StaticResource Gray12}"/>
+                                                 </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                       <DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
+                                                 <DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
+                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Direction)" Storyboard.TargetName="contentPresenter">
+                                                    <EasingDoubleKeyFrame KeyTime="0" Value="160"/>
+                                                 </DoubleAnimationUsingKeyFrames>
+                                                 <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Color)" Storyboard.TargetName="contentPresenter">
+                                                    <EasingColorKeyFrame KeyTime="0" Value="{StaticResource Gray4}"/>
+                                                 </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="contentPresenter">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.3"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused" />
+                                <VisualState x:Name="Unfocused"/>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Background" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="3"/>
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                           <ContentPresenter.Effect>
+                                       <DropShadowEffect Color="{StaticResource Gray5}" BlurRadius="0" Opacity="0" ShadowDepth="0"/>
+                           </ContentPresenter.Effect>
+                        </ContentPresenter>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!--Hyperlink Style-->
     <Style TargetType="Button" x:Key="DefaultHyperlinkButtonStyle">
         <Setter Property="Foreground" Value="{StaticResource HighlightBrush}"/>
@@ -360,7 +426,7 @@
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
         <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="MinHeight" Value="20"/>
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
         <Setter Property="Padding" Value="0"/>
@@ -477,13 +543,13 @@
         </Setter>
     </Style>
 
-	<!--TextBox Style-->
+    <!--TextBox Style-->
     <Style TargetType="TextBox" x:Key="SearchBoxStyle">
         <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
         <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="MinHeight" Value="20"/>
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
         <Setter Property="Padding" Value="0"/>
@@ -562,10 +628,10 @@
                         <Rectangle x:Name="Base" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}" Opacity="1" Fill="{TemplateBinding Background}" />
                         <Rectangle x:Name="FocusRectangle" StrokeThickness="{TemplateBinding BorderThickness}" Opacity="0" Stroke="{StaticResource TextBoxMouseOverBorderBrush}" />
                         <Rectangle x:Name="FocusInnerRectangle" StrokeThickness="{TemplateBinding BorderThickness}" Opacity="0" Margin="1" Stroke="{StaticResource TextBoxMouseOverInnerBorderBrush}" />
-                        <Grid Margin="0,1,0,0">
+                        <Grid >
                             <Border x:Name="ReadOnlyVisualElement" Background="{StaticResource ReadOnlyBrush}" Opacity="0"/>
                             <Grid >
-                                <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False" Margin="4,0,2,2" VerticalAlignment="Center" Background="{x:Null}" Foreground="{TemplateBinding Foreground}"/>
+                                <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False" Margin="4,0,2,0" VerticalAlignment="Stretch" Background="{x:Null}" Foreground="{TemplateBinding Foreground}" Content="{TemplateBinding Text}" VerticalScrollBarVisibility="Disabled"/>
                             </Grid>
                         </Grid>
                         <Rectangle x:Name="DisabledVisualElement" Stroke="{StaticResource ControlsDisabledBrush}" StrokeThickness="{TemplateBinding BorderThickness}" Fill="{StaticResource ControlsDisabledBrush}" IsHitTestVisible="False" Opacity="0"/>
@@ -893,8 +959,137 @@
         <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
     </Style>
 
+    <!-- ScrollBar Style Information -->
+    <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Name="Border" Margin="1" CornerRadius="0" Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BackgroundBrush}" BorderThickness="1">
+                        <Path Name="glyph" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{DynamicResource ForegroundBrush}" Data="{Binding Path=Content,RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="glyph" Property="Fill" Value="{DynamicResource GlyphMouseOver}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter TargetName="glyph" Property="Fill" Value="{DynamicResource PressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledForegroundBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarPageButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Rectangle Name="rectThumb" RadiusX="3" RadiusY="3" Fill="{DynamicResource ForegroundBrush}"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="rectThumb" Property="Fill" Value="{DynamicResource GlyphMouseOver}"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="true">
+                            <Setter TargetName="rectThumb" Property="Fill" Value="Black"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid Margin="1">
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="18"/>
+                <RowDefinition Height="0.0001*"/>
+                <RowDefinition MaxHeight="18"/>
+            </Grid.RowDefinitions>
+            <Border Grid.RowSpan="3" CornerRadius="0" Background="{DynamicResource BackgroundBrush}" /> 
+            <RepeatButton Grid.Row="0" Style="{StaticResource ScrollBarLineButton}" Height="18" Command="ScrollBar.LineUpCommand" Content="M 0 8 L 8 8 L 4 0 Z" />
+            <Track Name="PART_Track" Grid.Row="1" IsDirectionReversed="true">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageUpCommand" />
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumb}" Margin="5,0,5,0" Background="{DynamicResource ForegroundBrush}" Foreground="{DynamicResource ForegroundBrush}" />
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageDownCommand" />
+                </Track.IncreaseRepeatButton>
+            </Track>
+            <RepeatButton Grid.Row="3" Style="{StaticResource ScrollBarLineButton}" Height="18" Command="ScrollBar.LineDownCommand" Content="M 0 0 L 4 8 L 8 0 Z"/>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MaxWidth="18"/>
+                <ColumnDefinition Width="0.00001*"/>
+                <ColumnDefinition MaxWidth="18"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="3" CornerRadius="0" Background="{StaticResource NormalBrush}" />
+            <RepeatButton Grid.Column="0" Style="{StaticResource ScrollBarLineButton}" Width="18" Command="ScrollBar.LineLeftCommand" Content="M 8 0 L 8 8 L 0 4 Z" />
+            <Track Name="PART_Track" Grid.Column="1" IsDirectionReversed="False">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageLeftCommand" />
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumb}" Margin="0,5,0,5" Background="{StaticResource GlyphBrush}" BorderBrush="{StaticResource NormalBorderBrush}" />
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageRightCommand" />
+                </Track.IncreaseRepeatButton>
+            </Track>
+            <RepeatButton Grid.Column="3" Style="{StaticResource ScrollBarLineButton}" Width="18" Command="ScrollBar.LineRightCommand" Content="M 0 0 L 8 4 L 0 8 Z"/>
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type ScrollBar}" x:Key="DefaultScrollBarStyle">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto"/>
+                <Setter Property="Height" Value="18" />
+                <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
+            </Trigger>
+            <Trigger Property="Orientation" Value="Vertical">
+                <Setter Property="Width" Value="18"/>
+                <Setter Property="Height" Value="Auto" />
+                <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
     <!--ScrollBar Style-->
-    <Style TargetType="ScrollBar" x:Key="DefaultScrollBarStyle">
+    <Style TargetType="ScrollBar" x:Key="MiniScrollBar">
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}"/>
         <Setter Property="MinWidth" Value="20"/>
@@ -1255,7 +1450,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollViewer">
-                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" d:DesignWidth="318" d:DesignHeight="157">
                         <Grid Background="{TemplateBinding Background}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1267,8 +1462,8 @@
                             </Grid.RowDefinitions>
                             <ScrollContentPresenter x:Name="ScrollContentPresenter" Cursor="{TemplateBinding Cursor}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}"/>
                             <Rectangle Grid.Column="1" Grid.Row="1" Visibility="Collapsed"/>
-                            <ScrollBar x:Name="VerticalScrollBar" Grid.Column="1" IsTabStop="False" Maximum="{TemplateBinding ScrollableHeight}" Margin="0,-1,-3,-1" Minimum="0" Orientation="Vertical" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{TemplateBinding VerticalOffset}" ViewportSize="{TemplateBinding ViewportHeight}" Width="18"/>
-                            <ScrollBar x:Name="HorizontalScrollBar" Grid.Column="0" Height="18" IsTabStop="False" Maximum="{TemplateBinding ScrollableWidth}" Margin="-1,0,-1,-3" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{TemplateBinding HorizontalOffset}" ViewportSize="{TemplateBinding ViewportWidth}"/>
+                            <ScrollBar x:Name="VerticalScrollBar" Grid.Column="1" IsTabStop="False" Maximum="{TemplateBinding ScrollableHeight}" Margin="0" Minimum="0" Orientation="Vertical" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{TemplateBinding VerticalOffset}" ViewportSize="{TemplateBinding ViewportHeight}" Width="18" Style="{DynamicResource DefaultScrollBarStyle}"/>
+                            <ScrollBar x:Name="HorizontalScrollBar" Grid.Column="0" IsTabStop="False" Maximum="{TemplateBinding ScrollableWidth}" Margin="0" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{TemplateBinding HorizontalOffset}" ViewportSize="{TemplateBinding ViewportWidth}" Height="18" Style="{DynamicResource DefaultScrollBarStyle}"/>
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -2376,7 +2571,7 @@
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
         <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="MinHeight" Value="20"/>
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
         <Setter Property="Padding" Value="0"/>

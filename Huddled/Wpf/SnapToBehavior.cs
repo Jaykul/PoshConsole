@@ -91,7 +91,7 @@ namespace Huddled.Wpf
                if(left && right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "Maximized", true);
-				  windowPosition.Left = (int)(validArea.Left);
+				      windowPosition.Left = (int)(validArea.Left);
                   windowPosition.Width = (int) validArea.Width;
                } 
                else if (left)
@@ -137,17 +137,18 @@ namespace Huddled.Wpf
             }
             else if (top)
             {
-				windowPosition.Top = (int)(validArea.Top - SnapMargin);
+				   windowPosition.Top = (int)(validArea.Top - SnapMargin);
                if (left && right)
                {
                   VisualStateManager.GoToState(AssociatedObject, "DockedFullTop", true);
                   windowPosition.Left = (int)validArea.Left;
                   windowPosition.Width = (int)validArea.Width;
+                  windowPosition.Top = (int)(validArea.Top);
                }
                else if (left)
                {
                   //VisualStateManager.GoToState(AssociatedObject, "DockedTopLeft", true);
-				  windowPosition.Left = (int)(validArea.Left - SnapMargin);
+				      windowPosition.Left = (int)(validArea.Left - SnapMargin);
                }
                else if (right)
                {

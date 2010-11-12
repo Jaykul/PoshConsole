@@ -67,6 +67,8 @@ namespace PoshConsole
 
       #region  Constructors (1)
 
+      private TextBox Search;
+
       /// <summary>
       /// Initializes a new instance of the <see cref="PoshConsole"/> class.
       /// </summary>
@@ -79,9 +81,14 @@ namespace PoshConsole
          // will be available.
          InitializeComponent();
 
+         var style = (Style)Resources["GlassStyle"];
+         //var style = (Style)Resources["MetroStyle"];
+         this.Style = style;
+
          // "buffer" is defined in the XAML
          this.Console = buffer;
 
+         
          //// before we start animating, set the animation endpoints to the current values.
          //_hideOpacityAnimation.From = _showOpacityAnimation.To = Opacity;
          //_hideHeightAnimation.From = _showHeightAnimation.To = this.Height;
@@ -428,14 +435,14 @@ namespace PoshConsole
          //Binding statusBinding = new Binding("StatusText"){ Source = _host.Options };
          //statusTextBlock.SetBinding(TextBlock.TextProperty, statusBinding);
 
-         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
-         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
+//TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+//TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
 
          if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
          {
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
-            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
-            ElevatedButton.IsEnabled = false;
+//TOP            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
+//TOP            ElevatedButton.IsEnabled = false;
             //el = status.Items[2] as StatusBarItem;
             //if (el != null)
             //{
@@ -530,8 +537,9 @@ namespace PoshConsole
          // and we can handle the unregistered hotkeys (should probably make that an event on the HotkeysBehavior)
          base.OnSourceInitialized(e);
 
+         Search = (TextBox)Template.FindName("Search", this);
          Cursor = Cursors.AppStarting;
-         this.TryExtendFrameIntoClientArea(new Thickness(-1));
+         // this.TryExtendFrameIntoClientArea(new Thickness(-1));
          var initWarnings = new StringBuilder();
 
          // so now we can ask which keys are still unregistered.
@@ -605,7 +613,7 @@ namespace PoshConsole
          }
 
          // hook mousedown and call DragMove() to make the whole Window a drag handle
-         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
+//TOP         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
          buffer.Focus();
@@ -628,7 +636,7 @@ namespace PoshConsole
                } break;
             case "ToolbarVisibility":
                {
-                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+//TOP                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
                   //switch (Properties.Settings.Default.ToolbarVisibility)
                   //{
                   //   case Visibility.Hidden:
@@ -824,12 +832,12 @@ namespace PoshConsole
          }
       }
 
-      private void OnTopmost(object sender, RoutedEventArgs e)
-      {
-         Settings.Default.AlwaysOnTop = !Settings.Default.AlwaysOnTop;
-         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
-         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
-      }
+//TOP      private void OnTopmost(object sender, RoutedEventArgs e)
+//TOP      {
+//TOP         Settings.Default.AlwaysOnTop = !Settings.Default.AlwaysOnTop;
+//TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+//TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
+//TOP      }
 
 
       // Handles F3 by default
@@ -855,15 +863,15 @@ namespace PoshConsole
          }
       }
 
+      private void OnFindButtonClick(object sender, RoutedEventArgs e)
+      {
+         Find(Search.Text);
+      }
+
 
       private void Search_GotFocus(object sender, RoutedEventArgs e)
       {
          Search.SelectAll();
-      }
-
-      private void OnFindButtonClick(object sender, RoutedEventArgs e)
-      {
-         Find(Search.Text);
       }
 
       private void Search_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -914,6 +922,49 @@ namespace PoshConsole
       private void Close_Click(object sender, RoutedEventArgs e)
       {
          Close();
+      }
+
+      private void SkinToggle_Click(object sender, RoutedEventArgs e)
+      {
+         if (Style == (Style)Resources["GlassStyle"])
+         {
+            Style = (Style)Resources["MetroStyle"];
+         }
+         else
+         {
+            Style = (Style)Resources["GlassStyle"];
+         }
+      }
+
+      private void OnTopWindow_Click(object sender, RoutedEventArgs e)
+      {
+         var btn = sender as Button;
+
+         if (Topmost)
+         {
+            Settings.Default.AlwaysOnTop = Topmost = false;
+            if (btn.Content is Image)
+            {
+
+            }
+            else
+            {
+               btn.Content = "Normal";
+            }
+
+         }
+         else
+         {
+            Settings.Default.AlwaysOnTop = Topmost = true;
+            if (btn.Content is Image)
+            {
+
+            }
+            else
+            {
+               btn.Content = "Topmost";
+            }
+         }
       }
 
 

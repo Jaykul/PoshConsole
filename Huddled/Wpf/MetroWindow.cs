@@ -131,17 +131,16 @@ namespace Huddled.Wpf
 
 		void OnWindowStateChanged(object sender, EventArgs e)
 		{
-			var window = (Window)sender;
-			switch (window.WindowState)
+         switch (AssociatedObject.WindowState)
 			{
 				case WindowState.Normal:
-					VisualStateManager.GoToState(window, "Normal", true);
+               VisualStateManager.GoToState(AssociatedObject, "Normal", true);
 					break;
 				case WindowState.Minimized:
-					VisualStateManager.GoToState(window, "Minimized", true);
+               VisualStateManager.GoToState(AssociatedObject, "Minimized", true);
 					break;
 				case WindowState.Maximized:
-					VisualStateManager.GoToState(window, "Maximized", true);
+               VisualStateManager.GoToState(AssociatedObject, "Maximized", true);
 					break;
 			}
 		}
@@ -508,11 +507,11 @@ namespace Huddled.Wpf
 			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullRightThickness", AssociatedObject)).To = originalMargin.Clone(top: 0, right: 0, bottom: 0);
 			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullRightBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(top: 0, right: 0, bottom: 0);
 
-			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullTopThickness", AssociatedObject)).To = originalMargin.Clone(left: 0, right: 0, bottom: 0);
-			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullTopBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(left: 0, right: 0, bottom: 0);
+			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullTopThickness", AssociatedObject)).To = originalMargin.Clone(left: 0, right: 0, top: 0);
+			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullTopBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(left: 0, right: 0, top: 0);
 
-			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullBottomThickness", AssociatedObject)).To = originalMargin.Clone(left: 0, top: 0, right: 0);
-			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullBottomBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(left: 0, top: 0, right: 0);
+			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullBottomThickness", AssociatedObject)).To = originalMargin.Clone(left: 0, bottom: 0, right: 0);
+			((ThicknessAnimation)AssociatedObject.Template.FindName("DockedFullBottomBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(left: 0, bottom: 0, right: 0);
 
 			//((ThicknessAnimation)AssociatedObject.Template.FindName("DockedLeftThickness", AssociatedObject)).To = originalMargin.Clone(left: 0);
 			//((ThicknessAnimation)AssociatedObject.Template.FindName("DockedLeftBorder", AssociatedObject)).To = AssociatedObject.Margin.Clone(left: 0);

@@ -45,9 +45,10 @@ namespace PoshConsole.Cmdlets
                         //quake.Duration = 0;
                      }
                      
+					  // switch to the default settings, and reload ...
                      _options.Settings.SettingsKey = "";
                      _options.Settings.Reload();
-                     win.WindowState = WindowState.Normal;
+                     // win.WindowState = WindowState.Normal;
                      // this shouldn't be necessary, because it should happen in the Settings switch?
                      _options.Settings.ToolbarVisibility = Visibility.Visible;
 
@@ -64,9 +65,9 @@ namespace PoshConsole.Cmdlets
                      {
                         quake.Enabled = true;
                         // TODO: expose the duration as a setting
-                        quake.Duration = _options.Settings.Animate ? 1 : 0;
+                        //quake.Duration = _options.Settings.Animate ? 1 : 0;
                      }
-                     win.WindowState = WindowState.Maximized;
+
                      // this shouldn't be necessary, because it should happen in the Settings switch?
                      _options.Settings.ToolbarVisibility = Visibility.Collapsed;
                      
@@ -85,9 +86,8 @@ namespace PoshConsole.Cmdlets
                         //_options.Settings.BorderThickness = new Thickness(0, 0, 0, 5);
                         //_options.Settings.BorderColorBottomRight = Colors.Red;
                         //_options.Settings.BorderColorTopLeft = new Color() { A = 0xCC, R = 0xFF, G = 0x33, B = 0x00 };
-                        _options.Settings.SnapToScreenEdge = true;
+                        //_options.Settings.SnapToScreenEdge = true;
                         _options.Settings.SnapDistance = workingArea.Width / 3;
-
                         _options.Settings.WindowHeight = workingArea.Height / 3;
 
                         _options.Colors.DefaultBackground = ConsoleColor.Black;
@@ -97,9 +97,9 @@ namespace PoshConsole.Cmdlets
                         _options.Settings.Save();
                      }
                      // Always force reset the width/top/left, but NOT the HEIGHT
-                     _options.Settings.WindowWidth = workingArea.Width;
-                     _options.Settings.WindowTop = workingArea.Top;
-                     _options.Settings.WindowLeft = workingArea.Left;
+					 _options.Settings.WindowTop = workingArea.Top - win.Margin.Top;
+					 _options.Settings.WindowLeft = workingArea.Left - win.Margin.Left;
+					 _options.Settings.WindowWidth = workingArea.Width - (win.Margin.Left + win.Margin.Right);
                   } break;
             }
          }));
