@@ -104,12 +104,15 @@ namespace PoshConsole
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Settings.Default.PropertyChanged += SettingsPropertyChanged;
 
-         buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) => 
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-               {
-                  progress.Children.Clear();
-                  progressRecords.Clear();
-               }));
+         buffer.Finished += (source, results) => 
+            Dispatcher.BeginInvoke(
+               DispatcherPriority.Background, 
+               (Action)delegate
+                  {
+                     progress.Children.Clear();
+                     progressRecords.Clear();
+                     Cursor = Cursors.Arrow;
+                  });
          //// problems with data binding 
          //WindowStyle = Properties.Settings.Default.WindowStyle;
          //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)

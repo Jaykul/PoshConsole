@@ -164,6 +164,7 @@
     <SolidColorBrush x:Key="ControlsDisabledBrush" Color="{StaticResource TransparentLightLightColor}"/>
     <SolidColorBrush x:Key="ReadOnlyBrush" Color="{StaticResource TransparentLightestColor}"/>
     <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#FFAAAAAA"/>
+    <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#FF232323"/>
     <SolidColorBrush x:Key="DisabledControlBrush" Color="#FFAAAAAA"/>
     <SolidColorBrush x:Key="DisabledWhiteColorBrush" Color="{StaticResource WhiteColor}" />
     <SolidColorBrush x:Key="RatingStarsBrush" Color="{StaticResource RatingStarsColor}" />

@@ -12,8 +12,7 @@
     xmlns:PoshConsole="clr-namespace:PoshConsole"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
-    xmlns:System="clr-namespace:System;assembly=mscorlib"  
-    x:Class="PoshConsole.PoshConsoleWindow" 
+    xmlns:System="clr-namespace:System;assembly=mscorlib"  x:Class="PoshConsole.PoshConsoleWindow" 
     
     x:Name="window"
     Title="{Binding Title, ElementName=buffer, Mode=Default}"
@@ -35,7 +34,7 @@
     
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
     Width="725" Height="354" Style="{DynamicResource MetroStyle}"
-    
+    huddled:WindowCommands.EnableCommands="true"
     WindowStyle="SingleBorderWindow" AllowsTransparency="False" >
 <!-- WindowStyle="None" AllowsTransparency="True" -->
     
@@ -218,7 +217,7 @@
         							</VisualStateGroup>
         						</VisualStateManager.VisualStateGroups>
         						<DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" Margin="2">
-        							<Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0,0,0,0" MaxHeight="28" DockPanel.Dock="Top" >
+        							<Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0" MaxHeight="28" DockPanel.Dock="Top" >
         								<Grid.ColumnDefinitions>
         									<ColumnDefinition Width="Auto"/>
         									<ColumnDefinition Width="*"/>
@@ -236,7 +235,7 @@
         									</Path.Fill>
         								</Path>
         								<StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
-        									<Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top" Click="OnTopWindow_Click" BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                                            <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top" Command="huddled:WindowCommands.TopmostToggle" BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
                                             <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
         								</StackPanel>
                                 <!--<StatusBar.BitmapEffect>
@@ -266,19 +265,39 @@
         										<Ellipse Margin="0,1.667,3.333,3.166" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
         									</Grid>
         								</Button>
+
+                                    <!--Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Click="Minimize_Click" -->
         								<StackPanel Grid.Column="2" x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{x:Null}" >
-        									<Button Cursor="Arrow" Foreground="{TemplateBinding Foreground}" x:Name="MinimizeButton" Click="Minimize_Click" ToolTip="Maximize" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Background="{TemplateBinding Background}">
+                                        <Button Cursor="Arrow" x:Name="MinimizeButton" 
+                                                Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
+                                                VerticalAlignment="Stretch" Panel.ZIndex="3"
+                                                Command="huddled:WindowCommands.Minimize"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"
+                                                Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
+                                                Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
         										<Grid>
         											<Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
         										</Grid>
         									</Button>
-        									<Button Cursor="Arrow" Foreground="{TemplateBinding Foreground}" x:Name="MaximizeButton" Click="Restore_Click" ToolTip="Maximize" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Background="{TemplateBinding Background}">
+                                        <!--Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Click="Restore_Click" -->
+                                        <Button Cursor="Arrow" ToolTip="Maximize" x:Name="MaximizeButton"
+                                                    Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
+                                                    Command="huddled:WindowCommands.Restore"
+                                                    Style="{StaticResource SimpleButton}"  shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                                                    VerticalAlignment="Stretch" 
+                                                    Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" >
         										<Grid>
         											<Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Margin="2"/>
         											<Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Height="6" Margin="2"/>
         										</Grid>
         									</Button>
-        									<Button Cursor="Arrow" Foreground="{TemplateBinding Foreground}" x:Name="CloseButton" Click="Close_Click" ToolTip="Close" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Background="{TemplateBinding Background}">
+                                        <!--Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Click="Close_Click" -->
+                                        <Button Cursor="Arrow" ToolTip="Close" x:Name="CloseButton"
+                                                    Foreground="{TemplateBinding Foreground}"  Background="{TemplateBinding Background}"
+                                                    Command="huddled:WindowCommands.Close"
+                                                Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
+                                                VerticalAlignment="Stretch" 
+                                                Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
         										<Grid>
         											<Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
         											<Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
@@ -307,14 +326,15 @@
         <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
         <huddled:SnapToBehavior SnapDistance="{Binding SnapDistancs, Mode=OneWay, Source={StaticResource SettingsDS}}" SnapMargin="{Binding Margin, ElementName=window, Mode=Default}" />
         <huddled:HotkeysBehavior>
-            <KeyBinding Command="huddled:GlobalCommands.ToggleWindow"   Key="C"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.CloseWindow"    Key="F4" Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.HideWindow"     Key="S"  Modifiers="Win+Shift" />
-            <KeyBinding Command="huddled:GlobalCommands.ShowWindow"     Key="S"  Modifiers="Win" />
-            <KeyBinding Command="huddled:GlobalCommands.ActivateWindow" Key="C"  Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win" /> <!--Command="huddled:GlobalCommands.ToggleWindow"-->
+            <KeyBinding Command="huddled:WindowCommands.Close"    Key="F4" Modifiers="Win" />
+            <KeyBinding Command="huddled:WindowCommands.Hide"     Key="S"  Modifiers="Win+Shift" />
+            <KeyBinding Command="huddled:WindowCommands.Show"     Key="S"  Modifiers="Win" />
+            <KeyBinding Command="huddled:WindowCommands.Activate" Key="C"  Modifiers="Win+Shift" />
         </huddled:HotkeysBehavior>
         <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
     </i:Interaction.Behaviors>
+    
 
     <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"

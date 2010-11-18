@@ -729,8 +729,8 @@ namespace Huddled.Wpf
       /// </remarks>
       private void _UpdateSystemMenu(WindowState? assumeState)
       {
-         const NativeMethods.EnableMenuItemOptions mfEnabled = NativeMethods.EnableMenuItemOptions.ENABLED | NativeMethods.EnableMenuItemOptions.BYCOMMAND;
-         const NativeMethods.EnableMenuItemOptions mfDisabled = NativeMethods.EnableMenuItemOptions.GRAYED | NativeMethods.EnableMenuItemOptions.DISABLED | NativeMethods.EnableMenuItemOptions.BYCOMMAND;
+         const NativeMethods.MenuItemFlags mfEnabled = NativeMethods.MenuItemFlags.Enabled | NativeMethods.MenuItemFlags.ByCommand;
+         const NativeMethods.MenuItemFlags mfDisabled = NativeMethods.MenuItemFlags.Grayed | NativeMethods.MenuItemFlags.Disabled | NativeMethods.MenuItemFlags.ByCommand;
 
          WindowState state = assumeState ?? _GetHwndState();
 

@@ -163,7 +163,7 @@ namespace Huddled.Wpf
 
          if (_entries.Count > id)
          {
-            // BUGBUG: RoutedCommands are disabled byt the WPF system unless Window.IsFocused
+            // BUGBUG: RoutedCommands are disabled by the WPF system unless Window.IsFocused
             if (_entries[id].Command is RoutedCommand)
             {
                AssociatedObject.Focus();

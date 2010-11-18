@@ -83,17 +83,7 @@ namespace Huddled.Wpf
                   return _window.Target as Window;
                }
             }
-            set
-            {
-               if (value == null)
-               {
-                  _window = null;
-               }
-               else
-               {
-                  _window = new WeakReference(value);
-               }
-            }
+            set { _window = value == null ? null : new WeakReference(value); }
          }
 
          /// <summary>
@@ -118,6 +108,7 @@ namespace Huddled.Wpf
          /// </summary>
          public bool CanExecute = false;
       }
+
       /// <summary>
       /// Arguments for the WindowOnExecute call
       /// </summary>

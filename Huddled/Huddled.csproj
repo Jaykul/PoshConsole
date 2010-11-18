@@ -166,6 +166,7 @@
     <Compile Include="Interop\Vista\WindowImage.cs" />
     <Compile Include="Interop\Windows\WindowSwitcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Wpf\Hotkeys\WindowCommands.cs" />
     <Compile Include="Wpf\MetroWindow.cs" />
     <Compile Include="Wpf\QuakeMode.cs" />
     <Compile Include="Wpf\SnapToBehavior.cs" />
