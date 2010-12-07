@@ -133,10 +133,10 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public double SnapDistance {
+        [global::System.Configuration.DefaultSettingValueAttribute("20,20,20,20")]
+        public global::System.Windows.Thickness SnapDistance {
             get {
-                return ((double)(this["SnapDistance"]));
+                return ((global::System.Windows.Thickness)(this["SnapDistance"]));
             }
             set {
                 this["SnapDistance"] = value;
@@ -368,6 +368,18 @@ namespace PoshConsole.Properties {
             }
             set {
                 this["FocusKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool QuakeMode {
+            get {
+                return ((bool)(this["QuakeMode"]));
+            }
+            set {
+                this["QuakeMode"] = value;
             }
         }
     }

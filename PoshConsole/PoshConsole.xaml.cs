@@ -11,9 +11,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Huddled.Interop;
 using Huddled.Wpf;
+using Huddled.Interop.Windows;
 using PoshConsole.Controls;
 using PoshConsole.Host;
 using PoshConsole.Properties;
@@ -29,20 +31,6 @@ namespace PoshConsole
    {
 
       #region  Fields (11)
-      //private static Duration _lasts = Duration.Automatic;
-      //private DoubleAnimation _hideOpacityAnimation = new DoubleAnimation(0.0, _lasts);
-      //private DoubleAnimation _hideHeightAnimation = new DoubleAnimation(0.0, _lasts);
-      ////private DoubleAnimation _hideWidthAnimation = new DoubleAnimation(1.0, _lasts);
-      //private DoubleAnimation _showOpacityAnimation = new DoubleAnimation(1.0, _lasts);
-      //private DoubleAnimation _showHeightAnimation = new DoubleAnimation(1.0, _lasts);
-      ////private DoubleAnimation _showWidthAnimation = new DoubleAnimation(1.0, _lasts);
-
-      private bool _isHiding = false;
-      private CornerRadius _defaultCornerRadius;
-
-      //private static DiscreteBooleanKeyFrame _trueEndFrame = new DiscreteBooleanKeyFrame(true, KeyTime.FromPercent(1.0));
-      //private static DiscreteObjectKeyFrame _visKeyHidden = new DiscreteObjectKeyFrame(Visibility.Hidden, KeyTime.FromPercent(1.0));
-      //private static DiscreteObjectKeyFrame _visKeyVisible = new DiscreteObjectKeyFrame(Visibility.Visible, KeyTime.FromPercent(0.0));
 
 
       private static DependencyProperty _consoleProperty;
@@ -81,51 +69,23 @@ namespace PoshConsole
          // will be available.
          InitializeComponent();
 
-         var style = (Style)Resources["GlassStyle"];
-         //var style = (Style)Resources["MetroStyle"];
-         this.Style = style;
-
          // "buffer" is defined in the XAML
          this.Console = buffer;
 
-         
-         //// before we start animating, set the animation endpoints to the current values.
-         //_hideOpacityAnimation.From = _showOpacityAnimation.To = Opacity;
-         //_hideHeightAnimation.From = _showHeightAnimation.To = this.Height;
-
-         //_hideOpacityAnimation.AccelerationRatio = _showOpacityAnimation.AccelerationRatio = 0.25;
-         //_hideHeightAnimation.AccelerationRatio = _showHeightAnimation.AccelerationRatio = 0.5;
-
-         //foreach (CustomChrome chrome in NativeWpf.SelectBehaviors<CustomChrome>(this))
-         //{
-         //   _defaultCornerRadius = chrome.CornerRadius;
-         //}
+         Style = (Style)Resources["MetroStyle"];
 
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Settings.Default.PropertyChanged += SettingsPropertyChanged;
 
-         buffer.Finished += (source, results) => 
+         buffer.Finished += (source, results) =>
             Dispatcher.BeginInvoke(
-               DispatcherPriority.Background, 
+               DispatcherPriority.Background,
                (Action)delegate
                   {
                      progress.Children.Clear();
                      progressRecords.Clear();
                      Cursor = Cursors.Arrow;
                   });
-         //// problems with data binding 
-         //WindowStyle = Properties.Settings.Default.WindowStyle;
-         //if (Properties.Settings.Default.WindowStyle == WindowStyle.None)
-         //{
-         //   AllowsTransparency = true;
-         //   ResizeMode = ResizeMode.CanResizeWithGrip;
-         //}
-         //else
-         //{
-         //   // we ignore the border if the windowstyle isn't "None"
-         //   this.BorderThickness = new Thickness(0D, 0D, 0D, 0D);
-         //   ResizeMode = ResizeMode.CanResize;
-         //}
 
       }
 
@@ -173,6 +133,7 @@ namespace PoshConsole
       }
 
       private HotkeysBehavior _Hotkeys;
+      private SnapToBehavior _Snapto;
 
 
       //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -186,46 +147,6 @@ namespace PoshConsole
       }
 
       //  Private Methods (7)
-
-      /// <summary>
-      /// Hides the Window.
-      /// </summary>
-      private void HideWindow()
-      {
-         _isHiding = true;
-      //   if (Properties.Settings.Default.Animate)
-      //   {
-      //      ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames();
-      //      visi.Duration = _lasts;
-      //      visi.KeyFrames.Add(_visKeyHidden);
-
-      //      // before we start animating, update the animation endpoints to the current values.
-      //      _hideOpacityAnimation.From = _showOpacityAnimation.To = (double)this.GetAnimationBaseValue(OpacityProperty);
-      //      _hideHeightAnimation.From = _showHeightAnimation.To = (double)this.GetAnimationBaseValue(HeightProperty);
-
-      //      //var width = this.GetLocalWorkArea().Width;
-      //      //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
-
-      //      Storyboard board = new Storyboard
-      //      {
-      //         FillBehavior = FillBehavior.HoldEnd,
-      //         Duration = _lasts
-      //      };
-      //      Storyboard.SetTargetProperty(_hideHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
-      //      Storyboard.SetTargetProperty(_hideOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
-      //      Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
-
-      //      board.Children.Add(_hideHeightAnimation);
-      //      board.Children.Add(_hideOpacityAnimation);
-      //      board.Children.Add(visi);
-
-      //      this.BeginStoryboard(board);           
-      //   }
-      //   else
-      //   {
-         Hide();
-      //   }
-      }
 
       void IPSUI.SetShouldExit(int exitCode)
       {
@@ -259,7 +180,7 @@ namespace PoshConsole
 
       #region IPSUI Members
       protected Dictionary<int, ProgressPanel> progressRecords = new Dictionary<int, ProgressPanel>();
-      
+
       void IPSUI.WriteProgress(long sourceId, ProgressRecord record)
       {
          if (!Dispatcher.CheckAccess())
@@ -272,7 +193,7 @@ namespace PoshConsole
             {
                if (record.RecordType == ProgressRecordType.Completed)
                {
-                  progress.Children.Remove( progressRecords[record.ActivityId] );
+                  progress.Children.Remove(progressRecords[record.ActivityId]);
                   progressRecords.Remove(record.ActivityId);
                }
                else
@@ -289,7 +210,7 @@ namespace PoshConsole
                }
                else
                {
-                  progress.Children.Insert(progress.Children.IndexOf(progressRecords[record.ParentActivityId])+1, progressRecords[record.ActivityId] );
+                  progress.Children.Insert(progress.Children.IndexOf(progressRecords[record.ParentActivityId]) + 1, progressRecords[record.ActivityId]);
                }
             }
          }
@@ -339,46 +260,7 @@ namespace PoshConsole
       /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
       private void OnWindowActivated(object sender, EventArgs e)
       {
-         if (_isHiding)
-         {
-         //   if (Properties.Settings.Default.Animate)
-         //   {
-         //      ObjectAnimationUsingKeyFrames visi = new ObjectAnimationUsingKeyFrames{
-         //         Duration = _lasts,
-         //      };
-         //      visi.KeyFrames.Add(_visKeyVisible);
-
-         //      //var width = this.GetLocalWorkArea().Width;
-         //      //var hideWidthAnimation = new DoubleAnimation(width, width, _hideHeightAnimations.Duration);
-
-         //      Storyboard board = new Storyboard
-         //      {
-         //         FillBehavior = FillBehavior.HoldEnd,
-         //         Duration = _lasts
-         //      };
-         //      Storyboard.SetTargetProperty(_showHeightAnimation, new PropertyPath("(0)", ActualHeightProperty));
-         //      Storyboard.SetTargetProperty(_showOpacityAnimation, new PropertyPath("(0)", OpacityProperty));
-         //      Storyboard.SetTargetProperty(visi, new PropertyPath("(0)", VisibilityProperty));
-
-         //      board.Children.Add(_showHeightAnimation);
-         //      board.Children.Add(_showOpacityAnimation);
-         //      board.Children.Add(visi);
-
-         //      this.BeginStoryboard(board);    
-         //   }
-         //   else
-         //   {
-               Show();
-         //   }
-         }
-         //if (Properties.Settings.Default.Animate)
-         //{
-            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(delegate { buffer.Focus(); }));
-         //}
-         //else
-         //{
-         //   buffer.Focus();
-         //}
+         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(() => buffer.Focus()));
       }
 
       /// <summary>Handles the Closing event of the Window control.</summary>
@@ -390,8 +272,8 @@ namespace PoshConsole
          Properties.Settings.Default.WindowTop = Top;
          Properties.Settings.Default.WindowLeft = Left;
          Properties.Settings.Default.WindowWidth = Width;
-         Properties.Settings.Default.WindowHeight = Height; 
-         
+         Properties.Settings.Default.WindowHeight = Height;
+
          Properties.Settings.Default.Save();
          Properties.Colors.Default.Save();
 
@@ -402,18 +284,6 @@ namespace PoshConsole
          }
       }
 
-      /// <summary>
-      /// Handles the Deactivated event of the Window control.
-      /// </summary>
-      /// <param name="sender">The source of the event.</param>
-      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      private void OnWindowDeactivated(object sender, EventArgs e)
-      {
-         if ((_host == null || !_host.IsClosing) && Properties.Settings.Default.AutoHide)
-         {
-            HideWindow();
-         }
-      }
 
       /// <summary>
       /// Handles the Loaded event of the Window control.
@@ -438,14 +308,14 @@ namespace PoshConsole
          //Binding statusBinding = new Binding("StatusText"){ Source = _host.Options };
          //statusTextBlock.SetBinding(TextBlock.TextProperty, statusBinding);
 
-//TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
-//TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
+         //TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+         //TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
 
          if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
          {
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
-//TOP            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
-//TOP            ElevatedButton.IsEnabled = false;
+            //TOP            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
+            //TOP            ElevatedButton.IsEnabled = false;
             //el = status.Items[2] as StatusBarItem;
             //if (el != null)
             //{
@@ -533,7 +403,7 @@ namespace PoshConsole
       /// Handles the SourceInitialized event of the Window control.
       /// </summary>
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      protected override void  OnSourceInitialized(EventArgs e)
+      protected override void OnSourceInitialized(EventArgs e)
       {
          // NOTE: we override OnSourceInitialized so we can control the order
          // this way, the base event (and it's handlers) happen before us
@@ -548,6 +418,7 @@ namespace PoshConsole
          // so now we can ask which keys are still unregistered.
          // TODO: get the new HotkeysBehavior
          _Hotkeys = Interaction.GetBehaviors(this).OfType<HotkeysBehavior>().Single();
+         _Snapto = Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
          if (_Hotkeys != null)
          {
             int k = -1;
@@ -612,11 +483,11 @@ namespace PoshConsole
 
          if (initWarnings.Length > 0)
          {
-            ((IPSConsole) buffer).WriteWarningLine(initWarnings.ToString());
+            ((IPSConsole)buffer).WriteWarningLine(initWarnings.ToString());
          }
 
          // hook mousedown and call DragMove() to make the whole Window a drag handle
-//TOP         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
+         //TOP         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
          buffer.Focus();
@@ -639,7 +510,7 @@ namespace PoshConsole
                } break;
             case "ToolbarVisibility":
                {
-//TOP                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+                  //TOP                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
                   //switch (Properties.Settings.Default.ToolbarVisibility)
                   //{
                   //   case Visibility.Hidden:
@@ -731,7 +602,7 @@ namespace PoshConsole
                   KeyBinding focusKey = null;
                   foreach (var hk in _Hotkeys.Hotkeys)
                   {
-                     if(hk.Command is GlobalCommands.ActivateCommand)
+                     if (hk.Command is GlobalCommands.ActivateCommand)
                      {
                         focusKey = hk;
                      }
@@ -741,16 +612,16 @@ namespace PoshConsole
                   KeyGesture newGesture = null;
                   try
                   {
-                     var modifiers = Settings.Default.FocusKey.Split(new[] {'+'}).ToList();
+                     var modifiers = Settings.Default.FocusKey.Split(new[] { '+' }).ToList();
                      var character = modifiers.Last();
                      modifiers.Remove(character);
-                     newGesture = new KeyGesture((Key) kv.ConvertFromString(character, null),
-                                       (ModifierKeys) km.ConvertFromString(string.Join("+", modifiers), null));
-                  } 
+                     newGesture = new KeyGesture((Key)kv.ConvertFromString(character, null),
+                                       (ModifierKeys)km.ConvertFromString(string.Join("+", modifiers), null));
+                  }
                   catch (Exception)
                   {
                      if (focusKey != null)
-                        Settings.Default.FocusKey = focusKey.Modifiers.ToString().Replace(", ","+") + "+" + focusKey.Key;
+                        Settings.Default.FocusKey = focusKey.Modifiers.ToString().Replace(", ", "+") + "+" + focusKey.Key;
                   }
 
                   if (focusKey != null && newGesture != null)
@@ -785,6 +656,122 @@ namespace PoshConsole
       }
 
       #endregion
+
+      protected override void OnStyleChanged(Style oldStyle, Style newStyle)
+      {
+         if (oldStyle == Resources["GlassStyle"])
+         {
+            DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).AddValueChanged(_Snapto, OnDockedStateChange);
+         }
+         else if( newStyle == Resources["GlassStyle"])
+         {
+            DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).RemoveValueChanged(_Snapto, OnDockedStateChange);
+         }
+         base.OnStyleChanged(oldStyle, newStyle);
+      }
+
+      private void OnDockedStateChange(object sender, EventArgs args)
+      {
+         switch (_Snapto.DockedState)
+         {
+            case SnapToBehavior.DockingEdge.None:
+               Style = (Style)Resources["MetroStyle"];
+               break;
+            case SnapToBehavior.DockingEdge.Left:
+               Style = (Style)Resources["MetroStyle"];
+               break;
+            case SnapToBehavior.DockingEdge.Top:
+               Style = (Style)Resources["QuakeTopStyle"];
+               break;
+            case SnapToBehavior.DockingEdge.Right:
+               Style = (Style)Resources["MetroStyle"];
+               break;
+            case SnapToBehavior.DockingEdge.Bottom:
+               Style = (Style)Resources["QuakeBottomStyle"];
+               break;
+         }
+      }
+
+      //void OnWindowStateChanged(object sender, Huddled.Wpf.SnapToBehavior.AdvancedWindowStateChangedArgs e)
+      //{
+      //   if (Settings.Default.QuakeMode)
+      //   {
+      //      // Switch from Metro to Quake when docking
+      //      if (Style == (Style)Resources["MetroStyle"])
+      //      {
+      //         if (e.WindowState == SnapToBehavior.AdvancedWindowState.DockedTop ||
+      //             e.WindowState == SnapToBehavior.AdvancedWindowState.SnapTop ||
+      //             e.WindowState == SnapToBehavior.AdvancedWindowState.SnapTopLeft ||
+      //             e.WindowState == SnapToBehavior.AdvancedWindowState.SnapTopRight
+      //         )
+      //         {
+      //            SnapToQuakeMode(true);
+      //         }
+      //         else
+      //            if (e.WindowState == SnapToBehavior.AdvancedWindowState.DockedBottom ||
+      //                e.WindowState == SnapToBehavior.AdvancedWindowState.SnapBottom ||
+      //                e.WindowState == SnapToBehavior.AdvancedWindowState.SnapBottomLeft ||
+      //                e.WindowState == SnapToBehavior.AdvancedWindowState.SnapBottomRight
+      //            )
+      //            {
+      //               SnapToQuakeMode(false);
+      //            }
+      //      }
+      //      else if (Style == (Style)Resources["QuakeTopStyle"] || Style == (Style)Resources["QuakeBottomStyle"])
+      //      {
+      //         if (e.WindowState != SnapToBehavior.AdvancedWindowState.DockedTop &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.DockedBottom &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapTop &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapTopLeft &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapTopRight &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapBottom &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapBottomLeft &&
+      //             e.WindowState != SnapToBehavior.AdvancedWindowState.SnapBottomRight)
+      //         {
+      //            RemoveQuakeMode();
+      //         }
+      //      }
+      //   }
+      //}
+
+      //private void SnapToQuakeMode(bool top)
+      //{
+      //   Settings.Default.WindowTop = Top;
+      //   Settings.Default.WindowLeft = Left;
+      //   Settings.Default.WindowWidth = Width;
+      //   Settings.Default.WindowHeight = Height;
+
+      //   Settings.Default.Save();
+
+      //   var validArea = this.GetLocalWorkArea();
+      //   var snap = _Snapto.SnapDistance;
+      //   snap.Left = validArea.Width / 2;
+      //   snap.Right = validArea.Width / 2;
+      //   if (top)
+      //   {
+      //      Style = (Style)Resources["QuakeTopStyle"];
+      //      snap.Top = 120;
+      //      snap.Bottom = 0;
+      //   }
+      //   else
+      //   {
+      //      Style = (Style)Resources["QuakeBottomStyle"];
+      //      snap.Bottom = validArea.Height / 4;
+      //      snap.Top = 0;
+      //   }
+
+      //   _Snapto.SnapDistance = snap;
+      //}
+
+      //private void RemoveQuakeMode()
+      //{
+      //   _Snapto.SnapDistance = Settings.Default.SnapDistance;
+
+      //   Style = (Style)Resources["MetroStyle"];
+
+      //   Width = Settings.Default.WindowWidth;
+      //   Height = Settings.Default.WindowHeight;
+      //}
 
       void OnHandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
       {
@@ -835,12 +822,12 @@ namespace PoshConsole
          }
       }
 
-//TOP      private void OnTopmost(object sender, RoutedEventArgs e)
-//TOP      {
-//TOP         Settings.Default.AlwaysOnTop = !Settings.Default.AlwaysOnTop;
-//TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
-//TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
-//TOP      }
+      //TOP      private void OnTopmost(object sender, RoutedEventArgs e)
+      //TOP      {
+      //TOP         Settings.Default.AlwaysOnTop = !Settings.Default.AlwaysOnTop;
+      //TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
+      //TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
+      //TOP      }
 
 
       // Handles F3 by default
@@ -971,5 +958,7 @@ namespace PoshConsole
       }
 
 
+
+      
    }
 }

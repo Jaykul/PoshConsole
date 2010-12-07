@@ -29,8 +29,8 @@
     <Setting Name="SnapToScreenEdge" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="SnapDistance" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">20</Value>
+    <Setting Name="SnapDistance" Type="System.Windows.Thickness" Scope="User">
+      <Value Profile="(Default)">20,20,20,20</Value>
     </Setting>
     <Setting Name="AlwaysOnTop" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -88,6 +88,9 @@
     </Setting>
     <Setting Name="FocusKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">Win+C</Value>
+    </Setting>
+    <Setting Name="QuakeMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -87,8 +87,8 @@ namespace PoshConsole.Cmdlets
                         //_options.Settings.BorderColorBottomRight = Colors.Red;
                         //_options.Settings.BorderColorTopLeft = new Color() { A = 0xCC, R = 0xFF, G = 0x33, B = 0x00 };
                         //_options.Settings.SnapToScreenEdge = true;
-                        _options.Settings.SnapDistance = workingArea.Width / 3;
-                        _options.Settings.WindowHeight = workingArea.Height / 3;
+                        //_options.Settings.SnapDistance = workingArea.Width / 3;
+                        //_options.Settings.WindowHeight = workingArea.Height / 3;
 
                         _options.Colors.DefaultBackground = ConsoleColor.Black;
                         _options.Colors.DefaultForeground = ConsoleColor.White;

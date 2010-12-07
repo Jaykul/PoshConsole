@@ -263,6 +263,9 @@ namespace Huddled.Interop
          GetTextLength = 0x000e,
          Paint = 0x000f,
          Close = 0x0010,
+         /// <summary>
+         /// 
+         /// </summary>
          QueryEndSession = 0x0011,
          Quit = 0x0012,
          QueryOpen = 0x0013,
@@ -271,6 +274,8 @@ namespace Huddled.Interop
 
          GetMinMaxInfo = 0x0024,
 
+         EnterSizeMove = 0x0231,
+         ExitSizeMove = 0x0232,
          WindowPositionChanging = 0x0046,
          WindowPositionChanged = 0x0047,
 
@@ -315,7 +320,7 @@ namespace Huddled.Interop
          AsyncWindowPosition = 0x4000,
          DeferErase = 0x2000,
          DrawFrame = 0x0020,
-         FrameChanged = 0x0020,
+//         FrameChanged = 0x0020,
          HideWindow = 0x0080,
          NoActivate = 0x0010,
          NoCopyBits = 0x0100,
@@ -627,9 +632,15 @@ namespace Huddled.Interop
          {
             return new ApiRect(Left, Top, Left + Width, Top + Height);
          }
+
          public Rect ToRect()
          {
             return new Rect(Left, Top, Left + Width, Top + Height);
+         }
+
+         public String ToString()
+         {
+            return "Flags: " + Flags.ToString() + " (Insert After: " + HandleInsertAfter + ")\nTop Left: " + Top + "," + Left + " Height: " + Height + " Width: " + Width;
          }
       }
 
