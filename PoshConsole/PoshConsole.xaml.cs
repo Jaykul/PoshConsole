@@ -86,7 +86,6 @@ namespace PoshConsole
                      progressRecords.Clear();
                      Cursor = Cursors.Arrow;
                   });
-
       }
 
 
@@ -258,11 +257,33 @@ namespace PoshConsole
       /// </summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-      private void OnWindowActivated(object sender, EventArgs e)
-      {
+      private void OnWindowActivated(object sender, EventArgs e) {
+         if (Style == (Style)Resources["QuakeTopStyle"]) {
+            var hideMetro = (Storyboard)Resources["QuakeShowMetro"];
+            ((DoubleAnimation) hideMetro.Children[0]).To = Settings.Default.Opacity;
+            ((DoubleAnimation) hideMetro.Children[1]).To = Settings.Default.WindowHeight;
+            hideMetro.FillBehavior = FillBehavior.HoldEnd;
+            hideMetro.Begin(this);
+         }
+
          Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(() => buffer.Focus()));
       }
 
+
+      /// <summary>
+      /// Handles the Deactivated event of the window control.
+      /// </summary>
+      /// <param name="sender">The source of the event.</param>
+      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+      private void OnWindowDeactivated(object sender, EventArgs e) {
+         if (Style == (Style)Resources["QuakeTopStyle"]) {
+            var hideMetro = (Storyboard)Resources["QuakeHideMetro"];
+            //((DoubleAnimation)hideMetro.Children[0]).To = Settings.Default.Opacity;
+            //((DoubleAnimation)hideMetro.Children[1]).To = Settings.Default.WindowHeight;
+            //hideMetro.FillBehavior = FillBehavior.HoldEnd;
+            hideMetro.Begin(this);
+         }
+      }
       /// <summary>Handles the Closing event of the Window control.</summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
@@ -490,8 +511,9 @@ namespace PoshConsole
          //TOP         Toolbar.PreviewMouseLeftButtonDown += DragHandler;
          progress.PreviewMouseLeftButtonDown += DragHandler;
          buffer.PreviewMouseLeftButtonDown += DragHandler;
-         buffer.Focus();
 
+         OnStyleChanged(null, Style);
+         buffer.Focus();
       }
 
       void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -568,7 +590,9 @@ namespace PoshConsole
                } break;
             case "Opacity":
                {
-                  this.Opacity = Settings.Default.Opacity;
+                  // stop any animation before we try to apply the setting
+                  var op = new DoubleAnimation(Settings.Default.Opacity, new Duration(TimeSpan.FromSeconds(0.5)));
+                  this.BeginAnimation(OpacityProperty,op);
                } break;
             case "WindowStyle":
                {
@@ -657,38 +681,46 @@ namespace PoshConsole
 
       #endregion
 
-      protected override void OnStyleChanged(Style oldStyle, Style newStyle)
+      private bool _dockingStyled = false;
+      protected override sealed void OnStyleChanged(Style oldStyle, Style newStyle)
       {
-         if (oldStyle == Resources["GlassStyle"])
+         if (newStyle == Resources["MetroStyle"] && !_dockingStyled)
          {
             DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).AddValueChanged(_Snapto, OnDockedStateChange);
+            _dockingStyled = true;
          }
-         else if( newStyle == Resources["GlassStyle"])
+
+         if (oldStyle == Resources["MetroStyle"] && _dockingStyled)
          {
             DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).RemoveValueChanged(_Snapto, OnDockedStateChange);
+            _dockingStyled = false;
          }
          base.OnStyleChanged(oldStyle, newStyle);
       }
 
       private void OnDockedStateChange(object sender, EventArgs args)
       {
-         switch (_Snapto.DockedState)
-         {
-            case SnapToBehavior.DockingEdge.None:
-               Style = (Style)Resources["MetroStyle"];
-               break;
-            case SnapToBehavior.DockingEdge.Left:
-               Style = (Style)Resources["MetroStyle"];
-               break;
-            case SnapToBehavior.DockingEdge.Top:
-               Style = (Style)Resources["QuakeTopStyle"];
-               break;
-            case SnapToBehavior.DockingEdge.Right:
-               Style = (Style)Resources["MetroStyle"];
-               break;
-            case SnapToBehavior.DockingEdge.Bottom:
-               Style = (Style)Resources["QuakeBottomStyle"];
-               break;
+         try {
+            switch (_Snapto.DockedState) {
+               case SnapToBehavior.DockingEdge.None:
+                  Style = (Style)Resources["MetroStyle"];
+                  break;
+               case SnapToBehavior.DockingEdge.Left:
+                  Style = (Style)Resources["MetroStyle"];
+                  break;
+               case SnapToBehavior.DockingEdge.Top:
+                  Style = (Style)Resources["QuakeTopStyle"];
+                  break;
+               case SnapToBehavior.DockingEdge.Right:
+                  Style = (Style)Resources["MetroStyle"];
+                  break;
+               case SnapToBehavior.DockingEdge.Bottom:
+                  Style = (Style)Resources["QuakeBottomStyle"];
+                  break;
+            }
+         }
+         catch (Exception e) {
+            Debug.WriteLine(e);
          }
       }
 
@@ -959,6 +991,6 @@ namespace PoshConsole
 
 
 
-      
+
    }
 }

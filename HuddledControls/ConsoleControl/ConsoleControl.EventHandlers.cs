@@ -262,9 +262,14 @@ namespace Huddled.WPF.Controls
          base.OnPreviewKeyDown(e);
       }
 
+      protected override void OnGotFocus(RoutedEventArgs e) {
+         if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+         base.OnGotFocus(e);
+      }
+
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {
-          if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+         if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
          //_commandBox.RaiseEvent(e);
          base.OnPreviewTextInput(e);
       }
@@ -356,10 +361,11 @@ namespace Huddled.WPF.Controls
 
       protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
       {
-         if (ScrollViewer.ViewportWidth > 0 && _next.Inlines.Count > 1 )
-         {
-            ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - _commandContainer.SiblingInlines.Where(run=>run != _commandContainer).Sum(run => run.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
-         }
+         //if (ScrollViewer.ViewportWidth > 0 && _next.Inlines.Count > 1 ) {
+         //   var output = _commandContainer.SiblingInlines.Where(run => run != _commandContainer);
+         //   var width = output.Sum(run => run.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+         //   ((RichTextBox)_commandContainer.Child).MaxWidth = ScrollViewer.ViewportWidth - width;
+         //}
 
          base.OnRenderSizeChanged(sizeInfo);
       }

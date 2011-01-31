@@ -21,6 +21,7 @@
     x:Name="window"
     
     Style="{DynamicResource MetroStyle}"
+    WindowStyle="None" AllowsTransparency="True"
 
     Title="{Binding Title, ElementName=buffer, Mode=Default}"
     
@@ -28,476 +29,529 @@
     TextOptions.TextRenderingMode = "ClearType"
 
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
-    MinWidth="425" MinHeight="225" Width="725" Height="354" Padding="5"
+    MinWidth="425" MinHeight="20" Width="725" Height="354" Padding="5"
     
-    BorderBrush="White" Background="Black"
+    BorderBrush="White" 
+    Background="{Binding Background, ElementName=buffer, FallbackValue=Black}"
+    Foreground="{Binding Foreground, ElementName=buffer, FallbackValue=White}"
     
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
+    Deactivated="OnWindowDeactivated"
 
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
     
     huddled:WindowCommands.EnableCommands="true"
 >
-    <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
-    <Window.Resources>
-        <!--<PoshProps:Settings x:Key="SettingsDS" />-->
-        <PoshConsole:CaptionButtonMarginConverter x:Key="CaptionButtonMarginConverter"/>
-        <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
-        <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
-        <BitmapImage x:Key="exclamationIcon" UriSource="pack://application:,,,/Artwork/exclamation.png" DecodePixelHeight="16" />
-        <BitmapImage x:Key="informationIcon" UriSource="pack://application:,,,/Artwork/information.png" DecodePixelHeight="16" />
-        <BitmapImage x:Key="onTopIcon" UriSource="pack://application:,,,/Artwork/AppOnTop.png" DecodePixelHeight="16" />
-        <BitmapImage x:Key="offTopIcon" UriSource="pack://application:,,,/Artwork/AppOffTop.png" DecodePixelHeight="16" />
+   <!--<VisualStateManager.VisualStateGroups>
+      <VisualStateGroup Name="MouseStates">
+         <VisualState Name="MouseEnter">
+            <Storyboard>
+               <ColorAnimation To="Green" 
+                          Storyboard.TargetName="rectBrush" 
+                          Storyboard.TargetProperty="Color"/>
+            </Storyboard>
+         </VisualState>
+         <VisualState Name="MouseLeave" />
+         <VisualStateGroup.Transitions>
+            <VisualTransition To="MouseLeave" GeneratedDuration="00:00:00"/>
 
-        <Style TargetType="{x:Type PoshControls:ProgressPanel}">
-            <Setter Property="Background" Value="{Binding Background, ElementName=buffer, FallbackValue=#33000000, Mode=Default}" />
-            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=buffer, FallbackValue=White, Mode=Default}" />
-        </Style>
+            <VisualTransition To="MouseEnter" GeneratedDuration="00:00:00.5">
+               <VisualTransition.GeneratedEasingFunction>
+                  <ExponentialEase EasingMode="EaseOut" Exponent="10"/>
+               </VisualTransition.GeneratedEasingFunction>
+            </VisualTransition>
 
-        <Style TargetType="{x:Type ResizeGrip}">
-            <!--x:Key="{x:Type ResizeGrip}"-->
-            <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
-            <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ResizeGrip}">
-                        <Grid SnapsToDevicePixels="True" Background="Transparent">
-                            <Path Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
-        							Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                            <Path Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-        							HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
-        							Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
-            <Setter Property="BorderBrush">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
-                        <GradientStop Offset="0" Color="{Binding BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                        <GradientStop Offset="0.803" Color="{Binding BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="{Binding BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
-        </Style>
-        <SolidColorBrush x:Key="DisabledForegroundBrush2" Color="#FFAAAAAA"/>
+         </VisualStateGroup.Transitions>
+      </VisualStateGroup>
+   </VisualStateManager.VisualStateGroups>-->
+   <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
+   <Window.Resources>
+      <!--<PoshProps:Settings x:Key="SettingsDS" />-->
+      <PoshConsole:CaptionButtonMarginConverter x:Key="CaptionButtonMarginConverter"/>
+      <ObjectDataProvider x:Key="SettingsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Settings}"/>
+      <ObjectDataProvider x:Key="ColorsDS" d:IsDataSource="True" ObjectType="{x:Type Properties:Colors}"/>
+      <BitmapImage x:Key="exclamationIcon" UriSource="pack://application:,,,/Artwork/exclamation.png" DecodePixelHeight="16" />
+      <BitmapImage x:Key="informationIcon" UriSource="pack://application:,,,/Artwork/information.png" DecodePixelHeight="16" />
+      <BitmapImage x:Key="onTopIcon" UriSource="pack://application:,,,/Artwork/AppOnTop.png" DecodePixelHeight="16" />
+      <BitmapImage x:Key="offTopIcon" UriSource="pack://application:,,,/Artwork/AppOffTop.png" DecodePixelHeight="16" />
 
-        
-        <!-- Quake Storyboards: -->
-        <Storyboard x:Key="QuakeHide">
-            <ThicknessAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Border.BorderThickness)" Storyboard.TargetName="EdgeBorder" To="0,0,0,500" />
-            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00" Storyboard.TargetProperty="(Border.BorderBrush)" Storyboard.TargetName="EdgeBorder">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0">
-                    <DiscreteObjectKeyFrame.Value>
-                        <SolidColorBrush Color="Black"/>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
-            <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
-                <DiscreteObjectKeyFrame KeyTime="0">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Hidden</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
+      <Style TargetType="{x:Type PoshControls:ProgressPanel}">
+         <Setter Property="Background" Value="{Binding Background, ElementName=buffer, FallbackValue=#33000000, Mode=Default}" />
+         <Setter Property="Foreground" Value="{Binding Foreground, ElementName=buffer, FallbackValue=White, Mode=Default}" />
+      </Style>
 
-        </Storyboard>
-        <Storyboard x:Key="QuakeShow">
-            <ThicknessAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Border.BorderThickness)" Storyboard.TargetName="EdgeBorder" To="0,0,0,5" />
-            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00" Storyboard.TargetProperty="(Border.BorderBrush)" Storyboard.TargetName="EdgeBorder">
-                <ObjectKeyFrameCollection>
-                    <DiscreteObjectKeyFrame KeyTime="0:0:0">
-                        <DiscreteObjectKeyFrame.Value>
-                            <SolidColorBrush Color="White"/>
-                        </DiscreteObjectKeyFrame.Value>
-                    </DiscreteObjectKeyFrame>
-                </ObjectKeyFrameCollection>
-            </ObjectAnimationUsingKeyFrames>
-            <!--<Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>-->
-            <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="{Binding Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
-            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
-                <DiscreteObjectKeyFrame KeyTime="0">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Visible</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
+      <Style TargetType="{x:Type ResizeGrip}">
+         <!--x:Key="{x:Type ResizeGrip}"-->
+         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+         <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+         <Setter Property="Background" Value="Transparent"/>
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                  <Grid SnapsToDevicePixels="True" Background="Transparent">
+                     <Path Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom"
+                           Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                     <Path Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                           HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom"
+                           Data="M 8,0 L 10,0 L 10,2 L 8,2 Z M 4,4 L 6,4 L 6,6 L 4,6 Z M 8,4 L 10,4 L 10,6 L 8,6 Z M 0,8 L 2,8 L 2,10 L 0,10 Z M 4,8 L 6,8 L 6,10 L 4,10 Z M 8,8 L 10,8 L 10,10 L 8,10 Z"/>
+                  </Grid>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
 
-        </Storyboard>
+      <Style x:Key="WindowBorder" TargetType="{x:Type Border}">
+         <Setter Property="BorderBrush">
+            <Setter.Value>
+               <LinearGradientBrush StartPoint="0,0" EndPoint=".5,1" SpreadMethod="Pad">
+                  <GradientStop Offset="0" Color="{Binding BorderColorTopLeft, Mode=Default, Source={StaticResource SettingsDS}}"/>
+                  <GradientStop Offset="0.803" Color="{Binding BorderColorBottomRight, Mode=Default, Source={StaticResource SettingsDS}}"/>
+               </LinearGradientBrush>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="BorderThickness" Value="{Binding BorderThickness, Mode=Default, Source={StaticResource SettingsDS}}"/>
+      </Style>
+      <SolidColorBrush x:Key="DisabledForegroundBrush2" Color="#FFAAAAAA"/>
 
-        <!-- Window Styles: We let you switch between them -->
-        <Style x:Key="GlassStyle" TargetType="{x:Type Window}">
-            <Setter Property="shell:WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <shell:WindowChrome ResizeBorderThickness="6" CaptionHeight="53" CornerRadius="0,0,0,0" GlassFrameThickness="8,53,8,8"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Window}">
-                        <DockPanel d:DesignWidth="572.873" d:DesignHeight="193.96" Margin="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}">
-                            <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{x:Null}" Cursor="Arrow" DockPanel.Dock="Top" Height="45">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="{Binding WindowCaptionHeight, Source={x:Static shell:SystemParameters2.Current}}"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36" MinWidth="36"/>
-                                    <ColumnDefinition Width="Auto" MinWidth="68"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="{Binding WindowCaptionButtonsLocation.Width, Source={x:Static shell:SystemParameters2.Current}}" />
-                                    <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
-                                </Grid.ColumnDefinitions>
-                                <!--<Button shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                    				VerticalAlignment="Bottom" 
-                    				HorizontalAlignment="Stretch" 
-                    				Background="{x:Null}"
-                    				Margin="0" 
-                    				Padding="8" d:LayoutOverrides="Width" Style="{DynamicResource FocusFreeButtonStyle}"> -->
-                                <Image Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Width="32" Height="32" Margin="2" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                <!-- </Button> -->
-                                <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"  shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="0">
-                                    <Button x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Click="OnTopWindow_Click" BorderThickness="0" Margin="0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
-                                        <Image Height="16" Source="Artwork/AppOnTop.png" Stretch="Fill" Width="16"/>
-                                    </Button>
-                                    <Button x:Name="SkinToggle" ToolTip="Change theme to Metro mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
-                                        <TextBlock Grid.ColumnSpan="2" Grid.Column="2" TextWrapping="NoWrap" Text="Theme" HorizontalAlignment="Center" VerticalAlignment="Center" 
+
+      <!-- Quake Storyboards: -->
+      <Storyboard x:Key="QuakeHide">
+         <ThicknessAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Border.BorderThickness)" Storyboard.TargetName="EdgeBorder" To="0,0,0,500" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00" Storyboard.TargetProperty="(Border.BorderBrush)" Storyboard.TargetName="EdgeBorder">
+            <DiscreteObjectKeyFrame KeyTime="0:0:0">
+               <DiscreteObjectKeyFrame.Value>
+                  <SolidColorBrush Color="Black"/>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Hidden</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+
+      </Storyboard>
+      <Storyboard x:Key="QuakeShow">
+         <ThicknessAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Border.BorderThickness)" Storyboard.TargetName="EdgeBorder" To="0,0,0,5" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00" Storyboard.TargetProperty="(Border.BorderBrush)" Storyboard.TargetName="EdgeBorder">
+            <ObjectKeyFrameCollection>
+               <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                  <DiscreteObjectKeyFrame.Value>
+                     <SolidColorBrush Color="White"/>
+                  </DiscreteObjectKeyFrame.Value>
+               </DiscreteObjectKeyFrame>
+            </ObjectKeyFrameCollection>
+         </ObjectAnimationUsingKeyFrames>
+         <!--<Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>-->
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="{Binding Opacity, Mode=OneWay, Source={StaticResource SettingsDS}}" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Visible</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+
+      </Storyboard>
+      <Storyboard x:Key="QuakeHideMetro">
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Hidden</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+      </Storyboard>
+      
+      <Storyboard x:Key="QuakeShowMetro">
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Visible</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!-- Window Styles: We let you switch between them -->
+      <Style x:Key="GlassStyle" TargetType="{x:Type Window}">
+         <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+               <shell:WindowChrome ResizeBorderThickness="6" CaptionHeight="53" CornerRadius="0,0,0,0" GlassFrameThickness="8,53,8,8"/>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type Window}">
+                  <DockPanel d:DesignWidth="572.873" d:DesignHeight="193.96" Margin="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}">
+                     <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{x:Null}" Cursor="Arrow" DockPanel.Dock="Top" Height="45">
+                        <Grid.RowDefinitions>
+                           <RowDefinition Height="{Binding WindowCaptionHeight, Source={x:Static shell:SystemParameters2.Current}}"/>
+                           <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                           <ColumnDefinition Width="36" MinWidth="36"/>
+                           <ColumnDefinition Width="Auto" MinWidth="68"/>
+                           <ColumnDefinition Width="1*"/>
+                           <ColumnDefinition Width="140"/>
+                           <ColumnDefinition Width="{Binding WindowCaptionButtonsLocation.Width, Source={x:Static shell:SystemParameters2.Current}}" />
+                           <!--<ColumnDefinition MinWidth="20" Width="25"/>-->
+                        </Grid.ColumnDefinitions>
+                        <!--<Button shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                              VerticalAlignment="Bottom" 
+                              HorizontalAlignment="Stretch" 
+                              Background="{x:Null}"
+                              Margin="0" 
+                              Padding="8" d:LayoutOverrides="Width" Style="{DynamicResource FocusFreeButtonStyle}"> -->
+                        <Image Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Width="32" Height="32" Margin="2" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <!-- </Button> -->
+                        <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"  shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="0">
+                           <Button x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Click="OnTopWindow_Click" BorderThickness="0" Margin="0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
+                              <Image Height="16" Source="Artwork/AppOnTop.png" Stretch="Fill" Width="16"/>
+                           </Button>
+                           <Button x:Name="SkinToggle" ToolTip="Change theme to Metro mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
+                              <TextBlock Grid.ColumnSpan="2" Grid.Column="2" TextWrapping="NoWrap" Text="Theme" HorizontalAlignment="Center" VerticalAlignment="Center" 
                                  FontFamily="{DynamicResource {x:Static SystemFonts.CaptionFontFamilyKey}}" 
                                  FontSize="{DynamicResource {x:Static SystemFonts.CaptionFontSizeKey}}" 
                                  FontWeight="{DynamicResource {x:Static SystemFonts.CaptionFontWeightKey}}" 
                                  FontStyle="{DynamicResource {x:Static SystemFonts.CaptionFontStyleKey}}" 
                                  TextDecorations="{DynamicResource {x:Static SystemFonts.CaptionFontTextDecorationsKey}}" 
                                  Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" >
-        								     <TextBlock.Effect>
-        									    <DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="8" RenderingBias="Quality" Direction="0"/>
-        								     </TextBlock.Effect>
-                                        </TextBlock>
-                                    </Button>
-                                </StackPanel>
-                                <!--<StatusBar.BitmapEffect>
+                                   <TextBlock.Effect>
+                                     <DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="8" RenderingBias="Quality" Direction="0"/>
+                                   </TextBlock.Effect>
+                              </TextBlock>
+                           </Button>
+                        </StackPanel>
+                        <!--<StatusBar.BitmapEffect>
                        <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
                    </StatusBar.BitmapEffect>-->
-                                <GridSplitter Grid.Column="2" MinWidth="2" Width="2" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,2" shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Bottom" Foreground="{DynamicResource TextBoxBorderBrush}" Grid.Row="0" Grid.RowSpan="2" Height="{Binding ActualHeight, ElementName=Search}"/>
-                                <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="3" x:Name="Search" Text="Search" 
-        								shell:WindowChrome.IsHitTestVisibleInChrome="True"
-        								HorizontalAlignment="Stretch" BorderThickness="0" BorderBrush="{x:Null}" Background="#5DFFFFFF" VerticalAlignment="Bottom" 
-        								PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"
-        								Padding="4,0,22,0" Width="Auto" MinWidth="100" Margin="0,0,0,2" Panel.ZIndex="2" FontSize="13.333" MaxLines="1" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" />
-                                <Button Grid.Column="3" Panel.ZIndex="3" Foreground="{TemplateBinding Foreground}" Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" Margin="2" Padding="2" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" >
-                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
-                                        <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Height="8" Margin="0" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource GrayBrush7}" UseLayoutRounding="False" VerticalAlignment="Bottom" Width="4">
-                                            <Rectangle.RenderTransform>
-                                                <RotateTransform Angle="-45"/>
-                                            </Rectangle.RenderTransform>
-                                        </Rectangle>
-                                        <Ellipse Fill="Transparent" Margin="0,0,1,3" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
-                                    </Grid>
-                                </Button>
-                                <TextBlock x:Name="Title" Grid.ColumnSpan="2" Grid.Column="2" Margin="0,-8,0,0" TextWrapping="NoWrap" Text="{TemplateBinding Title}" HorizontalAlignment="Center" VerticalAlignment="Top" Padding="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}" FontFamily="{DynamicResource {x:Static SystemFonts.CaptionFontFamilyKey}}" FontSize="{DynamicResource {x:Static SystemFonts.CaptionFontSizeKey}}" FontWeight="{DynamicResource {x:Static SystemFonts.CaptionFontWeightKey}}" FontStyle="{DynamicResource {x:Static SystemFonts.CaptionFontStyleKey}}" TextDecorations="{DynamicResource {x:Static SystemFonts.CaptionFontTextDecorationsKey}}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontStretch="Normal" >
-        								<TextBlock.Effect>
-        									<DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="8" RenderingBias="Quality" Direction="0"/>
-        								</TextBlock.Effect>
-                                </TextBlock>
-                            </Grid>
-                            <Grid x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{TemplateBinding Background}" >
-                                <ContentPresenter Content="{TemplateBinding Content}" />
-                            </Grid>
-                        </DockPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                        <GridSplitter Grid.Column="2" MinWidth="2" Width="2" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,2" shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Bottom" Foreground="{DynamicResource TextBoxBorderBrush}" Grid.Row="0" Grid.RowSpan="2" Height="{Binding ActualHeight, ElementName=Search}"/>
+                        <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="3" x:Name="Search" Text="Search" 
+                              shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                              HorizontalAlignment="Stretch" BorderThickness="0" BorderBrush="{x:Null}" Background="#5DFFFFFF" VerticalAlignment="Bottom" 
+                              PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"
+                              Padding="4,0,22,0" Width="Auto" MinWidth="100" Margin="0,0,0,2" Panel.ZIndex="2" FontSize="13.333" MaxLines="1" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" />
+                        <Button Grid.Column="3" Panel.ZIndex="3" Foreground="{TemplateBinding Foreground}" Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" Margin="2" Padding="2" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" >
+                           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+                              <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Height="8" Margin="0" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource GrayBrush7}" UseLayoutRounding="False" VerticalAlignment="Bottom" Width="4">
+                                 <Rectangle.RenderTransform>
+                                    <RotateTransform Angle="-45"/>
+                                 </Rectangle.RenderTransform>
+                              </Rectangle>
+                              <Ellipse Fill="Transparent" Margin="0,0,1,3" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
+                           </Grid>
+                        </Button>
+                        <TextBlock x:Name="Title" Grid.ColumnSpan="2" Grid.Column="2" Margin="0,-8,0,0" TextWrapping="NoWrap" Text="{TemplateBinding Title}" HorizontalAlignment="Center" VerticalAlignment="Top" Padding="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}" FontFamily="{DynamicResource {x:Static SystemFonts.CaptionFontFamilyKey}}" FontSize="{DynamicResource {x:Static SystemFonts.CaptionFontSizeKey}}" FontWeight="{DynamicResource {x:Static SystemFonts.CaptionFontWeightKey}}" FontStyle="{DynamicResource {x:Static SystemFonts.CaptionFontStyleKey}}" TextDecorations="{DynamicResource {x:Static SystemFonts.CaptionFontTextDecorationsKey}}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontStretch="Normal" >
+                              <TextBlock.Effect>
+                                 <DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="8" RenderingBias="Quality" Direction="0"/>
+                              </TextBlock.Effect>
+                        </TextBlock>
+                     </Grid>
+                     <Grid x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{TemplateBinding Background}" >
+                        <ContentPresenter Content="{TemplateBinding Content}" />
+                     </Grid>
+                  </DockPanel>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
 
-        <Style x:Key="MetroStyle" TargetType="{x:Type Window}">
-            <Setter Property="Padding" Value="3"/>
-            <Setter Property="BorderThickness" Value="3" />
-            <Setter Property="WindowStyle" Value="None" />
-            <Setter Property="shell:WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <shell:WindowChrome ResizeBorderThickness="6" CaptionHeight="48" CornerRadius="0,0,0,0" GlassFrameThickness="1"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Window}" >
-                        <!-- Margin="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}" -->
-                        <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"  Padding="{TemplateBinding Padding}">
-                            <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" Background="{TemplateBinding Background}">
-                                <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0" MaxHeight="28" DockPanel.Dock="Top" >
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="230"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Path Data="M0.33333333,2.6666667 L128.66667,3.3333333" StrokeStartLineCap="Square" Stretch="Fill" StrokeEndLineCap="Square" StrokeThickness="7" Height="7" VerticalAlignment="Top">
-                                        <Path.Stroke>
-                                            <LinearGradientBrush EndPoint="0.001,0.5" StartPoint="1.002,0.5">
-                                                <GradientStop Color="{StaticResource HighlightDarkColor}" Offset="0"/>
-                                                <GradientStop Color="#FF5FC316" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Path.Stroke>
-                                        <Path.Fill>
-                                            <SolidColorBrush Color="{DynamicResource AccentColor}"/>
-                                        </Path.Fill>
-                                    </Path>
-                                    <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
-                                        <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top"  BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
-                                        <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
-                                    </StackPanel>
-                                    <!--<StatusBar.BitmapEffect>
+      <Style x:Key="MetroStyle" TargetType="{x:Type Window}">
+         <Setter Property="Padding" Value="3"/>
+         <Setter Property="BorderThickness" Value="3" />
+         <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+               <shell:WindowChrome ResizeBorderThickness="6" CaptionHeight="48" CornerRadius="0,0,0,0" GlassFrameThickness="1"/>
+            </Setter.Value>
+         </Setter>
+         
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type Window}" >
+                  <!-- Margin="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}" -->
+                  <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"  Padding="{TemplateBinding Padding}">
+                     <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" Background="{TemplateBinding Background}">
+                        <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0" MaxHeight="28" DockPanel.Dock="Top" >
+                           <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="Auto"/>
+                              <ColumnDefinition Width="*"/>
+                              <ColumnDefinition Width="230"/>
+                           </Grid.ColumnDefinitions>
+                           <Path Data="M0.33333333,2.6666667 L128.66667,3.3333333" StrokeStartLineCap="Square" Stretch="Fill" StrokeEndLineCap="Square" StrokeThickness="7" Height="7" VerticalAlignment="Top">
+                              <Path.Stroke>
+                                 <LinearGradientBrush EndPoint="0.001,0.5" StartPoint="1.002,0.5">
+                                    <GradientStop Color="{StaticResource HighlightDarkColor}" Offset="0"/>
+                                    <GradientStop Color="#FF5FC316" Offset="1"/>
+                                 </LinearGradientBrush>
+                              </Path.Stroke>
+                              <Path.Fill>
+                                 <SolidColorBrush Color="{DynamicResource AccentColor}"/>
+                              </Path.Fill>
+                           </Path>
+                           <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
+                              <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top"  BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                              <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                           </StackPanel>
+                           <!--<StatusBar.BitmapEffect>
                        <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
                    </StatusBar.BitmapEffect>-->
-                                    <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-                                    <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="2" x:Name="Search" Text="Search" 
-        									Margin="0,0,75,0" Padding="4,0,22,0" MinHeight="24"
-        									Width="Auto" MinWidth="150"  shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Stretch" 
-        									BorderThickness="0" BorderBrush="{x:Null}" 
-        									PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
-                                    <Button Style="{DynamicResource SimpleButton}" Grid.Column="2" x:Name="SearchButton" 
-        									Margin="0,0,75,0" Foreground="{TemplateBinding Foreground}" 
-        									Panel.ZIndex="3" shell:WindowChrome.IsHitTestVisibleInChrome="True"
-        									Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" >
-                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
-                                            <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,1.924,1.261" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{TemplateBinding Foreground}" UseLayoutRounding="False" Width="4" Height="6.022" VerticalAlignment="Bottom">
-                                                <Rectangle.RenderTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform/>
-                                                        <SkewTransform/>
-                                                        <RotateTransform Angle="-46.827"/>
-                                                        <TranslateTransform/>
-                                                    </TransformGroup>
-                                                </Rectangle.RenderTransform>
-                                            </Rectangle>
-                                            <Ellipse Margin="0,1.667,3.333,3.166" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
-                                        </Grid>
-                                    </Button>
+                           <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                           <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="2" x:Name="Search" Text="Search" 
+                                 Margin="0,0,75,0" Padding="4,0,22,0" MinHeight="24"
+                                 Width="Auto" MinWidth="150"  shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Stretch" 
+                                 BorderThickness="0" BorderBrush="{x:Null}" 
+                                 PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
+                           <Button Style="{DynamicResource SimpleButton}" Grid.Column="2" x:Name="SearchButton" 
+                                 Margin="0,0,75,0" Foreground="{TemplateBinding Foreground}" 
+                                 Panel.ZIndex="3" shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" >
+                              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+                                 <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,1.924,1.261" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{TemplateBinding Foreground}" UseLayoutRounding="False" Width="4" Height="6.022" VerticalAlignment="Bottom">
+                                    <Rectangle.RenderTransform>
+                                       <TransformGroup>
+                                          <ScaleTransform/>
+                                          <SkewTransform/>
+                                          <RotateTransform Angle="-46.827"/>
+                                          <TranslateTransform/>
+                                       </TransformGroup>
+                                    </Rectangle.RenderTransform>
+                                 </Rectangle>
+                                 <Ellipse Margin="0,1.667,3.333,3.166" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
+                              </Grid>
+                           </Button>
 
-                                    <!--Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Click="Minimize_Click" -->
-                                    <StackPanel Grid.Column="2" x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{x:Null}" >
-                                        <Button Cursor="Arrow" x:Name="MinimizeButton" 
+                           <!--Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Click="Minimize_Click" -->
+                           <StackPanel Grid.Column="2" x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{x:Null}" >
+                              <Button Cursor="Arrow" x:Name="MinimizeButton" 
                                                 Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
                                                 VerticalAlignment="Stretch" Panel.ZIndex="3"
                                                 Command="huddled:WindowCommands.Minimize"
                                                 ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"
                                                 Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
                                                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
-                                            <Grid>
-                                                <Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
-                                            </Grid>
-                                        </Button>
-                                        <!--Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Click="Restore_Click" -->
-                                        <Button Cursor="Arrow" ToolTip="Maximize" x:Name="MaximizeButton"
+                                 <Grid>
+                                    <Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
+                                 </Grid>
+                              </Button>
+                              <!--Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Click="Restore_Click" -->
+                              <Button Cursor="Arrow" ToolTip="Maximize" x:Name="MaximizeButton"
                                                     Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
                                                     Command="huddled:WindowCommands.Restore"
                                                     Style="{StaticResource SimpleButton}"  shell:WindowChrome.IsHitTestVisibleInChrome="True"
                                                     VerticalAlignment="Stretch" 
                                                     Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" >
-                                            <Grid>
-                                                <Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Margin="2"/>
-                                                <Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Height="6" Margin="2"/>
-                                            </Grid>
-                                        </Button>
-                                        <!--Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Click="Close_Click" -->
-                                        <Button Cursor="Arrow" ToolTip="Close" x:Name="CloseButton"
+                                 <Grid>
+                                    <Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Margin="2"/>
+                                    <Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Height="6" Margin="2"/>
+                                 </Grid>
+                              </Button>
+                              <!--Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Click="Close_Click" -->
+                              <Button Cursor="Arrow" ToolTip="Close" x:Name="CloseButton"
                                                     Foreground="{TemplateBinding Foreground}"  Background="{TemplateBinding Background}"
                                                     Command="huddled:WindowCommands.Close"
                                                 Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
                                                 VerticalAlignment="Stretch" 
                                                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
-                                            <Grid>
-                                                <Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
-                                                <Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
-                                            </Grid>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                                <ContentPresenter Content="{TemplateBinding Content}"/>
-                            </DockPanel>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                                 <Grid>
+                                    <Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+                                    <Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+                                 </Grid>
+                              </Button>
+                           </StackPanel>
+                        </Grid>
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                     </DockPanel>
+                  </Border>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
 
-        <Style x:Key="QuakeTopStyle" TargetType="{x:Type Window}" BasedOn="{StaticResource ResourceKey=MetroStyle}">
-            <Setter Property="shell:WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <shell:WindowChrome ResizeBorderThickness="0,0,0,6" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="-1"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="0,0,0,3" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Window}">
-                        <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
-                            <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" >
-                                <ContentPresenter Content="{TemplateBinding Content}"/>
-                            </DockPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsActive" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard Storyboard="{StaticResource QuakeShow}" />
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard Storyboard="{StaticResource QuakeHide}" />
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="QuakeBottomStyle" TargetType="{x:Type Window}" BasedOn="{StaticResource ResourceKey=QuakeTopStyle}">
-            <Setter Property="BorderThickness" Value="0,3,0,0" />
-            <Setter Property="shell:WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <shell:WindowChrome ResizeBorderThickness="0,0,0,6" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="0,1,0,0"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-    <i:Interaction.Behaviors>
-        <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
-        <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" />
-        <!-- WindowStateChanged="OnWindowStateChanged" -->
-        <huddled:HotkeysBehavior>
-            <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win" />
-            <!--Command="huddled:GlobalCommands.ToggleWindow"-->
-            <KeyBinding Command="huddled:WindowCommands.Close"    Key="F4" Modifiers="Win" />
-            <KeyBinding Command="huddled:WindowCommands.Hide"     Key="S"  Modifiers="Win+Shift" />
-            <KeyBinding Command="huddled:WindowCommands.Show"     Key="S"  Modifiers="Win" />
-            <KeyBinding Command="huddled:WindowCommands.Activate" Key="C"  Modifiers="Win+Shift" />
-        </huddled:HotkeysBehavior>
-        <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
-    </i:Interaction.Behaviors>
+      <Style x:Key="QuakeTopStyle" TargetType="{x:Type Window}" BasedOn="{StaticResource ResourceKey=MetroStyle}">
+         <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+               <shell:WindowChrome ResizeBorderThickness="0,0,0,6" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="-1"/>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="BorderThickness" Value="0,0,0,3" />
+         <Setter Property="Template">
+            <Setter.Value>
+               <ControlTemplate TargetType="{x:Type Window}">
+                  <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                     <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" >
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                     </DockPanel>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                     <Trigger Property="IsActive" Value="True">
+                        <!--<Trigger.EnterActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeShowMetro}" />
+                        </Trigger.EnterActions>-->
+                        <Trigger.ExitActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeHideMetro}" />
+                        </Trigger.ExitActions>
+                     </Trigger>
+                  </ControlTemplate.Triggers>
+               </ControlTemplate>
+            </Setter.Value>
+         </Setter>
+      </Style>
+      <Style x:Key="QuakeBottomStyle" TargetType="{x:Type Window}" BasedOn="{StaticResource ResourceKey=QuakeTopStyle}">
+         <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+               <shell:WindowChrome ResizeBorderThickness="0,6,0,0" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="-1"/>
+            </Setter.Value>
+         </Setter>
+         <Setter Property="BorderThickness" Value="0,3,0,0" />
+         <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+               <shell:WindowChrome ResizeBorderThickness="0,0,0,6" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="0,1,0,0"/>
+            </Setter.Value>
+         </Setter>
+      </Style>
+   </Window.Resources>
+   <i:Interaction.Behaviors>
+      <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
+      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" />
+      <!-- WindowStateChanged="OnWindowStateChanged" -->
+      <huddled:HotkeysBehavior>
+         <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win+Shift" />
+         <!--Command="huddled:GlobalCommands.ToggleWindow"-->
+         <KeyBinding Command="huddled:WindowCommands.Close"    Key="F4" Modifiers="Win" />
+         <KeyBinding Command="huddled:WindowCommands.Hide"     Key="S"  Modifiers="Win+Shift" />
+         <KeyBinding Command="huddled:WindowCommands.Show"     Key="S"  Modifiers="Win" />
+         <KeyBinding Command="huddled:WindowCommands.Activate" Key="C"  Modifiers="Win" />
+      </huddled:HotkeysBehavior>
+      <!--<huddled:CustomChrome CornerRadius="0" ClientBorderThickness="8,58,8,8" CaptionHeight="24" UseGlassFrame="True" />-->
+   </i:Interaction.Behaviors>
 
 
-    <!--
+   <!--
     ShowInTaskbar="{Binding Path=ShowInTaskbar, Source={StaticResource SettingsDS}, Mode=Default}"
     Opacity="{Binding Path=Opacity, Mode=Default, Source={StaticResource SettingsDS}}"
     Left="{Binding Path=WindowLeft, Mode=Default, Source={StaticResource SettingsDS}}"
     Top="{Binding Path=WindowTop, Mode=Default, Source={StaticResource SettingsDS}}"
     Topmost="{Binding Path=AlwaysOnTop, Mode=Default, Source={StaticResource SettingsDS}}"
     -->
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
-        <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
+   <Window.CommandBindings>
+      <CommandBinding Command="ApplicationCommands.Stop" Executed="OnHandleControlC" CanExecute="OnCanHandleControlC"/>
+      <!--<CommandBinding Command="ApplicationCommands.Copy" Executed="HandleControlC" CanExecute="CanHandleControlC"/>-->
 
-        <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
-        <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
-        <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
-        <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
-        <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
-        <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
-    </Window.CommandBindings>
-    <Window.InputBindings>
-        <!-- 
+      <!--<CommandBinding Command="ApplicationCommands.ContextMenu" Executed="ContextMenu" />-->
+      <CommandBinding Command="NavigationCommands.Zoom" Executed="OnHandleSetZoom" />
+      <CommandBinding Command="NavigationCommands.IncreaseZoom" Executed="OnHandleIncreaseZoom" />
+      <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
+      <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
+      <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
+   </Window.CommandBindings>
+   <Window.InputBindings>
+      <!-- 
         <KeyBinding Command="ApplicationCommands.ContextMenu" Key="F7" Modifiers="Control" />
         -->
 
-        <!-- Default Binding -->
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
-        <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
-        <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
+      <!-- Default Binding -->
+      <KeyBinding Command="ApplicationCommands.Stop" Key="Escape" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
+      <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+      <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
 
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="Add" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="Subtract" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.DecreaseZoom" Key="OemMinus" Modifiers="Control" />
 
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
-        <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
-    </Window.InputBindings>
-    <Window.ShowInTaskbar>
-        <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.ShowInTaskbar>
-    <Window.Opacity>
-        <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Opacity>
-    <Window.Left>
-        <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Left>
-    <Window.Top>
-        <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Top>
-    <Window.Topmost>
-        <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
-    </Window.Topmost>
-    <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
-    <!--<Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">-->
-    <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Background="#00000000" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <!--<Grid.RowDefinitions>
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="100" Key="D0" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="110" Key="D1" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="120" Key="D2" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="130" Key="D3" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="140" Key="D4" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="150" Key="D5" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="160" Key="D6" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="170" Key="D7" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="80"  Key="D8" Modifiers="Control" />
+      <KeyBinding Command="NavigationCommands.Zoom" CommandParameter="90"  Key="D9" Modifiers="Control" />
+   </Window.InputBindings>
+   <Window.ShowInTaskbar>
+      <Binding Path="ShowInTaskbar" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.ShowInTaskbar>
+   <Window.Opacity>
+      <Binding Path="Opacity" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Opacity>
+   <Window.Left>
+      <Binding Path="WindowLeft" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Left>
+   <Window.Top>
+      <Binding Path="WindowTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Top>
+   <Window.Topmost>
+      <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
+   </Window.Topmost>
+   <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
+   <!--<Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">-->
+   <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Background="#00000000" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}">
+      <Grid.ColumnDefinitions>
+         <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <!--<Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>-->
-        <!--<Border x:Name="BackgroundBorder" />-->
+      <!--<Border x:Name="BackgroundBorder" />-->
 
-        <Grid x:Name="ConsoleArea" Background="Transparent" d:LayoutOverrides="Width" Margin="0,0,2,0">
-            <Grid.RowDefinitions>
-                <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
-                <!--progress-->
-                <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
-                <!--console-->
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel x:Name="progress" Grid.Row="1"  Grid.Column="1" Panel.ZIndex="1"
+      <Grid x:Name="ConsoleArea" Background="Transparent" d:LayoutOverrides="Width" Margin="0,0,2,0">
+         <Grid.RowDefinitions>
+            <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
+            <!--progress-->
+            <RowDefinition Height="Auto" MaxHeight="300" MinHeight="0"/>
+            <!--console-->
+            <RowDefinition Height="*"/>
+         </Grid.RowDefinitions>
+         <StackPanel x:Name="progress" Grid.Row="1"  Grid.Column="1" Panel.ZIndex="1"
                 Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
                 Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
-            <huddle:ConsoleControl x:Name="buffer" Grid.Row="1" Grid.Column="1" 
+         <huddle:ConsoleControl x:Name="buffer" Grid.Row="1" Grid.Column="1" 
                 Title="PoshConsole" IsSelectionEnabled="True"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
                 FontSize="{Binding FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
                 FontFamily="{Binding FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"
                 Foreground="{DynamicResource ForegroundBrush}" Background="{Binding Black}" >
-                <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                <FlowDocument>
-                    <FlowDocument.Resources>
-                        <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-                        <Style x:Key="POSHFont">
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
-                        </Style>
-                        <Style x:Key="ConsoleFont">
-                            <Setter Property="TextElement.FontSize" Value="12" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-                        </Style>
-                        <Style x:Key="BannerFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                        <Style x:Key="SigFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                    </FlowDocument.Resources>
-                    <Paragraph ClearFloaters="Both" />
-                </FlowDocument>
-            </huddle:ConsoleControl>
-        </Grid>
-    </Grid>
-    <!--</Border>-->
+            <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+            <FlowDocument>
+               <FlowDocument.Resources>
+                  <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
+                  <Style x:Key="POSHFont">
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#QUAKE" />
+                  </Style>
+                  <Style x:Key="ConsoleFont">
+                     <Setter Property="TextElement.FontSize" Value="12" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
+                  </Style>
+                  <Style x:Key="BannerFont">
+                     <Setter Property="TextElement.FontSize" Value="20" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
+                     <Setter Property="Typography.ContextualSwashes" Value="1" />
+                  </Style>
+                  <Style x:Key="SigFont">
+                     <Setter Property="TextElement.FontSize" Value="20" />
+                     <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
+                     <Setter Property="Typography.ContextualSwashes" Value="1" />
+                  </Style>
+               </FlowDocument.Resources>
+               <Paragraph ClearFloaters="Both" />
+            </FlowDocument>
+         </huddle:ConsoleControl>
+      </Grid>
+   </Grid>
+   <!--</Border>-->
 </Window>
