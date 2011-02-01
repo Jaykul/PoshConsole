@@ -684,16 +684,16 @@ namespace PoshConsole
       private bool _dockingStyled = false;
       protected override sealed void OnStyleChanged(Style oldStyle, Style newStyle)
       {
-         if (newStyle == Resources["MetroStyle"] && !_dockingStyled)
-         {
-            DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).AddValueChanged(_Snapto, OnDockedStateChange);
-            _dockingStyled = true;
-         }
+         if (this.IsInitialized) {
+            if (newStyle == Resources["MetroStyle"] && !_dockingStyled) {
+               DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).AddValueChanged(_Snapto, OnDockedStateChange);
+               _dockingStyled = true;
+            }
 
-         if (oldStyle == Resources["MetroStyle"] && _dockingStyled)
-         {
-            DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).RemoveValueChanged(_Snapto, OnDockedStateChange);
-            _dockingStyled = false;
+            if (oldStyle == Resources["MetroStyle"] && _dockingStyled) {
+               DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).RemoveValueChanged(_Snapto, OnDockedStateChange);
+               _dockingStyled = false;
+            }
          }
          base.OnStyleChanged(oldStyle, newStyle);
       }
