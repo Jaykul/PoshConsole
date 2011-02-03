@@ -140,7 +140,7 @@ namespace Huddled.WPF.Controls
       }
       protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
       {
-         if (Properties.Settings.Default.CopyOnMouseSelect && Selection.Text.Length > 0)
+         if (Properties.Settings.Default.CopyOnMouseSelect && Selection != null && Selection.Text.Length > 0)
          {
             try
             {

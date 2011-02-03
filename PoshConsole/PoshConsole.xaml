@@ -43,6 +43,7 @@
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
     
     huddled:WindowCommands.EnableCommands="true"
+    huddled:SnapToBehavior.DockedStateChanged="DockedStateChanged"
 >
    <!--<VisualStateManager.VisualStateGroups>
       <VisualStateGroup Name="MouseStates">
@@ -158,7 +159,7 @@
          </ObjectAnimationUsingKeyFrames>
 
       </Storyboard>
-      <Storyboard x:Key="QuakeHideMetro">
+      <Storyboard x:Key="QuakeHideTopMetro">
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
          <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
@@ -169,8 +170,19 @@
             </DiscreteObjectKeyFrame>
          </ObjectAnimationUsingKeyFrames>
       </Storyboard>
-      
-      <Storyboard x:Key="QuakeShowMetro">
+      <Storyboard x:Key="QuakeHideBottomMetro">
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" To="0.0" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Hidden</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+      </Storyboard>      
+      <Storyboard x:Key="QuakeShowTopMetro">
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
          <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
@@ -181,7 +193,18 @@
             </DiscreteObjectKeyFrame>
          </ObjectAnimationUsingKeyFrames>
       </Storyboard>
-
+      <Storyboard x:Key="QuakeShowBottomMetro">
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" To="100.0" />
+         <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
+            <DiscreteObjectKeyFrame KeyTime="0">
+               <DiscreteObjectKeyFrame.Value>
+                  <Visibility>Visible</Visibility>
+               </DiscreteObjectKeyFrame.Value>
+            </DiscreteObjectKeyFrame>
+         </ObjectAnimationUsingKeyFrames>
+      </Storyboard>
       <!-- Window Styles: We let you switch between them -->
       <Style x:Key="GlassStyle" TargetType="{x:Type Window}">
          <Setter Property="shell:WindowChrome.WindowChrome">
@@ -215,10 +238,10 @@
                         <Image Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Width="32" Height="32" Margin="2" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                         <!-- </Button> -->
                         <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"  shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="0">
-                           <Button x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Click="OnTopWindow_Click" BorderThickness="0" Margin="0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
+                           <Button x:Name="OnTopWindow" ToolTip="Toggle Always On Top" Click="OnTopWindowClick" BorderThickness="0" Margin="0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
                               <Image Height="16" Source="Artwork/AppOnTop.png" Stretch="Fill" Width="16"/>
                            </Button>
-                           <Button x:Name="SkinToggle" ToolTip="Change theme to Metro mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
+                           <Button x:Name="SkinToggle" ToolTip="Change theme to Metro mode" Click="SkinToggleClick" Background="#00000000" BorderThickness="0" Margin="0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}">
                               <TextBlock Grid.ColumnSpan="2" Grid.Column="2" TextWrapping="NoWrap" Text="Theme" HorizontalAlignment="Center" VerticalAlignment="Center" 
                                  FontFamily="{DynamicResource {x:Static SystemFonts.CaptionFontFamilyKey}}" 
                                  FontSize="{DynamicResource {x:Static SystemFonts.CaptionFontSizeKey}}" 
@@ -239,7 +262,7 @@
                         <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="3" x:Name="Search" Text="Search" 
                               shell:WindowChrome.IsHitTestVisibleInChrome="True"
                               HorizontalAlignment="Stretch" BorderThickness="0" BorderBrush="{x:Null}" Background="#5DFFFFFF" VerticalAlignment="Bottom" 
-                              PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus"
+                              PreviewKeyDown="SearchPreviewKeyDown" GotFocus="SearchGotFocus"
                               Padding="4,0,22,0" Width="Auto" MinWidth="100" Margin="0,0,0,2" Panel.ZIndex="2" FontSize="13.333" MaxLines="1" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" />
                         <Button Grid.Column="3" Panel.ZIndex="3" Foreground="{TemplateBinding Foreground}" Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" Margin="2" Padding="2" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" >
                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
@@ -300,7 +323,7 @@
                            </Path>
                            <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
                               <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top"  BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
-                              <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggle_Click" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                              <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggleClick" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
                            </StackPanel>
                            <!--<StatusBar.BitmapEffect>
                        <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
@@ -310,7 +333,7 @@
                                  Margin="0,0,75,0" Padding="4,0,22,0" MinHeight="24"
                                  Width="Auto" MinWidth="150"  shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Stretch" 
                                  BorderThickness="0" BorderBrush="{x:Null}" 
-                                 PreviewKeyDown="Search_PreviewKeyDown" GotFocus="Search_GotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
+                                 PreviewKeyDown="SearchPreviewKeyDown" GotFocus="SearchGotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
                            <Button Style="{DynamicResource SimpleButton}" Grid.Column="2" x:Name="SearchButton" 
                                  Margin="0,0,75,0" Foreground="{TemplateBinding Foreground}" 
                                  Panel.ZIndex="3" shell:WindowChrome.IsHitTestVisibleInChrome="True"
@@ -394,12 +417,13 @@
                   </Border>
                   <ControlTemplate.Triggers>
                      <Trigger Property="IsActive" Value="True">
-                        <!--<Trigger.EnterActions>
-                           <BeginStoryboard Storyboard="{StaticResource QuakeShowMetro}" />
-                        </Trigger.EnterActions>-->
+                        <!-- Don't hook it up here, because we need to alter it each time -
+                        <Trigger.EnterActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeShowTopMetro}" />
+                        </Trigger.EnterActions>
                         <Trigger.ExitActions>
-                           <BeginStoryboard Storyboard="{StaticResource QuakeHideMetro}" />
-                        </Trigger.ExitActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeHideTopMetro}" />
+                        </Trigger.ExitActions>-->
                      </Trigger>
                   </ControlTemplate.Triggers>
                </ControlTemplate>
@@ -413,16 +437,34 @@
             </Setter.Value>
          </Setter>
          <Setter Property="BorderThickness" Value="0,3,0,0" />
-         <Setter Property="shell:WindowChrome.WindowChrome">
+         <Setter Property="Template">
             <Setter.Value>
-               <shell:WindowChrome ResizeBorderThickness="0,0,0,6" CaptionHeight="22" CornerRadius="0,0,0,0" GlassFrameThickness="0,1,0,0"/>
+               <ControlTemplate TargetType="{x:Type Window}">
+                  <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                     <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" >
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                     </DockPanel>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                     <Trigger Property="IsActive" Value="True">
+                        <!-- Don't hook it up here, because we need to alter it each time -
+                        <Trigger.EnterActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeShowBottomMetro}" />
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                           <BeginStoryboard Storyboard="{StaticResource QuakeHideBottomMetro}" />
+                        </Trigger.ExitActions>-->
+                     </Trigger>
+                  </ControlTemplate.Triggers>
+               </ControlTemplate>
             </Setter.Value>
          </Setter>
+
       </Style>
    </Window.Resources>
    <i:Interaction.Behaviors>
       <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
-      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" />
+      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" /> <!--DockedStateChanged="DockedStateChanged"-->
       <!-- WindowStateChanged="OnWindowStateChanged" -->
       <huddled:HotkeysBehavior>
          <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win+Shift" />
@@ -521,7 +563,7 @@
                 Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
                 Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
          <huddle:ConsoleControl x:Name="buffer" Grid.Row="1" Grid.Column="1" 
-                Title="PoshConsole" IsSelectionEnabled="True"
+                Title="PoshConsole" IsSelectionEnabled="False"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
                 FontSize="{Binding FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
                 FontFamily="{Binding FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"

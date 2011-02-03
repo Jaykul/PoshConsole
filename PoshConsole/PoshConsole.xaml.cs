@@ -13,35 +13,27 @@ using System.Windows.Interactivity;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using Huddled.Interop;
 using Huddled.Wpf;
-using Huddled.Interop.Windows;
 using PoshConsole.Controls;
 using PoshConsole.Host;
 using PoshConsole.Properties;
-using System.ComponentModel;
 
-namespace PoshConsole
-{
+namespace PoshConsole {
 
    /// <summary>
    /// Implementation of a WPF host for PowerShell
    /// </summary>
-   public partial class PoshConsoleWindow : System.Windows.Window, IPSUI
-   {
+   public partial class PoshConsoleWindow : IPSUI {
 
       #region  Fields (11)
 
 
       private static DependencyProperty _consoleProperty;
-      static PoshConsoleWindow()
-      {
-         try
-         {
+      static PoshConsoleWindow() {
+         try {
             _consoleProperty = DependencyProperty.Register("Console", typeof(IPoshConsoleControl), typeof(PoshConsoleWindow));
          }
-         catch (Exception ex)
-         {
+         catch (Exception ex) {
             Trace.WriteLine(ex.Message);
          }
       }
@@ -55,13 +47,12 @@ namespace PoshConsole
 
       #region  Constructors (1)
 
-      private TextBox Search;
+      private TextBox _search;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="PoshConsole"/> class.
       /// </summary>
-      public PoshConsoleWindow()
-      {
+      public PoshConsoleWindow() {
          Cursor = Cursors.AppStarting;
 
          // Create the host and runspace instances for this interpreter. Note that
@@ -70,7 +61,7 @@ namespace PoshConsole
          InitializeComponent();
 
          // "buffer" is defined in the XAML
-         this.Console = buffer;
+         Console = buffer;
 
          Style = (Style)Resources["MetroStyle"];
 
@@ -80,10 +71,9 @@ namespace PoshConsole
          buffer.Finished += (source, results) =>
             Dispatcher.BeginInvoke(
                DispatcherPriority.Background,
-               (Action)delegate
-                  {
+               (Action)delegate {
                      progress.Children.Clear();
-                     progressRecords.Clear();
+                     ProgressRecords.Clear();
                      Cursor = Cursors.Arrow;
                   });
       }
@@ -94,10 +84,9 @@ namespace PoshConsole
 
       #region  Properties (1)
 
-      public IPoshConsoleControl Console
-      {
-         get { return ((IPoshConsoleControl)base.GetValue(_consoleProperty)); }
-         set { base.SetValue(_consoleProperty, value); }
+      public IPoshConsoleControl Console {
+         get { return ((IPoshConsoleControl)GetValue(_consoleProperty)); }
+         set { SetValue(_consoleProperty, value); }
       }
 
       #endregion
@@ -107,9 +96,9 @@ namespace PoshConsole
       //  Delegates (5)
 
       // Universal Delegates
-      internal delegate void PassDelegate<T>(T input);
-      internal delegate RET PassReturnDelegate<T, RET>(T input);
-      internal delegate RET ReturnDelegate<RET>();
+      internal delegate void PassDelegate<in T>(T input);
+      internal delegate TRet PassReturnDelegate<in T, out TRet>(T input);
+      internal delegate TRet ReturnDelegate<out TRet>();
       private delegate void SettingsChangedDelegate(object sender, System.ComponentModel.PropertyChangedEventArgs e);
       private delegate void VoidVoidDelegate();
 
@@ -123,32 +112,28 @@ namespace PoshConsole
       /// Raises the <see cref="E:System.Windows.Window.Closing"></see> event, and executes the ShutdownProfile
       /// </summary>
       /// <param name="e">A <see cref="T:System.ComponentModel.CancelEventArgs"></see> that contains the event data.</param>
-      protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-      {
+      protected override void OnClosing(System.ComponentModel.CancelEventArgs e) {
          // // This doesn't fix the COM RCW problem
          // Dispatcher.Invoke((Action)(() => { _host.KillConsole(); }));
          _host.KillConsole();
          base.OnClosing(e);
       }
 
-      private HotkeysBehavior _Hotkeys;
-      private SnapToBehavior _Snapto;
+      private HotkeysBehavior _hotkeys;
 
 
       //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
       //{
       //    RecalculateSizes();
       //}
-      protected override void OnGotFocus(RoutedEventArgs e)
-      {
+      protected override void OnGotFocus(RoutedEventArgs e) {
          buffer.Focus();
          base.OnGotFocus(e);
       }
 
       //  Private Methods (7)
 
-      void IPSUI.SetShouldExit(int exitCode)
-      {
+      void IPSUI.SetShouldExit(int exitCode) {
          Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,
             (Action)(() => Application.Current.Shutdown(exitCode)));
       }
@@ -178,75 +163,59 @@ namespace PoshConsole
       //}
 
       #region IPSUI Members
-      protected Dictionary<int, ProgressPanel> progressRecords = new Dictionary<int, ProgressPanel>();
+      protected Dictionary<int, ProgressPanel> ProgressRecords = new Dictionary<int, ProgressPanel>();
 
-      void IPSUI.WriteProgress(long sourceId, ProgressRecord record)
-      {
-         if (!Dispatcher.CheckAccess())
-         {
+      void IPSUI.WriteProgress(long sourceId, ProgressRecord record) {
+         if (!Dispatcher.CheckAccess()) {
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() => ((IPSUI)this).WriteProgress(sourceId, record)));
          }
-         else
-         {
-            if (progressRecords.ContainsKey(record.ActivityId))
-            {
-               if (record.RecordType == ProgressRecordType.Completed)
-               {
-                  progress.Children.Remove(progressRecords[record.ActivityId]);
-                  progressRecords.Remove(record.ActivityId);
+         else {
+            if (ProgressRecords.ContainsKey(record.ActivityId)) {
+               if (record.RecordType == ProgressRecordType.Completed) {
+                  progress.Children.Remove(ProgressRecords[record.ActivityId]);
+                  ProgressRecords.Remove(record.ActivityId);
                }
-               else
-               {
-                  progressRecords[record.ActivityId].Record = record;
+               else {
+                  ProgressRecords[record.ActivityId].Record = record;
                }
             }
-            else
-            {
-               progressRecords[record.ActivityId] = new ProgressPanel(record);
-               if (record.ParentActivityId < 0 || !progressRecords.ContainsKey(record.ParentActivityId))
-               {
-                  progress.Children.Add(progressRecords[record.ActivityId]);
+            else {
+               ProgressRecords[record.ActivityId] = new ProgressPanel(record);
+               if (record.ParentActivityId < 0 || !ProgressRecords.ContainsKey(record.ParentActivityId)) {
+                  progress.Children.Add(ProgressRecords[record.ActivityId]);
                }
-               else
-               {
-                  progress.Children.Insert(progress.Children.IndexOf(progressRecords[record.ParentActivityId]) + 1, progressRecords[record.ActivityId]);
+               else {
+                  progress.Children.Insert(progress.Children.IndexOf(ProgressRecords[record.ParentActivityId]) + 1, ProgressRecords[record.ActivityId]);
                }
             }
          }
       }
 
-      PSCredential IPSUI.PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
-      {
+      PSCredential IPSUI.PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options) {
          throw new Exception("The method or operation is not implemented.");
       }
 
-      PSCredential IPSUI.PromptForCredential(string caption, string message, string userName, string targetName)
-      {
+      PSCredential IPSUI.PromptForCredential(string caption, string message, string userName, string targetName) {
          throw new Exception("The method or operation is not implemented.");
       }
 
-      System.Security.SecureString IPSUI.ReadLineAsSecureString()
-      {
+      System.Security.SecureString IPSUI.ReadLineAsSecureString() {
          throw new Exception("The method or operation is not implemented.");
       }
 
       #endregion
 
 
-      private void OnCanHandleControlC(object sender, CanExecuteRoutedEventArgs e)
-      {
+      private void OnCanHandleControlC(object sender, CanExecuteRoutedEventArgs e) {
          e.CanExecute = true;
       }
 
-      private void OnHandleControlC(object sender, ExecutedRoutedEventArgs e)
-      {
-         try
-         {
+      private void OnHandleControlC(object sender, ExecutedRoutedEventArgs e) {
+         try {
             _host.StopPipeline();
             e.Handled = true;
          }
-         catch (Exception exception)
-         {
+         catch (Exception exception) {
             _host.UI.WriteErrorLine(exception.ToString());
          }
 
@@ -258,14 +227,21 @@ namespace PoshConsole
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
       private void OnWindowActivated(object sender, EventArgs e) {
-         if (Style == (Style)Resources["QuakeTopStyle"]) {
-            var hideMetro = (Storyboard)Resources["QuakeShowMetro"];
-            ((DoubleAnimation) hideMetro.Children[0]).To = Settings.Default.Opacity;
-            ((DoubleAnimation) hideMetro.Children[1]).To = Settings.Default.WindowHeight;
-            hideMetro.FillBehavior = FillBehavior.HoldEnd;
-            hideMetro.Begin(this);
+         if (Style == Resources["QuakeTopStyle"]) {
+            var showAnimation = (Storyboard)Resources["QuakeShowTopMetro"];
+            ((DoubleAnimation)showAnimation.Children[0]).To = Settings.Default.Opacity;
+            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.WindowHeight;
+            showAnimation.FillBehavior = FillBehavior.HoldEnd;
+            showAnimation.Begin(this);
          }
-
+         else if (Visibility == Visibility.Hidden && Style == Resources["MetroStyle"]) {
+            var showAnimation = (Storyboard)Resources["QuakeShowBottomMetro"];
+            ((DoubleAnimation)showAnimation.Children[0]).To = Settings.Default.Opacity;
+            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.WindowHeight;
+            ((DoubleAnimation)showAnimation.Children[2]).To = RestoreBounds.Bottom - Settings.Default.WindowHeight;
+            showAnimation.FillBehavior = FillBehavior.HoldEnd;
+            showAnimation.Begin(this);
+         }
          Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new VoidVoidDelegate(() => buffer.Focus()));
       }
 
@@ -276,30 +252,30 @@ namespace PoshConsole
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       private void OnWindowDeactivated(object sender, EventArgs e) {
-         if (Style == (Style)Resources["QuakeTopStyle"]) {
-            var hideMetro = (Storyboard)Resources["QuakeHideMetro"];
-            //((DoubleAnimation)hideMetro.Children[0]).To = Settings.Default.Opacity;
-            //((DoubleAnimation)hideMetro.Children[1]).To = Settings.Default.WindowHeight;
-            //hideMetro.FillBehavior = FillBehavior.HoldEnd;
+         if (Style == Resources["QuakeTopStyle"]) {
+            var hideMetro = (Storyboard)Resources["QuakeHideTopMetro"];
             hideMetro.Begin(this);
+         }
+         else if (Style == Resources["QuakeBottomStyle"]) {
+            var hideMetro = (Storyboard)Resources["QuakeHideBottomMetro"];
+            ((DoubleAnimation)hideMetro.Children[2]).To = RestoreBounds.Bottom;
+            hideMetro.Begin(this);            
          }
       }
       /// <summary>Handles the Closing event of the Window control.</summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
-      private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-      {
+      private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e) {
          // save our current location for next time
-         Properties.Settings.Default.WindowTop = Top;
-         Properties.Settings.Default.WindowLeft = Left;
-         Properties.Settings.Default.WindowWidth = Width;
-         Properties.Settings.Default.WindowHeight = Height;
+         Settings.Default.WindowTop = Top;
+         Settings.Default.WindowLeft = Left;
+         Settings.Default.WindowWidth = Width;
+         Settings.Default.WindowHeight = Height;
 
-         Properties.Settings.Default.Save();
+         Settings.Default.Save();
          Properties.Colors.Default.Save();
 
-         if (_host != null)
-         {
+         if (_host != null) {
             _host.IsClosing = true;
             _host.SetShouldExit(0);
          }
@@ -311,15 +287,12 @@ namespace PoshConsole
       /// </summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-      private void OnWindowLoaded(object sender, RoutedEventArgs e)
-      {
+      private void OnWindowLoaded(object sender, RoutedEventArgs e) {
          //buffer.Document.IsColumnWidthFlexible = false;
-         try
-         {
-            _host = new PoshHost((IPSUI)this);
+         try {
+            _host = new PoshHost(this);
          }
-         catch (Exception ex)
-         {
+         catch (Exception ex) {
             MessageBox.Show("Can't create PowerShell interface, are you sure PowerShell is installed? \n" + ex.Message + "\nAt:\n" + ex.Source, "Error Starting PoshConsole", MessageBoxButton.OK, MessageBoxImage.Stop);
             Application.Current.Shutdown(1);
          }
@@ -332,8 +305,7 @@ namespace PoshConsole
          //TOP         OnTopWindow.Content = Settings.Default.AlwaysOnTop ? "TopMost" : "Window";
          //TOP         OnTopWindow.ToolTip = Settings.Default.AlwaysOnTop ? "Take off Always on Top" : "Make Window Always on Top";
 
-         if (PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
-         {
+         if (Interop.NativeMethods.IsUserAnAdmin()) {
             // StatusBarItems:: Title, Separator, Admin, Separator, Status
             //TOP            ElevatedButton.ToolTip = "PoshConsole is running as Administrator";
             //TOP            ElevatedButton.IsEnabled = false;
@@ -424,41 +396,36 @@ namespace PoshConsole
       /// Handles the SourceInitialized event of the Window control.
       /// </summary>
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      protected override void OnSourceInitialized(EventArgs e)
-      {
+      protected override void OnSourceInitialized(EventArgs e) {
          // NOTE: we override OnSourceInitialized so we can control the order
          // this way, the base event (and it's handlers) happen before us
          // and we can handle the unregistered hotkeys (should probably make that an event on the HotkeysBehavior)
          base.OnSourceInitialized(e);
 
-         Search = (TextBox)Template.FindName("Search", this);
+         _search = (TextBox)Template.FindName("Search", this);
          Cursor = Cursors.AppStarting;
          // this.TryExtendFrameIntoClientArea(new Thickness(-1));
          var initWarnings = new StringBuilder();
 
          // so now we can ask which keys are still unregistered.
          // TODO: get the new HotkeysBehavior
-         _Hotkeys = Interaction.GetBehaviors(this).OfType<HotkeysBehavior>().Single();
-         _Snapto = Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
-         if (_Hotkeys != null)
-         {
+         _hotkeys = Interaction.GetBehaviors(this).OfType<HotkeysBehavior>().Single();
+         Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
+         if (_hotkeys != null) {
             int k = -1;
-            int count = _Hotkeys.UnregisteredKeys.Count;
-            while (++k < count)
-            {
-               KeyBinding key = _Hotkeys.UnregisteredKeys[k];
+            int count = _hotkeys.UnregisteredKeys.Count;
+            while (++k < count) {
+               KeyBinding key = _hotkeys.UnregisteredKeys[k];
                // hypothetically, you would show them a GUI for changing the hotkeys... 
 
                // but you could try modifying them yourself ...
                ModifierKeys mk = HotkeysBehavior.AddModifier(key.Modifiers);
-               if (mk != ModifierKeys.None)
-               {
+               if (mk != ModifierKeys.None) {
                   initWarnings.AppendFormat("Hotkey taken: {0} + {1} for {2}\nModifying it to {3}, {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command, mk);
                   key.Modifiers |= mk;
-                  _Hotkeys.Hotkeys.Add(key);
+                  _hotkeys.Hotkeys.Add(key);
                }
-               else
-               {
+               else {
                   initWarnings.AppendFormat("Can't register hotkey for {2}\nWe tried registering it as {0} + {1}.\n\n", key.Modifiers, key.Key, key.Command);
                   //   // MessageBox.Show(string.Format("Can't register hotkey: {0}+{1} \nfor {2}.", key.Modifiers, key.Key, key.Command, mk));
                   //   //key.Modifiers |= mk;
@@ -467,43 +434,36 @@ namespace PoshConsole
             }
          }
          // LOAD the startup banner only when it's set (instead of removing it after)
-         if (Properties.Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
-         {
-            try
-            {
+         if (Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml")) {
+            try {
                Paragraph banner;
                ErrorRecord error;
                System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
-               if (startup.TryLoadXaml(out banner, out error))
-               {
+               if (startup.TryLoadXaml(out banner, out error)) {
                   // Copy over *all* resources from the DOCUMENT to the BANNER
                   // NOTE: be careful not to put resources in the document you're not willing to expose
                   // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
-                  foreach (string key in buffer.Document.Resources.Keys)
-                  {
+                  foreach (string key in buffer.Document.Resources.Keys) {
                      banner.Resources[key] = buffer.Document.Resources[key];
                   }
                   banner.Padding = new Thickness(5);
                   buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
                }
-               else
-               {
+               else {
                   ((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
                }
 
                // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
                // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                buffer.Document.Blocks.Clear();
                ((IPSConsole)buffer).WriteLine("PoshConsole 1.0.2010.308");
             }
          }
 
-         if (initWarnings.Length > 0)
-         {
+         if (initWarnings.Length > 0) {
             ((IPSConsole)buffer).WriteWarningLine(initWarnings.ToString());
          }
 
@@ -516,22 +476,18 @@ namespace PoshConsole
          buffer.Focus();
       }
 
-      void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-      {
-         if (!buffer.Dispatcher.CheckAccess())
-         {
+      void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+         if (!buffer.Dispatcher.CheckAccess()) {
             buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SettingsChangedDelegate(SettingsPropertyChanged), sender, new object[] { e });
             return;
          }
 
-         switch (e.PropertyName)
-         {
-            case "ShowInTaskbar":
-               {
-                  this.ShowInTaskbar = Properties.Settings.Default.ShowInTaskbar;
-               } break;
-            case "ToolbarVisibility":
-               {
+         switch (e.PropertyName) {
+            case "ShowInTaskbar": {
+                  ShowInTaskbar = Settings.Default.ShowInTaskbar;
+               }
+               break;
+            case "ToolbarVisibility": {
                   //TOP                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
                   //switch (Properties.Settings.Default.ToolbarVisibility)
                   //{
@@ -544,136 +500,133 @@ namespace PoshConsole
                   //      break;
                   //}
 
-               } break;
+               }
+               break;
             // TODO: let the new top-toolbars be hidden
             //case "StatusBar":
             //   {
             //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
             //   } break;
-            case "WindowHeight":
-               {
+            case "WindowHeight": {
                   // do nothing, this setting is set when height changes, so we don't want to get into a loop.
                   //this.Height = Properties.Settings.Default.WindowHeight;
-               } break;
-            case "WindowLeft":
-               {
-                  this.Left = Properties.Settings.Default.WindowLeft;
-               } break;
-            case "WindowWidth":
-               {
+               }
+               break;
+            case "WindowLeft": {
+                  Left = Settings.Default.WindowLeft;
+               }
+               break;
+            case "WindowWidth": {
                   // do nothing, this setting is set when width changes, so we don't want to get into a loop.
                   //this.Width = Properties.Settings.Default.WindowWidth;
-               } break;
-            case "WindowTop":
-               {
-                  this.Top = Properties.Settings.Default.WindowTop;
-               } break;
-            case "Animate":
-               {
+               }
+               break;
+            case "WindowTop": {
+                  Top = Settings.Default.WindowTop;
+               }
+               break;
+            case "Animate": {
                   // do nothing, this setting is checked for each animation.
-               } break;
-            case "AutoHide":
-               {
+               }
+               break;
+            case "AutoHide": {
                   // do nothing, this setting is checked for each hide event.
-               } break;
-            case "SnapToScreenEdge":
-               {
+               }
+               break;
+            case "SnapToScreenEdge": {
                   // do nothing, this setting is checked for each move
-               } break;
-            case "SnapDistance":
-               {
+               }
+               break;
+            case "SnapDistance": {
                   // do nothing, this setting is checked for each move
-               } break;
-            case "AlwaysOnTop":
-               {
-                  this.Topmost = Settings.Default.AlwaysOnTop;
-               } break;
-            case "Opacity":
-               {
+               }
+               break;
+            case "AlwaysOnTop": {
+                  Topmost = Settings.Default.AlwaysOnTop;
+               }
+               break;
+            case "Opacity": {
                   // stop any animation before we try to apply the setting
                   var op = new DoubleAnimation(Settings.Default.Opacity, new Duration(TimeSpan.FromSeconds(0.5)));
-                  this.BeginAnimation(OpacityProperty,op);
-               } break;
-            case "WindowStyle":
-               {
+                  BeginAnimation(OpacityProperty, op);
+               }
+               break;
+            case "WindowStyle": {
                   //((IPSConsole)buffer).WriteWarningLine("Window Style change requires a restart to take effect");
                   //this.WindowStyle = Properties.Settings.Default.WindowStyle;
                   //this.Hide();
                   //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
                   //this.Show();
-               } break;
-            case "BorderColorTopLeft":
-               {
-                  if (BorderBrush is LinearGradientBrush)
-                  {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
+               }
+               break;
+            case "BorderColorTopLeft": {
+                  if (BorderBrush is LinearGradientBrush) {
+                     ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Settings.Default.BorderColorTopLeft;
                   }
-               } break;
-            case "BorderColorBottomRight":
-               {
-                  if (BorderBrush is LinearGradientBrush)
-                  {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
+               }
+               break;
+            case "BorderColorBottomRight": {
+                  if (BorderBrush is LinearGradientBrush) {
+                     ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Settings.Default.BorderColorBottomRight;
                   }
-               } break;
-            case "BorderThickness":
-               {
-                  BorderThickness = Properties.Settings.Default.BorderThickness;
-               } break;
+               }
+               break;
+            case "BorderThickness": {
+                  BorderThickness = Settings.Default.BorderThickness;
+               }
+               break;
             case "FocusKeyGesture":
-            case "FocusKey":
-               {
+            case "FocusKey": {
                   KeyBinding focusKey = null;
-                  foreach (var hk in _Hotkeys.Hotkeys)
-                  {
-                     if (hk.Command is GlobalCommands.ActivateCommand)
-                     {
+                  foreach (var hk in _hotkeys.Hotkeys) {
+                     if (hk.Command is GlobalCommands.ActivateCommand) {
                         focusKey = hk;
                      }
                   }
                   var kv = new KeyValueSerializer();
                   var km = new ModifierKeysValueSerializer();
                   KeyGesture newGesture = null;
-                  try
-                  {
+                  try {
                      var modifiers = Settings.Default.FocusKey.Split(new[] { '+' }).ToList();
                      var character = modifiers.Last();
                      modifiers.Remove(character);
+                     // ReSharper disable AssignNullToNotNullAttribute
+                     // ReSharper disable PossibleNullReferenceException
                      newGesture = new KeyGesture((Key)kv.ConvertFromString(character, null),
                                        (ModifierKeys)km.ConvertFromString(string.Join("+", modifiers), null));
+                     // ReSharper restore PossibleNullReferenceException
+                     // ReSharper restore AssignNullToNotNullAttribute
                   }
-                  catch (Exception)
-                  {
+                  catch (Exception) {
                      if (focusKey != null)
                         Settings.Default.FocusKey = focusKey.Modifiers.ToString().Replace(", ", "+") + "+" + focusKey.Key;
                   }
 
-                  if (focusKey != null && newGesture != null)
-                  {
-                     _Hotkeys.Hotkeys.Remove(focusKey);
-                     _Hotkeys.Hotkeys.Add(new KeyBinding(GlobalCommands.ActivateWindow, newGesture));
+                  if (focusKey != null && newGesture != null) {
+                     _hotkeys.Hotkeys.Remove(focusKey);
+                     _hotkeys.Hotkeys.Add(new KeyBinding(GlobalCommands.ActivateWindow, newGesture));
                   }
 
-               } break;
-            case "FontSize":
-               {
-                  buffer.FontSize = Properties.Settings.Default.FontSize;
-               } break;
-            case "FontFamily":
-               {
-                  buffer.FontFamily = Properties.Settings.Default.FontFamily;
-               } break;
-            default: break;
+               }
+               break;
+            case "FontSize": {
+                  buffer.FontSize = Settings.Default.FontSize;
+               }
+               break;
+            case "FontFamily": {
+                  buffer.FontFamily = Settings.Default.FontFamily;
+               }
+               break;
+            default:
+               break;
          }
       }
 
       //  Internal Methods (1)
 
-      internal void DragHandler(object sender, MouseButtonEventArgs e)
-      {
+      internal void DragHandler(object sender, MouseButtonEventArgs e) {
 
-         if (e.Source is Border || e.Source is ProgressPanel || e.Source is Grid || (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-         {
+         if (e.Source is Border || e.Source is ProgressPanel || e.Source is Grid || (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
             DragMove();
             e.Handled = true;
          }
@@ -681,48 +634,21 @@ namespace PoshConsole
 
       #endregion
 
-      private bool _dockingStyled = false;
-      protected override sealed void OnStyleChanged(Style oldStyle, Style newStyle)
-      {
-         if (this.IsInitialized) {
-            if (newStyle == Resources["MetroStyle"] && !_dockingStyled) {
-               DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).AddValueChanged(_Snapto, OnDockedStateChange);
-               _dockingStyled = true;
-            }
-
-            if (oldStyle == Resources["MetroStyle"] && _dockingStyled) {
-               DependencyPropertyDescriptor.FromProperty(SnapToBehavior.DockedStateProperty, typeof(SnapToBehavior)).RemoveValueChanged(_Snapto, OnDockedStateChange);
-               _dockingStyled = false;
-            }
-         }
-         base.OnStyleChanged(oldStyle, newStyle);
-      }
-
-      private void OnDockedStateChange(object sender, EventArgs args)
-      {
-         try {
-            switch (_Snapto.DockedState) {
-               case SnapToBehavior.DockingEdge.None:
-                  Style = (Style)Resources["MetroStyle"];
-                  break;
-               case SnapToBehavior.DockingEdge.Left:
-                  Style = (Style)Resources["MetroStyle"];
-                  break;
-               case SnapToBehavior.DockingEdge.Top:
-                  Style = (Style)Resources["QuakeTopStyle"];
-                  break;
-               case SnapToBehavior.DockingEdge.Right:
-                  Style = (Style)Resources["MetroStyle"];
-                  break;
-               case SnapToBehavior.DockingEdge.Bottom:
-                  Style = (Style)Resources["QuakeBottomStyle"];
-                  break;
-            }
-         }
-         catch (Exception e) {
-            Debug.WriteLine(e);
+      private void DockedStateChanged(object sender, RoutedEventArgs e) {
+         // The actual source of this event is the behavior, not the window (yay)
+         switch (((SnapToBehavior)e.OriginalSource).WindowState) {
+            case SnapToBehavior.AdvancedWindowState.DockedTop:
+               Style = (Style)Resources["QuakeTopStyle"];
+               break;
+            case SnapToBehavior.AdvancedWindowState.DockedBottom:
+               Style = (Style)Resources["QuakeBottomStyle"];
+               break;
+            default:
+               Style = (Style)Resources["MetroStyle"];
+               break;
          }
       }
+
 
       //void OnWindowStateChanged(object sender, Huddled.Wpf.SnapToBehavior.AdvancedWindowStateChangedArgs e)
       //{
@@ -805,54 +731,50 @@ namespace PoshConsole
       //   Height = Settings.Default.WindowHeight;
       //}
 
-      void OnHandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e)
-      {
+      void OnHandleDecreaseZoom(object sender, ExecutedRoutedEventArgs e) {
          buffer.Zoom--;
       }
 
-      void OnHandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e)
-      {
+      void OnHandleIncreaseZoom(object sender, ExecutedRoutedEventArgs e) {
          buffer.Zoom++;
       }
 
-      void OnHandleSetZoom(object sender, ExecutedRoutedEventArgs e)
-      {
+      void OnHandleSetZoom(object sender, ExecutedRoutedEventArgs e) {
          double zoom;
-         if (double.TryParse(e.Parameter.ToString(), out zoom))
-         {
+         if (double.TryParse(e.Parameter.ToString(), out zoom)) {
             buffer.Zoom = zoom;
          }
       }
 
-      private void OnAdminToggle(object sender, RoutedEventArgs e)
-      {
-         if (!PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
-         {
-            Process current = Process.GetCurrentProcess();
-
-            Process proc = new Process();
-            proc.StartInfo = new ProcessStartInfo();
-            //proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.Verb = "RunAs";
-            proc.StartInfo.FileName = current.MainModule.FileName;
-            proc.StartInfo.Arguments = current.StartInfo.Arguments;
-            try
-            {
-               if (proc.Start())
-               {
-                  this._host.SetShouldExit(0);
-               }
-            }
-            catch (System.ComponentModel.Win32Exception we)
-            {
-               // if( w32.Message == "The operation was canceled by the user" )
-               // if( w32.NativeErrorCode == 1223 ) {
-               ((IPSConsole)buffer).WriteErrorLine("Error Starting new instance:" + we.Message);
-               // myHost.Prompt();
-            }
-         }
-      }
+      //ADMIN    private void OnAdminToggle(object sender, RoutedEventArgs e)
+      //ADMIN    {
+      //ADMIN       if (!PoshConsole.Interop.NativeMethods.IsUserAnAdmin())
+      //ADMIN       {
+      //ADMIN          Process current = Process.GetCurrentProcess();
+      //ADMIN    
+      //ADMIN          Process proc = new Process();
+      //ADMIN          proc.StartInfo = new ProcessStartInfo();
+      //ADMIN          //proc.StartInfo.CreateNoWindow = true;
+      //ADMIN          proc.StartInfo.UseShellExecute = true;
+      //ADMIN          proc.StartInfo.Verb = "RunAs";
+      //ADMIN          proc.StartInfo.FileName = current.MainModule.FileName;
+      //ADMIN          proc.StartInfo.Arguments = current.StartInfo.Arguments;
+      //ADMIN          try
+      //ADMIN          {
+      //ADMIN             if (proc.Start())
+      //ADMIN             {
+      //ADMIN                this._host.SetShouldExit(0);
+      //ADMIN             }
+      //ADMIN          }
+      //ADMIN          catch (System.ComponentModel.Win32Exception we)
+      //ADMIN          {
+      //ADMIN             // if( w32.Message == "The operation was canceled by the user" )
+      //ADMIN             // if( w32.NativeErrorCode == 1223 ) {
+      //ADMIN             ((IPSConsole)buffer).WriteErrorLine("Error Starting new instance:" + we.Message);
+      //ADMIN             // myHost.Prompt();
+      //ADMIN          }
+      //ADMIN       }
+      //ADMIN    }
 
       //TOP      private void OnTopmost(object sender, RoutedEventArgs e)
       //TOP      {
@@ -863,131 +785,82 @@ namespace PoshConsole
 
 
       // Handles F3 by default
-      private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e)
-      {
-         if (Search.Text.Length > 0)
-         {
-            Find(Search.Text);
+      private void OnSearchCommand(object sender, ExecutedRoutedEventArgs e) {
+         if (_search.Text.Length > 0) {
+            Find(_search.Text);
          }
-         else
-         {
-            Search.Focus();
+         else {
+            _search.Focus();
          }
       }
 
       // Handles Ctrl+F by default
-      private void OnFindCommand(object sender, ExecutedRoutedEventArgs e)
-      {
-         if (Search.Text.Length > 1)
-         {
-            Search.Select(0, Search.Text.Length - 1);
-            Search.Focus();
+      private void OnFindCommand(object sender, ExecutedRoutedEventArgs e) {
+         if (_search.Text.Length > 1) {
+            _search.Select(0, _search.Text.Length - 1);
+            _search.Focus();
          }
       }
 
-      private void OnFindButtonClick(object sender, RoutedEventArgs e)
-      {
-         Find(Search.Text);
+      private void SearchGotFocus(object sender, RoutedEventArgs e) {
+         _search.SelectAll();
       }
 
-
-      private void Search_GotFocus(object sender, RoutedEventArgs e)
-      {
-         Search.SelectAll();
-      }
-
-      private void Search_PreviewKeyDown(object sender, KeyEventArgs e)
-      {
-         if (e.Key == Key.Enter)
-         {
-            Find(Search.Text);
+      private void SearchPreviewKeyDown(object sender, KeyEventArgs e) {
+         if (e.Key == Key.Enter) {
+            Find(_search.Text);
          }
       }
 
-      TextPointer lastSearchPoint = null;
-      String lastSearchString = String.Empty;
-      private void Find(string input)
-      {
-         if (lastSearchPoint == null || input != lastSearchString)
-         {
-            lastSearchPoint = buffer.Document.ContentStart;
-            lastSearchString = input;
+      TextPointer _lastSearchPoint;
+      String _lastSearchString = String.Empty;
+      private void Find(string input) {
+         if (_lastSearchPoint == null || input != _lastSearchString) {
+            _lastSearchPoint = buffer.Document.ContentStart;
+            _lastSearchString = input;
          }
 
-         TextRange found = buffer.FindNext(ref lastSearchPoint, input);
-         if (found == null)
-         {
+         TextRange found = buffer.FindNext(ref _lastSearchPoint, input);
+         if (found == null) {
             System.Media.SystemSounds.Asterisk.Play();
-            lastSearchPoint = buffer.Document.ContentStart;
+            _lastSearchPoint = buffer.Document.ContentStart;
          }
       }
 
-      private void Minimize_Click(object sender, RoutedEventArgs e)
-      {
-         WindowState = WindowState.Minimized;
-      }
-
-      private void Restore_Click(object sender, RoutedEventArgs e)
-      {
-         if (WindowState != WindowState.Maximized)
-         {
-            WindowState = WindowState.Maximized;
-            ((Button)sender).ToolTip = "Restore Down";
+      private void SkinToggleClick(object sender, RoutedEventArgs e) {
+         if (Style == Resources["GlassStyle"]) {
+            Style = Resources["MetroStyle"] as Style;
          }
-         else
-         {
-            WindowState = WindowState.Normal;
-            ((Button)sender).ToolTip = "Maximize";
+         else {
+            Style = Resources["GlassStyle"] as Style;
          }
       }
 
-      private void Close_Click(object sender, RoutedEventArgs e)
-      {
-         Close();
-      }
-
-      private void SkinToggle_Click(object sender, RoutedEventArgs e)
-      {
-         if (Style == (Style)Resources["GlassStyle"])
-         {
-            Style = (Style)Resources["MetroStyle"];
-         }
-         else
-         {
-            Style = (Style)Resources["GlassStyle"];
-         }
-      }
-
-      private void OnTopWindow_Click(object sender, RoutedEventArgs e)
-      {
+      private void OnTopWindowClick(object sender, RoutedEventArgs e) {
          var btn = sender as Button;
+         if (btn != null) {
 
-         if (Topmost)
-         {
-            Settings.Default.AlwaysOnTop = Topmost = false;
-            if (btn.Content is Image)
-            {
+            if (Topmost) {
+               Settings.Default.AlwaysOnTop = Topmost = false;
+               if (btn.Content is Image) {
 
+               }
+               else {
+                  btn.Content = "Normal";
+               }
             }
-            else
-            {
-               btn.Content = "Normal";
-            }
+            else {
+               Settings.Default.AlwaysOnTop = Topmost = true;
+               if (btn.Content is Image) {
 
-         }
-         else
-         {
-            Settings.Default.AlwaysOnTop = Topmost = true;
-            if (btn.Content is Image)
-            {
-
-            }
-            else
-            {
-               btn.Content = "Topmost";
+               }
+               else {
+                  btn.Content = "Topmost";
+               }
             }
          }
       }
+
 
 
 
