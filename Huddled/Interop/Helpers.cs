@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace Huddled.Interop
 {
-    internal static class Utility
+    internal static class Helpers
     {
        public static Thickness Union(this Thickness margin, Thickness padding)
        {

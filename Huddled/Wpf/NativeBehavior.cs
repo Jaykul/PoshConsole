@@ -51,7 +51,6 @@ namespace Huddled.Wpf
       /// <summary>Gets the collection of active handlers.</summary>
       /// <value>A List of the mappings from <see cref="NativeMethods.WindowMessage"/>s
       /// to <see cref="NativeMethods.MessageHandler"/> delegates.</value>
-      [CLSCompliant(false)]
       protected abstract IEnumerable<MessageMapping> Handlers { get; }
 
       /// <summary>The HWND handle to our window</summary>

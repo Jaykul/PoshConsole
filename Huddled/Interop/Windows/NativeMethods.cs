@@ -638,7 +638,7 @@ namespace Huddled.Interop
             return new Rect(Left, Top, Left + Width, Top + Height);
          }
 
-         public String ToString()
+         public override String ToString()
          {
             return "Flags: " + Flags.ToString() + " (Insert After: " + HandleInsertAfter + ")\nTop Left: " + Top + "," + Left + " Height: " + Height + " Width: " + Width;
          }
