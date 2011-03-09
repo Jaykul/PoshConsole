@@ -16,11 +16,10 @@
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
    
-    Visibility="Visible" AllowsTransparency="False"
-    
+    Visibility="Visible" AllowsTransparency="False"  WindowStyle="ThreeDBorderWindow"
+
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
 
-    
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
@@ -28,7 +27,7 @@
     
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
-    WindowStyle="ThreeDBorderWindow">
+   >
     <!-- SingleBorderWindow is important for the CustomChrome behavior -->
     <!-- xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase, diagnostics:PresentationTraceSources.TraceLevel=High -->
 

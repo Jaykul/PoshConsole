@@ -93,7 +93,7 @@ namespace Huddled.Wpf {
 
       }
 
-      bool _undocking;
+      bool _undocking = false;
       private IntPtr OnEnterSizeMove(IntPtr wParam, IntPtr lParam, ref bool handled) {
          _undocking = DockedState != DockingEdge.None;
          return IntPtr.Zero;
@@ -222,12 +222,13 @@ namespace Huddled.Wpf {
                                  validArea.Height + (SnapDistance.Top + SnapDistance.Bottom));
 
             if (_undocking) {
-               if (windowPosition.Width == validArea.Width) {
-                  windowPosition.Width = (int)_normalSize.Width;
-               }
-               if (windowPosition.Height == validArea.Height) {
-                  windowPosition.Height = (int)_normalSize.Height;
-               }
+               Debug.WriteLine(string.Format("UnDocking: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+               //if (windowPosition.Width == validArea.Width ) {
+               //   windowPosition.Width = (int)_normalSize.Width;
+               //}
+               //if (windowPosition.Height == validArea.Height) {
+               //   windowPosition.Height = (int)_normalSize.Height;
+               //}
                DockedState = DockingEdge.None;
             }
 
@@ -271,7 +272,10 @@ namespace Huddled.Wpf {
                }
                else if (DockAgainst.HasFlag(DockingEdge.Bottom) && DockedState == DockingEdge.None || DockedState == DockingEdge.Bottom) {
                   if (DockedState == DockingEdge.None) {
-                     _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                     if (!_undocking) {
+                        _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                        Debug.WriteLine(string.Format("Docking To Bottom: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+                     }
                      DockedState = DockingEdge.Bottom;
                   }
                   windowPosition.Left = (int)(validArea.Left);
@@ -295,7 +299,10 @@ namespace Huddled.Wpf {
 
                if (left && right) {
                   if (DockedState == DockingEdge.None) {
-                     _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                     if (!_undocking) {
+                        _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                        Debug.WriteLine(string.Format("Docking To Top: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+                     }
                      DockedState = DockingEdge.Top;
                   }
                   windowPosition.Left = (int)validArea.Left;
@@ -304,7 +311,10 @@ namespace Huddled.Wpf {
                }
                else if (DockAgainst.HasFlag(DockingEdge.Top) && DockedState == DockingEdge.None || DockedState == DockingEdge.Top) {
                   if (DockedState == DockingEdge.None) {
-                     _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                     if (!_undocking) {
+                        _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                        Debug.WriteLine(string.Format("Docking To Top: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+                     }
                      DockedState = DockingEdge.Top;
                   }
                   windowPosition.Left = (int)validArea.Left;
@@ -333,7 +343,10 @@ namespace Huddled.Wpf {
 
                if (DockAgainst.HasFlag(DockingEdge.Right) && DockedState == DockingEdge.None || DockedState == DockingEdge.Right) {
                   if (DockedState == DockingEdge.None) {
-                     _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                     if (!_undocking) {
+                        _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                        Debug.WriteLine(string.Format("Docking To Right: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+                     }
                      DockedState = DockingEdge.Right;
                   }
                   windowPosition.Top = (int)(validArea.Top);
@@ -349,7 +362,10 @@ namespace Huddled.Wpf {
 
                if (DockAgainst.HasFlag(DockingEdge.Left) && DockedState == DockingEdge.None || DockedState == DockingEdge.Left) {
                   if (DockedState == DockingEdge.None) {
-                     _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                     if (!_undocking) {
+                        _normalSize = new Size(windowPosition.Width, windowPosition.Height);
+                        Debug.WriteLine(string.Format("Docking To Left: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+                     }
                      DockedState = DockingEdge.Left;
                   }
                   windowPosition.Top = (int)(validArea.Top);
@@ -365,6 +381,13 @@ namespace Huddled.Wpf {
             }
          }
          if (left || top || right || bottom || _undocking) {
+            if (_undocking && DockedState == DockingEdge.None) {
+               Debug.WriteLine(string.Format("REALLY UnDocking: {0}x{1} (WxH)", _normalSize.Width, _normalSize.Height));
+               windowPosition.Width = (int)_normalSize.Width;
+               windowPosition.Height = (int)_normalSize.Height;
+            }
+
+            Debug.WriteLine(string.Format("Setting Window Size To: {0}x{1} (WxH)", windowPosition.Width, windowPosition.Height));
             Marshal.StructureToPtr(windowPosition, lParam, true);
          }
 

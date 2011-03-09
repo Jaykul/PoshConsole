@@ -20,7 +20,7 @@
     x:Class="PoshConsole.PoshConsoleWindow" 
     x:Name="window"
     
-    Style="{DynamicResource MetroStyle}"
+    Style="{DynamicResource GlassStyle}"
     WindowStyle="None" AllowsTransparency="True"
 
     Title="{Binding Title, ElementName=buffer, Mode=Default}"
@@ -32,8 +32,8 @@
     MinWidth="425" MinHeight="20" Width="725" Height="354" Padding="5"
     
     BorderBrush="White" 
-    Background="{Binding Background, ElementName=buffer, FallbackValue=#FE000000}"
-    Foreground="{Binding Foreground, ElementName=buffer, FallbackValue=White}"
+    Background="{Binding Background, ElementName=buffer}"
+    Foreground="{Binding Foreground, ElementName=buffer}"
     
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
@@ -44,7 +44,7 @@
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
     
     huddled:WindowCommands.EnableCommands="true"
-    huddled:SnapToBehavior.DockedStateChanged="DockedStateChanged"
+    huddled:SnapToBehavior.DockedStateChanged="OnDockedStateChanged"
 >
    <!--<VisualStateManager.VisualStateGroups>
       <VisualStateGroup Name="MouseStates">
@@ -161,8 +161,8 @@
 
       </Storyboard>
       <Storyboard x:Key="QuakeHideTopMetro">
-         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
          <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
             <DiscreteObjectKeyFrame KeyTime="0">
                <DiscreteObjectKeyFrame.Value>
@@ -172,8 +172,8 @@
          </ObjectAnimationUsingKeyFrames>
       </Storyboard>
       <Storyboard x:Key="QuakeHideBottomMetro">
-         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" To="0.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" To="0.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" To="0.0" />
          <ObjectAnimationUsingKeyFrames BeginTime="00:00:01" Duration="0" Storyboard.TargetProperty="Visibility" >
             <DiscreteObjectKeyFrame KeyTime="0">
@@ -182,7 +182,7 @@
                </DiscreteObjectKeyFrame.Value>
             </DiscreteObjectKeyFrame>
          </ObjectAnimationUsingKeyFrames>
-      </Storyboard>      
+      </Storyboard>
       <Storyboard x:Key="QuakeShowTopMetro">
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
@@ -194,7 +194,7 @@
             </DiscreteObjectKeyFrame>
          </ObjectAnimationUsingKeyFrames>
       </Storyboard>
-      <Storyboard x:Key="QuakeShowBottomMetro">
+      <Storyboard x:Key="QuakeShowBottomMetro" >
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
          <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" To="100.0" />
@@ -542,7 +542,7 @@
    </Window.Topmost>
    <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
    <!--<Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">-->
-   <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Background="#00000000" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}">
+   <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}">
       <Grid.ColumnDefinitions>
          <ColumnDefinition/>
       </Grid.ColumnDefinitions>
@@ -552,7 +552,7 @@
         </Grid.RowDefinitions>-->
       <!--<Border x:Name="BackgroundBorder" />-->
 
-      <Grid x:Name="ConsoleArea" Background="Transparent" d:LayoutOverrides="Width" Margin="0,0,2,0">
+      <Grid x:Name="ConsoleArea" Background="Transparent" d:LayoutOverrides="Width" Margin="0">
          <Grid.RowDefinitions>
             <!--systray <RowDefinition Height="Auto" MaxHeight="22" MinHeight="0"/>-->
             <!--progress-->
@@ -560,15 +560,16 @@
             <!--console-->
             <RowDefinition Height="*"/>
          </Grid.RowDefinitions>
-         <StackPanel x:Name="progress" Grid.Row="1"  Grid.Column="1" Panel.ZIndex="1"
+         <StackPanel x:Name="progress" Grid.Row="0"  Grid.Column="0" Panel.ZIndex="1"
                 Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
                 Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
-         <huddle:ConsoleControl x:Name="buffer" Grid.Row="1" Grid.Column="1" 
-                Title="PoshConsole" IsSelectionEnabled="False"
+         <huddle:ConsoleControl x:Name="buffer" 
+                Title="PoshConsole" IsSelectionEnabled="True"
+                Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
                 FontSize="{Binding FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
                 FontFamily="{Binding FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"
-                Foreground="{DynamicResource ForegroundBrush}" Background="{Binding Black}" >
+                Foreground="{DynamicResource ForegroundBrush}" Background="{DynamicResource BackgroundBrush}" >
             <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
             <FlowDocument>
                <FlowDocument.Resources>

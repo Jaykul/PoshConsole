@@ -573,7 +573,7 @@ namespace Huddled.Wpf
          // If DWM already handled this by way of DwmDefWindowProc, then respect their call.
          if (IntPtr.Zero == lRet)
          {
-            var mousePosScreen = new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam));
+            var mousePosScreen = new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam));
             Rect windowPosition = AssociatedObject.GetWindowRect();
 
             NativeMethods.HT ht = _HitTestNca(
@@ -604,7 +604,7 @@ namespace Huddled.Wpf
          // to bring up the system menu.
          if (NativeMethods.HT.CAPTION == (NativeMethods.HT)wParam.ToInt32())
          {
-            _ShowSystemMenu(new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam)));
+            _ShowSystemMenu(new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam)));
          }
          handled = false;
          return IntPtr.Zero;
@@ -744,9 +744,9 @@ namespace Huddled.Wpf
             {
                var dwStyle = (NativeMethods.WindowStyles)NativeMethods.GetWindowLongPtr(_hwnd, NativeMethods.WindowLongValues.Style).ToInt32();
 
-               bool canMinimize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MinimizeBox);
-               bool canMaximize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MaximizeBox);
-               bool canSize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.ThickFrame);
+               bool canMinimize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MinimizeBox);
+               bool canMaximize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MaximizeBox);
+               bool canSize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.ThickFrame);
 
                switch (state)
                {
@@ -870,7 +870,7 @@ namespace Huddled.Wpf
             int height;
 
             // Use the size if it's specified.
-            if (null != wp && !Utility.IsFlagSet((int)wp.Value.Flags, (int)NativeMethods.SetWindowPositionOptions.NoSize))
+            if (null != wp && !Helpers.IsFlagSet((int)wp.Value.Flags, (int)NativeMethods.SetWindowPositionOptions.NoSize))
             {
                width = wp.Value.Width;
                height = wp.Value.Height;

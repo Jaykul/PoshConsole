@@ -32,7 +32,6 @@ namespace Huddled.WPF.Controls
                      _lastPassword = _passwordBox.SecurePassword;
                      // clear the box
                      ((IPSRawConsole)this).FlushInputBuffer();
-                     
                      lock (_commandContainer)
                      {
                         // put the text in instead
@@ -66,31 +65,37 @@ namespace Huddled.WPF.Controls
             switch (e.Key)
             {
                case Key.Enter:
-                  {
-                     OnEnterPressed(e);
-                  } break;
+                  CompleteBackgroundWorkItems();
+                  OnEnterPressed(e);
+                  break;
 
                case Key.Tab:
+                  CompleteBackgroundWorkItems();
                   OnTabPressed(e);
                   break;
 
                case Key.F7:
+                  CompleteBackgroundWorkItems();
                   OnHistoryMenu(e);
                   break;
 
                case Key.Up:
+                  CompleteBackgroundWorkItems();
                   OnUpPressed(e);
                   break;
 
                case Key.Down:
+                  CompleteBackgroundWorkItems();
                   OnDownPressed(e);
                   break;
 
                case Key.PageUp:
+                  CompleteBackgroundWorkItems();
                   OnPageUpPressed(e);
                   break;
 
                case Key.PageDown:
+                  CompleteBackgroundWorkItems();
                   OnPageDownPressed(e);
                   break;
                default:
@@ -100,6 +105,18 @@ namespace Huddled.WPF.Controls
             }
          }
       }
+
+      /// <summary>
+      /// Complete all work queued at background priority
+      /// </summary>
+      private void CompleteBackgroundWorkItems() {
+         // ConsoleControl (RichTextBox) uses asynchronous processing at background priority to
+         // batch up the character update processing.   By synchronously executing an 
+         // empty workitem at background priority, we ensure that all the prior keystrokes
+         // have been completely processed.
+         Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.Background);
+      }
+
 
       private void OnDownPressed(KeyEventArgs e)
       {
@@ -140,8 +157,12 @@ namespace Huddled.WPF.Controls
       }
       protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
       {
-         if (Properties.Settings.Default.CopyOnMouseSelect && Selection != null && Selection.Text.Length > 0)
-         {
+         if (Selection == null || Selection.Text.Length == 0) {
+            // if they didn't select anything, they were just clicking
+            // Put the focus where it belongs
+            if (!_popup.IsOpen) _commandContainer.Child.Focus();
+         } 
+         else if (Properties.Settings.Default.CopyOnMouseSelect) {
             try
             {
                Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
@@ -262,10 +283,10 @@ namespace Huddled.WPF.Controls
          base.OnPreviewKeyDown(e);
       }
 
-      protected override void OnGotFocus(RoutedEventArgs e) {
-         if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
-         base.OnGotFocus(e);
-      }
+      //protected override void OnGotFocus(RoutedEventArgs e) {
+      //   if (!_popup.IsOpen) _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+      //   base.OnGotFocus(e);
+      //}
 
       protected override void OnPreviewTextInput(TextCompositionEventArgs e)
       {

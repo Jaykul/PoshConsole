@@ -344,7 +344,7 @@ namespace Huddled.Wpf
 			// If DWM already handled this by way of DwmDefWindowProc, then respect their call.
 			if (IntPtr.Zero == lRet)
 			{
-				var mousePosScreen = new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam));
+				var mousePosScreen = new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam));
 				Rect windowPosition = AssociatedObject.GetWindowRect();
 
 				NativeMethods.HT ht = _HitTestNca(
@@ -470,7 +470,7 @@ namespace Huddled.Wpf
 			// to bring up the system menu.
 			if (NativeMethods.HT.CAPTION == (NativeMethods.HT)wParam.ToInt32())
 			{
-				_ShowSystemMenu(new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam)));
+				_ShowSystemMenu(new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam)));
 			}
 			handled = false;
 			return IntPtr.Zero;

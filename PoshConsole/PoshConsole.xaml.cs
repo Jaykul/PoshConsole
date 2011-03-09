@@ -25,10 +25,24 @@ namespace PoshConsole {
    /// </summary>
    public partial class PoshConsoleWindow : IPSUI {
 
-      #region  Fields (11)
+      #region  Fields
 
 
       private static DependencyProperty _consoleProperty;
+
+      /// <summary>
+      /// The PSHost implementation for this interpreter.
+      /// </summary>
+      private PoshHost _host;
+
+      private TextBox _search;
+      private HotkeysBehavior _hotkeys;
+      private SnapToBehavior _windowState;
+
+      #endregion
+
+      #region  Constructors
+
       static PoshConsoleWindow() {
          try {
             _consoleProperty = DependencyProperty.Register("Console", typeof(IPoshConsoleControl), typeof(PoshConsoleWindow));
@@ -37,17 +51,6 @@ namespace PoshConsole {
             Trace.WriteLine(ex.Message);
          }
       }
-
-      /// <summary>
-      /// The PSHost implementation for this interpreter.
-      /// </summary>
-      private PoshHost _host;
-
-      #endregion
-
-      #region  Constructors (1)
-
-      private TextBox _search;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="PoshConsole"/> class.
@@ -82,7 +85,7 @@ namespace PoshConsole {
 
       #endregion
 
-      #region  Properties (1)
+      #region  Properties
 
       public IPoshConsoleControl Console {
          get { return ((IPoshConsoleControl)GetValue(_consoleProperty)); }
@@ -91,9 +94,7 @@ namespace PoshConsole {
 
       #endregion
 
-      #region  Delegates and Events (5)
-
-      //  Delegates (5)
+      #region  Delegates and Events
 
       // Universal Delegates
       internal delegate void PassDelegate<in T>(T input);
@@ -104,9 +105,8 @@ namespace PoshConsole {
 
       #endregion
 
-      #region  Methods (9)
+      #region  Methods
 
-      //  Protected Methods (2)
 
       /// <summary>
       /// Raises the <see cref="E:System.Windows.Window.Closing"></see> event, and executes the ShutdownProfile
@@ -119,7 +119,6 @@ namespace PoshConsole {
          base.OnClosing(e);
       }
 
-      private HotkeysBehavior _hotkeys;
 
 
       //private void buffer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -230,15 +229,15 @@ namespace PoshConsole {
          if (Style == Resources["QuakeTopStyle"]) {
             var showAnimation = (Storyboard)Resources["QuakeShowTopMetro"];
             ((DoubleAnimation)showAnimation.Children[0]).To = Settings.Default.Opacity;
-            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.WindowHeight;
+            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.QuakeModeSize;
             showAnimation.FillBehavior = FillBehavior.HoldEnd;
             showAnimation.Begin(this);
          }
          else if (Visibility == Visibility.Hidden && Style == Resources["MetroStyle"]) {
             var showAnimation = (Storyboard)Resources["QuakeShowBottomMetro"];
             ((DoubleAnimation)showAnimation.Children[0]).To = Settings.Default.Opacity;
-            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.WindowHeight;
-            ((DoubleAnimation)showAnimation.Children[2]).To = RestoreBounds.Bottom - Settings.Default.WindowHeight;
+            ((DoubleAnimation)showAnimation.Children[1]).To = Settings.Default.QuakeModeSize;
+            ((DoubleAnimation)showAnimation.Children[2]).To = RestoreBounds.Bottom - Settings.Default.QuakeModeSize;
             showAnimation.FillBehavior = FillBehavior.HoldEnd;
             showAnimation.Begin(this);
          }
@@ -253,15 +252,23 @@ namespace PoshConsole {
       /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
       private void OnWindowDeactivated(object sender, EventArgs e) {
          if (Style == Resources["QuakeTopStyle"]) {
+            Settings.Default.QuakeModeSize = Height;
             var hideMetro = (Storyboard)Resources["QuakeHideTopMetro"];
+            ((DoubleAnimation)hideMetro.Children[1]).From = Height;
             hideMetro.Begin(this);
          }
          else if (Style == Resources["QuakeBottomStyle"]) {
+            Settings.Default.QuakeModeSize = Height;
             var hideMetro = (Storyboard)Resources["QuakeHideBottomMetro"];
+            ((DoubleAnimation)hideMetro.Children[1]).From = Height;
             ((DoubleAnimation)hideMetro.Children[2]).To = RestoreBounds.Bottom;
-            hideMetro.Begin(this);            
+            hideMetro.Begin(this);
+         }
+         else {
+            Settings.Default.WindowHeight = Height;
          }
       }
+
       /// <summary>Handles the Closing event of the Window control.</summary>
       /// <param name="sender">The source of the event.</param>
       /// <param name="e">The <see cref="System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
@@ -410,7 +417,7 @@ namespace PoshConsole {
          // so now we can ask which keys are still unregistered.
          // TODO: get the new HotkeysBehavior
          _hotkeys = Interaction.GetBehaviors(this).OfType<HotkeysBehavior>().Single();
-         Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
+         _windowState = Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
          if (_hotkeys != null) {
             int k = -1;
             int count = _hotkeys.UnregisteredKeys.Count;
@@ -438,7 +445,7 @@ namespace PoshConsole {
             try {
                Paragraph banner;
                ErrorRecord error;
-               System.IO.FileInfo startup = new System.IO.FileInfo("StartupBanner.xaml");
+               var startup = new System.IO.FileInfo("StartupBanner.xaml");
                if (startup.TryLoadXaml(out banner, out error)) {
                   // Copy over *all* resources from the DOCUMENT to the BANNER
                   // NOTE: be careful not to put resources in the document you're not willing to expose
@@ -487,26 +494,6 @@ namespace PoshConsole {
                   ShowInTaskbar = Settings.Default.ShowInTaskbar;
                }
                break;
-            case "ToolbarVisibility": {
-                  //TOP                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
-                  //switch (Properties.Settings.Default.ToolbarVisibility)
-                  //{
-                  //   case Visibility.Hidden:
-                  //   case Visibility.Collapsed:
-                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0));
-                  //      break;
-                  //   case Visibility.Visible:
-                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.ActualHeight, 0.0, 0.0));
-                  //      break;
-                  //}
-
-               }
-               break;
-            // TODO: let the new top-toolbars be hidden
-            //case "StatusBar":
-            //   {
-            //      status.Visibility = Properties.Settings.Default.StatusBar ? Visibility.Visible : Visibility.Collapsed;
-            //   } break;
             case "WindowHeight": {
                   // do nothing, this setting is set when height changes, so we don't want to get into a loop.
                   //this.Height = Properties.Settings.Default.WindowHeight;
@@ -549,30 +536,6 @@ namespace PoshConsole {
                   // stop any animation before we try to apply the setting
                   var op = new DoubleAnimation(Settings.Default.Opacity, new Duration(TimeSpan.FromSeconds(0.5)));
                   BeginAnimation(OpacityProperty, op);
-               }
-               break;
-            case "WindowStyle": {
-                  //((IPSConsole)buffer).WriteWarningLine("Window Style change requires a restart to take effect");
-                  //this.WindowStyle = Properties.Settings.Default.WindowStyle;
-                  //this.Hide();
-                  //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
-                  //this.Show();
-               }
-               break;
-            case "BorderColorTopLeft": {
-                  if (BorderBrush is LinearGradientBrush) {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Settings.Default.BorderColorTopLeft;
-                  }
-               }
-               break;
-            case "BorderColorBottomRight": {
-                  if (BorderBrush is LinearGradientBrush) {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Settings.Default.BorderColorBottomRight;
-                  }
-               }
-               break;
-            case "BorderThickness": {
-                  BorderThickness = Settings.Default.BorderThickness;
                }
                break;
             case "FocusKeyGesture":
@@ -634,17 +597,20 @@ namespace PoshConsole {
 
       #endregion
 
-      private void DockedStateChanged(object sender, RoutedEventArgs e) {
+      private void OnDockedStateChanged(object sender, RoutedEventArgs e) {
          // The actual source of this event is the behavior, not the window (yay)
          switch (((SnapToBehavior)e.OriginalSource).WindowState) {
             case SnapToBehavior.AdvancedWindowState.DockedTop:
                Style = (Style)Resources["QuakeTopStyle"];
+               Height = Settings.Default.QuakeModeSize;
                break;
             case SnapToBehavior.AdvancedWindowState.DockedBottom:
                Style = (Style)Resources["QuakeBottomStyle"];
+               Height = Settings.Default.QuakeModeSize;
                break;
             default:
                Style = (Style)Resources["MetroStyle"];
+               Height = Settings.Default.WindowHeight;
                break;
          }
       }
@@ -814,6 +780,7 @@ namespace PoshConsole {
 
       TextPointer _lastSearchPoint;
       String _lastSearchString = String.Empty;
+
       private void Find(string input) {
          if (_lastSearchPoint == null || input != _lastSearchString) {
             _lastSearchPoint = buffer.Document.ContentStart;
@@ -860,10 +827,6 @@ namespace PoshConsole {
             }
          }
       }
-
-
-
-
 
    }
 }

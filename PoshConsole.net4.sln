@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontLibrary.Net4", "FontLib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuddledControls.Net4", "HuddledControls\HuddledControls.Net4.csproj", "{969A3CF0-3AA6-499B-995B-C84E8F15B107}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller", "PoshConsoleInstaller\PoshConsoleInstaller.Net4.wixproj", "{A64775D9-B889-4A68-9A20-46A78EBB30BB}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PoshConsoleInstaller.Net4", "PoshConsoleInstaller\PoshConsoleInstaller.Net4.wixproj", "{A64775D9-B889-4A68-9A20-46A78EBB30BB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BB5102A9-8BC9-4051-8A09-A1CEB623B50A} = {BB5102A9-8BC9-4051-8A09-A1CEB623B50A}
 		{23A411B5-657B-4B8E-9B10-D7256D39AD08} = {23A411B5-657B-4B8E-9B10-D7256D39AD08}
@@ -224,8 +224,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
 		Project = ".\PoshConsole.Net4.ndproj"
