@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Windows.Markup;
 
@@ -10,7 +11,7 @@ using System.Windows.Markup;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HuddledMasses.org")]
 [assembly: AssemblyProduct("PoshWpf")]
-[assembly: AssemblyCopyright("Copyright ©  2008-2009")]
+[assembly: AssemblyCopyright("© Copyright 2008-2011 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -38,5 +39,7 @@ using System.Windows.Markup;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.2011.309")]
+[assembly: AssemblyFileVersion("2.0.2011.309")]
+[assembly: AssemblyInformationalVersion("2.0.2011.309")]
+[assembly: NeutralResourcesLanguage("en-US")]

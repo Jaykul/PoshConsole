@@ -49,8 +49,6 @@ namespace PoshConsole.Cmdlets
                      _options.Settings.SettingsKey = "";
                      _options.Settings.Reload();
                      // win.WindowState = WindowState.Normal;
-                     // this shouldn't be necessary, because it should happen in the Settings switch?
-                     _options.Settings.ToolbarVisibility = Visibility.Visible;
 
 
                   } break;
@@ -67,15 +65,10 @@ namespace PoshConsole.Cmdlets
                         // TODO: expose the duration as a setting
                         //quake.Duration = _options.Settings.Animate ? 1 : 0;
                      }
-
-                     // this shouldn't be necessary, because it should happen in the Settings switch?
-                     _options.Settings.ToolbarVisibility = Visibility.Collapsed;
                      
                      // Initial population of the 
                      if (_options.Settings.WindowWidth != workingArea.Width)
                      {
-                        _options.Settings.ToolbarVisibility = Visibility.Collapsed;
-
                         _options.Settings.ShowInTaskbar = false;
                         _options.Settings.AutoHide = true;
                         _options.Settings.AlwaysOnTop = true;

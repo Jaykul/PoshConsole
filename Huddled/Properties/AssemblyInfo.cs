@@ -12,7 +12,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Huddled Utility Libraries")]
-[assembly: AssemblyCopyright("© Copyright 2007-2010 Joel Bennett")]
+[assembly: AssemblyCopyright("© Copyright 2007-2011 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(true)]
@@ -38,7 +38,7 @@ using System.Resources;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.2010.308")]
-[assembly: AssemblyFileVersion("1.0.2010.308")]
-[assembly: AssemblyInformationalVersion("1.0.2010.308")]
+[assembly: AssemblyVersion("2.0.2011.309")]
+[assembly: AssemblyFileVersion("2.0.2011.309")]
+[assembly: AssemblyInformationalVersion("2.0.2011.309")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

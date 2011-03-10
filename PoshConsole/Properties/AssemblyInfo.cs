@@ -16,7 +16,7 @@ using System.Windows.Markup;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Posh Console")]
-[assembly: AssemblyCopyright("© Copyright 2008-2010 Joel Bennett")]
+[assembly: AssemblyCopyright("© Copyright 2008-2011 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -52,7 +52,7 @@ using System.Windows.Markup;
 
 
 // Version information
-[assembly: AssemblyVersion("1.0.2010.308")]
-[assembly: AssemblyFileVersion("1.0.2010.308")]
-[assembly: AssemblyInformationalVersion("1.0.2010.308")]
+[assembly: AssemblyVersion("2.0.2011.309")]
+[assembly: AssemblyFileVersion("2.0.2011.309")]
+[assembly: AssemblyInformationalVersion("2.0.2011.309")]
 [assembly: GuidAttribute("0d77437b-6892-4c83-a41c-d135133e758a")]

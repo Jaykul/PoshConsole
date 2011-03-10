@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Huddled Masses")]
 [assembly: AssemblyProduct("Posh Console")]
-[assembly: AssemblyCopyright("© Copyright 2007-2010 Joel Bennett")]
+[assembly: AssemblyCopyright("© Copyright 2007-2011 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,8 +32,8 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.2010.308")]
-[assembly: AssemblyFileVersion("1.0.2010.308")]
-[assembly: AssemblyInformationalVersion("1.0.2010.308")]
+[assembly: AssemblyVersion("2.0.2011.309")]
+[assembly: AssemblyFileVersion("2.0.2011.309")]
+[assembly: AssemblyInformationalVersion("2.0.2011.309")]
 [assembly: GuidAttribute("cb765e92-8dd9-49c6-b25a-43243e7f6fa5")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
