@@ -72,7 +72,8 @@ namespace Huddled.WPF.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-                (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / (FontSize * (Zoom / 100.0) * _characterWidth)) - (1.75 * (Zoom / 100.0))),
+               (int)
+               Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right))/ (FontSize*(Zoom/100.0)*_characterWidth)) - 1), //(1.75 * (Zoom / 100.0))),
                 (int)Math.Floor(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
          }
          set

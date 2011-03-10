@@ -30,12 +30,13 @@
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Huddled.Wpf;
-using Point=System.Windows.Point;
-using Rect=System.Windows.Rect;
+using Point = System.Windows.Point;
+using Rect = System.Windows.Rect;
 using System.Windows.Media;
 
 namespace Huddled.Interop
@@ -156,6 +157,12 @@ namespace Huddled.Interop
       // It looks like this function is in shell32.dll in Win2k and XP - but not exported pre XP SP1. 
       // We could hypothetically reference it by ordinal number -- should work from Win2K SP4 on.
       // [DllImport("shell32.dll",EntryPoint="#680",CharSet=CharSet.Unicode)]
+      /// <summary>
+      /// Determines whether [is user an admin].
+      /// </summary>
+      /// <returns>
+      /// 	<c>true</c> if [is user an admin]; otherwise, <c>false</c>.
+      /// </returns>
       [DllImport("shell32.dll", EntryPoint = "IsUserAnAdmin", CharSet = CharSet.Unicode)]
       public static extern bool IsUserAnAdmin();
 
@@ -165,10 +172,25 @@ namespace Huddled.Interop
 
 
 
+      /// <summary>
+      /// Sets the foreground window.
+      /// </summary>
+      /// <param name="hWnd">The h WND.</param>
+      /// <returns></returns>
       [DllImport("user32.dll")]
       [return: MarshalAs(UnmanagedType.Bool)]
       public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+      /// <summary>
+      /// Determines whether the specified HWND is window.
+      /// </summary>
+      /// <param name="hwnd">The HWND.</param>
+      /// <returns>
+      /// 	<c>true</c> if the specified HWND is window; otherwise, <c>false</c>.
+      /// </returns>
+      [DllImport("user32.dll")]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool IsWindow(IntPtr hwnd);
 
       #region user32!GetWindow
       /// <summary> The GetWindow function retrieves a handle to a Window 
@@ -192,6 +214,7 @@ namespace Huddled.Interop
       [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
       public static extern IntPtr GetWindow(IntPtr windowHandle, GetWindowCommand command);
       #endregion
+
       #region user32!ShowWindow
       /// <summary>
       /// The ShowWindow function sets the specified Window's show state.
@@ -219,6 +242,7 @@ namespace Huddled.Interop
 
 
 
+
       /// <summary>Window message values, WM_*
       /// </summary>
       public enum WindowMessage
@@ -239,14 +263,19 @@ namespace Huddled.Interop
          GetTextLength = 0x000e,
          Paint = 0x000f,
          Close = 0x0010,
+         /// <summary>
+         /// 
+         /// </summary>
          QueryEndSession = 0x0011,
          Quit = 0x0012,
          QueryOpen = 0x0013,
          EraseBackground = 0x0014,
          SystemColorChange = 0x0015,
-         
+
          GetMinMaxInfo = 0x0024,
 
+         EnterSizeMove = 0x0231,
+         ExitSizeMove = 0x0232,
          WindowPositionChanging = 0x0046,
          WindowPositionChanged = 0x0047,
 
@@ -291,7 +320,7 @@ namespace Huddled.Interop
          AsyncWindowPosition = 0x4000,
          DeferErase = 0x2000,
          DrawFrame = 0x0020,
-         FrameChanged = 0x0020,
+//         FrameChanged = 0x0020,
          HideWindow = 0x0080,
          NoActivate = 0x0010,
          NoCopyBits = 0x0100,
@@ -451,16 +480,25 @@ namespace Huddled.Interop
       /// EnableMenuItem uEnable values, MF_*
       /// </summary>
       [Flags]
-      public enum EnableMenuItemOptions : uint
+      public enum MenuItemFlags : uint
       {
          /// <summary>
          /// Possible return value for EnableMenuItem
          /// </summary>
-         DOES_NOT_EXIST = unchecked((uint)-1),
-         ENABLED = 0,
-         BYCOMMAND = 0,
-         GRAYED = 1,
-         DISABLED = 2,
+         DoesNotExist = unchecked((uint)-1),
+         Enabled = 0,
+         ByCommand = 0,
+         Unchecked = 0,
+         Grayed = 1,
+         Disabled = 2,
+         Checked = 8,
+         Popup = 10,
+         MenuBarBreak = 20,
+         MenuBreak = 40,
+         Highlighted = 80,
+         OwnerDrawn = 100,
+         ByPosition = 400,
+         Separator = 800
       }
 
       /// <summary>Specifies the type of visual style attribute to set on a window.</summary>
@@ -579,6 +617,31 @@ namespace Huddled.Interop
 
          public int Right { get { return Left + Width; } }
          public int Bottom { get { return Top + Height; } }
+
+         public Point Position
+         {
+            get { return new Point(Left, Top); }
+         }
+
+         public Size Size
+         {
+            get { return new Size(Width, Height); }
+         }
+
+         public ApiRect ToApiRect()
+         {
+            return new ApiRect(Left, Top, Left + Width, Top + Height);
+         }
+
+         public Rect ToRect()
+         {
+            return new Rect(Left, Top, Left + Width, Top + Height);
+         }
+
+         public override String ToString()
+         {
+            return "Flags: " + Flags.ToString() + " (Insert After: " + HandleInsertAfter + ")\nTop Left: " + Top + "," + Left + " Height: " + Height + " Width: " + Width;
+         }
       }
 
       /// <summary>A Win32 Margins structure for the DWM api calls.
@@ -660,13 +723,13 @@ namespace Huddled.Interop
          }
 
          // Create working area dimensions, converted to DPI-independent values
-         public Rect DPITransformFromWindow(System.Windows.Interop.HwndSource source)
+         public Rect DPITransformFromWindow(PresentationSource source)
          {
             if (source == null) throw new ArgumentNullException("source"); // Should never be null
             if (source.CompositionTarget == null) throw new ArgumentException("Provided HwndSource has no composition target"); // Should never be null
 
             Matrix matrix = source.CompositionTarget.TransformFromDevice;
-            return new Rect( matrix.Transform(new Point(this.Left, this.Top)),
+            return new Rect(matrix.Transform(new Point(this.Left, this.Top)),
                              matrix.Transform(new Point(this.Right, this.Bottom)));
 
          }
@@ -717,6 +780,36 @@ namespace Huddled.Interop
 
          #endregion
       }
+
+      [StructLayout(LayoutKind.Sequential)]
+      public struct ApiPoint
+      {
+         public int x;
+         public int y;
+
+         public ApiPoint(int x, int y)
+         {
+            this.x = x;
+            this.y = y;
+         }
+
+         public ApiPoint(Point source)
+         {
+            x = (int)source.X;
+            y = (int)source.Y;
+         }
+
+         public static implicit operator Point(ApiPoint source)
+         {
+            return new Point(source.x, source.y);
+         }
+
+         public static implicit operator ApiPoint(Point source)
+         {
+            return new ApiPoint(source);
+         }
+      }
+
 
 
       [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -805,7 +898,7 @@ namespace Huddled.Interop
          public WindowThemeNonClientAttributes dwMask;
       }
 
-      public enum MonitorDefault { ToNull = 0, ToPrimary = 1, ToNearest = 2}
+      public enum MonitorDefault { ToNull = 0, ToPrimary = 1, ToNearest = 2 }
 
       [StructLayout(LayoutKind.Sequential)]
       public class MonitorInfo
@@ -825,14 +918,6 @@ namespace Huddled.Interop
          public ApiPoint MinTrackSize;
          public ApiPoint MaxTrackSize;
       }
-
-      [StructLayout(LayoutKind.Sequential)]
-      public struct ApiPoint
-      {
-         public int x;
-         public int y;
-      }
-
 
 
       [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -881,253 +966,302 @@ namespace Huddled.Interop
 
 
 
-         [DllImport("gdi32.dll", EntryPoint = "CreateRoundRectRgn", SetLastError = true)]
-         private static extern IntPtr _CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
+      [DllImport("gdi32.dll", EntryPoint = "CreateRoundRectRgn", SetLastError = true)]
+      private static extern IntPtr _CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
 
-         public static IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse)
+      public static IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse)
+      {
+         IntPtr ret = _CreateRoundRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect, nWidthEllipse, nHeightEllipse);
+         if (IntPtr.Zero == ret)
          {
-            IntPtr ret = _CreateRoundRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect, nWidthEllipse, nHeightEllipse);
-            if (IntPtr.Zero == ret)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return ret;
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return ret;
+      }
 
-         [DllImport("gdi32.dll", EntryPoint = "CreateRectRgn", SetLastError = true)]
-         private static extern IntPtr _CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
+      [DllImport("gdi32.dll", EntryPoint = "CreateRectRgn", SetLastError = true)]
+      private static extern IntPtr _CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
 
-         public static IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
+      public static IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
+      {
+         IntPtr ret = _CreateRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect);
+         if (IntPtr.Zero == ret)
          {
-            IntPtr ret = _CreateRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect);
-            if (IntPtr.Zero == ret)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return ret;
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return ret;
+      }
 
-         [DllImport("gdi32.dll", EntryPoint = "CreateRectRgnIndirect", SetLastError = true)]
-         private static extern IntPtr _CreateRectRgnIndirect([In] ref ApiRect lprc);
+      [DllImport("gdi32.dll", EntryPoint = "CreateRectRgnIndirect", SetLastError = true)]
+      private static extern IntPtr _CreateRectRgnIndirect([In] ref ApiRect lprc);
 
-         public static IntPtr CreateRectRgnIndirect(ApiRect lprc)
+      public static IntPtr CreateRectRgnIndirect(ApiRect lprc)
+      {
+         IntPtr ret = _CreateRectRgnIndirect(ref lprc);
+         if (IntPtr.Zero == ret)
          {
-            IntPtr ret = _CreateRectRgnIndirect(ref lprc);
-            if (IntPtr.Zero == ret)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return ret;
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return ret;
+      }
 
 
-         private enum CombineRgnStyles : int
+      private enum CombineRgnStyles : int
+      {
+         RGN_AND = 1,
+         RGN_OR = 2,
+         RGN_XOR = 3,
+         RGN_DIFF = 4,
+         RGN_COPY = 5,
+         RGN_MIN = RGN_AND,
+         RGN_MAX = RGN_COPY
+      }
+
+      private enum CombineRgnResult : int
+      {
+         Error = 0,
+         NullRegion = 1,
+         SimpleRegion = 2,
+         ComplexRegion = 3
+      }
+
+
+
+
+      [DllImport("gdi32.dll", EntryPoint = "CombineRgn", SetLastError = true)]
+      private static extern CombineRgnResult _CombineRgn([Out] IntPtr hrgnDest, [In] IntPtr hrgnSrc1, [In] IntPtr hrgnSrc2, CombineRgnStyles fnCombineMode);
+
+      public static IntPtr OrRgn(IntPtr mainRegion, IntPtr addRegion)
+      {
+         IntPtr hrgnDest = addRegion;
+
+         var result = _CombineRgn(hrgnDest, mainRegion, addRegion, CombineRgnStyles.RGN_OR);
+         if (result == CombineRgnResult.Error)
          {
-            RGN_AND = 1,
-            RGN_OR = 2,
-            RGN_XOR = 3,
-            RGN_DIFF = 4,
-            RGN_COPY = 5,
-            RGN_MIN = RGN_AND,
-            RGN_MAX = RGN_COPY
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return hrgnDest;
+      }
 
-         private enum CombineRgnResult : int
+
+      [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "DefWindowProcW")]
+      public static extern IntPtr DefWindowProc(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
+
+
+
+
+
+      /// <summary>
+      /// Enables the menu item.
+      /// </summary>
+      /// <param name="hMenu">The menu handle.</param>
+      /// <param name="menuItem">The menu item ID.</param>
+      /// <param name="uEnable">The u enable.</param>
+      /// <returns></returns>
+      [DllImport("user32.dll", EntryPoint = "EnableMenuItem")]
+      private static extern int _EnableMenuItem(IntPtr hMenu, SystemMenuItem menuItem, MenuItemFlags uEnable);
+
+      public static MenuItemFlags EnableMenuItem(IntPtr hMenu, SystemMenuItem menuItem, MenuItemFlags uEnable)
+      {
+         // Returns the previous state of the menu item, or -1 if the menu item does not exist.
+         int iRet = _EnableMenuItem(hMenu, menuItem, uEnable);
+         return (MenuItemFlags)iRet;
+      }
+
+      /// <summary>
+      /// Checks the menu item.
+      /// </summary>
+      /// <param name="hMenu">The menu handle.</param>
+      /// <param name="menuItem">The menu item ID.</param>
+      /// <param name="uCheck">The u check.</param>
+      /// <returns></returns>
+      [DllImport("user32.dll")]
+      public static extern uint CheckMenuItem(IntPtr hMenu, SystemMenuItem menuItem, MenuItemFlags uCheck);
+
+
+      /// <summary>
+      /// Gets the state of the menu.
+      /// </summary>
+      /// <param name="hMenu">The menu handle.</param>
+      /// <param name="menuItem">The menu item ID.</param>
+      /// <param name="uFlags">The u flags.</param>
+      /// <returns></returns>
+      [DllImport("user32.dll")]
+      static extern MenuItemFlags GetMenuState(IntPtr hMenu, SystemMenuItem menuItem, MenuItemFlags uFlags);
+
+
+      [DllImport("user32.dll", EntryPoint = "GetDC", SetLastError = true)]
+      private static extern IntPtr _GetDC(IntPtr hwnd);
+
+      public static IntPtr GetDC(IntPtr hwnd)
+      {
+         IntPtr hdc = _GetDC(hwnd);
+         if (IntPtr.Zero == hdc)
          {
-            Error = 0,
-            NullRegion = 1,
-            SimpleRegion = 2,
-            ComplexRegion = 3
-         }
-
-
-
-
-         [DllImport("gdi32.dll", EntryPoint = "CombineRgn", SetLastError = true)]
-         private static extern CombineRgnResult _CombineRgn([Out] IntPtr hrgnDest, [In] IntPtr hrgnSrc1, [In] IntPtr hrgnSrc2, CombineRgnStyles fnCombineMode);
-
-         public static IntPtr OrRgn(IntPtr mainRegion, IntPtr addRegion)
-         {
-            IntPtr hrgnDest = addRegion;
-
-            var result = _CombineRgn(hrgnDest, mainRegion, addRegion, CombineRgnStyles.RGN_OR);
-            if (result == CombineRgnResult.Error)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return hrgnDest;
-         }
-
-
-         [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "DefWindowProcW")]
-         public static extern IntPtr DefWindowProc(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
-
-         [DllImport("user32.dll", EntryPoint = "EnableMenuItem")]
-         private static extern int _EnableMenuItem(IntPtr hMenu, SystemMenuItem uIDEnableItem, EnableMenuItemOptions uEnable);
-
-         public static EnableMenuItemOptions EnableMenuItem(IntPtr hMenu, SystemMenuItem uIDEnableItem, EnableMenuItemOptions uEnable)
-         {
-            // Returns the previous state of the menu item, or -1 if the menu item does not exist.
-            int iRet = _EnableMenuItem(hMenu, uIDEnableItem, uEnable);
-            return (EnableMenuItemOptions)iRet;
-         }
-
-         [DllImport("user32.dll", EntryPoint = "GetDC", SetLastError = true)]
-         private static extern IntPtr _GetDC(IntPtr hwnd);
-
-         public static IntPtr GetDC(IntPtr hwnd)
-         {
-            IntPtr hdc = _GetDC(hwnd);
-            if (IntPtr.Zero == hdc)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
-            return hdc;
-         }
-
-         [DllImport("gdi32.dll")]
-         public static extern int GetDeviceCaps(IntPtr hdc, DeviceCap nIndex);
-
-         [DllImport("user32.dll", EntryPoint = "GetMonitorInfo", SetLastError = true)]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         private static extern bool _GetMonitorInfo(IntPtr hMonitor, [In, Out] MonitorInfo lpmi);
-
-         public static MonitorInfo GetMonitorInfo(IntPtr hMonitor)
-         {
-            var mi = new MonitorInfo();
-            if (!_GetMonitorInfo(hMonitor, mi))
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return mi;
-         }
-
-         [DllImport("user32.dll")]
-         public static extern IntPtr GetSystemMenu(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool bRevert);
-
-         // This is aliased as a macro in 32bit Windows.
-         public static IntPtr GetWindowLongPtr(IntPtr hwnd, WindowLongValues nIndex)
-         {
-            IntPtr ret = IntPtr.Zero;
-            if (8 == IntPtr.Size)
-            {
-               ret = GetWindowLongPtr64(hwnd, nIndex);
-            }
-            else
-            {
-               ret = GetWindowLongPtr32(hwnd, nIndex);
-            }
-            if (IntPtr.Zero == ret)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            return ret;
-         }
-
-         [DllImport("user32.dll", EntryPoint = "GetWindowLong", SetLastError = true)]
-         private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, WindowLongValues nIndex);
-
-         [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", SetLastError = true)]
-         private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, WindowLongValues nIndex);
-
-         [DllImport("user32.dll", SetLastError = true)]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         private static extern bool GetWindowPlacement(IntPtr hwnd, WindowPlacement lpwndpl);
-
-         public static WindowPlacement GetWindowPlacement(IntPtr hwnd)
-         {
-            WindowPlacement wndpl = new WindowPlacement();
-            if (GetWindowPlacement(hwnd, wndpl))
-            {
-               return wndpl;
-            }
             throw new Win32Exception(Marshal.GetLastWin32Error());
          }
 
+         return hdc;
+      }
 
+      [DllImport("gdi32.dll")]
+      public static extern int GetDeviceCaps(IntPtr hdc, DeviceCap nIndex);
 
-         [DllImport("user32.dll")]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         public static extern bool IsWindowVisible(IntPtr hwnd);
+      [DllImport("user32.dll", EntryPoint = "GetMonitorInfo", SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      private static extern bool _GetMonitorInfo(IntPtr hMonitor, [In, Out] MonitorInfo lpmi);
 
-         [DllImport("user32.dll")]
-         public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefault flags);
-
-         [DllImport("user32.dll", EntryPoint = "PostMessage", SetLastError = true)]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         private static extern bool _PostMessage(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
-
-         public static void PostMessage(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam)
+      public static MonitorInfo GetMonitorInfo(IntPtr hMonitor)
+      {
+         var mi = new MonitorInfo();
+         if (!_GetMonitorInfo(hMonitor, mi))
          {
-            if (!_PostMessage(hWnd, Msg, wParam, lParam))
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return mi;
+      }
 
-         //SetWindowLong won't work correctly for 64-bit: we should use SetWindowLongPtr instead.  On
-         //32-bit, SetWindowLongPtr is just #defined as SetWindowLong.  SetWindowLong really should 
-         //take/return int instead of IntPtr/HandleRef, but since we're running this only for 32-bit
-         //it'll be OK.
-         public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+      /// <summary>
+      /// Gets the system menu.
+      /// </summary>
+      /// <param name="hWnd">The h WND.</param>
+      /// <param name="bRevert">if set to <c>true</c> [b revert].</param>
+      /// <returns></returns>
+      [DllImport("user32.dll")]
+      public static extern IntPtr GetSystemMenu(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool bRevert);
+
+
+      // This is aliased as a macro in 32bit Windows.
+      public static IntPtr GetWindowLongPtr(IntPtr hwnd, WindowLongValues nIndex)
+      {
+         IntPtr ret = IntPtr.Zero;
+         if (8 == IntPtr.Size)
          {
-            if (IntPtr.Size == 4)
-            {
-               return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
-            }
-            return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+            ret = GetWindowLongPtr64(hwnd, nIndex);
          }
-
-         //[SuppressMessage("Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable")]
-         [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
-         public static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-         //[SuppressMessage("Microsoft.Interoperability", "CA1400:PInvokeEntryPointsShouldExist")]
-         [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLongPtr")]
-         public static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-         public static IntPtr SetWindowLong(IntPtr hWnd, short nIndex, IntPtr dwNewLong)
+         else
          {
-            if (IntPtr.Size == 4)
-            {
-               return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
-            }
-            return SetWindowLongPtr64(hWnd, (int)nIndex, dwNewLong);
+            ret = GetWindowLongPtr32(hwnd, nIndex);
          }
-         //[SuppressMessage("Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable")]
-         [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
-         public static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, short nIndex, IntPtr dwNewLong);
-
-
-         [DllImport("user32.dll", EntryPoint = "SetWindowRgn", SetLastError = true)]
-         private static extern int _SetWindowRgn(IntPtr hWnd, IntPtr hRgn, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
-
-         public static void SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw)
+         if (IntPtr.Zero == ret)
          {
-            int err = _SetWindowRgn(hWnd, hRgn, bRedraw);
-            if (0 == err)
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
+            throw new Win32Exception(Marshal.GetLastWin32Error());
          }
+         return ret;
+      }
 
-         [DllImport("user32.dll", EntryPoint = "SetWindowPos", SetLastError = true)]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         private static extern bool _SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPositionOptions uFlags);
+      [DllImport("user32.dll", EntryPoint = "GetWindowLong", SetLastError = true)]
+      private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, WindowLongValues nIndex);
 
-         public static void SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPositionOptions uFlags)
+      [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", SetLastError = true)]
+      private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, WindowLongValues nIndex);
+
+      [DllImport("user32.dll", SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      private static extern bool GetWindowPlacement(IntPtr hwnd, WindowPlacement lpwndpl);
+
+      public static WindowPlacement GetWindowPlacement(IntPtr hwnd)
+      {
+         WindowPlacement wndpl = new WindowPlacement();
+         if (GetWindowPlacement(hwnd, wndpl))
          {
-            if (!_SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy, uFlags))
-            {
-               throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
+            return wndpl;
          }
+         throw new Win32Exception(Marshal.GetLastWin32Error());
+      }
 
-         // This function is strange in that it returns a BOOL if TPM_RETURNCMD isn't specified, but otherwise the command Id.
-         // Currently it's only used with TPM_RETURNCMD, so making the signature match that.
-         [DllImport("user32.dll")]
-         public static extern uint TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
+      [DllImport("user32.dll")]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool GetCursorPos(out ApiPoint lpPoint);
+
+      [DllImport("user32.dll")]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool IsWindowVisible(IntPtr hwnd);
+
+      [DllImport("user32.dll")]
+      public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefault flags);
+
+      [DllImport("user32.dll")]
+      public static extern IntPtr MonitorFromPoint(ApiPoint pt, MonitorDefault flags);
+
+      [DllImport("user32.dll")]
+      public static extern IntPtr MonitorFromRect([In] ref ApiRect lprc, MonitorDefault flags);
+
+
+      [DllImport("user32.dll", EntryPoint = "PostMessage", SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      private static extern bool _PostMessage(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
+
+      public static void PostMessage(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam)
+      {
+         if (!_PostMessage(hWnd, Msg, wParam, lParam))
+         {
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+         }
+      }
+
+      //SetWindowLong won't work correctly for 64-bit: we should use SetWindowLongPtr instead.  On
+      //32-bit, SetWindowLongPtr is just #defined as SetWindowLong.  SetWindowLong really should 
+      //take/return int instead of IntPtr/HandleRef, but since we're running this only for 32-bit
+      //it'll be OK.
+      public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+      {
+         if (IntPtr.Size == 4)
+         {
+            return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+         }
+         return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+      }
+
+      //[SuppressMessage("Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable")]
+      [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
+      public static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+      //[SuppressMessage("Microsoft.Interoperability", "CA1400:PInvokeEntryPointsShouldExist")]
+      [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLongPtr")]
+      public static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+      public static IntPtr SetWindowLong(IntPtr hWnd, short nIndex, IntPtr dwNewLong)
+      {
+         if (IntPtr.Size == 4)
+         {
+            return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+         }
+         return SetWindowLongPtr64(hWnd, (int)nIndex, dwNewLong);
+      }
+      //[SuppressMessage("Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable")]
+      [DllImport("User32", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
+      public static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, short nIndex, IntPtr dwNewLong);
+
+
+      [DllImport("user32.dll", EntryPoint = "SetWindowRgn", SetLastError = true)]
+      private static extern int _SetWindowRgn(IntPtr hWnd, IntPtr hRgn, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
+
+      public static void SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw)
+      {
+         int err = _SetWindowRgn(hWnd, hRgn, bRedraw);
+         if (0 == err)
+         {
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+         }
+      }
+
+      [DllImport("user32.dll", EntryPoint = "SetWindowPos", SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      private static extern bool _SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPositionOptions uFlags);
+
+      public static void SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPositionOptions uFlags)
+      {
+         if (!_SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy, uFlags))
+         {
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+         }
+      }
+
+      // This function is strange in that it returns a BOOL if TPM_RETURNCMD isn't specified, but otherwise the command Id.
+      // Currently it's only used with TPM_RETURNCMD, so making the signature match that.
+      [DllImport("user32.dll")]
+      public static extern uint TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
 
 
 

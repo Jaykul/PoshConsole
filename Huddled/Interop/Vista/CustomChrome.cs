@@ -24,38 +24,6 @@ namespace Huddled.Wpf
       private const NativeMethods.SetWindowPositionOptions _SwpFlags = NativeMethods.SetWindowPositionOptions.FrameChanged | NativeMethods.SetWindowPositionOptions.NoSize | NativeMethods.SetWindowPositionOptions.NoMove | NativeMethods.SetWindowPositionOptions.NoZOrder | NativeMethods.SetWindowPositionOptions.NoOwnerZOrder | NativeMethods.SetWindowPositionOptions.NoActivate;
       //        private static readonly bool _OnVista = Environment.OSVersion.Version.Major >= 6;
 
-      /// <summary>A reference to the Window for which the chrome is being modified.</summary>
-      private WeakReference _weakWindow;
-
-      /// <summary>Gets or sets the Window that is the target of this command
-      /// </summary>
-      /// <value>The Window.</value>
-      public Window Target
-      {
-         get
-         {
-            if (_weakWindow == null)
-            {
-               return null;
-            }
-            else
-            {
-               return _weakWindow.Target as Window;
-            }
-         }
-         set
-         {
-            if (value == null)
-            {
-               _weakWindow = null;
-            }
-            else
-            {
-               _weakWindow = new WeakReference(value);
-            }
-         }
-      }
-
 
       private Brush _background;
       /// <summary>Underlying HWND for the Window.</summary>
@@ -76,17 +44,20 @@ namespace Huddled.Wpf
       /// <summary>
       /// Default constructor usable by XAML.
       /// </summary>
-      public override IEnumerable<MessageMapping> GetHandlers()
+      protected override IEnumerable<MessageMapping> Handlers
       {
-         yield return new MessageMapping(NativeMethods.WindowMessage.SetText, _HandleSetText);
-         yield return new MessageMapping(NativeMethods.WindowMessage.SetIcon, _HandleSetIcon);
-         yield return new MessageMapping(NativeMethods.WindowMessage.ActivateNonClientArea, _HandleNCActivate);
-         yield return new MessageMapping(NativeMethods.WindowMessage.CalculateNonClientSize, _HandleNCCalcSize);
-         yield return new MessageMapping(NativeMethods.WindowMessage.HitTestNonClientArea, _HandleNCHitTest);
-         yield return new MessageMapping(NativeMethods.WindowMessage.NonClientRightButtonUp, _HandleNCRButtonUp);
-         yield return new MessageMapping(NativeMethods.WindowMessage.Size, _HandleSize);
-         yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanged, _HandleWindowPosChanged);
-         yield return new MessageMapping(NativeMethods.WindowMessage.DwmCompositionChanged, _HandleDwmCompositionChanged);
+         get
+         {
+            yield return new MessageMapping(NativeMethods.WindowMessage.SetText, _HandleSetText);
+            yield return new MessageMapping(NativeMethods.WindowMessage.SetIcon, _HandleSetIcon);
+            yield return new MessageMapping(NativeMethods.WindowMessage.ActivateNonClientArea, _HandleNCActivate);
+            yield return new MessageMapping(NativeMethods.WindowMessage.CalculateNonClientSize, _HandleNCCalcSize);
+            yield return new MessageMapping(NativeMethods.WindowMessage.HitTestNonClientArea, _HandleNCHitTest);
+            yield return new MessageMapping(NativeMethods.WindowMessage.NonClientRightButtonUp, _HandleNCRButtonUp);
+            yield return new MessageMapping(NativeMethods.WindowMessage.Size, _HandleSize);
+            yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanged, _HandleWindowPosChanged);
+            yield return new MessageMapping(NativeMethods.WindowMessage.DwmCompositionChanged, _HandleDwmCompositionChanged);
+         }
       }
 
       /// <summary>
@@ -95,26 +66,27 @@ namespace Huddled.Wpf
       /// on the actual window (the Chrome behavior uses this to change the template)
       /// </summary>
       /// <param name="window"></param>
-      override public void AddTo(Window window)
+      protected override void OnAttached()
       {
-         Target = window;
-         _background = Target.Background;
+         base.OnAttached();
+
+         _background = AssociatedObject.Background;
 
          var resourceLocater = new Uri("/" + Assembly.GetExecutingAssembly().GetName().Name + ";component/Interop/Vista/ChromelessWindowTemplate.xaml", UriKind.RelativeOrAbsolute);
          _template = (ControlTemplate)Application.LoadComponent(resourceLocater);
-         window.Template = _template;
+         AssociatedObject.Template = _template;
 
 
          // get the handle from it
-         _hwnd = new WindowInteropHelper(window).Handle;
+         _hwnd = new WindowInteropHelper(AssociatedObject).Handle;
          // if we got a handle, yay.
          if (_hwnd != IntPtr.Zero)
          {
-            OnWindowSourceInitialized(window, EventArgs.Empty);
+            OnWindowSourceInitialized(AssociatedObject, EventArgs.Empty);
          }
          else // otherwise, hook something up for later.
          {
-            window.SourceInitialized += OnWindowSourceInitialized;
+            AssociatedObject.SourceInitialized += OnWindowSourceInitialized;
          }
       }
 
@@ -123,16 +95,16 @@ namespace Huddled.Wpf
       /// </summary>
       private void OnWindowSourceInitialized(object sender, EventArgs e)
       {
-         Debug.Assert(null != Target);
-         _hwnd = new WindowInteropHelper(Target).Handle;
+         Debug.Assert(null != AssociatedObject);
+         _hwnd = new WindowInteropHelper(AssociatedObject).Handle;
 
          // Our template should have been applied.
-         _templatePartBorder = (Border)_template.FindName("PART_BackgroundBorder", Target);
+         _templatePartBorder = (Border)_template.FindName("PART_BackgroundBorder", AssociatedObject);
          Debug.Assert(null != _templatePartBorder);
 
 			_HookUpSystemButtons();
 			// Force this the first time.
-         _UpdateSystemMenu(Target.WindowState);
+         _UpdateSystemMenu(AssociatedObject.WindowState);
          _UpdateFrameState(true);
 
          NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0, _SwpFlags);
@@ -140,19 +112,19 @@ namespace Huddled.Wpf
 
 		private void _HookUpSystemButtons()
 		{
-			Button min = (Button)_template.FindName("MinimizeButton", Target);
+         Button min = (Button)_template.FindName("MinimizeButton", AssociatedObject);
 			if (min != null){
 				min.SetValue(CustomChrome.HitTestableProperty, true);
 				min.Click += OnMinimizeButtonClick;
-			} 
-			
-			Button max = (Button)_template.FindName("MaximizeButton", Target);
+			}
+
+         Button max = (Button)_template.FindName("MaximizeButton", AssociatedObject);
 			if (max != null) {
 				max.SetValue(CustomChrome.HitTestableProperty, true);
 				max.Click += OnMaximizeButtonClick;
 			}
 
-			Button cls = (Button)_template.FindName("CloseButton", Target);
+         Button cls = (Button)_template.FindName("CloseButton", AssociatedObject);
 			if (cls != null) {
 				cls.SetValue(CustomChrome.HitTestableProperty, true);
 				cls.Click += OnCloseButtonClick;
@@ -161,14 +133,14 @@ namespace Huddled.Wpf
 
 		private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
 		{
-			if (Target.WindowState != WindowState.Maximized)
+         if (AssociatedObject.WindowState != WindowState.Maximized)
 			{
-				Target.WindowState = WindowState.Maximized;
+            AssociatedObject.WindowState = WindowState.Maximized;
 				((Button)sender).ToolTip = "Restore Down";
 			}
 			else
 			{
-				Target.WindowState = WindowState.Normal;
+            AssociatedObject.WindowState = WindowState.Normal;
 				((Button)sender).ToolTip = "Maximize";
 			}
 
@@ -176,28 +148,13 @@ namespace Huddled.Wpf
 
 		private void OnCloseButtonClick(object sender, RoutedEventArgs e)
 		{
-			Target.Close();
+         AssociatedObject.Close();
 		}
 
 		private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
 		{
-			Target.WindowState = WindowState.Minimized;
+         AssociatedObject.WindowState = WindowState.Minimized;
 		}
-
-
-      /// <summary>
-      /// Called when this behavior is unhooked from a <see cref="System.Windows.Window"/>
-      /// <see cref="NativeBehavior"/> implementations may override this to perfom actions
-      /// on the actual window.
-      /// </summary>
-      /// <param name="window"></param>
-      override public void RemoveFrom(Window window)
-      {
-         //_entries.Clear();
-         Target = null;
-         _hwnd = IntPtr.Zero;
-      }
-
 
 
       #region Attached Properties and support methods.
@@ -616,8 +573,8 @@ namespace Huddled.Wpf
          // If DWM already handled this by way of DwmDefWindowProc, then respect their call.
          if (IntPtr.Zero == lRet)
          {
-            var mousePosScreen = new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam));
-            Rect windowPosition = Target.GetWindowRect();
+            var mousePosScreen = new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam));
+            Rect windowPosition = AssociatedObject.GetWindowRect();
 
             NativeMethods.HT ht = _HitTestNca(
                 DpiHelper.DeviceRectToLogical(windowPosition),
@@ -647,7 +604,7 @@ namespace Huddled.Wpf
          // to bring up the system menu.
          if (NativeMethods.HT.CAPTION == (NativeMethods.HT)wParam.ToInt32())
          {
-            _ShowSystemMenu(new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam)));
+            _ShowSystemMenu(new Point(Helpers.GET_X_LPARAM(lParam), Helpers.GET_Y_LPARAM(lParam)));
          }
          handled = false;
          return IntPtr.Zero;
@@ -711,7 +668,7 @@ namespace Huddled.Wpf
       {
          bool ret = false;
          VisualTreeHelper.HitTest(
-             Target,
+             AssociatedObject,
              target =>
              {
                 UIElement uie = target as UIElement;
@@ -772,8 +729,8 @@ namespace Huddled.Wpf
       /// </remarks>
       private void _UpdateSystemMenu(WindowState? assumeState)
       {
-         const NativeMethods.EnableMenuItemOptions mfEnabled = NativeMethods.EnableMenuItemOptions.ENABLED | NativeMethods.EnableMenuItemOptions.BYCOMMAND;
-         const NativeMethods.EnableMenuItemOptions mfDisabled = NativeMethods.EnableMenuItemOptions.GRAYED | NativeMethods.EnableMenuItemOptions.DISABLED | NativeMethods.EnableMenuItemOptions.BYCOMMAND;
+         const NativeMethods.MenuItemFlags mfEnabled = NativeMethods.MenuItemFlags.Enabled | NativeMethods.MenuItemFlags.ByCommand;
+         const NativeMethods.MenuItemFlags mfDisabled = NativeMethods.MenuItemFlags.Grayed | NativeMethods.MenuItemFlags.Disabled | NativeMethods.MenuItemFlags.ByCommand;
 
          WindowState state = assumeState ?? _GetHwndState();
 
@@ -787,9 +744,9 @@ namespace Huddled.Wpf
             {
                var dwStyle = (NativeMethods.WindowStyles)NativeMethods.GetWindowLongPtr(_hwnd, NativeMethods.WindowLongValues.Style).ToInt32();
 
-               bool canMinimize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MinimizeBox);
-               bool canMaximize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MaximizeBox);
-               bool canSize = Utility.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.ThickFrame);
+               bool canMinimize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MinimizeBox);
+               bool canMaximize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.MaximizeBox);
+               bool canSize = Helpers.IsFlagSet((int)dwStyle, (int)NativeMethods.WindowStyles.ThickFrame);
 
                switch (state)
                {
@@ -831,7 +788,7 @@ namespace Huddled.Wpf
             return;
          }
 
-         VisualTreeHelper.HitTest(Target, target =>
+         VisualTreeHelper.HitTest(AssociatedObject, target =>
          {
             FrameworkElement uie = target as FrameworkElement;
             if (null != uie && CustomChrome.GetClientConstrained(uie))
@@ -842,7 +799,7 @@ namespace Huddled.Wpf
             return HitTestFilterBehavior.Continue;
          },
             result => HitTestResultBehavior.Stop,
-            new GeometryHitTestParameters(new RectangleGeometry(Target.GetWindowRect())));
+            new GeometryHitTestParameters(new RectangleGeometry(AssociatedObject.GetWindowRect())));
 
 
          bool frameState = NativeMethods.IsCompositionEnabled;
@@ -891,7 +848,7 @@ namespace Huddled.Wpf
             }
             else
             {
-               Rect r = Target.GetWindowRect();
+               Rect r = AssociatedObject.GetWindowRect();
                left = (int)r.Left;
                top = (int)r.Top;
             }
@@ -913,23 +870,23 @@ namespace Huddled.Wpf
             int height;
 
             // Use the size if it's specified.
-            if (null != wp && !Utility.IsFlagSet((int)wp.Value.Flags, (int)NativeMethods.SetWindowPositionOptions.NoSize))
+            if (null != wp && !Helpers.IsFlagSet((int)wp.Value.Flags, (int)NativeMethods.SetWindowPositionOptions.NoSize))
             {
                width = wp.Value.Width;
                height = wp.Value.Height;
             }
-            else if (null != wp && (_lastRoundingState == Target.WindowState))
+            else if (null != wp && (_lastRoundingState == AssociatedObject.WindowState))
             {
                return;
             }
             else
             {
-               Rect r = Target.GetWindowRect();
+               Rect r = AssociatedObject.GetWindowRect();
                width = (int)r.Width;
                height = (int)r.Height;
             }
 
-            _lastRoundingState = Target.WindowState;
+            _lastRoundingState = AssociatedObject.WindowState;
 
             IntPtr hrgn = IntPtr.Zero;
 
@@ -963,14 +920,14 @@ namespace Huddled.Wpf
             // {
             hrgn = NativeMethods.CreateRectRgn(0, 0, width, height);
             //}
-            Target.Background = _background;
+            AssociatedObject.Background = _background;
             NativeMethods.SetWindowRgn(_hwnd, hrgn, NativeMethods.IsWindowVisible(_hwnd));
          }
       }
 
       private void _ExtendGlassFrame()
       {
-         Debug.Assert(null != Target);
+         Debug.Assert(null != AssociatedObject);
 
          // Expect that this might be called on OSes other than Vista.
          // Not an error.  Just not on Vista so we're not going to get glass.
@@ -1002,7 +959,7 @@ namespace Huddled.Wpf
             //    cyBottomHeight = (int)Math.Ceiling(deviceBottomRight.Y),
             //};
 
-            Target.Background = Brushes.Transparent;
+            AssociatedObject.Background = Brushes.Transparent;
             NativeMethods.ExtendFrameIntoClientArea(_hwnd, ClientBorderThickness); //
          }
 

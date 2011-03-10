@@ -1533,6 +1533,7 @@ function Global:Write-BootsOutput($inputObject) {
       }
 
 
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not suppressing the exception, just moving it into an ErrorRecord for PowerShell")]
       protected override void EndProcessing()
       {
          if(ExportNamedElements.ToBool())

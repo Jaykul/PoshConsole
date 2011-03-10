@@ -1,0 +1,256 @@
+﻿<!-- 
+    Template to use to simulate a Zune-style "Metro" style window.
+    -->
+<ControlTemplate 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:n="http://nRoute/schemas/2010/xaml"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+    xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions" 
+    xmlns:huddled="http://schemas.huddledmasses.org/wpf"
+    TargetType="{x:Type Window}">
+	<ControlTemplate.Resources>
+		<huddled:MetroWindow x:Key="MetroWindowDataSource" d:IsDataSource="True"/>
+		<Color x:Key="HighlightDarkColor">#FF119EDA</Color>
+		<Color x:Key="HighlightLightColor">#FFB2E0F4</Color>
+		<Color x:Key="BackgroundColor">#FF000000</Color>
+		<Color x:Key="ForegroundColor">#FFFFFFFF</Color>
+
+		<Color x:Key="Gray1">#FFCCCCCC</Color>
+		<Color x:Key="Gray2">#FF7F7F7F</Color>
+		<Color x:Key="Gray3">#FF333333</Color>
+		<Color x:Key="Gray4">#FFB9B9B9</Color>
+		<Color x:Key="Gray5">#FFD8D8D9</Color>
+		<SolidColorBrush x:Key="GrayBrush1" Color="{StaticResource Gray1}"/>
+		<SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
+		<SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
+
+		<SolidColorBrush x:Key="DisabledForegroundBrush" Color="#FFAAAAAA"/>
+		<SolidColorBrush x:Key="DisabledControlBrush" Color="#FFAAAAAA"/>
+		<SolidColorBrush x:Key="HighlightDarkBrush" Color="{StaticResource HighlightDarkColor}"/>
+		<SolidColorBrush x:Key="HighlightLightBrush" Color="{StaticResource HighlightLightColor}"/>
+		<!-- Close Button Style -->
+		<Style x:Key="SimpleButton" TargetType="{x:Type Button}">
+			<Setter Property="MinHeight" Value="12"/>
+			<Setter Property="MinWidth" Value="12"/>
+			<!--Margin="0" Padding="0" Width="22" Height="22"-->
+			<Setter Property="Background" Value="{StaticResource GrayBrush1}" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Grid x:Name="grid" Cursor="{TemplateBinding Cursor}" Margin="0,0,0,0">
+							<Grid.Background>
+								<SolidColorBrush Color="{TemplateBinding Background}"/>
+							</Grid.Background>
+							<VisualStateManager.VisualStateGroups>
+								<VisualStateGroup x:Name="CommonStates">
+									<VisualState x:Name="Normal"/>
+									<VisualState x:Name="MouseOver">
+										<Storyboard>
+											<!--<ColorAnimation Duration="0" To="{StaticResource HighlightLightColor}" Storyboard.TargetProperty="(SolidColorBrush.Color)" Storyboard.TargetName="ContentPresenterWrapperColor" />-->
+											<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid" />-->
+											<DoubleAnimation Duration="0" To="2"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="contentPresenter" />
+											<DoubleAnimation Duration="0" To="1"  Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="contentPresenter" />
+										</Storyboard>
+									</VisualState>
+									<VisualState x:Name="Pressed">
+										<Storyboard>
+											<!--<ColorAnimation Duration="0" To="{StaticResource Gray5}" Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="grid"/>-->
+											<DoubleAnimation Duration="0" To="0.8" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="grid"/>
+										</Storyboard>
+									</VisualState>
+									<VisualState x:Name="Disabled">
+										<Storyboard>
+											<ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
+												<DiscreteObjectKeyFrame KeyTime="0">
+													<DiscreteObjectKeyFrame.Value>
+														<Visibility>Visible</Visibility>
+													</DiscreteObjectKeyFrame.Value>
+												</DiscreteObjectKeyFrame>
+											</ObjectAnimationUsingKeyFrames>
+										</Storyboard>
+									</VisualState>
+								</VisualStateGroup>
+								<VisualStateGroup x:Name="FocusStates">
+									<VisualState x:Name="Focused"/>
+									<VisualState x:Name="Unfocused"/>
+								</VisualStateGroup>
+							</VisualStateManager.VisualStateGroups>
+							<TextBlock x:Name="UnderlineTextBlock" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" TextDecorations="Underline" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
+                            </TextBlock.Foreground>
+							</TextBlock>
+							<TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Panel.ZIndex="1"/>
+							<ContentControl>
+								<ContentControl.Foreground>
+									<SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="{StaticResource HighlightDarkColor}" />
+								</ContentControl.Foreground>
+								<ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Width="16" Height="16" Margin="0,0,0,0">
+									<ContentPresenter.Effect>
+										<DropShadowEffect Color="{StaticResource Gray5}" BlurRadius="0" Opacity="0" ShadowDepth="0"/>
+									</ContentPresenter.Effect>
+								</ContentPresenter>
+							</ContentControl>
+							<Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+								<Rectangle.Stroke>
+									<SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
+								</Rectangle.Stroke>
+							</Rectangle>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Stretch"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+			<Setter Property="UseLayoutRounding" Value="False"/>
+		</Style>
+	</ControlTemplate.Resources>
+	<!-- Create the Canvas with dimensions that span the full size of the Window. 
+                    <Canvas x:Name="PART_RootCanvas"
+                      Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualWidth}"
+                      Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=ActualHeight}"
+                      Background="Transparent">-->
+	<Grid Background="Transparent" Height="Auto">
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="WindowStateGroup">
+				<VisualStateGroup.Transitions>
+					<VisualTransition GeneratedDuration="0"/>
+				</VisualStateGroup.Transitions>
+				<VisualState x:Name="Normal"/>
+				<VisualState x:Name="Minimized"/>
+				<VisualState x:Name="Maximized">
+					<Storyboard>
+						<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="EdgeBorder" >
+							<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
+						</ObjectAnimationUsingKeyFrames>
+						<ThicknessAnimation Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedFullLeft">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedFullLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedFullLeftBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedFullRight">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedFullRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedFullRightBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedFullTop">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedFullTopThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedFullTopBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedFullBottom">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedFullBottomThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedFullBottomBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedFullHeight">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedFullHeightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedFullHeightBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<!--<VisualState x:Name="DockedLeft">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedLeftBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedRight">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedRightBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedTop">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedTopThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedTopBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedBottom">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedBottomThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedBottomBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedTopLeft">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedTopLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedTopLeftBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedTopRight">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedTopRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedTopRightBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedBottomLeft">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedBottomLeftThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedBottomLeftBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>
+				<VisualState x:Name="DockedBottomRight">
+					<Storyboard>
+						<ThicknessAnimation x:Name="DockedBottomRightThickness" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="ContentGrid" />
+						<ThicknessAnimation x:Name="DockedBottomRightBorder" Duration="0" To="0" Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="EdgeBorder" />
+					</Storyboard>
+				</VisualState>-->
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+
+		<Border x:Name="EdgeBorder" IsHitTestVisible="False" Margin="{TemplateBinding Margin}" IsEnabled="False"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding Margin}"
+                            Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Height}"
+                            Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Width}">
+			<Border.Effect>
+				<DropShadowEffect x:Name="DropShadow" Opacity="1" BlurRadius="{Binding Margin.Top, ElementName=EdgeBorder}" ShadowDepth="0"/>
+			</Border.Effect>
+		</Border>
+		<Grid x:Name="ContentGrid" Background="{TemplateBinding Background}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+			<AdornerDecorator x:Name="PART_Adorner" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+				<ContentPresenter Margin="{TemplateBinding Padding}" />
+			</AdornerDecorator>
+			<StackPanel x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Background="{x:Null}" Margin="0,2,5,0">
+				<!-- -->
+				<Button Cursor="Arrow" Foreground="White" x:Name="MinimizeButton" ToolTip="Minimize" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding Height}" huddled:MetroWindow.HitTestable="True" >
+					<Grid>
+						<Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
+					</Grid>
+				</Button>
+				<Button Cursor="Arrow" Foreground="White" x:Name="MaximizeButton" ToolTip="Maximize" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding Height}" huddled:MetroWindow.HitTestable="True" >
+					<Grid>
+						<Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" Margin="2"/>
+						<Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" Height="6" Margin="2"/>
+					</Grid>
+				</Button>
+				<Button Cursor="Arrow" Foreground="White" x:Name="CloseButton" ToolTip="Close" Style="{StaticResource SimpleButton}" VerticalAlignment="Stretch" Width="{Binding Height}" huddled:MetroWindow.HitTestable="True" >
+					<Grid>
+						<Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+						<Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{StaticResource ForegroundBrush}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+					</Grid>
+				</Button>
+			</StackPanel>
+
+			<ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Visible" IsTabStop="False" Foreground="Black"/>
+		</Grid>
+	</Grid>
+</ControlTemplate>
+    

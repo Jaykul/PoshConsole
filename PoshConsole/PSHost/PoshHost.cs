@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interactivity;
 using System.Windows.Threading;
 using Huddled.Interop;
 using Huddled.Wpf;
@@ -285,7 +286,8 @@ namespace PoshConsole.Host
       {
          if (_native > 0)
          {
-            _console.SendCtrlC();
+            NativeConsole.SendCtrlC();
+            //_console.SendCtrlC();
          }
          else
          {
@@ -742,7 +744,9 @@ namespace PoshConsole.Host
 
       public bool RemoveHotkey(KeyGesture key)
       {
-         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
+
+
+         foreach (HotkeysBehavior behavior in Interaction.GetBehaviors(_psUi as Window).OfType<HotkeysBehavior>())
          {
                behavior.Hotkeys.Remove(new KeyBinding(new ScriptCommand(OnGotUserInput, null), key));
                return true;
@@ -756,15 +760,14 @@ namespace PoshConsole.Host
          {
             try
             {
-               foreach (var behavior in NativeBehaviors.GetBehaviors(_psUi as Window))
-               {
-                  if (behavior is HotkeysBehavior)
-                  {
-                     HotkeysBehavior hk = behavior as HotkeysBehavior;
-                     hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
-                     return true;
-                  }
-               }
+
+               HotkeysBehavior hk = Interaction.GetBehaviors(_psUi as Window).OfType<HotkeysBehavior>().FirstOrDefault();
+                     if (hk != null)
+                     {
+                        hk.Hotkeys.Add(new KeyBinding(new ScriptCommand(OnGotUserInput, script), key));
+                        return true;
+                     }
+             
                return false;
             }
             catch { return false; }
@@ -773,17 +776,11 @@ namespace PoshConsole.Host
 
       public IEnumerable<KeyValuePair<KeyGesture, ScriptBlock>> Hotkeys()
       {
-         foreach (HotkeysBehavior behavior in NativeBehaviors.SelectBehaviors<HotkeysBehavior>(_psUi as Window))
-         {
-            foreach (var keyBinding in behavior.Hotkeys)
-            {
-               yield return
-                  new KeyValuePair<KeyGesture, ScriptBlock>(
-                     keyBinding.Gesture as KeyGesture, 
-                     keyBinding.Command as ScriptCommand);
-            }
-            //return true;
-         }
+         return from behavior in Interaction.GetBehaviors(_psUi as Window).OfType<HotkeysBehavior>() 
+                from keyBinding in behavior.Hotkeys 
+                select new KeyValuePair<KeyGesture, ScriptBlock>(
+                              keyBinding.Gesture as KeyGesture, 
+                              keyBinding.Command as ScriptCommand);
       }
 
       #endregion

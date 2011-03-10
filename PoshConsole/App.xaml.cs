@@ -12,5 +12,6 @@ namespace PoshConsole
 
     public partial class App : System.Windows.Application
     {
+
     }
 }

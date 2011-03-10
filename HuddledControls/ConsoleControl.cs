@@ -88,7 +88,7 @@ namespace Huddled.WPF.Controls
                               IsEnabled = true,
                               Focusable = true
                            };
-         _commandBox.PreviewKeyDown  += new KeyEventHandler(_commandBox_PreviewKeyDown);
+         _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
          _passwordBox.PreviewKeyDown += new KeyEventHandler(_passwordBox_PreviewKeyDown);
 
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
@@ -106,7 +106,7 @@ namespace Huddled.WPF.Controls
       void ISupportInitialize.EndInit()
       {
          // Pre-call the base init code, so it will be finished ...
-         base.EndInit(); 
+         base.EndInit();
 
          //// Initialize the document ...
 
@@ -137,8 +137,8 @@ namespace Huddled.WPF.Controls
          BindingOperations.SetBinding(Document, FlowDocument.BackgroundProperty, new Binding("Background") { Source = this });
          BindingOperations.SetBinding(Document, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
 
-         // BindingOperations.SetBinding(_commandBox, FlowDocument.BackgroundProperty, new Binding("Background") { Source = this });
-         // BindingOperations.SetBinding(_commandBox, FlowDocument.ForegroundProperty, new Binding("Foreground") { Source = this });
+         // BindingOperations.SetBinding(_commandBox, Control.BackgroundProperty, new Binding("Background") { Source = this });
+         // BindingOperations.SetBinding(_commandBox, Control.ForegroundProperty, new Binding("Foreground") { Source = this });
 
          // find the ScrollViewer
          _scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer;
@@ -224,10 +224,17 @@ namespace Huddled.WPF.Controls
       private static void BackgroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
       {
          // put code here to handle the property changed for BackgroundColor
-         ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
-         if (ConsoleControlObj != null)
+         ConsoleControl consoleControlObj = depObj as ConsoleControl;
+         if (consoleControlObj != null)
          {
-            ConsoleControlObj.Background = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            if (e.NewValue != DependencyProperty.UnsetValue)
+            {
+               consoleControlObj.Background = consoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            }
+            else
+            {
+               consoleControlObj.Background = consoleControlObj._brushes.DefaultBackground;
+            }
          }
       }
 
@@ -255,11 +262,19 @@ namespace Huddled.WPF.Controls
 
       private static void ForegroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
       {
+
          // put code here to handle the property changed for ForegroundColor
          ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
          if (ConsoleControlObj != null)
          {
-            ConsoleControlObj.Foreground = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            if (e.NewValue != DependencyProperty.UnsetValue)
+            {
+               ConsoleControlObj.Foreground = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
+            }
+            else
+            {
+               ConsoleControlObj.Foreground = ConsoleControlObj._brushes.DefaultForeground;
+            }
          }
       }
 
@@ -341,32 +356,32 @@ namespace Huddled.WPF.Controls
 
       public string CurrentCommandPreCursor
       {
-          get
-          {
-              TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
-              return preCursor.Text.TrimEnd('\n', '\r');
-          }
-          set
-          {
-              TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
-              // TODO: re-parse and syntax highlight
-              preCursor.Text = value.TrimEnd('\n', '\r');
-          }
+         get
+         {
+            TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+            return preCursor.Text.TrimEnd('\n', '\r');
+         }
+         set
+         {
+            TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+            // TODO: re-parse and syntax highlight
+            preCursor.Text = value.TrimEnd('\n', '\r');
+         }
       }
       public string CurrentCommandPostCursor
       {
-          get
-          {
-              TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
-              return postCursor.Text.TrimEnd('\n', '\r');
-          }
-          set
-          {
-              TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
-              // TODO: re-parse and syntax highlight
-              postCursor.Text = value.TrimEnd('\n', '\r');
+         get
+         {
+            TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+            return postCursor.Text.TrimEnd('\n', '\r');
+         }
+         set
+         {
+            TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+            // TODO: re-parse and syntax highlight
+            postCursor.Text = value.TrimEnd('\n', '\r');
 
-          }
+         }
       }
 
       public string CurrentCommand
@@ -380,7 +395,7 @@ namespace Huddled.WPF.Controls
          {
             _commandBox.Document.Blocks.Clear();
             // TODO: re-parse and syntax highlight
-            _commandBox.Document.ContentStart.InsertTextInRun(value.TrimEnd('\n','\r'));
+            _commandBox.Document.ContentStart.InsertTextInRun(value.TrimEnd('\n', '\r'));
             _commandBox.CaretPosition = _commandBox.Document.ContentEnd;
          }
       }
@@ -441,7 +456,7 @@ namespace Huddled.WPF.Controls
           DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
 
       private string _searchString = String.Empty;
-      private IEnumerable<TextRange> _searchHits = new TextRange[]{};
+      private IEnumerable<TextRange> _searchHits = new TextRange[] { };
       /// <summary>
       /// Find all instances of the given text
       /// </summary>
@@ -517,7 +532,7 @@ namespace Huddled.WPF.Controls
             MatchDiacritics = 8,
             MatchKashida = 16,
             MatchAlefHamza = 32,
-         } 
+         }
 
          public static TextRange FindText(TextPointer findContainerStartPosition, TextPointer findContainerEndPosition, String input, FindFlags flags, CultureInfo cultureInfo)
          {
@@ -532,7 +547,7 @@ namespace Huddled.WPF.Controls
                             GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
                   }
 
-                  textRange = findMethod.Invoke(null, 
+                  textRange = findMethod.Invoke(null,
                      new Object[] { findContainerStartPosition,
                                     findContainerEndPosition,
                                     input, 
@@ -571,9 +586,10 @@ namespace Huddled.WPF.Controls
 
             while (findMethod != null && start.CompareTo(end) < 0)
             {
-               try {
-               last = findMethod.Invoke(null,
-                                       new Object[] { start,
+               try
+               {
+                  last = findMethod.Invoke(null,
+                                          new Object[] { start,
                                                       end,
                                                       input, 
                                                       flags, 
@@ -585,13 +601,13 @@ namespace Huddled.WPF.Controls
                   last = null;
                }
 
-               if (last == null) 
+               if (last == null)
                   yield break;
                else
                   yield return last;
                start = last.End;
             }
          }
-      } 
+      }
    }
 }

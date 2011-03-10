@@ -10,43 +10,36 @@ using System;
 using System.Management.Automation;
 using System.Text;
 
-namespace PoshWpf.Commands
-{
+namespace PoshWpf.Commands {
 
-	[Cmdlet(VerbsData.Import, "Xaml", DefaultParameterSetName = ParameterSetPath)]
-   public class XamlImportCommand : HuddledContentProviderBaseCommand
-   {
-      protected override void ProcessRecord()
-      {
-			// pre-call base to get ProviderPaths populated
-			base.ProcessRecord();
+    [Cmdlet(VerbsData.Import, "Xaml", DefaultParameterSetName = ParameterSetPath)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not suppressing the exception, just moving it into an ErrorRecord for PowerShell")]
+    public class XamlImportCommand : HuddledContentProviderBaseCommand {
+        protected override void ProcessRecord() {
+            // pre-call base to get ProviderPaths populated
+            base.ProcessRecord();
 
-      	foreach (var path in ProviderPaths)
-      	{
-      		using (var reader = TryGetReader(path))
-      		{
-      			var builder = new StringBuilder();
-					// read everything into a list of ... stuff
-					try
-					{
-						var lines = reader.Read(0);
-						foreach (var line in lines)
-						{
-							builder.Append(line.ToString());
-						}
-					} 
-					catch(Exception ex)
-					{
-						WriteError(new ErrorRecord(ex, "CantReadContent", ErrorCategory.ReadError, path));
-					}
+            foreach (var path in ProviderPaths) {
+                using (var reader = TryGetReader(path)) {
+                    var builder = new StringBuilder();
+                    // read everything into a list of ... stuff
+                    try {
+                        var lines = reader.Read(0);
+                        foreach (var line in lines) {
+                            builder.Append(line.ToString());
+                        }
+                    }
+                    catch (Exception ex) {
+                        WriteError(new ErrorRecord(ex, "CantReadContent", ErrorCategory.ReadError, path));
+                    }
 
-					// Any errors here will just propagate out and crash.
-					// I'm ok with that.
-					WriteObject(System.Xaml.XamlServices.Parse(builder.ToString()));
-      		}
-      	}
-      }
-   }
+                    // Any errors here will just propagate out and crash.
+                    // I'm ok with that.
+                    WriteObject(System.Xaml.XamlServices.Parse(builder.ToString()));
+                }
+            }
+        }
+    }
 
 }
 

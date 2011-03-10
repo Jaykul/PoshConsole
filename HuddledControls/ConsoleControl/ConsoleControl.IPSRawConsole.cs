@@ -224,6 +224,7 @@ namespace Huddled.WPF.Controls
       {
          get
          {
+            CompleteBackgroundWorkItems();
             if (Dispatcher.CheckAccess())
             {
                return this.CursorPosition;
@@ -236,6 +237,7 @@ namespace Huddled.WPF.Controls
          }
          set
          {
+            CompleteBackgroundWorkItems();
             if (Dispatcher.CheckAccess())
             {
                this.CursorPosition = value;
@@ -377,6 +379,7 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.FlushInputBuffer()
       {
+         CompleteBackgroundWorkItems();
          if (Dispatcher.CheckAccess())
          {
             _commandBox.Document.Blocks.Clear();
@@ -397,7 +400,7 @@ namespace Huddled.WPF.Controls
       {
          // TODO: REIMPLEMENT PSHostRawUserInterface.GetBufferContents(Rectangle rectangle)
          // throw new NotImplementedException("The GetBufferContents method is not (yet) implemented!");
-
+         CompleteBackgroundWorkItems();
          if (Dispatcher.CheckAccess())
          {
             return this.GetBufferContents(rectangle);
@@ -418,6 +421,8 @@ namespace Huddled.WPF.Controls
       /// </summary>        
       public void ClearScreen()
       {
+         CompleteBackgroundWorkItems();
+
          if (Dispatcher.CheckAccess())
          {
             _current.Inlines.Remove(_commandContainer);
@@ -443,6 +448,7 @@ namespace Huddled.WPF.Controls
 
       void IPSRawConsole.SetBufferContents(Rectangle rectangle, BufferCell fill)
       {
+         CompleteBackgroundWorkItems();
          if (rectangle.Left == -1 && rectangle.Right == -1)
          {
             ClearScreen();

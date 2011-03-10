@@ -27,7 +27,8 @@ namespace PoshWpf.Commands
 			return ProviderPaths.ToDictionary(path => path, path => TryGetWriter(path));
 		}
 
-		protected IContentReader TryGetReader(string path)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not suppressing the exception, just moving it into an ErrorRecord for PowerShell")]
+        protected IContentReader TryGetReader(string path)
 		{
 			try {
 				return InvokeProvider.Content.GetReader(WildcardPattern.Escape(path)).Single();
@@ -39,7 +40,8 @@ namespace PoshWpf.Commands
 			return null;
 		}
 
-		protected IContentWriter TryGetWriter(string path)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not suppressing the exception, just moving it into an ErrorRecord for PowerShell")]
+        protected IContentWriter TryGetWriter(string path)
 		{
 			try
 			{

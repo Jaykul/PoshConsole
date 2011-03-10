@@ -80,7 +80,7 @@ namespace Huddled.WPF.Controls
       #region Alpha=255
       public static readonly DependencyProperty AlphaProperty = DependencyProperty.Register(
           "Alpha",                              // name
-          typeof(byte?), typeof(ColorInverter),  // Type information
+		  typeof(byte?), typeof(ColorToBrushInverter),  // Type information
           new FrameworkPropertyMetadata(null));  // Default Value
 
       public byte? Alpha
