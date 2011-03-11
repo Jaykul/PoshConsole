@@ -3,7 +3,7 @@
 <?define folderPoshWpfTemplates = "..\PoshConsole\bin\x64\Release\XamlTemplates\"?>
 <?define folderArtwork = "..\PoshConsole\Artwork\"?>
 <?define licenseRtf ="License.rtf" ?>
-<?define ProductVersion = "2.0.2011.309"?>
+<?define ProductVersion = "2.1.2011.310"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:NetFx="http://schemas.microsoft.com/wix/NetFxExtension">
 
@@ -13,32 +13,34 @@
 		Version 1.0          Product Id was: 51e0de3f-0e25-4896-a310-71b39851e1ee
 		Version 2.0.2010.307 Product Id was: {B50DD990-10B7-4393-BEDA-952B2A75C3FF}
 		Version 2.0.2010.308 Product Id was: {530BB369-C0A9-4431-A65D-22079E5ABDED}
-      Version 2.0.2011.309 Product Id was: {BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}
+      Version 2.1.2011.310 Product Id was: {BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}
 	-->
    <Product
 	  Id="{BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}"
 	  Name="PoshConsole"
 	  Language="1033"
 	  Version="$(var.ProductVersion)"
-	  Manufacturer="PoshConsole"
+	  Manufacturer="Huddled Masses"
 	  UpgradeCode="a342fa00-d8f6-4cbd-8773-e2b7e6874c4e"
 	  Codepage="1252">
       <!-- Package must be the FIRST element inside the Product -->
       <Package InstallerVersion="200"
                Compressed="yes"
-               Comments="PoshConsole BETA RELEASE"
-               Description="Installer for the POSH Console 2, a WPF PowerShell 2 Console"
+               Comments="PoshConsole 2 BETA RELEASE"
+               Description="Installer for the PoshConsole 2, a WPF PowerShell 2 Console"
                InstallPrivileges="elevated"
                InstallScope="perMachine"
-               Keywords="POSH, PowerShell, Console"
+               Keywords="PoSh, PowerShell, Console"
                Languages="1033"
-               Manufacturer="POSH Installer"
+               Manufacturer="Huddled Masses"
                SummaryCodepage="1252" />
 
       <Media Id="1" Cabinet="PoshConsoleInstaller.cab" EmbedCab="yes" />
       <Icon Id="icon.ico" SourceFile="$(var.folderArtwork)PoshConsole.ico"/>
       <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
       <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
 
       <!--There properties represent the standard settings (on) for shortcut creation-->
       <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"></Property>
@@ -46,7 +48,7 @@
       <Property Id="INSTALLQUICKSTARTMENUSHORTCUT" Value="0"></Property>
 
       <Property Id="POWERSHELLVERSION">
-         <RegistrySearch Id="FindPowerShell2" Root="HKLM" Key="Software\Microsoft\PowerShell\1\PowerShellEngine" Name="PowerShellVersion" Type="raw"></RegistrySearch>
+         <RegistrySearch Id="FindPowerShellVersion" Root="HKLM" Key="Software\Microsoft\PowerShell\1\PowerShellEngine" Name="PowerShellVersion" Type="raw"></RegistrySearch>
       </Property>
 
       <Property Id="NETFRAMEWORK35">
@@ -72,41 +74,40 @@
                          Name="Install"
                          Type="raw" />
       </Property>
-		
+
+      <MajorUpgrade DowngradeErrorMessage="A later version of PoshConsole is already installed. Setup will now exit."></MajorUpgrade>
+
       <Upgrade Id="a342fa00-d8f6-4cbd-8773-e2b7e6874c4e">
-         <UpgradeVersion Maximum="$(var.ProductVersion)" IncludeMaximum="no" Property="OLDERVERSION" />
+         <UpgradeVersion OnlyDetect="no" Maximum="2.0.0.0" IncludeMaximum="no" Property="OLDERVERSION" />
          <UpgradeVersion Minimum="$(var.ProductVersion)" IncludeMinimum="no" Property="NEWERVERSION" />
       </Upgrade>
+
+      <!--The messages will appear (and the installation will be aborted) if the condition evaluates to false!-->
+      <Condition Message="Installation is only possible with Windows XP or higher">
+         <![CDATA[VersionNT >= 501]]>
+      </Condition>
+      
       <Condition Message="A later version of PoshConsole is already installed. Setup will now exit.">
-         NOT NEWERVERSION OR Installed
+         <![CDATA[NOT NEWERVERSION]]>
       </Condition>
 
-      <InstallExecuteSequence>
+      <Condition Message="PowerShell 2.0 must be installed to install PoshConsole">
+         <![CDATA[POWERSHELLVERSION OR Installed]]>
+      </Condition>
+
+      <Condition Message=".NET Framework 4.0 (Full or Client profile) is needed to run this application">
+         <![CDATA[NETFRAMEWORK4FULL OR NETFRAMEWORK4CLIENT OR Installed]]>
+      </Condition>
+
+
+      <!--<InstallExecuteSequence>
          <RemoveExistingProducts After="InstallFinalize"/>
-      </InstallExecuteSequence>
+      </InstallExecuteSequence>-->
+      
       <InstallUISequence>
          <!-- App search is what does FindInstallLocation, and it is dependent on FindRelatedProducts -->
          <AppSearch After="FindRelatedProducts"/>
       </InstallUISequence>
-
-
-
-      <Condition Message="Installation only possible with Windows XP or higher">
-         <![CDATA[VersionNT >= 501]]>
-      </Condition>
-		
-      <!--<Condition Message=".NET Framework 3.5 is needed to run this application">
-			<![CDATA[NETFRAMEWORK35]]>
-		</Condition>-->
-
-      <Condition Message=".NET Framework 4.0 (Full or Client profile) is needed to run this application">
-         <![CDATA[NETFRAMEWORK4FULL OR NETFRAMEWORK4CLIENT]]>
-      </Condition>
-		
-      <Condition Message="PowerShell must be installed to use PoshConsole">
-         <![CDATA[POWERSHELLVERSION = "2.0"]]>
-      </Condition>
-
 
       <Directory Id="TARGETDIR" Name="SourceDir">
          <Directory Id="DesktopFolder"></Directory>
@@ -116,11 +117,19 @@
          <Directory Id="ProgramFiles64Folder">
             <Directory Id="INSTALLLOCATION" Name="PoshConsole">
                <Directory Id="XAMLTEMPLATESLOCATION" Name="XamlTemplates"/>
+               <Directory Id="InteractivityDE"  Name="de" />
+               <Directory Id="InteractivityEN"  Name="en" />
+               <Directory Id="InteractivityES"  Name="es" />
+               <Directory Id="InteractivityFR"  Name="fr" />
+               <Directory Id="InteractivityIT"  Name="it" />
+               <Directory Id="InteractivityJA"  Name="ja" />
+               <Directory Id="InteractivityKO"  Name="ko" />
+               <Directory Id="InteractivityZH1" Name="zh-Hans" />
+               <Directory Id="InteractivityZH2" Name="zh-Hant" />               
             </Directory>
          </Directory>
       </Directory>
 		
-      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
 
       <DirectoryRef Id="INSTALLLOCATION">
          <Component Id="MainExecutable" Guid="62eee9d7-15f3-47be-9c2b-9a875cf4285f">
@@ -166,61 +175,81 @@
             <RemoveFolder Directory="PoshConsole" Id="RmPoshMenuFolder" On="uninstall"/>
          </Component>
 
-         <!--
-			<Component Id="MainExecutableQuickStartMenuSCS" Guid="EB151A61-A135-4d6b-94B5-1FE70FE760D2">				
-				<RegistryKey Action="createAndRemoveOnUninstall" Id="MainExecQuickStartMenuSCSReg" Key="Software\PoshConsole\Install" Root="HKCU">
-					<RegistryValue Name="QuickStartMenuFolderShortCut" Value="1" Type="integer" KeyPath="yes"></RegistryValue>
-				</RegistryKey>
-				<Shortcut
-							 Id="MainExecQuickStartMenuSCS"
-							 Target="[INSTALLLOCATION]PoshConsole.exe"
-							 Icon="icon.ico"
-							 Description="Starts POSH Console"
-							 Name="POSH Console"
-							 WorkingDirectory="INSTALLLOCATION"
-							 Directory="QuickLaunch">
-				</Shortcut>
-
-				<CreateFolder Directory="QuickLaunch"></CreateFolder>
-				<RemoveFolder Directory="QuickLaunch" Id="RmQuickStartFolder" On="uninstall"/>
-				<CreateFolder Directory="InternetExplorer"></CreateFolder>
-				<RemoveFolder Directory="InternetExplorer" Id="RmInternetExplorerFolder" On="uninstall"/>
-				<CreateFolder Directory="Microsoft"></CreateFolder>
-				<RemoveFolder Directory="Microsoft" Id="RmMicrosoftFolder" On="uninstall"/>
-			</Component>
-			-->
-
          <Component Id="Huddled.WPF.Controls" Guid="E3BD3326-CBB4-4d8a-B8C5-45A133F3CD7C">
-            <File Id="Huddled.WPF.Controls"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="Huddled.WPF.Controls.dll" Source="$(var.folder)Huddled.WPF.Controls.dll"></File>
+            <File Id="Huddled.WPF.Controls"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="Huddled.WPF.Controls.dll" Source="$(var.folder)Huddled.WPF.Controls.dll">
+               <NetFx:NativeImage Id="ngen_Huddled.WPF.Controls.dll" Platform="all" Priority="1" />
+            </File>
          </Component>
 
          <Component Id="Huddled.Interop" Guid="AC54B85C-495D-44a8-A61E-924CD0609788">
-            <File Id="Huddled.Interop"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="Huddled.Interop.dll" Source="$(var.folder)Huddled.Interop.dll"></File>
+            <File Id="Huddled.Interop"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="Huddled.Interop.dll" Source="$(var.folder)Huddled.Interop.dll">
+               <NetFx:NativeImage Id="ngen_Huddled.Interop.dll" Platform="all" Priority="1" />               
+            </File>
          </Component>
 
          <Component Id="FontLibrary" Guid="C42FE80B-CCE1-4bac-AA16-13374F5E18D6">
-            <!--<CreateFolder Directory="Microsoft"></CreateFolder>-->
-
-            <File Id="FontLibrary" Vital="no" KeyPath="yes" ProcessorArchitecture="msil" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll"></File>
+            <File Id="FontLibrary" Vital="no" KeyPath="yes" ProcessorArchitecture="msil" Name="FontLibrary.dll" Source="$(var.folder)FontLibrary.dll">
+               <NetFx:NativeImage Id="ngen_FontLibrary.dll" Platform="all" Priority="1" />
+            </File>
          </Component>
+
          <Component Id="PoshWpf" Guid="D6005150-A1C8-49bb-931F-30736B36B92D">
             <File Id="PoshWpf"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="PoshWpf.dll" Source="$(var.folder)PoshWpf.dll">
                <NetFx:NativeImage Id="ngen_PoshWpf.dll" Platform="all" Priority="1" />
             </File>
          </Component>
-         <!--<Component Id="Null" Guid="939DF7BD-FFE3-4349-8626-34CC8A9DD908">
-		  <File Id="Null" KeyPath="yes" Name="null" Source="$(var.folder)null">
-			 <Permission ChangePermission="yes" GenericAll="yes" User="Everyone"/>
-		  </File>
-		</Component>-->
+
+         <Component Id="Shell" Guid="1F492457-5267-48CA-BF6C-10F4D6EB25F7">
+            <File Id="Shell"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="Microsoft.Windows.Shell.dll" Source="$(var.folder)Microsoft.Windows.Shell.dll">
+               <NetFx:NativeImage Id="ngen_Microsoft.Windows.Shell.dll" Platform="all" Priority="1" />
+            </File>
+         </Component>
+         
+         <Component Id="Interactivity" Guid="4E1C9E7A-D39C-4F67-9867-186F011D003F">
+            <File Id="Interactivity"  Vital="yes" KeyPath="yes" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.dll" Source="$(var.folder)System.Windows.Interactivity.dll">
+               <NetFx:NativeImage Id="ngen_System.Windows.Interactivity.dll" Platform="all" Priority="1" />
+            </File>
+         </Component>
+
       </DirectoryRef>
       <DirectoryRef Id="XAMLTEMPLATESLOCATION">
          <Component Id="PoshWpfTemplates" Guid="329EE1AF-D70A-4253-91D0-DB82DC4B080F">
             <!--<CreateFolder Directory="XamlTemplatesLocation"></CreateFolder>
 					<RemoveFolder Directory="XamlTemplatesLocation" Id="RmXamlTemplatesFolder" On="uninstall"/>-->
             <File Id="defaultxaml" Name="default.xaml" Source="$(var.folder)XamlTemplates/default.xaml"></File>
+            <File Id="huddledcontrolsxaml" Name="huddledcontrols.xaml" Source="$(var.folder)XamlTemplates/huddledcontrols.xaml"></File>
          </Component>
       </DirectoryRef>
+      
+      <ComponentGroup Id="InteractivityL18N">
+         <Component Id="InteractivityDE" Directory="InteractivityDE" Guid="1E750723-EF77-4060-812F-FB4C41C9B250">
+            <File Id="InteractivityResourcesDE"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)de\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityEN" Directory="InteractivityEN" Guid="2B37A5DA-3B61-4320-AFB4-96A87EE0A0C6">
+            <File Id="InteractivityResourcesEN"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)en\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityES" Directory="InteractivityES" Guid="07C80708-5A2A-450E-A6F5-19057773A818">
+            <File Id="InteractivityResourcesES"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)es\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityFR" Directory="InteractivityFR" Guid="7343945C-038E-4E83-A02E-3B2A01B30BC6">
+            <File Id="InteractivityResourcesFR"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)fr\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityIT" Directory="InteractivityIT" Guid="019A352A-7597-4773-8B8D-3048547CE00E">
+            <File Id="InteractivityResourcesIT"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)it\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityJA" Directory="InteractivityJA" Guid="02FF1DC0-74C8-4C9A-9C63-312112515E7A">
+            <File Id="InteractivityResourcesJA"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)ja\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityKO" Directory="InteractivityKO" Guid="A5A70553-3E67-49DE-9691-98E46084096D">
+            <File Id="InteractivityResourcesKO"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)ko\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityZH1" Directory="InteractivityZH1" Guid="DA9D27F5-CBEA-410F-9C7B-9523289E0B50">
+            <File Id="InteractivityResourcesZH1"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)zh-Hans\System.Windows.Interactivity.resources.dll" />
+         </Component>
+         <Component Id="InteractivityZH2" Directory="InteractivityZH2" Guid="D3392C69-1604-4629-B31A-A9A6F71597B6">
+            <File Id="InteractivityResourcesZH2"  Vital="no" KeyPath="no" ProcessorArchitecture="msil" Name="System.Windows.Interactivity.resources.dll" Source="$(var.folder)zh-Hant\System.Windows.Interactivity.resources.dll" />
+         </Component>
+      </ComponentGroup>
 
       <Feature Id="ProductFeature" Title="PoshConsole" Level="1" Absent="disallow" InstallDefault="local" ConfigurableDirectory="INSTALLLOCATION">
          <ComponentRef Id="MainExecutable" />
@@ -229,21 +258,22 @@
          <ComponentRef Id="FontLibrary"/>
          <ComponentRef Id="PoshWpf"/>
          <ComponentRef Id="PoshWpfTemplates"/>
-         <!--<ComponentRef Id="Null"/>-->
+         <ComponentRef Id="Shell"/>
+         <ComponentRef Id="Interactivity"/>
+         <ComponentRef Id="InteractivityEN"/>
 
-         <Feature Id="DesktopSCS" Title="Desktop shortcut" Description="Places a shortcut to PoshConsole on the desktop" TypicalDefault="install" InstallDefault="local" Level="1">
+         <Feature Id="DesktopSCS" Title="Desktop shortcut" Description="Places a shortcut to PoshConsole on the desktop" TypicalDefault="install" InstallDefault="followParent" Level="1">
             <ComponentRef Id="MainExecutableDesktopSCS"/>
          </Feature>
 
-         <Feature Id="StartMenuSCS" Title="Startmenu shortcut" Description="Places a shortcut to PoshConsole in the start menu" TypicalDefault="install" InstallDefault="local" Level="1">
+         <Feature Id="StartMenuSCS" Title="Startmenu shortcut" Description="Places a shortcut to PoshConsole in the start menu" TypicalDefault="install" InstallDefault="followParent" Level="1">
             <ComponentRef Id="MainExecutableStartMenuSCS"/>
          </Feature>
 
-         <!--
-			<Feature Id="QuickSCS" Title="QuickStart Shortcut" Description="Places a shortcut to PoshConsole in the quick start menu" TypicalDefault="install" InstallDefault="local" Level="1">
-				<ComponentRef Id="MainExecutableQuickStartMenuSCS"/>
-			</Feature>
-			-->
+         <Feature Id="Localization" Title="Localizations" Description="Partial Localization of PoshConsole strings" TypicalDefault="advertise" InstallDefault="followParent" Level="1">
+            <ComponentGroupRef Id="InteractivityL18N"/>
+         </Feature>
+
       </Feature>
       <UIRef Id="MyUI_Mondo"/>
    </Product>
