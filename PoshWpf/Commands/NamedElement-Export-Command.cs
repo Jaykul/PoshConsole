@@ -37,9 +37,9 @@ namespace PoshWpf.Commands
          try
          {
             // var active = Thread.CurrentThread;
-            if (BootsWindowDictionary.Instance.Count > 0)
+            if (UIWindowDictionary.Instance.Count > 0)
             {
-               foreach (var window in BootsWindowDictionary.Instance.Values)
+               foreach (var window in UIWindowDictionary.Instance.Values)
                {
                   // if (window.Dispatcher.Thread == active)
                   if (System.Windows.Threading.Dispatcher.CurrentDispatcher == window.Dispatcher)

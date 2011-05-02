@@ -5,8 +5,8 @@ using System.Windows;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsCommon.Remove, "BootsWindow", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium, DefaultParameterSetName = "Cleanup")]
-   public class RemoveBootsWindowCommand : PSCmdlet
+   [Cmdlet(VerbsCommon.Remove, "UIWindow", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium, DefaultParameterSetName = "Cleanup")]
+   public class RemoveUIWindowCommand : PSCmdlet
    {
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = true, ParameterSetName = "ByIndex")]
       public int[] Index { get; set; }
@@ -33,18 +33,18 @@ namespace PoshWpf.Commands
 
       protected override void ProcessRecord()
       {
-         if (BootsWindowDictionary.Instance.Count > 0)
+         if (UIWindowDictionary.Instance.Count > 0)
          {
             switch (ParameterSetName)
             {
                case "ByIndex":
                   foreach (var i in Index)
                   {
-                     BootsWindowDictionary.Instance.Remove(i);
+                     UIWindowDictionary.Instance.Remove(i);
                   } break;
                case "ByTitle":
                   {
-                     var windows = BootsWindowDictionary.Instance;
+                     var windows = UIWindowDictionary.Instance;
                      int[] keys = new int[windows.Count];
                      windows.Keys.CopyTo(keys, 0);
                      foreach (var k in keys)
@@ -66,12 +66,12 @@ namespace PoshWpf.Commands
                   {
                      for(int w =0;w < Window.Length;w++)
                      {
-                        BootsWindowDictionary.Instance.Remove(Window[w]);
+                        UIWindowDictionary.Instance.Remove(Window[w]);
                      }
                   } break;
                default:
                   {
-                     var windows = BootsWindowDictionary.Instance;
+                     var windows = UIWindowDictionary.Instance;
                      int[] keys = new int[windows.Count];
                      windows.Keys.CopyTo(keys, 0);
                      foreach (var k in keys)

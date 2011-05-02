@@ -6,8 +6,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-	[Cmdlet(VerbsCommon.Select, "BootsElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
-   public class SelectBootsElementCommand : ScriptBlockBase
+	[Cmdlet(VerbsCommon.Select, "UIElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
+   public class SelectUIElementCommand : ScriptBlockBase
 	{
 		private const string ByTitle = "ByTitle";
 		private const string ByIndex = "ByIndex";
@@ -53,19 +53,19 @@ namespace PoshWpf.Commands
 		{
 			try
 			{
-				if (BootsWindowDictionary.Instance.Count > 0)
+				if (UIWindowDictionary.Instance.Count > 0)
 				{
 					switch (ParameterSetName)
 					{
 						case ByIndex:
 							foreach (var i in Index)
 							{
-								var window = BootsWindowDictionary.Instance[i];
+								var window = UIWindowDictionary.Instance[i];
 								if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
 									WriteObject(window.Dispatcher.Invoke(((Func<UIElement, List<WildcardPattern>, List<UIElement>>)FindByName), window, namePatterns), true);
 							} break;
 						case ByTitle:
-							foreach (var window in BootsWindowDictionary.Instance.Values)
+							foreach (var window in UIWindowDictionary.Instance.Values)
 							{
 								if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
 								{
@@ -103,7 +103,7 @@ namespace PoshWpf.Commands
 
 		private List<UIElement> FindByName(UIElement element, List<WildcardPattern> patterns)
 		{
-			var sb = InvokeCommand.NewScriptBlock("Get-BootsContentProperty");
+			var sb = InvokeCommand.NewScriptBlock("Get-UIContentProperty");
 			foreach (var cont in Invoke(sb))
 			{
 				_contentProperties.Add(cont.BaseObject.ToString());

@@ -7,8 +7,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet("Register", "BootsEvent", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
-   public class RegisterBootsEventCommand : ScriptBlockBase//, IDynamicParameters
+   [Cmdlet("Register", "UIEvent", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
+   public class RegisterUIEventCommand : ScriptBlockBase//, IDynamicParameters
    {
       private const string ByTitle = "ByTitle";
       private const string ByIndex = "ByIndex";
@@ -108,14 +108,14 @@ namespace PoshWpf.Commands
 
       protected override void ProcessRecord()
       {
-         if (BootsWindowDictionary.Instance.Count > 0)
+         if (UIWindowDictionary.Instance.Count > 0)
          {
             switch (ParameterSetName)
             {
                case ByIndex:
                   foreach (var i in Index)
                   {
-                     var window = BootsWindowDictionary.Instance[i];
+                     var window = UIWindowDictionary.Instance[i];
                      if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
                      {
                         window.Dispatcher.Invoke((Action)(() =>
@@ -138,7 +138,7 @@ namespace PoshWpf.Commands
                      }
                   } break;
                case ByTitle:
-                  foreach (var window in BootsWindowDictionary.Instance.Values)
+                  foreach (var window in UIWindowDictionary.Instance.Values)
                   {
                      if (window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted)
                      {
@@ -207,7 +207,7 @@ namespace PoshWpf.Commands
 
       private List<UIElement> FindByName(UIElement element, IEnumerable<WildcardPattern> patterns)
       {
-         var sb = InvokeCommand.NewScriptBlock("Get-BootsContentProperty");
+         var sb = InvokeCommand.NewScriptBlock("Get-UIContentProperty");
          foreach (var cont in Invoke(sb))
          {
             _contentProperties.Add(cont.BaseObject.ToString());

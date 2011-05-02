@@ -19,7 +19,7 @@
     <SccProvider>SAK</SccProvider>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>HuddledMasses.org.pfx</AssemblyOriginatorKeyFile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -44,7 +44,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -55,7 +55,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>PowerShell2;CLR_V4</DefineConstants>
+    <DefineConstants>PowerShell2;CLR_V2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
@@ -97,7 +97,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\$(Platform)\$(Configuration)</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PowerShell2;CLR_V4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;PowerShell2;CLR_V2</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -138,7 +138,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Dependencies\System.Management.Automation.2.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
@@ -146,10 +145,10 @@
   <ItemGroup>
     <Compile Include="Converters\BindingConverter.cs" />
     <Compile Include="Converters\BindingPropertyConverter.cs" />
-    <Compile Include="BootsWindowDictionary.cs" />
-    <Compile Include="Commands\BootsTemplate-Get-Command.cs" />
-    <Compile Include="Commands\BootsElement-Select-Command.cs" />
-    <Compile Include="Commands\BootsEvent-Register-Command.cs" />
+    <Compile Include="UIWindowDictionary.cs" />
+    <Compile Include="Commands\UITemplate-Get-Command.cs" />
+    <Compile Include="Commands\UIElement-Select-Command.cs" />
+    <Compile Include="Commands\UIEvent-Register-Command.cs" />
     <Compile Include="Commands\NamedElement-Export-Command.cs" />
     <Compile Include="Commands\HuddledFileSystemBaseCommand.cs" />
     <Compile Include="Commands\HuddledContentProviderBaseCommand.cs" />
@@ -160,15 +159,15 @@
     <Compile Include="Commands\Xaml-Export-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertFrom-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
-    <Compile Include="Commands\BootsImage-Export-Command.cs" />
-    <Compile Include="Commands\BootsWindow-Remove-Command.cs" />
+    <Compile Include="Commands\UIImage-Export-Command.cs" />
+    <Compile Include="Commands\UIWindow-Remove-Command.cs" />
     <Compile Include="Dependencies\Interfaces\IPSWpfConsole.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Commands\BootsTemplate-Remove-Command.cs" />
-    <Compile Include="Commands\BootsWindow-Invoke-Command.cs" />
-    <Compile Include="Commands\BootsWindow-Get-Command.cs" />
-    <Compile Include="Commands\BootsWindow-New-Command.cs" />
-    <Compile Include="Commands\BootsElement-Out-Command.cs" />
+    <Compile Include="Commands\UITemplate-Remove-Command.cs" />
+    <Compile Include="Commands\UIWindow-Invoke-Command.cs" />
+    <Compile Include="Commands\UIWindow-Get-Command.cs" />
+    <Compile Include="Commands\UI-Show-Command.cs" />
+    <Compile Include="Commands\UIElement-Out-Command.cs" />
     <Compile Include="Utility\Invoker.cs" />
     <Compile Include="Data\PoshExtension.cs" />
     <Compile Include="PresentationInterface.cs" />
@@ -176,7 +175,7 @@
     <Compile Include="PSSnapin.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Commands\BootsTemplate-Add-Command.cs" />
+    <Compile Include="Commands\UITemplate-Add-Command.cs" />
     <Compile Include="Utility\ScriptBlockBase.cs" />
     <Compile Include="Utility\XamlUtilities.cs" />
   </ItemGroup>

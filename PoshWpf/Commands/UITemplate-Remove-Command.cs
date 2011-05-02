@@ -6,10 +6,10 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsCommon.Remove, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName = "Path")]
-   public class RemoveBootsTemplateCommand : PSCmdlet
+   [Cmdlet(VerbsCommon.Remove, "UITemplate", SupportsShouldProcess = true, DefaultParameterSetName = "Path")]
+   public class RemoveUITemplateCommand : PSCmdlet
    {
-      private const string Noun = "BootsTemplate";
+      private const string Noun = "UITemplate";
       private const string ParamSetLiteral = "Literal";
       private const string ParmamSetPath = "Path";
 
@@ -89,7 +89,7 @@ namespace PoshWpf.Commands
                // This block also supports the -confirm switch, where
                // you will be asked if you want to perform the action
                // "get metadata" on target: foo.txt
-               if (ShouldProcess(filePath, "Add Boots Template"))
+               if (ShouldProcess(filePath, "Add ShowUI Template"))
                {
                   XamlHelper.RemoveDataTemplate(filePath);
                }

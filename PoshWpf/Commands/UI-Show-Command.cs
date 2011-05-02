@@ -13,12 +13,13 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using PoshWpf.Utility;
+using System.Collections;
 
 namespace PoshWpf.Commands
 {
    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
-   [Cmdlet(VerbsCommon.New, "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-   public class NewBootsWindowCommand : ScriptBlockBase
+   [Cmdlet(VerbsCommon.Show, "UI", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+   public class ShowUICommand : ScriptBlockBase
    {
       #region Parameters
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = false, ValueFromPipeline = true, HelpMessage = "The Content for the WPF window ...")]
@@ -473,7 +474,7 @@ namespace PoshWpf.Commands
             }
             // if they *want* it shown async ...
             // Or it MUST be shown Async (because we're not in a STA thread)
-            else if (Async.ToBool() || System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA)
+            else if (_wantedAsync || System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA)
             {
                Async = true;
                Inline = false;
@@ -509,7 +510,7 @@ namespace PoshWpf.Commands
                         //{
                         //   if(_window != null)
                         //   {
-                        //      BootsWindowDictionary.Instance.Remove(_window);
+                        //      ShowUIWindowDictionary.Instance.Remove(_window);
                         //   }
                         //   _window = (Window)_element;
                         //   //_window.Show();
@@ -546,8 +547,8 @@ namespace PoshWpf.Commands
          {
             _window.Closed += (object sender, EventArgs e) =>
             {
-               BootsWindowDictionary.Instance.Remove((Window)sender);
-               SessionState.PSVariable.Remove("Global:BootsWindow");
+               UIWindowDictionary.Instance.Remove((Window)sender);
+               ((System.Collections.Hashtable)((PSObject)SessionState.PSVariable.GetValue("Global:ShowUI")).BaseObject)["ActiveWindow"] = null;
             };
          }
       }
@@ -555,25 +556,25 @@ namespace PoshWpf.Commands
       private void RedefineWriteOutput()
       {
          Invoke(InvokeCommand.NewScriptBlock(
-@"$Global:BootsOutput = @()
-function Global:Write-BootsOutput($inputObject) {
+@"$Global:UIOutput = @()
+function Global:Write-UIOutput($inputObject) {
    BEGIN {
       if ($inputObject) {
-         $Global:BootsOutput += $inputObject
+         $Global:UIOutput += $inputObject
       }
    }
    PROCESS {
       if($_) {
-         $Global:BootsOutput += $_
+         $Global:UIOutput += $_
       }
    }
 }"));
       }
 
-      // TODO: Consider undefining Write-BootsOutput
+      // TODO: Consider undefining Write-UIOutput
       //private void UndefineWriteOutput()
       //{
-      //   ScriptBlockBase.Invoke(InvokeCommand.NewScriptBlock(@"Remove-Item Function:\Write-BootsOutput"));
+      //   ScriptBlockBase.Invoke(InvokeCommand.NewScriptBlock(@"Remove-Item Function:\Write-UIOutput"));
       //}
 
       private void TouchDefaults()
@@ -598,18 +599,29 @@ function Global:Write-BootsOutput($inputObject) {
          // Default value for Title
          if (Title == null)
          {
-            Title = "Boots";
+            Title = "Show";
          }
       }
 
       // duh.....
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1505:AvoidUnmaintainableCode"),
        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-      [GeneratedCode("PowerShell","2.0")]
       private void SetWindowParams(Window window)
       {
-         BootsWindowDictionary.Instance.Add(window);
-         SessionState.PSVariable.Set("Global:BootsWindow", window);
+         UIWindowDictionary.Instance.Add(window);
+         var showUI = SessionState.PSVariable.GetValue("Global:ShowUI");
+         if (showUI == null) {
+            var ht = new Hashtable();
+            ht.Add("ActiveWindow", window);
+            SessionState.PSVariable.Set( new PSVariable("Global:ShowUI", new PSObject(ht), ScopedItemOptions.ReadOnly));
+         }
+         else if (showUI is PSObject) {
+            var ht = ((PSObject)showUI).BaseObject as Hashtable;
+            ht["ActiveWindow"] = window;
+         }
+         else if (showUI is Hashtable) {
+            ((Hashtable)showUI)["ActiveWindow"] = window;
+         }
          // NOTE: We want to remove these once they're closed, but ... 
          // probably not right away, since they might contain data the user wants?
          // window.Closed += (sender, args) => ((List<Window>)windows.Value).Remove((Window)sender);
@@ -1357,134 +1369,110 @@ function Global:Write-BootsOutput($inputObject) {
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
       protected override void ProcessRecord()
       {
-         List<ScriptBlock> scriptContent = new List<ScriptBlock>();
+         try {
+            List<ScriptBlock> scriptContent = new List<ScriptBlock>();
 
-         if (Content != null)
-         {
-            scriptContent.AddRange(Content);
-         }
+            if (Content != null) {
+               scriptContent.AddRange(Content);
+            }
 
-         List<ErrorRecord> errors = new List<ErrorRecord>();
-         _dispatcher.Invoke((Action)(() =>
-         {
-            try
-            {
-               if (scriptContent.Count > 0)
-               {
-                  List<PSObject> scriptResults = new List<PSObject>();
-                  var cmd = MyInvocation.MyCommand;
+            List<ErrorRecord> errors = new List<ErrorRecord>();
+            //_dispatcher.Invoke((Action<Window>)((Window _w) =>
+            _window.Dispatcher.Invoke((Action<Window>)((Window _w) => {
+               try {
+                  if (scriptContent.Count > 0) {
+                     List<PSObject> scriptResults = new List<PSObject>();
+                     var cmd = MyInvocation.MyCommand;
 
-                  // BUGBUG: This is needed for v1: SessionState.PSVariable.Set("window",_window);
-                  // don't need to do Window.GetWindow(window) when we're creating the window...
-                  var window = new PSVariable[]{};
-                  if (_window != null)
-                  {
-                     window = new[]{ new PSVariable("this", _window),new PSVariable("window", _window) };
-                  }
-                  foreach (var pso in scriptContent)
-                  {
-                     scriptResults.AddRange(Invoke(pso, window, Parameters));
-                  }
+                     // BUGBUG: This is needed for v1: SessionState.PSVariable.Set("window",_window);
+                     // don't need to do Window.GetWindow(window) when we're creating the window...
+                     var window = new PSVariable[] { };
+                     if (_w != null) {
+                        window = new[] { new PSVariable("this", _w), new PSVariable("window", _w) };
+                     }
+                     foreach (var pso in scriptContent) {
+                        scriptResults.AddRange(Invoke(pso, window, Parameters));
+                     }
 
-                  if (scriptResults.Count > 0)
-                  {
-                     foreach (PSObject obj in scriptResults)
-                     {
-                        object output = obj.BaseObject;
+                     if (scriptResults.Count > 0) {
+                        foreach (PSObject obj in scriptResults) {
+                           object output = obj.BaseObject;
 
-                        // If the output is something that goes in a document ....
-                        // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
-                        if (output is Block || output is Inline)
+                           // If the output is something that goes in a document ....
+                           // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
+                           if (output is Block || output is Inline) {
+                              DocumentOutput(output);
+                           } // for now, we're only going to create our items control if you have more than one output
+                           else if (scriptResults.Count == 1 && _w != null) // && output is Panel 
                         {
-                           DocumentOutput(output);
-                        } // for now, we're only going to create our items control if you have more than one output
-                        else if (scriptResults.Count == 1 && _window != null) // && output is Panel 
-                        {
-                           // ReSharper disable PossibleNullReferenceException
-                           _window.Content = output;
-                           // ReSharper restore PossibleNullReferenceException
-                        }
-                        else
-                        {
-                           if (_host == null) { _host = XamlHelper.NewItemsControl(); }
-                           if (_window == null && _host.Parent == null)
-                           {
-                              _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_host));
-                           }
-                           else if (_host.Items.Count == 0)
-                           {
-                              // TODO: use some template-based magic 
-                              // to FIND a predefined ItemsControl, 
-                              // or the place where they want the ItemsControl
-                              //_window.Content
                               // ReSharper disable PossibleNullReferenceException
-                              _window.Content = _host;
+                              _w.Content = output;
                               // ReSharper restore PossibleNullReferenceException
                            }
-
-                           if (_element != null)
-                           {
-                              ErrorRecord err;
-                              FrameworkElement el;
-                              if (_template.TryLoadXaml(out el, out err))
-                              {
-                                 el.DataContext = output;
-                                 _host.Items.Add(el);
+                           else {
+                              if (_host == null) { _host = XamlHelper.NewItemsControl(); }
+                              if (_w == null && _host.Parent == null) {
+                                 _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_host));
                               }
-                              else
-                              {
+                              else if (_host.Items.Count == 0) {
+                                 // TODO: use some template-based magic 
+                                 // to FIND a predefined ItemsControl, 
+                                 // or the place where they want the ItemsControl
+                                 //_window.Content
+                                 // ReSharper disable PossibleNullReferenceException
+                                 _w.Content = _host;
+                                 // ReSharper restore PossibleNullReferenceException
+                              }
+
+                              if (_element != null) {
+                                 ErrorRecord err;
+                                 FrameworkElement el;
+                                 if (_template.TryLoadXaml(out el, out err)) {
+                                    el.DataContext = output;
+                                    _host.Items.Add(el);
+                                 }
+                                 else {
+                                    _host.Items.Add(output);
+                                 }
+                              }
+                              else {
                                  _host.Items.Add(output);
                               }
                            }
-                           else
-                           {
-                              _host.Items.Add(output);
-                           }
+                        }
+                     }
+                     else if (_element != null) {
+                        if (_window == null) {
+                           _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_element));
+                        }
+                        else {
+                           _w.Content = _element;
                         }
                      }
                   }
-                  else if (_element != null)
-                  {
-                     if (_window == null)
-                     {
+                  else if (_element != null) {
+                     if (_window == null) {
                         _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_element));
                      }
-                     else
-                     {
-                        _window.Content = _element;
+                     else {
+                        _w.Content = _element;
                      }
                   }
                }
-               else if (_element != null)
-               {
-                  if (_window == null)
-                  {
-                     _xamlUI.CurrentBlock.Inlines.Add(new InlineUIContainer(_element));
-                  }
-                  else
-                  {
-                     _window.Content = _element;
-                  }
+               catch (Exception ex) {
+                  errors.Add(new ErrorRecord(ex, "Error creating WPF Content", ErrorCategory.NotSpecified, Content));
                }
+            }), _window);
+            foreach (ErrorRecord err in errors) {
+               WriteError(err);
             }
-            catch (Exception ex)
-            {
-               errors.Add(new ErrorRecord(ex, "Error creating WPF Content", ErrorCategory.NotSpecified, Content));
-               if (_window != null)
-               {
-                  _window.Close();
-                  _window = null;
-               }
-            }
-         }));
-         foreach (ErrorRecord err in errors)
-         {
-            WriteError(err);
-         }
 
-         if (Passthru.ToBool() && (_window != null))
-         {
-            WriteObject(_window);
+            if (Passthru.ToBool() && (_window != null)) {
+               WriteObject(_window);
+            }
+         }
+         catch (Exception ex) {
+            WriteError(new ErrorRecord(ex, "Error creating WPF Content", ErrorCategory.NotSpecified, Content));
          }
       }
 
@@ -1564,7 +1552,7 @@ function Global:Write-BootsOutput($inputObject) {
                {
                   _asyncResult.AsyncWaitHandle.WaitOne();
                }
-               WriteObject(GetVariableValue("Global:BootsOutput", null), true);
+               WriteObject(GetVariableValue("Global:UIOutput", null), true);
             }
          }
          catch (Exception ex)
@@ -1586,7 +1574,7 @@ function Global:Write-BootsOutput($inputObject) {
       }
 
 
-      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "XamlTemplates"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "PowerBootsPath")]
+      [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "XamlTemplates"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ShowUIPath")]
       private XmlDocument GetXaml()
       {
          XmlDocument document = null;
@@ -1613,7 +1601,7 @@ function Global:Write-BootsOutput($inputObject) {
                         }
                         else
                         {
-                           throw new FileNotFoundException("Can't find the template file.  We searched the default $PowerBootsPath\\XamlTemplates folder, and the current path.", template);
+                           throw new FileNotFoundException("Can't find the template file.  We searched the default $ShowUI.InstallLocation\\XamlTemplates folder, and the current path.", template);
                         }
                      }
                      #endregion saving throw

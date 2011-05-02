@@ -114,7 +114,7 @@
          <Directory Id="ProgramMenuFolder">
             <Directory Id="PoshConsole" Name="PoshConsole"></Directory>
          </Directory>
-         <Directory Id="ProgramFiles64Folder">
+         <Directory Id="ProgramFilesFolder">
             <Directory Id="INSTALLLOCATION" Name="PoshConsole">
                <Directory Id="XAMLTEMPLATESLOCATION" Name="XamlTemplates"/>
                <Directory Id="InteractivityDE"  Name="de" />

@@ -6,17 +6,16 @@ using System.Windows;
 namespace PoshWpf
 {
    [System.Serializable]
-   public class BootsWindowDictionary : Dictionary<int, Window>
+   public class UIWindowDictionary : Dictionary<int, Window>
    {
       public static int Index { get { return _index; } }
       private static int _index;
-      private static readonly BootsWindowDictionary _singleton = new BootsWindowDictionary();
-      private BootsWindowDictionary(){}
-      //static  BootsWindowDictionary(){}
+      private static readonly UIWindowDictionary _singleton = new UIWindowDictionary();
+      private UIWindowDictionary(){}
 
-      protected BootsWindowDictionary(SerializationInfo info, StreamingContext context) : base(info, context) { }
+      protected UIWindowDictionary(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-      public static BootsWindowDictionary Instance
+      public static UIWindowDictionary Instance
       {
          get
          {

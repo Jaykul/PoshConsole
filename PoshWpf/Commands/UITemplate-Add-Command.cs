@@ -4,8 +4,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsCommon.Add, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
-   public class AddBootsTemplateCommand : HuddledFileSystemBaseCommand
+   [Cmdlet(VerbsCommon.Add, "UITemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
+   public class AddUITemplateCommand : HuddledFileSystemBaseCommand
    {
 		protected override void ProcessRecord()
 		{
@@ -19,7 +19,7 @@ namespace PoshWpf.Commands
 				// This block also supports the -confirm switch, where
 				// you will be asked if you want to perform the action
 				// "get metadata" on target: foo.txt
-				if (ShouldProcess(filePath, "Add Boots Template"))
+				if (ShouldProcess(filePath, "Add UI Template"))
 				{
 					if (File.Exists(filePath))
 					{

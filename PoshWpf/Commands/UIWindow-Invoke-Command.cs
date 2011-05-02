@@ -8,8 +8,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet("Invoke", "BootsWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
-   public class InvokeBootsWindowCommand : ScriptBlockBase
+   [Cmdlet("Invoke", "UIWindow", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = ByElement)]
+   public class InvokeUIWindowCommand : ScriptBlockBase
    {
       private const string ByTitle = "ByTitle";
       private const string ByIndex = "ByIndex";
@@ -51,7 +51,7 @@ namespace PoshWpf.Commands
       protected override void ProcessRecord()
       {
          WriteCommandDetail(Script.ToString());
-         if (BootsWindowDictionary.Instance.Count > 0)
+         if (UIWindowDictionary.Instance.Count > 0)
          {
             IEnumerable<ICollection<PSObject>> output = null;
             switch (ParameterSetName)
@@ -86,7 +86,7 @@ namespace PoshWpf.Commands
 
       private IEnumerable<ICollection<PSObject>> ProcessTitleRecord()
       {
-         return from win in BootsWindowDictionary.Instance.Values
+         return from win in UIWindowDictionary.Instance.Values
                 where win.Dispatcher.Thread.IsAlive && !win.Dispatcher.HasShutdownStarted
                 from title in _patterns
                 select (ICollection<PSObject>)win.Dispatcher.Invoke((Func<ICollection<PSObject>>) (() =>
@@ -105,7 +105,7 @@ namespace PoshWpf.Commands
       private IEnumerable<ICollection<PSObject>> ProcessIndexRecord()
       {
          return from i in Index
-                select BootsWindowDictionary.Instance[i]
+                select UIWindowDictionary.Instance[i]
                 into window
                 where window.Dispatcher.Thread.IsAlive && !window.Dispatcher.HasShutdownStarted
                 let vars = new[]

@@ -12,8 +12,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsData.Out, "BootsElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
-   public class OutWpfCommand : ScriptBlockBase
+   [Cmdlet(VerbsData.Out, "UIElement", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "DataTemplate")]
+   public class OutUIElementCommand : ScriptBlockBase
    {
       #region Parameters
 

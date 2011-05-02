@@ -32,9 +32,9 @@ namespace PoshWpf.Data
          {
              new PSVariable("this",(target != null) ? target.TargetObject : ((root != null) ? root.RootObject : null)),
              new PSVariable("window", (root != null) ? root.RootObject : null),
-             new PSVariable("PowerBootsModule", Invoker.Module)
+             new PSVariable("ShowUIModule", Invoker.Module)
          };
-         // Invoker.SetScriptVariableValue("PowerBootsModule", Invoker.Module);
+         // Invoker.SetScriptVariableValue("ShowUIModule", Invoker.Module);
          ICollection<PSObject> collection;
 
          if(element != null)

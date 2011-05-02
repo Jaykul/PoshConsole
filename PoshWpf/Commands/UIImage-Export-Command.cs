@@ -10,8 +10,8 @@ using Microsoft.PowerShell.Commands;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsData.Export, "BootsImage", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
-   public class ExportBootsImageCommand : PSCmdlet
+   [Cmdlet(VerbsData.Export, "UIImage", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ShowAll")]
+   public class ExportUIImageCommand : PSCmdlet
    {
       private const string ParamSetLiteral = "Literal";
       private const string ParmamSetPath = "Path";

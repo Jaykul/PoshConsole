@@ -20,7 +20,7 @@ namespace PoshWpf
       }
       public override string Description
       {
-         get { return "Cmdlets for working with WPF and implementing PowerBoots"; }
+         get { return "Cmdlets for working with WPF and implementing ShowUI"; }
       }
       public override string DescriptionResource
       {

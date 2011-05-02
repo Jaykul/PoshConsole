@@ -623,21 +623,21 @@ namespace PoshConsole
                {
                   this.ShowInTaskbar = Properties.Settings.Default.ShowInTaskbar;
                } break;
-            case "ToolbarVisibility":
-               {
-                  this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
-                  //switch (Properties.Settings.Default.ToolbarVisibility)
-                  //{
-                  //   case Visibility.Hidden:
-                  //   case Visibility.Collapsed:
-                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0));
-                  //      break;
-                  //   case Visibility.Visible:
-                  //      this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.ActualHeight, 0.0, 0.0));
-                  //      break;
-                  //}
+            //case "ToolbarVisibility":
+            //   {
+            //      this.Toolbar.Visibility = Properties.Settings.Default.ToolbarVisibility;
+            //      //switch (Properties.Settings.Default.ToolbarVisibility)
+            //      //{
+            //      //   case Visibility.Hidden:
+            //      //   case Visibility.Collapsed:
+            //      //      this.TryExtendFrameIntoClientArea(new Thickness(0.0));
+            //      //      break;
+            //      //   case Visibility.Visible:
+            //      //      this.TryExtendFrameIntoClientArea(new Thickness(0.0, Toolbar.ActualHeight, 0.0, 0.0));
+            //      //      break;
+            //      //}
 
-               } break;
+            //   } break;
             // TODO: let the new top-toolbars be hidden
             //case "StatusBar":
             //   {
@@ -693,24 +693,24 @@ namespace PoshConsole
                   //this.AllowsTransparency = (Properties.Settings.Default.WindowStyle == WindowStyle.None);
                   //this.Show();
                } break;
-            case "BorderColorTopLeft":
-               {
-                  if (BorderBrush is LinearGradientBrush)
-                  {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
-                  }
-               } break;
-            case "BorderColorBottomRight":
-               {
-                  if (BorderBrush is LinearGradientBrush)
-                  {
-                     ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
-                  }
-               } break;
-            case "BorderThickness":
-               {
-                  BorderThickness = Properties.Settings.Default.BorderThickness;
-               } break;
+            //case "BorderColorTopLeft":
+            //   {
+            //      if (BorderBrush is LinearGradientBrush)
+            //      {
+            //         ((LinearGradientBrush)BorderBrush).GradientStops[0].Color = Properties.Settings.Default.BorderColorTopLeft;
+            //      }
+            //   } break;
+            //case "BorderColorBottomRight":
+            //   {
+            //      if (BorderBrush is LinearGradientBrush)
+            //      {
+            //         ((LinearGradientBrush)BorderBrush).GradientStops[1].Color = Properties.Settings.Default.BorderColorBottomRight;
+            //      }
+            //   } break;
+            //case "BorderThickness":
+            //   {
+            //      BorderThickness = Properties.Settings.Default.BorderThickness;
+            //   } break;
             case "FocusKeyGesture":
             case "FocusKey":
                {

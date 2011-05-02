@@ -4,8 +4,8 @@ using PoshWpf.Utility;
 
 namespace PoshWpf.Commands
 {
-   [Cmdlet(VerbsCommon.Get, "BootsTemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
-   public class GetBootsTemplateCommand : PSCmdlet
+   [Cmdlet(VerbsCommon.Get, "UITemplate", SupportsShouldProcess = true, DefaultParameterSetName="Path")]
+   public class GetUITemplateCommand : PSCmdlet
    {
 
       [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), Parameter(Position = 0, Mandatory = false)]

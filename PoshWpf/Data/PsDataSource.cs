@@ -36,8 +36,7 @@ namespace PoshWpf.Data {
             TimeSpan = TimeSpan.Zero;
             AccumulateOutput = accumulateOutput;
 
-            _powerShellCommand = PowerShell.Create();
-            _timer = new DispatcherTimer(TimeSpan,DispatcherPriority.Normal,Invoke,Dispatcher.CurrentDispatcher);
+            _powerShellCommand = PowerShell.Create().AddScript( Script.ToString() );            
 
             Error = new ListCollectionView(_powerShellCommand.Streams.Error);
             Warning = new ListCollectionView(_powerShellCommand.Streams.Warning);
@@ -47,17 +46,21 @@ namespace PoshWpf.Data {
             if (invokeImmediately || TimeSpan.Zero < interval) { Invoke(input); }
 
             if (TimeSpan.Zero < interval) {
-                _timer.Start();
+               _timer = new DispatcherTimer(TimeSpan, DispatcherPriority.Normal, Invoke, Dispatcher.CurrentDispatcher);
+               _timer.Start();
             }
         }
 
         public void Start() {
+           if (_timer != null)
             _timer.Start();
         }
 
         public void Stop() {
-            _timer.Stop();
+           if (_timer != null)
+              _timer.Stop();
         }
+
         private void Invoke(object sender, EventArgs e) {
             Invoke();
         }
@@ -67,7 +70,7 @@ namespace PoshWpf.Data {
                 if (!AccumulateOutput) {
                     InternalList.Clear();
                 }
-                _powerShellCommand.BeginInvoke(inputCollection, InternalList as PSDataCollection<PSObject>);
+                _powerShellCommand.BeginInvoke<PSObject,PSObject>(inputCollection, InternalList as PSDataCollection<PSObject>);
             }
         }
     }

@@ -468,8 +468,8 @@
       <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" /> <!--DockedStateChanged="DockedStateChanged"-->
       <!-- WindowStateChanged="OnWindowStateChanged" -->
       <huddled:HotkeysBehavior>
-         <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win+Shift" />
          <!--Command="huddled:GlobalCommands.ToggleWindow"-->
+         <KeyBinding Command="huddled:WindowCommands.VisibilityToggle"  Key="C"  Modifiers="Win+Shift" />
          <KeyBinding Command="huddled:WindowCommands.Close"    Key="F4" Modifiers="Win" />
          <KeyBinding Command="huddled:WindowCommands.Hide"     Key="S"  Modifiers="Win+Shift" />
          <KeyBinding Command="huddled:WindowCommands.Show"     Key="S"  Modifiers="Win" />

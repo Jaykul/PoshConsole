@@ -231,8 +231,8 @@ Global
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Debug|x86.Build.0 = Debug|x86
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x64.ActiveCfg = Release|x64
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x64.Build.0 = Release|x64
 		{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}.Release|x86.ActiveCfg = Release|x86
@@ -245,8 +245,8 @@ Global
 		{71AB38E8-825C-494F-8B6F-E9140C01A49E} = {3F848AAE-C60F-4FF8-9DE0-77E96E47765A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 0
 		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 0
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
 		Project = ".\PoshConsole.ndproj"
