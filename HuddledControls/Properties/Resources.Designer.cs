@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Huddled.WPF.Controls.Properties {
+namespace Huddled.Wpf.Controls.Properties {
     using System;
     
     

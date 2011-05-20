@@ -52,7 +52,7 @@ using System.Windows.Markup;
 
 
 // Version information
-[assembly: AssemblyVersion("2.1.2011.310")]
-[assembly: AssemblyFileVersion("2.1.2011.310")]
-[assembly: AssemblyInformationalVersion("2.1.2011.310")]
+[assembly: AssemblyVersion("2.1.2011.520")]
+[assembly: AssemblyFileVersion("2.1.2011.520")]
+[assembly: AssemblyInformationalVersion("2.1.2011.520")]
 [assembly: GuidAttribute("0d77437b-6892-4c83-a41c-d135133e758a")]

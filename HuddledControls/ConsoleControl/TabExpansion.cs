@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using Huddled.WPF.Controls.Utility;
+using Huddled.Wpf.Controls.Utility;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    public delegate List<string> TabExpansionLister(string commandLine);
 

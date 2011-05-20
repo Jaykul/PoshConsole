@@ -35,9 +35,6 @@
     <Setting Name="Opacity" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="AutoHide" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="StartupBanner" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -49,9 +46,6 @@
     </Setting>
     <Setting Name="ScrollBarVisibility" Type="System.Windows.Controls.ScrollBarVisibility" Scope="User">
       <Value Profile="(Default)">Visible</Value>
-    </Setting>
-    <Setting Name="StatusBar" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="HistoryMenuFilterDupes" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -68,14 +62,14 @@
     <Setting Name="MaxBufferCommands" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">25</Value>
     </Setting>
-    <Setting Name="QuakeModeSize" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">300</Value>
-    </Setting>
     <Setting Name="FocusKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">Win+C</Value>
     </Setting>
-    <Setting Name="QuakeMode" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="QuakeMode" Type="Huddled.Wpf.DockingEdge" Scope="User">
+      <Value Profile="(Default)">Top</Value>
+    </Setting>
+    <Setting Name="QuakeModeSize" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">300</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -3,7 +3,7 @@
 <?define folderPoshWpfTemplates = "..\PoshConsole\bin\x64\Release\XamlTemplates\"?>
 <?define folderArtwork = "..\PoshConsole\Artwork\"?>
 <?define licenseRtf ="License.rtf" ?>
-<?define ProductVersion = "2.1.2011.310"?>
+<?define ProductVersion = "2.1.2011.520"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:NetFx="http://schemas.microsoft.com/wix/NetFxExtension">
 
@@ -13,7 +13,7 @@
 		Version 1.0          Product Id was: 51e0de3f-0e25-4896-a310-71b39851e1ee
 		Version 2.0.2010.307 Product Id was: {B50DD990-10B7-4393-BEDA-952B2A75C3FF}
 		Version 2.0.2010.308 Product Id was: {530BB369-C0A9-4431-A65D-22079E5ABDED}
-      Version 2.1.2011.310 Product Id was: {BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}
+      Version 2.1.2011.520 Product Id was: {BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}
 	-->
    <Product
 	  Id="{BDA3635C-DBA7-40F7-A8AB-B652C123ADF6}"

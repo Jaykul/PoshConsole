@@ -9,7 +9,7 @@ using System.Windows.Documents;
 using System.Management.Automation.Host;
 using System.Windows.Controls;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    partial class ConsoleControl
    {

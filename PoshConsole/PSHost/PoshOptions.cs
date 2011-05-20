@@ -3,7 +3,7 @@ using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Threading;
-using Huddled.WPF.Controls;
+using Huddled.Wpf.Controls;
 using IPoshConsoleControl = System.Management.Automation.Host.IPoshConsoleControl;
 
 namespace PoshConsole.Host

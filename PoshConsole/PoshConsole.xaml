@@ -10,13 +10,12 @@
     mc:Ignorable="d"
 
     xmlns:huddled="http://schemas.huddledmasses.org/wpf"
-    xmlns:huddle="http://schemas.huddledmasses.org/wpf/controls"
+    xmlns:controls="http://schemas.huddledmasses.org/wpf/controls"
 
     xmlns:PoshConsole="clr-namespace:PoshConsole"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
     xmlns:Properties="clr-namespace:PoshConsole.Properties"
-    xmlns:System="clr-namespace:System;assembly=mscorlib" 
-    
+    xmlns:System="clr-namespace:System;assembly=mscorlib"
     x:Class="PoshConsole.PoshConsoleWindow" 
     x:Name="window"
     
@@ -465,7 +464,7 @@
    </Window.Resources>
    <i:Interaction.Behaviors>
       <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
-      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Bottom,Top" /> <!--DockedStateChanged="DockedStateChanged"-->
+      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Top" /> <!--DockedStateChanged="DockedStateChanged"-->
       <!-- WindowStateChanged="OnWindowStateChanged" -->
       <huddled:HotkeysBehavior>
          <!--Command="huddled:GlobalCommands.ToggleWindow"-->
@@ -563,7 +562,7 @@
          <StackPanel x:Name="progress" Grid.Row="0"  Grid.Column="0" Panel.ZIndex="1"
                 Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
                 Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
-         <huddle:ConsoleControl x:Name="buffer" 
+         <controls:ConsoleControl x:Name="buffer" 
                 Title="PoshConsole" IsSelectionEnabled="True"
                 Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
@@ -594,7 +593,7 @@
                </FlowDocument.Resources>
                <Paragraph ClearFloaters="Both" />
             </FlowDocument>
-         </huddle:ConsoleControl>
+         </controls:ConsoleControl>
       </Grid>
    </Grid>
    <!--</Border>-->

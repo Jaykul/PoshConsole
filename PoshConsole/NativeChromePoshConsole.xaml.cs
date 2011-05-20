@@ -96,7 +96,7 @@ namespace PoshConsole
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Settings.Default.PropertyChanged += SettingsPropertyChanged;
 
-         buffer.Finished += new Huddled.WPF.Controls.PipelineFinished((source, results) => 
+         buffer.Finished += new Huddled.Wpf.Controls.PipelineFinished((source, results) => 
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
                {
                   progress.Children.Clear();
@@ -391,18 +391,18 @@ namespace PoshConsole
          }
       }
 
-      /// <summary>
-      /// Handles the Deactivated event of the Window control.
-      /// </summary>
-      /// <param name="sender">The source of the event.</param>
-      /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-      private void OnWindowDeactivated(object sender, EventArgs e)
-      {
-         if ((_host == null || !_host.IsClosing) && Properties.Settings.Default.AutoHide)
-         {
-            HideWindow();
-         }
-      }
+      ///// <summary>
+      ///// Handles the Deactivated event of the Window control.
+      ///// </summary>
+      ///// <param name="sender">The source of the event.</param>
+      ///// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+      //private void OnWindowDeactivated(object sender, EventArgs e)
+      //{
+      //   if ((_host == null || !_host.IsClosing) && Properties.Settings.Default..AutoHide)
+      //   {
+      //      HideWindow();
+      //   }
+      //}
 
       /// <summary>
       /// Handles the Loaded event of the Window control.

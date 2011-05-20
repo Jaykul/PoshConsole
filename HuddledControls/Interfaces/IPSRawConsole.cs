@@ -1,6 +1,6 @@
 using System;
 using System.Management.Automation.Host;
-using Huddled.WPF.Controls.Interfaces;
+using Huddled.Wpf.Controls.Interfaces;
 
 namespace System.Management.Automation.Host
 {

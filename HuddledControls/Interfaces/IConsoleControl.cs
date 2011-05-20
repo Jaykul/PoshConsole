@@ -3,10 +3,10 @@ using System.Security;
 using System.Windows.Documents;
 using System.Xml;
 using System.IO;
-using Huddled.WPF.Controls.Interfaces;
+using Huddled.Wpf.Controls.Interfaces;
 using System.Windows.Controls;
 using System.Management.Automation.Runspaces;
-using Huddled.WPF.Controls;
+using Huddled.Wpf.Controls;
 
 
 namespace System.Management.Automation.Host
@@ -30,7 +30,7 @@ namespace System.Management.Automation.Host
 		ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
 	}
 }
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
 
    namespace Interfaces

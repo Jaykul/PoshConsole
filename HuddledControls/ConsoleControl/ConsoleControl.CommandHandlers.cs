@@ -11,7 +11,7 @@ using System.Management.Automation.Host;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
     partial class ConsoleControl
     {

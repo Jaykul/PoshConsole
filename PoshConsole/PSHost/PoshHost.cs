@@ -16,9 +16,9 @@ using System.Windows.Interactivity;
 using System.Windows.Threading;
 using Huddled.Interop;
 using Huddled.Wpf;
-using Huddled.WPF.Controls;
-using Huddled.WPF.Controls.Interfaces;
-using Huddled.WPF.Controls.Utility;
+using Huddled.Wpf.Controls;
+using Huddled.Wpf.Controls.Interfaces;
+using Huddled.Wpf.Controls.Utility;
 
 namespace PoshConsole.Host
 {

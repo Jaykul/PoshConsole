@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using Huddled.Wpf;
-using Huddled.WPF.Controls;
+using Huddled.Wpf.Controls;
 
 namespace PoshConsole.Host
 {

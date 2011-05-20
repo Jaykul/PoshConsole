@@ -8,7 +8,7 @@ using System.Windows.Markup;
 using System.IO;
 using System.Windows.Media;
 
-namespace Huddled.WPF.Controls.Utility
+namespace Huddled.Wpf.Controls.Utility
 {
    public static class WpfHelper
    {

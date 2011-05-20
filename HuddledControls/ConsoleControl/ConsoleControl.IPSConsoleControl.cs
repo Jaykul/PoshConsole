@@ -15,10 +15,10 @@ using System.Management.Automation;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
-using Huddled.WPF.Controls.Interfaces;
 using System.Management.Automation.Runspaces;
+using Huddled.Wpf.Controls.Interfaces;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    /// <summary>
    /// Here we EXPLICITLY implement the IPSConsoleControl interface.

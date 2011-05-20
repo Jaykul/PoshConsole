@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    public class ConsoleBrushes
    {
@@ -46,8 +46,11 @@ namespace Huddled.WPF.Controls
       //   Default = new ConsoleBrushes();
       //}
 
-      public ConsoleBrushes()
-      {
+      public ConsoleBrushes() {
+         Refresh();
+      }
+
+      public void Refresh() {
          DefaultBackground = BrushFromConsoleColor(Properties.Colors.Default.DefaultBackground);
          DefaultForeground = BrushFromConsoleColor(Properties.Colors.Default.DefaultForeground);
       }

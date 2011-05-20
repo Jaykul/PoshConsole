@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,8 +8,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using Huddled.WPF.Controls.Utility;
-namespace Huddled.WPF.Controls
+using Huddled.Wpf.Controls.Utility;
+namespace Huddled.Wpf.Controls
 {
    public class PopupMenu : Popup
    {

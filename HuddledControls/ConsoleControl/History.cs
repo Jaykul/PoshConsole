@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
     public class CommandHistory
     {

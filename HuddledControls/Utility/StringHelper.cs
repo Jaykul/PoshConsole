@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Huddled.WPF.Controls.Utility
+namespace Huddled.Wpf.Controls.Utility
 {
    public static class StringHelper
    {

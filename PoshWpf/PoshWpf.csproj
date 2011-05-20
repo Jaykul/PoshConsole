@@ -234,8 +234,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "$(SolutionDir)$(SolutionName)" (
-    copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)"
+    <PostBuildEvent>IF EXIST "$(SolutionDir)$(Outdir)" (
+    copy "$(TargetPath)" "$(SolutionDir)$(Outdir)$(TargetFileName)"
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -16,10 +16,10 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 using Huddled.Interop;
-using Huddled.WPF.Controls.Interfaces;
+using Huddled.Wpf.Controls.Interfaces;
 using Size = System.Management.Automation.Host.Size;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    ///<summary>
    ///Explicitly implements the IPSRawConsole interface.

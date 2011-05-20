@@ -7,8 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Huddled.Interop.Keyboard;
-using Huddled.WPF.Controls.Interfaces;
-using Huddled.WPF.Controls.Utility;
+using Huddled.Wpf.Controls.Interfaces;
+using Huddled.Wpf.Controls.Utility;
 using System.Windows.Threading;
 using System.Windows.Documents;
 using Keyboard=System.Windows.Input.Keyboard;
@@ -16,7 +16,7 @@ using System.Management.Automation;
 using System.Collections.ObjectModel;
 using System.Management.Automation.Host;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    public partial class ConsoleControl
    {

@@ -18,7 +18,7 @@ using System.Management.Automation.Runspaces;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using Huddled.WPF.Controls.Interfaces;
+using Huddled.Wpf.Controls.Interfaces;
 
 namespace PoshConsole.Host
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 
-namespace Huddled.WPF.Controls.Utility
+namespace Huddled.Wpf.Controls.Utility
 {
    public static class OtherHelpers
    {

@@ -19,7 +19,7 @@ using System.Globalization;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    /// <summary>
    /// The ConsoleControl is a <see cref="FlowDocumentScrollViewer"/> where all input goes to a sub-textbox after the "prompt"
@@ -59,6 +59,10 @@ namespace Huddled.WPF.Controls
       protected Paragraph _current;
       protected Paragraph _next;
 
+
+      public ConsoleBrushes Brushes {
+         get { return _brushes; }
+      }
 
 
       public ConsoleControl()
@@ -110,8 +114,7 @@ namespace Huddled.WPF.Controls
 
          //// Initialize the document ...
 
-         _current = new Paragraph();
-         _current.ClearFloaters = WrapDirection.Both;
+         _current = new Paragraph {ClearFloaters = WrapDirection.Both};
 
          Document.Blocks.Add(_current);
          // We need to crush the PagePadding so that the "Width" values work...
@@ -126,9 +129,6 @@ namespace Huddled.WPF.Controls
          Document.Blocks.Add(_next);
          _next.Inlines.Add(_commandContainer);
          _commandContainer.Focus();
-
-         Properties.Colors.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ColorsPropertyChanged);
-         Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(SettingsPropertyChanged);
 
          // we have to (manually) bind the document and _commandBox values to the "real" ones...
          BindingOperations.SetBinding(Document, FlowDocument.FontFamilyProperty, new Binding("FontFamily") { Source = this });
@@ -279,32 +279,6 @@ namespace Huddled.WPF.Controls
       }
 
       #endregion Color Dependency properties
-
-      /// <summary>
-      /// Handle the Settings PropertyChange event for fonts
-      /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
-      void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-      {
-         switch (e.PropertyName)
-         {
-            case "FontFamily":
-               Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
-               {
-                  // BUGBUG: Fonts that are not embedded cannot be resolved from this base Uri
-                  FontFamily = new FontFamily(new Uri("pack://application:,,,/PoshConsole;component/poshconsole.xaml"), Properties.Settings.Default.FontFamily.Source + ",/FontLibrary;Component/#Bitstream Vera Sans Mono,Global Monospace");
-               });
-               break;
-            case "FontSize":
-               Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
-               {
-                  FontSize = Properties.Settings.Default.FontSize;
-               });
-               break;
-         }
-      }
-
 
 
       private void Write(Brush foreground, Brush background, string text)

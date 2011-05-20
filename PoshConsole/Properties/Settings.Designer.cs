@@ -157,18 +157,6 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool AutoHide {
-            get {
-                return ((bool)(this["AutoHide"]));
-            }
-            set {
-                this["AutoHide"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool StartupBanner {
             get {
@@ -212,18 +200,6 @@ namespace PoshConsole.Properties {
             }
             set {
                 this["ScrollBarVisibility"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool StatusBar {
-            get {
-                return ((bool)(this["StatusBar"]));
-            }
-            set {
-                this["StatusBar"] = value;
             }
         }
         
@@ -289,18 +265,6 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("300")]
-        public double QuakeModeSize {
-            get {
-                return ((double)(this["QuakeModeSize"]));
-            }
-            set {
-                this["QuakeModeSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Win+C")]
         public string FocusKey {
             get {
@@ -313,13 +277,25 @@ namespace PoshConsole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool QuakeMode {
+        [global::System.Configuration.DefaultSettingValueAttribute("Top")]
+        public global::Huddled.Wpf.DockingEdge QuakeMode {
             get {
-                return ((bool)(this["QuakeMode"]));
+                return ((global::Huddled.Wpf.DockingEdge)(this["QuakeMode"]));
             }
             set {
                 this["QuakeMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        public double QuakeModeSize {
+            get {
+                return ((double)(this["QuakeModeSize"]));
+            }
+            set {
+                this["QuakeModeSize"] = value;
             }
         }
     }

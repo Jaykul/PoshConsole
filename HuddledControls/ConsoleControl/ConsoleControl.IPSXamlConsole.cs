@@ -4,9 +4,9 @@ using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Threading;
-using Huddled.WPF.Controls.Utility;
+using Huddled.Wpf.Controls.Utility;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    partial class ConsoleControl : IPSWpfConsole
    {

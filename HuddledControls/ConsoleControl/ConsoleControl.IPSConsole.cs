@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    /// <summary>
    /// Here we EXPLICITLY implement the IPSConsole interface.

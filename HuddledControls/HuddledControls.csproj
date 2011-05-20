@@ -176,7 +176,6 @@
     <Compile Include="ColorInverter.cs" />
     <Compile Include="ConsoleBrushes.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.BufferSize.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.ConsoleBrushes.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.EventHandlers.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSConsole.cs" />
     <Compile Include="ConsoleControl\ConsoleControl.IPSRawConsole.cs" />

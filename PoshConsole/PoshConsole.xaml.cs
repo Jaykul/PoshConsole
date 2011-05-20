@@ -17,6 +17,8 @@ using Huddled.Wpf;
 using PoshConsole.Controls;
 using PoshConsole.Host;
 using PoshConsole.Properties;
+using PoshWpf;
+using Colors = PoshConsole.Properties.Colors;
 
 namespace PoshConsole {
 
@@ -70,15 +72,17 @@ namespace PoshConsole {
 
          // buffer.TitleChanged += new passDelegate<string>(delegate(string val) { Title = val; });
          Settings.Default.PropertyChanged += SettingsPropertyChanged;
+         Colors.Default.PropertyChanged += ColorsPropertyChanged;
+         
 
          buffer.Finished += (source, results) =>
             Dispatcher.BeginInvoke(
                DispatcherPriority.Background,
                (Action)delegate {
-                     progress.Children.Clear();
-                     ProgressRecords.Clear();
-                     Cursor = Cursors.Arrow;
-                  });
+               progress.Children.Clear();
+               ProgressRecords.Clear();
+               Cursor = Cursors.Arrow;
+            });
       }
 
 
@@ -457,7 +461,7 @@ namespace PoshConsole {
                   buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
                }
                else {
-                  ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.310");
+                  ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.520");
                }
 
                // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
@@ -466,7 +470,7 @@ namespace PoshConsole {
             catch (Exception ex) {
                Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
                buffer.Document.Blocks.Clear();
-               ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.310");
+               ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.520");
             }
          }
 
@@ -483,6 +487,145 @@ namespace PoshConsole {
          buffer.Focus();
       }
 
+      void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+         if (!buffer.Dispatcher.CheckAccess()) {
+            buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SettingsChangedDelegate(ColorsPropertyChanged), sender, new object[] { e });
+            return;
+         }
+         ConsoleColor color;
+
+         if (Enum.TryParse(e.PropertyName, true, out color)) {
+            switch (color) {
+               case ConsoleColor.Black:
+                  buffer.Brushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
+                  break;
+               case ConsoleColor.DarkBlue:
+                  buffer.Brushes.DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
+                  break;
+               case ConsoleColor.DarkGreen:
+                  buffer.Brushes.DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
+                  break;
+               case ConsoleColor.DarkCyan:
+                  buffer.Brushes.DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
+                  break;
+               case ConsoleColor.DarkRed:
+                  buffer.Brushes.DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
+                  break;
+               case ConsoleColor.DarkMagenta:
+                  buffer.Brushes.DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
+                  break;
+               case ConsoleColor.DarkYellow:
+                  buffer.Brushes.DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
+                  break;
+               case ConsoleColor.Gray:
+                  buffer.Brushes.Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
+                  break;
+               case ConsoleColor.DarkGray:
+                  buffer.Brushes.DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
+                  break;
+               case ConsoleColor.Blue:
+                  buffer.Brushes.Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
+                  break;
+               case ConsoleColor.Green:
+                  buffer.Brushes.Green = new SolidColorBrush(Properties.Colors.Default.Green);
+                  break;
+               case ConsoleColor.Cyan:
+                  buffer.Brushes.Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
+                  break;
+               case ConsoleColor.Red:
+                  buffer.Brushes.Red = new SolidColorBrush(Properties.Colors.Default.Red);
+                  break;
+               case ConsoleColor.Magenta:
+                  buffer.Brushes.Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
+                  break;
+               case ConsoleColor.Yellow:
+                  buffer.Brushes.Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+                  break;
+               case ConsoleColor.White:
+                  buffer.Brushes.White = new SolidColorBrush(Properties.Colors.Default.White);
+                  break;
+               default:
+                  throw new ArgumentOutOfRangeException();
+            }
+
+            switch (e.PropertyName) {
+               case "DefaultForeground": {
+                     buffer.ForegroundColor = Properties.Colors.Default.DefaultForeground;
+                  }
+                  break;
+               case "DefaultBackground": {
+                     buffer.BackgroundColor = Properties.Colors.Default.DefaultBackground;
+                  }
+                  break;
+               case "DebugBackground": {
+                     buffer.Brushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+                  }
+                  break;
+               case "DebugForeground": {
+                     buffer.Brushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+                  }
+                  break;
+               case "ErrorBackground": {
+                     buffer.Brushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+                  }
+                  break;
+               case "ErrorForeground": {
+                     buffer.Brushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+                  }
+                  break;
+               case "VerboseBackground": {
+                     buffer.Brushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+                  }
+                  break;
+               case "VerboseForeground": {
+                     buffer.Brushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+                  }
+                  break;
+               case "WarningBackground": {
+                     buffer.Brushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+                  }
+                  break;
+               case "WarningForeground": {
+                     buffer.Brushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+                  }
+                  break;
+               case "NativeOutputForeground": {
+                     buffer.Brushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+                  }
+                  break;
+               case "NativeOutputBackground": {
+                     buffer.Brushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+                  }
+                  break;
+               case "NativeErrorForeground": {
+                     buffer.Brushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+                  }
+                  break;
+               case "NativeErrorBackground": {
+                     buffer.Brushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+                  }
+                  break;
+
+               default: {
+                     // These are read for each color change.
+                     // If the color that was changed is *already* the default background or foreground color ...
+                     // Then we need to update the brush!
+                     if (Enum.GetName(typeof(ConsoleColor), buffer.ForegroundColor).Equals(e.PropertyName)) {
+                        buffer.Foreground = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                     }
+                     if (Enum.GetName(typeof(ConsoleColor), buffer.BackgroundColor).Equals(e.PropertyName)) {
+                        buffer.Background = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                     }
+
+                  }
+                  break;
+            }
+            buffer.Brushes.Refresh();
+         }
+         Colors.Default.Save();
+         Settings.Default.Save();
+      }
+
       void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
          if (!buffer.Dispatcher.CheckAccess()) {
             buffer.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SettingsChangedDelegate(SettingsPropertyChanged), sender, new object[] { e });
@@ -496,7 +639,7 @@ namespace PoshConsole {
                break;
             case "WindowHeight": {
                   // do nothing, this setting is set when height changes, so we don't want to get into a loop.
-                  //this.Height = Properties.Settings.Default.WindowHeight;
+                  this.Height = Properties.Settings.Default.WindowHeight;
                }
                break;
             case "WindowLeft": {
@@ -505,7 +648,7 @@ namespace PoshConsole {
                break;
             case "WindowWidth": {
                   // do nothing, this setting is set when width changes, so we don't want to get into a loop.
-                  //this.Width = Properties.Settings.Default.WindowWidth;
+                  this.Width = Properties.Settings.Default.WindowWidth;
                }
                break;
             case "WindowTop": {
@@ -530,6 +673,18 @@ namespace PoshConsole {
                break;
             case "AlwaysOnTop": {
                   Topmost = Settings.Default.AlwaysOnTop;
+               }
+               break;
+            case "QuakeMode": {
+                  var snapTo = Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
+                  snapTo.DockAgainst = Settings.Default.QuakeMode;
+               }
+               break;
+            case "QuakeModeSize": {
+                  var snapTo = Interaction.GetBehaviors(this).OfType<SnapToBehavior>().Single();
+                  if (snapTo.WindowState == AdvancedWindowState.DockedTop) {
+                     Height = Settings.Default.QuakeModeSize;
+                  }
                }
                break;
             case "Opacity": {
@@ -577,12 +732,16 @@ namespace PoshConsole {
                }
                break;
             case "FontFamily": {
+                  // Fonts that are not embedded cannot be resolved from this base Uri
+                  // FontFamily = new FontFamily(new Uri("pack://application:,,,/PoshConsole;component/poshconsole.xaml"), Properties.Settings.Default.FontFamily.Source + ",/FontLibrary;Component/#Bitstream Vera Sans Mono,Global Monospace");
                   buffer.FontFamily = Settings.Default.FontFamily;
                }
                break;
+
             default:
                break;
          }
+         Settings.Default.Save();
       }
 
       //  Internal Methods (1)
@@ -600,11 +759,11 @@ namespace PoshConsole {
       private void OnDockedStateChanged(object sender, RoutedEventArgs e) {
          // The actual source of this event is the behavior, not the window (yay)
          switch (((SnapToBehavior)e.OriginalSource).WindowState) {
-            case SnapToBehavior.AdvancedWindowState.DockedTop:
+            case AdvancedWindowState.DockedTop:
                Style = (Style)Resources["QuakeTopStyle"];
                Height = Settings.Default.QuakeModeSize;
                break;
-            case SnapToBehavior.AdvancedWindowState.DockedBottom:
+            case AdvancedWindowState.DockedBottom:
                Style = (Style)Resources["QuakeBottomStyle"];
                Height = Settings.Default.QuakeModeSize;
                break;
@@ -622,7 +781,6 @@ namespace PoshConsole {
       //   {
       //      // Switch from Metro to Quake when docking
       //      if (Style == (Style)Resources["MetroStyle"])
-      //      {
       //         if (e.WindowState == SnapToBehavior.AdvancedWindowState.DockedTop ||
       //             e.WindowState == SnapToBehavior.AdvancedWindowState.SnapTop ||
       //             e.WindowState == SnapToBehavior.AdvancedWindowState.SnapTopLeft ||

@@ -18,7 +18,7 @@ using System.Windows.Markup;
 // [assembly: CLSCompliant(true)]
 
 // Assigning an XML Namespace Deffinition exposes the namespace to WPF
-[assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf/controls", "Huddled.WPF.Controls")]
+[assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf/controls", "Huddled.Wpf.Controls")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -55,8 +55,8 @@ using System.Windows.Markup;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.1.2011.310")]
-[assembly: AssemblyFileVersion("2.1.2011.310")]
-[assembly: AssemblyInformationalVersion("2.1.2011.310")]
+[assembly: AssemblyVersion("2.1.2011.520")]
+[assembly: AssemblyFileVersion("2.1.2011.520")]
+[assembly: AssemblyInformationalVersion("2.1.2011.520")]
 [assembly: GuidAttribute("959f8985-f26b-47ee-827e-f7ad81367475")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

@@ -7,7 +7,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Globalization;
 
-namespace Huddled.WPF.Controls
+namespace Huddled.Wpf.Controls
 {
    public static class ColorHelper
    {

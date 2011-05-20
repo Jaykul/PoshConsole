@@ -40,35 +40,6 @@ using MessageMapping = System.Collections.Generic.KeyValuePair<Huddled.Interop.N
 
 namespace Huddled.Wpf {
    public class SnapToBehavior : NativeBehavior {
-      public enum AdvancedWindowState {
-         Normal,
-         Minimized,
-         Maximized,
-         SnapTop,
-         SnapRight,
-         SnapBottom,
-         SnapLeft,
-         SnapTopRight,
-         SnapBottomRight,
-         SnapBottomLeft,
-         SnapTopLeft,
-         DockedTop,
-         DockedRight,
-         DockedBottom,
-         DockedLeft,
-         DockedHeight,
-         DockedWidth
-      }
-
-      [Flags]
-      public enum DockingEdge {
-         None = 0,
-         Left = 1,
-         Top = 2,
-         Right = 4,
-         Bottom = 8
-      }
-
       public class AdvancedWindowStateChangedArgs : EventArgs {
          public AdvancedWindowStateChangedArgs(AdvancedWindowState windowState) {
             WindowState = windowState;
@@ -486,5 +457,34 @@ namespace Huddled.Wpf {
             yield return new MessageMapping(NativeMethods.WindowMessage.WindowPositionChanged, OnPositionChange);
          }
       }
+   }
+
+   [Flags]
+   public enum DockingEdge {
+      None = 0,
+      Left = 1,
+      Top = 2,
+      Right = 4,
+      Bottom = 8
+   }
+
+   public enum AdvancedWindowState {
+      Normal,
+      Minimized,
+      Maximized,
+      SnapTop,
+      SnapRight,
+      SnapBottom,
+      SnapLeft,
+      SnapTopRight,
+      SnapBottomRight,
+      SnapBottomLeft,
+      SnapTopLeft,
+      DockedTop,
+      DockedRight,
+      DockedBottom,
+      DockedLeft,
+      DockedHeight,
+      DockedWidth
    }
 }

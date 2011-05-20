@@ -10,7 +10,7 @@
     mc:Ignorable="d" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
-    xmlns:huddle="clr-namespace:Huddled.WPF.Controls;assembly=Huddled.WPF.Controls"
+    xmlns:huddle="clr-namespace:Huddled.Wpf.Controls;assembly=Huddled.WPF.Controls"
     xmlns:huddled="clr-namespace:Huddled.Wpf;assembly=Huddled.Interop"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:PoshControls="clr-namespace:PoshConsole.Controls"
@@ -23,7 +23,6 @@
     Loaded="OnWindowLoaded"
     Closing="OnWindowClosing"
     Activated="OnWindowActivated"
-    Deactivated="OnWindowDeactivated"
     
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" BorderThickness="0"
     Background="Transparent"
