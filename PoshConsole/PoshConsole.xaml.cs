@@ -494,8 +494,10 @@ namespace PoshConsole {
          }
          ConsoleColor color;
 
-         if (Enum.TryParse(e.PropertyName, true, out color)) {
-            switch (color) {
+         if (Enum.TryParse(e.PropertyName, true, out color))
+         {
+            switch (color)
+            {
                case ConsoleColor.Black:
                   buffer.Brushes.Black = new SolidColorBrush(Properties.Colors.Default.Black);
                   break;
@@ -547,81 +549,80 @@ namespace PoshConsole {
                default:
                   throw new ArgumentOutOfRangeException();
             }
-
-            switch (e.PropertyName) {
-               case "DefaultForeground": {
-                     buffer.ForegroundColor = Properties.Colors.Default.DefaultForeground;
-                  }
-                  break;
-               case "DefaultBackground": {
-                     buffer.BackgroundColor = Properties.Colors.Default.DefaultBackground;
-                  }
-                  break;
-               case "DebugBackground": {
-                     buffer.Brushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
-                  }
-                  break;
-               case "DebugForeground": {
-                     buffer.Brushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
-                  }
-                  break;
-               case "ErrorBackground": {
-                     buffer.Brushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
-                  }
-                  break;
-               case "ErrorForeground": {
-                     buffer.Brushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
-                  }
-                  break;
-               case "VerboseBackground": {
-                     buffer.Brushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
-                  }
-                  break;
-               case "VerboseForeground": {
-                     buffer.Brushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
-                  }
-                  break;
-               case "WarningBackground": {
-                     buffer.Brushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
-                  }
-                  break;
-               case "WarningForeground": {
-                     buffer.Brushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
-                  }
-                  break;
-               case "NativeOutputForeground": {
-                     buffer.Brushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
-                  }
-                  break;
-               case "NativeOutputBackground": {
-                     buffer.Brushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
-                  }
-                  break;
-               case "NativeErrorForeground": {
-                     buffer.Brushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
-                  }
-                  break;
-               case "NativeErrorBackground": {
-                     buffer.Brushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
-                  }
-                  break;
-
-               default: {
-                     // These are read for each color change.
-                     // If the color that was changed is *already* the default background or foreground color ...
-                     // Then we need to update the brush!
-                     if (Enum.GetName(typeof(ConsoleColor), buffer.ForegroundColor).Equals(e.PropertyName)) {
-                        buffer.Foreground = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
-                     }
-                     if (Enum.GetName(typeof(ConsoleColor), buffer.BackgroundColor).Equals(e.PropertyName)) {
-                        buffer.Background = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
-                     }
-
-                  }
-                  break;
-            }
-            buffer.Brushes.Refresh();
          }
+         switch (e.PropertyName) {
+            case "DefaultForeground": {
+                  buffer.ForegroundColor = Properties.Colors.Default.DefaultForeground;
+               }
+               break;
+            case "DefaultBackground": {
+                  buffer.BackgroundColor = Properties.Colors.Default.DefaultBackground;
+               }
+               break;
+            case "DebugBackground": {
+                  buffer.Brushes.DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
+               }
+               break;
+            case "DebugForeground": {
+                  buffer.Brushes.DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
+               }
+               break;
+            case "ErrorBackground": {
+                  buffer.Brushes.ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
+               }
+               break;
+            case "ErrorForeground": {
+                  buffer.Brushes.ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
+               }
+               break;
+            case "VerboseBackground": {
+                  buffer.Brushes.VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
+               }
+               break;
+            case "VerboseForeground": {
+                  buffer.Brushes.VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
+               }
+               break;
+            case "WarningBackground": {
+                  buffer.Brushes.WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
+               }
+               break;
+            case "WarningForeground": {
+                  buffer.Brushes.WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
+               }
+               break;
+            case "NativeOutputForeground": {
+                  buffer.Brushes.NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+               }
+               break;
+            case "NativeOutputBackground": {
+                  buffer.Brushes.NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
+               }
+               break;
+            case "NativeErrorForeground": {
+                  buffer.Brushes.NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
+               }
+               break;
+            case "NativeErrorBackground": {
+                  buffer.Brushes.NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
+               }
+               break;
+
+            default: {
+                  // These are read for each color change.
+                  // If the color that was changed is *already* the default background or foreground color ...
+                  // Then we need to update the brush!
+                  if (Enum.GetName(typeof(ConsoleColor), buffer.ForegroundColor).Equals(e.PropertyName)) {
+                     buffer.Foreground = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                  }
+                  if (Enum.GetName(typeof(ConsoleColor), buffer.BackgroundColor).Equals(e.PropertyName)) {
+                     buffer.Background = buffer.Brushes.BrushFromConsoleColor((ConsoleColor)Enum.Parse(typeof(ConsoleColor), e.PropertyName));
+                  }
+
+               }
+               break;
+         }
+         buffer.Brushes.Refresh();
          Colors.Default.Save();
          Settings.Default.Save();
       }

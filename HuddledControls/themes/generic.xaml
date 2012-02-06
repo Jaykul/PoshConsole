@@ -61,7 +61,7 @@
                                     -->
                                         <Border x:Name="Border" 
                                            BorderThickness="0"
-                                           Background="{Binding Path=Background}" 
+                                           Background="Transparent" 
                                            SnapsToDevicePixels="True"
                                            Padding="0,2,10,2">
                                             <AdornerDecorator x:Name="PART_Adorner">

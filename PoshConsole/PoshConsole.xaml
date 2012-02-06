@@ -194,9 +194,9 @@
          </ObjectAnimationUsingKeyFrames>
       </Storyboard>
       <Storyboard x:Key="QuakeShowBottomMetro" >
-         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="Opacity" To="1.0" />
-         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="Height" To="100" />
-         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" To="100.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Opacity)" Name="OpacityAnimation" To="1.0" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Height)" Name="HeightAnimation" To="100" />
+         <DoubleAnimation BeginTime="00:00:00" Duration="00:00:01" Storyboard.TargetProperty="(Window.Top)" Name="TopAnimation" To="100.0" />
          <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="0" Storyboard.TargetProperty="Visibility" >
             <DiscreteObjectKeyFrame KeyTime="0">
                <DiscreteObjectKeyFrame.Value>

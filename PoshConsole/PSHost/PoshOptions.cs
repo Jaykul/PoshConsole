@@ -16,7 +16,6 @@ namespace PoshConsole.Host
       IPoshConsoleControl _console;
       PoshHost _host;
       PoshWpfConsole _xamlUI;
-      public static DependencyProperty StatusTextProperty = DependencyProperty.Register("StatusText", typeof(string), typeof(PoshOptions));
 
       #endregion [rgn]
 
@@ -38,15 +37,15 @@ namespace PoshConsole.Host
          get { return Properties.Colors.Default; }
       }
 
-      public double FullPrimaryScreenHeight
-      {
-         get { return System.Windows.SystemParameters.FullPrimaryScreenHeight; }
-      }
+      //public double FullPrimaryScreenHeight
+      //{
+      //   get { return System.Windows.SystemParameters.FullPrimaryScreenHeight; }
+      //}
 
-      public double FullPrimaryScreenWidth
-      {
-         get { return System.Windows.SystemParameters.FullPrimaryScreenWidth; }
-      }
+      //public double FullPrimaryScreenWidth
+      //{
+      //   get { return System.Windows.SystemParameters.FullPrimaryScreenWidth; }
+      //}
 
       public CommandHistory History
       {
@@ -61,31 +60,6 @@ namespace PoshConsole.Host
          get { return Properties.Settings.Default; }
       }
 
-      public string StatusText
-      {
-         get
-         {
-            if (!Dispatcher.CheckAccess())
-            {
-               return (string)Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (GetStringDelegate)delegate { return StatusText; });
-            }
-            else
-            {
-               return (string)base.GetValue(StatusTextProperty);
-            }
-         }
-         set
-         {
-            if (!Dispatcher.CheckAccess())
-            {
-               Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (SetStringDelegate)delegate { StatusText = value; });
-            }
-            else
-            {
-               base.SetValue(StatusTextProperty, value);
-            }
-         }
-      }
 
       public IPSWpfConsole WpfConsole
       {
