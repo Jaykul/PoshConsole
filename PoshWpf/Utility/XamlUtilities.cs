@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Management.Automation;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Xml;
-using PoshWpf.Converters;
 
 namespace PoshWpf.Utility
 {
@@ -167,7 +165,7 @@ namespace PoshWpf.Utility
       {
          //TypeDescriptor.AddProvider(new BindingTypeDescriptionProvider(), typeof(System.Windows.Data.Binding));
          // this one is absolutely vital to the functioning of ConvertToXaml
-         TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new TypeConverterAttribute(typeof(BindingConverter)) });
+         System.ComponentModel.TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new System.ComponentModel.TypeConverterAttribute(typeof(PoshWpf.Converters.BindingConverter)) });
       }
 
       public static string RoundtripXaml(string xaml)

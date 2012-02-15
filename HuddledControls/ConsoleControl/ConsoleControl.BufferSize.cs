@@ -33,8 +33,8 @@ namespace Huddled.Wpf.Controls
          set
          {
             base.FontFamily = value;
-            UpdateCharacterWidth();
-            Document.LineHeight = FontSize * FontFamily.LineSpacing;
+            this.UpdateCharacterWidth();
+            this.Document.LineHeight = this.FontSize * this.FontFamily.LineSpacing;
          }
       }
 
@@ -52,11 +52,14 @@ namespace Huddled.Wpf.Controls
          set
          {
             base.FontSize = value;
-            Document.LineHeight = FontSize * FontFamily.LineSpacing;
+            this.UpdateCharacterWidth();
+            this.Document.LineHeight = this.FontSize * this.FontFamily.LineSpacing;
          }
       }
 
       private double _characterWidth = 0.5498046875; // Default to the size for Consolas
+      private double _dpiX;
+      private double _dpiY;
 
       public double CharacterWidthRatio
       {
@@ -72,14 +75,13 @@ namespace Huddled.Wpf.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-               (int)
-               Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right))/ (FontSize*(Zoom/100.0)*_characterWidth)) - 1), //(1.75 * (Zoom / 100.0))),
+                (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right))/ ((Zoom/100.0)*_characterWidth))),
                 (int)Math.Floor(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
          }
          set
          {
             // ToDo: The "Height" of the buffer SHOULD control how much buffer history we keep, in lines...
-            this.Width = (value.Width * FontSize * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
+            this.Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
             //this.Height = (value.Width * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - sv.ViewportHeight);
          }
       }
@@ -93,13 +95,13 @@ namespace Huddled.Wpf.Controls
          get
          {
             return new System.Management.Automation.Host.Size(
-                (int)Math.Floor(((ScrollViewer.ViewportWidth - (Padding.Left + Padding.Right)) / (FontSize * (Zoom / 100.0) * _characterWidth)) - (1.75 * (Zoom / 100.0))),
+                (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / ((Zoom / 100.0) * _characterWidth))),
                 (int)Math.Floor(ScrollViewer.ViewportHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
          }
          set
          {
-            this.Width = (value.Width * FontSize * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
+            this.Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
             this.Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)) + (ActualHeight - ScrollViewer.ViewportHeight); 
          }
       }
@@ -115,8 +117,7 @@ namespace Huddled.Wpf.Controls
             // ToDo: should reduce the reported "max" size by the difference between the viewport and the Window...
             // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
             return new System.Management.Automation.Host.Size(
-                (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right)
-                        / (FontSize * (Zoom / 100.0) * _characterWidth)) - 1,
+                (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right) / ((Zoom / 100.0) * _characterWidth)),
                 (int)(System.Windows.SystemParameters.PrimaryScreenHeight - (Padding.Top + Padding.Bottom)
                         / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
@@ -125,7 +126,7 @@ namespace Huddled.Wpf.Controls
       }
 
       /// <summary>
-      /// Gets or sets the size of the max physical Window.
+      /// Gets the size of the max physical Window.
       /// </summary>
       /// <value>The size of the max physical Window.</value>
       public System.Management.Automation.Host.Size MaxPhysicalWindowSize
@@ -148,7 +149,7 @@ namespace Huddled.Wpf.Controls
                _current.ElementEnd.GetCharacterRect(LogicalDirection.Backward) :
                Selection.End.GetCharacterRect(LogicalDirection.Backward);
             
-               _cursorPosition.X = (int)((caret.Left + ScrollViewer.ContentHorizontalOffset) * CharacterWidthRatio);
+               _cursorPosition.X = (int)((caret.Left + ScrollViewer.ContentHorizontalOffset) * _characterWidth);
                _cursorPosition.Y = (int)((caret.Top + ScrollViewer.ContentVerticalOffset) / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
             
             return _cursorPosition;
@@ -170,23 +171,40 @@ namespace Huddled.Wpf.Controls
       /// </summary>
       private void UpdateCharacterWidth()
       {
-         // Calculate the font width (as a percentage of it's height)            
-         foreach (Typeface tf in FontFamily.GetTypefaces())
+
+         PresentationSource source = PresentationSource.FromVisual(this);
+
+         if (source != null)
          {
-            if (tf.Weight == FontWeights.Light && tf.Style == FontStyles.Normal)
+            _dpiX = 96.0 * source.CompositionTarget.TransformToDevice.M11;
+            _dpiY = 96.0 * source.CompositionTarget.TransformToDevice.M22;
+         }
+
+
+         // Calculate the font width (as a percentage of it's height)            
+         foreach (var tf in this.FontFamily.GetTypefaces().Where(tf => tf.Weight == FontWeights.Normal && tf.Style == FontStyles.Normal))
+         {
+            GlyphTypeface glyph; 
+            if (tf.TryGetGlyphTypeface(out glyph))
             {
-               GlyphTypeface glyph;// = new GlyphTypeface();
-               if (tf.TryGetGlyphTypeface(out glyph))
-               {
-                  // if this is really a fixed width font, then the widths should be equal:
-                  // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']]
-                  // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'i']]
-                  _characterWidth = glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']];
-                  break;
-               }
+               // if this is really a fixed width font, then the widths should be equal:
+               // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']]
+               // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'i']]
+               // glyph.GetGlyphOutline(glyph.CharacterToGlyphMap['M'], this.FontSize, this.FontSize).Bounds.Width;
+               this._characterWidth = (new System.Windows.Media.FormattedText(
+                                             "MMMMMMMMMM",
+                                             System.Globalization.CultureInfo.CurrentUICulture,
+                                             FlowDirection.LeftToRight, 
+                                             tf, 
+                                             this.FontSize,
+                                             System.Windows.Media.Brushes.Black, 
+                                             null, 
+                                             TextFormattingMode.Display)).Width / 10;
+               break;
             }
          }
       }
+
       #endregion ConsoleSizeCalculations
 
       public BufferCell[,] GetBufferContents(Rectangle rectangle)

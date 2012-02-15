@@ -145,6 +145,7 @@
   <ItemGroup>
     <Compile Include="Converters\BindingConverter.cs" />
     <Compile Include="Converters\BindingPropertyConverter.cs" />
+    <Compile Include="Data\ScriptDataSource.cs" />
     <Compile Include="UIWindowDictionary.cs" />
     <Compile Include="Commands\UITemplate-Get-Command.cs" />
     <Compile Include="Commands\UIElement-Select-Command.cs" />

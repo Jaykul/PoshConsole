@@ -97,8 +97,6 @@ namespace Huddled.Wpf.Controls
 
          _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
 
-
-
          //ScrollViewer.SizeChanged += new SizeChangedEventHandler(ScrollViewer_SizeChanged);
       }
 
@@ -111,6 +109,7 @@ namespace Huddled.Wpf.Controls
       {
          // Pre-call the base init code, so it will be finished ...
          base.EndInit();
+         UpdateCharacterWidth();
 
          //// Initialize the document ...
 
