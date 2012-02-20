@@ -104,7 +104,13 @@ namespace PoshConsole.Host
 
 
          #region IPSWpfConsole Members
+
+         public bool IsInputFocused { get { return _console.IsInputFocused; } }
+
          public void NewParagraph(){ _console.NewParagraph(); }
+         public void FocusInput(){ _console.FocusInput(); }
+         public void ClearInput(){ _console.ClearInput(); }
+
          public FlowDocument Document { get { return _console.Document;  } }
          public Window RootWindow { get { return _console.RootWindow; } }
          public IList<Window> PopoutWindows { get { return _console.PopoutWindows; } }

@@ -1,35 +1,45 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Interactivity;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Threading;
-using Huddled.Wpf;
-using PoshConsole.Controls;
-using PoshConsole.Host;
-using PoshConsole.Properties;
-using PoshWpf;
-using Colors = PoshConsole.Properties.Colors;
-
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PoshConsole.xaml.cs" company="Huddled Masses  ">
+//   Copyright (c) 2010-2012 Joel Bennett
+// </copyright>
+// <summary>
+//   Implementation of a WPF host for PowerShell
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace PoshConsole {
+   using System;
+   using System.Collections.Generic;
+   using System.Diagnostics;
+   using System.Linq;
+   using System.Management.Automation;
+   using System.Management.Automation.Host;
+   using System.Text;
+   using System.Windows;
+   using System.Windows.Controls;
+   using System.Windows.Documents;
+   using System.Windows.Input;
+   using System.Windows.Interactivity;
+   using System.Windows.Media;
+   using System.Windows.Media.Animation;
+   using System.Windows.Media.Effects;
+   using System.Windows.Threading;
+
+   using Huddled.Wpf;
+
+   using PoshConsole.Controls;
+   using PoshConsole.Host;
+   using PoshConsole.Properties;
+
+   using PoshWpf;
+
+   using Colors = PoshConsole.Properties.Colors;
 
    /// <summary>
    /// Implementation of a WPF host for PowerShell
    /// </summary>
-   public partial class PoshConsoleWindow : IPSUI {
-
+   public partial class PoshConsoleWindow : IPSUI
+   {
       #region  Fields
-
-
       private static DependencyProperty _consoleProperty;
 
       /// <summary>
@@ -221,7 +231,6 @@ namespace PoshConsole {
          catch (Exception exception) {
             _host.UI.WriteErrorLine(exception.ToString());
          }
-
       }
 
       /// <summary>
@@ -444,35 +453,9 @@ namespace PoshConsole {
                }
             }
          }
-         // LOAD the startup banner only when it's set (instead of removing it after)
-         if (Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml")) {
-            try {
-               Paragraph banner;
-               ErrorRecord error;
-               var startup = new System.IO.FileInfo("StartupBanner.xaml");
-               if (startup.TryLoadXaml(out banner, out error)) {
-                  // Copy over *all* resources from the DOCUMENT to the BANNER
-                  // NOTE: be careful not to put resources in the document you're not willing to expose
-                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
-                  foreach (string key in buffer.Document.Resources.Keys) {
-                     banner.Resources[key] = buffer.Document.Resources[key];
-                  }
-                  banner.Padding = new Thickness(5);
-                  buffer.Document.Blocks.InsertBefore(buffer.Document.Blocks.FirstBlock, banner);
-               }
-               else {
-                  ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.520");
-               }
 
-               // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
-               // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
-            }
-            catch (Exception ex) {
-               Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
-               buffer.Document.Blocks.Clear();
-               ((IPSConsole)buffer).WriteLine("PoshConsole 2.1.2011.520");
-            }
-         }
+         this.LoadAurora();
+         this.LoadBanner();
 
          if (initWarnings.Length > 0) {
             ((IPSConsole)buffer).WriteWarningLine(initWarnings.ToString());
@@ -485,6 +468,117 @@ namespace PoshConsole {
 
          OnStyleChanged(null, Style);
          buffer.Focus();
+      }
+
+      private void LoadAurora()
+      {
+         // LOAD the aurora header only when it's set (instead of removing it after)
+         if (Style == Resources["MetroStyle"] && Settings.Default.StartupBanner && System.IO.File.Exists("AuroraHeader.xaml"))
+         {
+            try
+            {
+               System.Windows.FrameworkElement header;
+               ErrorRecord error;
+               var startup = new System.IO.FileInfo("AuroraHeader.xaml");
+               if (startup.TryLoadXaml(out header, out error))
+               {
+                  // Copy over *all* resources from the DOCUMENT to the BANNER
+                  // NOTE: be careful not to put resources in the document you're not willing to expose
+                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+                  foreach (string key in buffer.Document.Resources.Keys)
+                  {
+                     header.Resources[key] = buffer.Document.Resources[key];
+                  }
+                  var wrapperGrid = (Grid)Template.FindName("MetroWrapper", this);
+                  wrapperGrid.Children.Insert(0, header);
+               }
+               else
+               {
+                  var geometry = new StreamGeometry();
+                  using (var ctx = geometry.Open())
+                  {
+                     ctx.BeginFigure(new Point(-40, -40), true /* is filled */, true /* is closed */);
+                     ctx.QuadraticBezierTo(new Point(-120, 80), new Point(-20, 80), false, true);
+                     ctx.QuadraticBezierTo(new Point(-0, 83), new Point(200, 50), false, true);
+                     ctx.QuadraticBezierTo(new Point(300, 30), new Point(360, 60), false, true);
+                     ctx.QuadraticBezierTo(new Point(400, 80), new Point(500, 70), false, true);
+                     ctx.QuadraticBezierTo(new Point(660, 50), new Point(850, 90), false, true);
+                     ctx.QuadraticBezierTo(new Point(900, 100), new Point(1000, 60), false, true);
+                     ctx.QuadraticBezierTo(new Point(1100, 20), new Point(1300, 40), false, true);
+                     ctx.QuadraticBezierTo(new Point(1540, 80), new Point(2000, -40), false, true);
+                  }
+                  var brush =
+                     new LinearGradientBrush(
+                        new GradientStopCollection(
+                           new[]
+                              {
+                                 new GradientStop(Color.FromArgb(0x39, 0x29, 0x53, 0x8B), 0),
+                                 new GradientStop(Color.FromArgb(0x94, 0x12, 0xA6, 0xF3), 0.125),
+                                 new GradientStop(Color.FromArgb(0x8F, 0x18, 0x41, 0xE8), 0.28),
+                                 new GradientStop(Color.FromArgb(0x66, 0x51, 0x22, 0xD6), 0.431),
+                                 new GradientStop(Color.FromArgb(0x6C, 0x63, 0x16, 0xD8), 0.56),
+                                 new GradientStop(Color.FromArgb(0x8F, 0x15, 0x42, 0xCC), 0.659),
+                                 new GradientStop(Color.FromArgb(0x92, 0x27, 0x83, 0xB4), 0.828),
+                                 new GradientStop(Color.FromArgb(0x8F, 0x18, 0x9A, 0xFF), 1)
+                              }),
+                        new Point(0, 0),
+                        new Point(1, 1));
+                  var path = new System.Windows.Shapes.Path
+                     {
+                        Stroke = Brushes.Transparent,
+                        StrokeThickness = 0,
+                        Effect = new BlurEffect { Radius = 50 },
+                        Data = geometry,
+                        Fill = brush
+                     };
+                  var wrapperGrid = (Grid)Template.FindName("MetroWrapper", this);
+                  wrapperGrid.Children.Insert(0, path);
+               }
+            }
+            catch (Exception ex)
+            {
+               Trace.TraceError(@"Problem loading AuroraHeader.xaml\n{0}", ex.Message);
+            }
+         }
+      }
+
+      private void LoadBanner()
+      {
+         // LOAD the startup banner only when it's set (instead of removing it after)
+         if (Settings.Default.StartupBanner && System.IO.File.Exists("StartupBanner.xaml"))
+         {
+            try
+            {
+               Paragraph banner;
+               ErrorRecord error;
+               var startup = new System.IO.FileInfo("StartupBanner.xaml");
+               if (startup.TryLoadXaml(out banner, out error))
+               {
+                  // Copy over *all* resources from the DOCUMENT to the BANNER
+                  // NOTE: be careful not to put resources in the document you're not willing to expose
+                  // NOTE: this will overwrite resources with matching keys, so banner-makers need to be aware
+                  foreach (string key in this.buffer.Document.Resources.Keys)
+                  {
+                     banner.Resources[key] = this.buffer.Document.Resources[key];
+                  }
+                  banner.Padding = new Thickness(5);
+                  this.buffer.Document.Blocks.InsertBefore(this.buffer.Document.Blocks.FirstBlock, banner);
+               }
+               else
+               {
+                  ((IPSConsole)this.buffer).WriteLine("PoshConsole 2.1.2011.520");
+               }
+
+               // Document.Blocks.InsertBefore(Document.Blocks.FirstBlock, new Paragraph(new Run("PoshConsole`nVersion 1.0.2007.8150")));
+               // Document.Blocks.AddRange(LoadXamlBlocks("StartupBanner.xaml"));
+            }
+            catch (Exception ex)
+            {
+               Trace.TraceError(@"Problem loading StartupBanner.xaml\n{0}", ex.Message);
+               this.buffer.Document.Blocks.Clear();
+               ((IPSConsole)this.buffer).WriteLine("PoshConsole 2.1.2011.520");
+            }
+         }
       }
 
       void ColorsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
@@ -987,5 +1081,9 @@ namespace PoshConsole {
          }
       }
 
+      private void OnMoveToEnd(object sender, ExecutedRoutedEventArgs e)
+      {
+         ((IPSWpfConsole)buffer).FocusInput();
+      }
    }
 }

@@ -13,6 +13,11 @@ namespace Huddled.Wpf.Controls.Utility
       private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       public static string GetLastWord(this string cmdline, bool trimQuotes = true)
       {
+         if (string.IsNullOrWhiteSpace(cmdline))
+         {
+            return string.Empty;
+         }
+
          string lastWord = null;
          MatchCollection words = _CHUNKER.Matches(cmdline);
          if (words.Count >= 1)

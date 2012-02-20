@@ -1,19 +1,20 @@
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Threading;
-
-
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IPSWpfConsole.cs" company="Huddled Masses">
+//   Copyright (c) 2010-2012 Joel Bennett
+// </copyright>
+// <summary>
+//   <para>Provides an interface which extends the existing PowerShell PrivateData class with a
+//   <see cref="IPSWpfConsole" />, with access to the WPF Window and Dispatcher</para>
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+// ReSharper disable CheckNamespace
 namespace System.Management.Automation.Host
 {
-   /// <summary>
-   /// <para>Provides an interface which extends the existing PowerShell PrivateData class with a
-   /// <see cref="IPSWpfConsole" />, with access to the WPF Window and Dispatcher</para>
-   /// </summary>
-   public interface IPSWpfOptions
-   {
-      IPSWpfConsole WpfConsole { get; }
-   }
+   using System.Collections.Generic;
+   using System.Windows;
+   using System.Windows.Documents;
+   using System.Windows.Threading;
+
    /// <summary>
    /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
    /// based user interface which allows loading of arbitrary bits of Xaml source.  This
@@ -25,16 +26,47 @@ namespace System.Management.Automation.Host
    /// </summary>
    public interface IPSWpfConsole
    {
+      /// <summary>
+      /// Gets the root window.
+      /// </summary>
       Window RootWindow { get; }
+
+      /// <summary>
+      /// Gets the dispatcher.
+      /// </summary>
       Dispatcher Dispatcher { get; }
 
+      /// <summary>
+      /// Gets the list of current popout windows.
+      /// </summary>
       IList<Window> PopoutWindows { get; }
 
+      /// <summary>
+      /// Gets the document.
+      /// </summary>
       FlowDocument Document { get; }
 
+      /// <summary>
+      /// Gets the current paragraph.
+      /// </summary>
       Paragraph CurrentBlock { get; }
 
+      bool IsInputFocused { get; }
+
+      /// <summary>
+      /// Creates a new paragraph.
+      /// </summary>
       void NewParagraph();
+
+      /// <summary>
+      /// Focuses the input line.
+      /// </summary>
+      void FocusInput();      /// <summary>
+      
+      /// Clears the input line.
+      /// </summary>
+      void ClearInput();
+
       //Runspace Runspace { get; }
 
       //void OutXaml(bool popup, System.Xml.XmlDocument template );
@@ -45,3 +77,4 @@ namespace System.Management.Automation.Host
       // Block GetOutputBlock(int id);
    }
 }
+// ReSharper restore CheckNamespace

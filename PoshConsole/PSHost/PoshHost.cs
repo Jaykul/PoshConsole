@@ -293,7 +293,15 @@ namespace PoshConsole.Host
          {
             _runner.StopPipeline();
          }
-         if (_buffer.CurrentCommand.Length > 0) { _buffer.CurrentCommand = ""; }
+
+         if (_buffer.IsInputFocused)
+         {
+            _buffer.ClearInput();
+         }
+         else
+         {
+            _buffer.FocusInput();
+         }
       }
       //public void StopPipeline()
       //{

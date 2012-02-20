@@ -279,7 +279,6 @@ namespace Huddled.Wpf.Controls
 
       #endregion Color Dependency properties
 
-
       private void Write(Brush foreground, Brush background, string text)
       {
          Write(foreground, background, text, _current);

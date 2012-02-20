@@ -1,0 +1,21 @@
+﻿<Path xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      x:Name="Aurora"
+      Stroke="Transparent" StrokeThickness="0" 
+      Data="M -40,-40 Q -120,80 -20,80 -0,83 200,50 300,30 360,60 400,80 500,70 660,50 850,90 900,100 1000,60 1100,20 1300,40 1540,80 2000,-40">
+   <Path.Effect>
+      <BlurEffect Radius="50" />
+   </Path.Effect>
+   <Path.Fill>
+      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+         <GradientStop Color="#858B2936" Offset="0"/>
+         <GradientStop Color="#94F312E0" Offset="0.125"/>
+         <GradientStop Color="#8F8718E8" Offset="0.28"/>
+         <GradientStop Color="#665122D6" Offset="0.431"/>
+         <GradientStop Color="#6C6316D8" Offset="0.56"/>
+         <GradientStop Color="#8F9815CC" Offset="0.659"/>
+         <GradientStop Color="#92B4279B" Offset="0.828"/>
+         <GradientStop Color="#8F7E18FF" Offset="1"/>
+      </LinearGradientBrush>
+   </Path.Fill>
+</Path>

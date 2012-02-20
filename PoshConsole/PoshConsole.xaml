@@ -28,10 +28,9 @@
     TextOptions.TextRenderingMode = "ClearType"
 
     ResizeMode="CanResizeWithGrip" SnapsToDevicePixels="True"
-    MinWidth="425" MinHeight="20" Width="725" Height="354" Padding="5"
+    MinWidth="425" MinHeight="20" Width="697" Height="354" Padding="5"
     
-    BorderBrush="White" 
-    Background="{Binding Background, ElementName=buffer}"
+    BorderBrush="White"
     Foreground="{Binding Foreground, ElementName=buffer}"
     
     Loaded="OnWindowLoaded"
@@ -43,7 +42,7 @@
     Icon="pack://application:,,,/Artwork/PoshConsoleWindow.ico" 
     
     huddled:WindowCommands.EnableCommands="true"
-    huddled:SnapToBehavior.DockedStateChanged="OnDockedStateChanged"
+    huddled:SnapToBehavior.DockedStateChanged="OnDockedStateChanged" Background="Black"
 >
    <!--<VisualStateManager.VisualStateGroups>
       <VisualStateGroup Name="MouseStates">
@@ -260,11 +259,15 @@
                    </StatusBar.BitmapEffect>-->
                         <GridSplitter Grid.Column="2" MinWidth="2" Width="2" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,2" shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Bottom" Foreground="{DynamicResource TextBoxBorderBrush}" Grid.Row="0" Grid.RowSpan="2" Height="{Binding ActualHeight, ElementName=Search}"/>
                         <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="3" x:Name="Search" Text="Search" 
-                              shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                              HorizontalAlignment="Stretch" BorderThickness="0" BorderBrush="{x:Null}" Background="#5DFFFFFF" VerticalAlignment="Bottom" 
+                              shell:WindowChrome.IsHitTestVisibleInChrome="True" HorizontalAlignment="Stretch" 
+                              BorderThickness="0" BorderBrush="{x:Null}" Background="Transparent" VerticalAlignment="Bottom" 
                               PreviewKeyDown="SearchPreviewKeyDown" GotFocus="SearchGotFocus"
                               Padding="4,0,22,0" Width="Auto" MinWidth="100" Margin="0,0,0,2" Panel.ZIndex="2" FontSize="13.333" MaxLines="1" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" />
-                        <Button Grid.Column="3" Panel.ZIndex="3" Foreground="{TemplateBinding Foreground}" Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" Margin="2" Padding="2" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" >
+                        <Button Grid.Column="3" Panel.ZIndex="3" Foreground="{TemplateBinding Foreground}"  x:Name="SearchButton" Command="NavigationCommands.Search"
+                                Style="{StaticResource SimpleButton}" 
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="{Binding ActualHeight, 
+                                 RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" 
+                                Background="Transparent" Margin="2" Padding="2" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="24" >
                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
                               <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Height="8" Margin="0" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource GrayBrush7}" UseLayoutRounding="False" VerticalAlignment="Bottom" Width="4">
                                  <Rectangle.RenderTransform>
@@ -297,104 +300,117 @@
                <shell:WindowChrome ResizeBorderThickness="6" CaptionHeight="48" CornerRadius="0,0,0,0" GlassFrameThickness="1"/>
             </Setter.Value>
          </Setter>
-         
          <Setter Property="Template">
             <Setter.Value>
                <ControlTemplate TargetType="{x:Type Window}" >
                   <!-- Margin="{Binding WindowResizeBorderThickness, Source={x:Static shell:SystemParameters2.Current}}" -->
-                  <Border x:Name="EdgeBorder" Background="{TemplateBinding Background}" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"  Padding="{TemplateBinding Padding}">
-                     <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" Background="{TemplateBinding Background}">
-                        <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0" MaxHeight="28" DockPanel.Dock="Top" >
-                           <Grid.ColumnDefinitions>
-                              <ColumnDefinition Width="Auto"/>
-                              <ColumnDefinition Width="*"/>
-                              <ColumnDefinition Width="230"/>
-                           </Grid.ColumnDefinitions>
-                           <Path Data="M0.33333333,2.6666667 L128.66667,3.3333333" StrokeStartLineCap="Square" Stretch="Fill" StrokeEndLineCap="Square" StrokeThickness="7" Height="7" VerticalAlignment="Top">
-                              <Path.Stroke>
-                                 <LinearGradientBrush EndPoint="0.001,0.5" StartPoint="1.002,0.5">
-                                    <GradientStop Color="{StaticResource HighlightDarkColor}" Offset="0"/>
-                                    <GradientStop Color="#FF5FC316" Offset="1"/>
-                                 </LinearGradientBrush>
-                              </Path.Stroke>
-                              <Path.Fill>
-                                 <SolidColorBrush Color="{DynamicResource AccentColor}"/>
-                              </Path.Fill>
-                           </Path>
-                           <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
-                              <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top"  BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
-                              <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggleClick" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
-                           </StackPanel>
-                           <!--<StatusBar.BitmapEffect>
+                     <Grid Background="{TemplateBinding Background}" x:Name="MetroWrapper" >
+					 <Path x:Name="Aurora" Stroke="Transparent" StrokeThickness="0" 
+						  VerticalAlignment="Top"
+						  Data="M -40,-40 Q -120,80 -20,80 -0,83 200,50 300,30 360,60 400,80 500,70 660,50 850,90 900,100 1000,60 1100,20 1300,40 1540,80 2000,-40">
+                     	<Path.Effect><BlurEffect Radius="50" /></Path.Effect>
+                        <Path.Fill>
+                        	<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            	<GradientStop Color="#3929538B" Offset="0"/>
+                                <GradientStop Color="#9412A6F3" Offset="0.125"/>
+                                <GradientStop Color="#8F1841E8" Offset="0.28"/>
+                                <GradientStop Color="#665122D6" Offset="0.431"/>
+                                <GradientStop Color="#6C6316D8" Offset="0.56"/>
+                                <GradientStop Color="#8F1542CC" Offset="0.659"/>
+                                <GradientStop Color="#922783B4" Offset="0.828"/>
+                                <GradientStop Color="#8F189AFF" Offset="1"/>
+                            </LinearGradientBrush>
+                       	</Path.Fill>
+                   	</Path>
+                  	<Border x:Name="EdgeBorder" Background="Transparent" d:DesignWidth="650.333" d:DesignHeight="221" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"  Padding="{TemplateBinding Padding}">
+                        <DockPanel x:Name="ContentGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" d:LayoutOverrides="Width" Background="Transparent">
+                           <Grid x:Name="Toolbar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="24" Cursor="Arrow" Margin="0" MaxHeight="28" DockPanel.Dock="Top" >
+                           	<Grid.Background>
+                           	  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                 <GradientStop Color="#22FFFFFF" Offset="0"/>
+                                 <GradientStop Color="#22000000" Offset="1"/>
+                              </LinearGradientBrush>                    	
+							</Grid.Background>
+                              <Grid.ColumnDefinitions>
+                                 <ColumnDefinition Width="Auto"/>
+                                 <ColumnDefinition Width="*"/>
+                                 <ColumnDefinition Width="230"/>
+                              </Grid.ColumnDefinitions>
+                              <StackPanel x:Name="CaptionTools" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0">
+                                 <Button x:Name="OnTopWindow" Content="Topmost" ToolTip="Toggle Always On Top"  BorderThickness="0" Margin="2,0,0,0" Background="#00F7F7F7" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                                 <Button x:Name="SkinToggle" Content="Theme" ToolTip="Change theme to Glass mode" Click="SkinToggleClick" Background="#00000000" BorderThickness="0" Margin="2,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource FocusFreeButtonStyle}"/>
+                              </StackPanel>
+                              <!--<StatusBar.BitmapEffect>
                        <BevelBitmapEffect BevelWidth="2" EdgeProfile="CurvedIn" Relief="0.17" Smoothness="0.5"/>
                    </StatusBar.BitmapEffect>-->
-                           <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="{Binding Background, ElementName=window, Mode=Default}" Margin="0,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-                           <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="2" x:Name="Search" Text="Search" 
+                              <GridSplitter Grid.Column="1" MinWidth="5" Width="5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Background="Transparent" Margin="0,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                              <TextBox Style="{StaticResource SearchBoxStyle}" Grid.Column="2" x:Name="Search" Text="Search" 
                                  Margin="0,0,75,0" Padding="4,0,22,0" MinHeight="24"
                                  Width="Auto" MinWidth="150"  shell:WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Stretch" 
-                                 BorderThickness="0" BorderBrush="{x:Null}" 
-                                 PreviewKeyDown="SearchPreviewKeyDown" GotFocus="SearchGotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
-                           <Button Style="{DynamicResource SimpleButton}" Grid.Column="2" x:Name="SearchButton" 
+                                 BorderThickness="0" BorderBrush="{x:Null}"  Background="Transparent" Foreground="{TemplateBinding Foreground}"                                        
+                                 PreviewKeyDown="SearchPreviewKeyDown" GotFocus="SearchGotFocus" Height="Auto" Panel.ZIndex="2" FontSize="13.333"/>
+                              <Button Style="{DynamicResource SimpleButton}" Grid.Column="2" x:Name="SearchButton" Command="NavigationCommands.Search" 
                                  Margin="0,0,75,0" Foreground="{TemplateBinding Foreground}" 
                                  Panel.ZIndex="3" shell:WindowChrome.IsHitTestVisibleInChrome="True"
                                  Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Right" Background="Transparent" >
-                              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
-                                 <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,1.924,1.261" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{TemplateBinding Foreground}" UseLayoutRounding="False" Width="4" Height="6.022" VerticalAlignment="Bottom">
-                                    <Rectangle.RenderTransform>
-                                       <TransformGroup>
-                                          <ScaleTransform/>
-                                          <SkewTransform/>
-                                          <RotateTransform Angle="-46.827"/>
-                                          <TranslateTransform/>
-                                       </TransformGroup>
-                                    </Rectangle.RenderTransform>
-                                 </Rectangle>
-                                 <Ellipse Margin="0,1.667,3.333,3.166" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
-                              </Grid>
-                           </Button>
+                                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+                                    <Rectangle Fill="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" HorizontalAlignment="Right" Margin="0,0,1.924,1.261" RadiusY="0.5" RadiusX="0.5" RenderTransformOrigin="0.5,0.5" Stroke="{TemplateBinding Foreground}" UseLayoutRounding="False" Width="4" Height="6.022" VerticalAlignment="Bottom">
+                                       <Rectangle.RenderTransform>
+                                          <TransformGroup>
+                                             <ScaleTransform/>
+                                             <SkewTransform/>
+                                             <RotateTransform Angle="-46.827"/>
+                                             <TranslateTransform/>
+                                          </TransformGroup>
+                                       </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                    <Ellipse Margin="0,1.667,3.333,3.166" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2"/>
+                                 </Grid>
+                              </Button>
 
-                           <!--Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Click="Minimize_Click" -->
-                           <StackPanel Grid.Column="2" x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{x:Null}" >
-                              <Button Cursor="Arrow" x:Name="MinimizeButton" 
+                              <!--Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Click="Minimize_Click" -->
+                              <StackPanel Grid.Column="2" x:Name="WindowTools" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{x:Null}" >
+                                 <Button Cursor="Arrow" x:Name="MinimizeButton" 
                                                 Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
                                                 VerticalAlignment="Stretch" Panel.ZIndex="3"
                                                 Command="huddled:WindowCommands.Minimize"
                                                 ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"
                                                 Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
                                                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
-                                 <Grid>
-                                    <Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
-                                 </Grid>
-                              </Button>
-                              <!--Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Click="Restore_Click" -->
-                              <Button Cursor="Arrow" ToolTip="Maximize" x:Name="MaximizeButton"
+                                    <Grid>
+                                       <Path Data="M0,10 L18,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="4" Height="6" Margin="0,0,0,3"/>
+                                    </Grid>
+                                 </Button>
+                                 <!--Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" Click="Restore_Click" -->
+                                 <Button Cursor="Arrow" ToolTip="Maximize" x:Name="MaximizeButton"
                                                     Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
                                                     Command="huddled:WindowCommands.Restore"
                                                     Style="{StaticResource SimpleButton}"  shell:WindowChrome.IsHitTestVisibleInChrome="True"
                                                     VerticalAlignment="Stretch" 
                                                     Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" >
-                                 <Grid>
-                                    <Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Margin="2"/>
-                                    <Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Height="6" Margin="2"/>
-                                 </Grid>
-                              </Button>
-                              <!--Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Click="Close_Click" -->
-                              <Button Cursor="Arrow" ToolTip="Close" x:Name="CloseButton"
+                                    <Grid>
+                                       <Rectangle StrokeStartLineCap="Triangle" StrokeEndLineCap="Triangle" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Margin="2"/>
+                                       <Path Data="M0,10 L18,10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" Height="6" Margin="2"/>
+                                    </Grid>
+                                 </Button>
+                                 <!--Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Click="Close_Click" -->
+                                 <Button Cursor="Arrow" ToolTip="Close" x:Name="CloseButton"
                                                     Foreground="{TemplateBinding Foreground}"  Background="{TemplateBinding Background}"
                                                     Command="huddled:WindowCommands.Close"
                                                 Style="{StaticResource SimpleButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" 
                                                 VerticalAlignment="Stretch" 
                                                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
-                                 <Grid>
-                                    <Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
-                                    <Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
-                                 </Grid>
-                              </Button>
-                           </StackPanel>
-                        </Grid>
-                        <ContentPresenter Content="{TemplateBinding Content}"/>
-                     </DockPanel>
+                                    <Grid>
+                                       <Path Data="M8.625,8.375 L29.5,29.75" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+                                       <Path Data="M17.375,0 L1.625,16.25" Stretch="Fill" Stroke="{Binding Foreground, FallbackValue=Black, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="2" StrokeEndLineCap="Triangle" StrokeStartLineCap="Triangle" Margin="2"/>
+                                    </Grid>
+                                 </Button>
+                              </StackPanel>
+                           </Grid>
+                           <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </DockPanel>
                   </Border>
+                     </Grid>
                </ControlTemplate>
             </Setter.Value>
          </Setter>
@@ -464,7 +480,8 @@
    </Window.Resources>
    <i:Interaction.Behaviors>
       <!--<huddled:MetroWindow CaptionHeight="58" ButtonSize="20" />-->
-      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Top" /> <!--DockedStateChanged="DockedStateChanged"-->
+      <huddled:SnapToBehavior SnapDistance="{Binding SnapDistance, Mode=OneWay, Source={StaticResource SettingsDS}}" DockAgainst="Top" />
+      <!--DockedStateChanged="DockedStateChanged"-->
       <!-- WindowStateChanged="OnWindowStateChanged" -->
       <huddled:HotkeysBehavior>
          <!--Command="huddled:GlobalCommands.ToggleWindow"-->
@@ -495,6 +512,7 @@
       <CommandBinding Command="NavigationCommands.DecreaseZoom" Executed="OnHandleDecreaseZoom" />
       <CommandBinding Command="NavigationCommands.Search" Executed="OnSearchCommand" />
       <CommandBinding Command="ApplicationCommands.Find" Executed="OnFindCommand" />
+      <CommandBinding Command="EditingCommands.MoveToDocumentEnd" Executed="OnMoveToEnd" />
    </Window.CommandBindings>
    <Window.InputBindings>
       <!-- 
@@ -506,6 +524,7 @@
       <KeyBinding Command="ApplicationCommands.Stop" Key="F2" />
       <KeyBinding Command="ApplicationCommands.Stop" Key="Pause" Modifiers="Control" />
       <KeyBinding Command="ApplicationCommands.Stop" Key="C" Modifiers="Control" />
+      <KeyBinding Command="EditingCommands.MoveToDocumentEnd" Key="D" Modifiers="Control" />
       <!--<KeyBinding Command="ApplicationCommands.Copy" Key="C" Modifiers="Control" />-->
 
       <KeyBinding Command="NavigationCommands.IncreaseZoom" Key="OemPlus" Modifiers="Control" />
@@ -539,9 +558,10 @@
    <Window.Topmost>
       <Binding Path="AlwaysOnTop" Mode="Default" Source="{StaticResource SettingsDS}"/>
    </Window.Topmost>
+
    <!--Mode=Default, Source={StaticResource SettingsDS}}"-->
    <!--<Border BorderThickness="10" Background="{DynamicResource ControlForegroundBrush}">-->
-   <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}">
+   <Grid x:Name="WindowGrid" Style="{StaticResource LayoutRootGridStyle}" Margin="0" DataContext="{Binding Source={StaticResource ColorsDS}}" Background="#00000000">
       <Grid.ColumnDefinitions>
          <ColumnDefinition/>
       </Grid.ColumnDefinitions>
@@ -549,7 +569,14 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>-->
-      <!--<Border x:Name="BackgroundBorder" />-->
+      <!--<Border x:Name="BackgroundBorder" />
+  
+      <Polygon
+   		Points="0,0 0,1 0,0.5 .2,.3 .5,.5 1,0"
+   		Fill="Blue"
+   		Stretch="Fill"
+   		Stroke="Transparent"
+   		StrokeThickness="0" VerticalAlignment="Top" />-->
 
       <Grid x:Name="ConsoleArea" Background="Transparent" d:LayoutOverrides="Width" Margin="0">
          <Grid.RowDefinitions>
@@ -560,15 +587,15 @@
             <RowDefinition Height="*"/>
          </Grid.RowDefinitions>
          <StackPanel x:Name="progress" Grid.Row="0"  Grid.Column="0" Panel.ZIndex="1"
-                Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
-                Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
+   			Width="Auto" Margin="0,0,0,0" VerticalAlignment="Top" 
+   			Opacity="0.9" Orientation="Vertical" Background="{x:Null}" />
          <controls:ConsoleControl x:Name="buffer" 
-                Title="PoshConsole" IsSelectionEnabled="True"
-                Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
-                FontSize="{Binding FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
-                FontFamily="{Binding FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"
-                Foreground="{DynamicResource ForegroundBrush}" Background="{DynamicResource BackgroundBrush}" >
+   			Title="PoshConsole" IsSelectionEnabled="True"
+   			Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+   			HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                
+   			FontSize="{Binding FontSize, Mode=Default, Source={StaticResource SettingsDS}}" 
+   			FontFamily="{Binding FontFamily, Mode=Default, Source={StaticResource SettingsDS}}"
+   			Foreground="{DynamicResource ForegroundBrush}" Background="#00000000" >
             <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
             <FlowDocument>
                <FlowDocument.Resources>

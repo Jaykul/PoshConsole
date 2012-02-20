@@ -170,6 +170,7 @@
     <Compile Include="Commands\Xaml-ConvertFrom-Command.cs" />
     <Compile Include="Commands\Xaml-ConvertTo-Command.cs" />
     <Compile Include="Dependencies\Interfaces\IPSWpfConsole.cs" />
+    <Compile Include="Dependencies\Interfaces\IPSWpfOptions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="UIWindowDictionary.cs" />
     <Compile Include="Utility\Invoker.cs" />

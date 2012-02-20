@@ -413,11 +413,6 @@ namespace Huddled.Wpf.Controls
       }
       #endregion ReadLine
 
- 
-
- 
-
-
       PSCredential IPSConsole.PromptForCredential(string caption, string message, string userName, string targetName, 
          PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
       {
@@ -509,6 +504,7 @@ namespace Huddled.Wpf.Controls
          // Write is Dispatcher checked
          Write(foregroundColor, backgroundColor, message, _current);
       }
+
       void IPSConsole.Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message, Block target)
       {
          // Write is Dispatcher checked
