@@ -315,12 +315,10 @@ namespace Huddled.Wpf.Controls
       {
          Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)delegate
          {
-            if (target == null) target = _current;
-
             new Run(text, target.ContentEnd)
             {
-               Background = _brushes.BrushFromConsoleColor(background),
-               Foreground = _brushes.BrushFromConsoleColor(foreground)
+               Background = (this.BackgroundColor == background) ? this.Brushes.Transparent : this._brushes.BrushFromConsoleColor(background),
+               Foreground = this._brushes.BrushFromConsoleColor(foreground)
             };
             ScrollViewer.ScrollToBottom();
          });
