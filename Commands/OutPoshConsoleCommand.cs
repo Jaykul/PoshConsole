@@ -18,7 +18,6 @@ namespace PoshCode.Commands
         [Parameter()]
         public PoshConsole PoshConsole { get; set; }
 
-
         [Parameter(
             Position = 0,
             Mandatory = false,
@@ -45,12 +44,19 @@ namespace PoshCode.Commands
             base.BeginProcessing();
         }
 
-        protected override void EndProcessing()
+        protected override void ProcessRecord()
         {
             PoshConsole.Dispatcher.InvokeAsync(() =>
             {
                 PoshConsole.SetValue(PoshConsole.ContentProperty, InputObject.BaseObject);
             });
+
+            WriteObject(InputObject);
+            base.ProcessRecord();
+        }
+
+        protected override void EndProcessing()
+        {
             base.EndProcessing();
         }
     }

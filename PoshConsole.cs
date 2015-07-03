@@ -157,9 +157,26 @@ namespace PoshCode
             AppendText(command + "\n");
             var pipeline = _runSpace.CreatePipeline(command, true);
 
-            pipeline.Commands.Add(contentOutput ? ContentOutputCommand : DefaultOutputCommand);
-
             //var result = await Task.Factory.FromAsync(_shell.AddScript(command).BeginInvoke(), handle => _shell.EndInvoke(handle));
+            return InvokePipeline(pipeline, contentOutput);
+        }
+
+        public Collection<PSObject> InvokeCommand(Command command, bool contentOutput = false)
+        {
+            AppendText(command + "\n");
+            var pipeline = _runSpace.CreatePipeline();
+            pipeline.Commands.Add(command);
+            return InvokePipeline(pipeline, contentOutput);
+        }
+
+        private Collection<PSObject> InvokePipeline(Pipeline pipeline, bool contentOutput = false)
+        {
+            if(contentOutput)
+                pipeline.Commands.Add(ContentOutputCommand);
+
+            pipeline.Commands.Add(DefaultOutputCommand);
+
+
             Collection<PSObject> result = null;
             try
             {
