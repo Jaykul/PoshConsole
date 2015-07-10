@@ -20,7 +20,6 @@ namespace PoshCode.PowerShell
 	public class RunspaceProxy
 	{
 		private Runspace _runSpace;
-		private Pipeline _pipeline;
 		public Command DefaultOutputCommand { get; private set; }
 
 		// TODO: Do we need to queue things like PoshConsole does?
