@@ -15,7 +15,7 @@ namespace PoshCode
     {
         private Runspace _runSpace;
         private const string DefaultPrompt = "PS>";
-        private string hostName = "PoshConsole";
+        // private string hostName = "PoshConsole";
         private Host _host;
 
         public void Dispose()
