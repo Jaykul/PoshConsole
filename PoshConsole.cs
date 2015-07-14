@@ -87,11 +87,10 @@ namespace PoshCode
             // Load all the Cmdlets that are in this assembly automatically.
             Assembly entryAssembly = Assembly.GetExecutingAssembly();
 
-            // Load the A2A.Management module
             string path = Path.GetDirectoryName(entryAssembly.Location);
             if (!string.IsNullOrEmpty(path))
             {
-                // because this must work with PowerShell2, we can't use ImportPSModulesFromPath
+                // because this should work with PowerShell2, we can't just use ImportPSModulesFromPath
                 path = Path.Combine(path, "Modules");
                 if (Directory.Exists(path))
                 {
@@ -99,6 +98,7 @@ namespace PoshCode
                 }
                 else
                 {
+                    // Load the A2A.Management module
                     path = Path.Combine(path, "A2A.Management.psd1");
                     if(File.Exists(path))
                     {
@@ -163,7 +163,9 @@ namespace PoshCode
 
         public Collection<PSObject> InvokeCommand(Command command, bool contentOutput = false)
         {
-            AppendText(command + "\n");
+            // Echo to console
+            AppendText(command.CommandText + "\n");
+
             var pipeline = _runSpace.CreatePipeline();
             pipeline.Commands.Add(command);
             return InvokePipeline(pipeline, contentOutput);
@@ -176,7 +178,6 @@ namespace PoshCode
 
             pipeline.Commands.Add(DefaultOutputCommand);
 
-
             Collection<PSObject> result = null;
             try
             {
@@ -184,7 +185,7 @@ namespace PoshCode
             }
             catch (Exception pe)
             {
-                Debug.WriteLine(pe.Message);
+                _host.UI.WriteErrorLine(pe.Message);
             }
             AppendText("\n" + DefaultPrompt + " ");
             return result;
