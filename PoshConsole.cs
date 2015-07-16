@@ -1,21 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using PoshCode.PowerShell;
+using PoshCode.Wpf.Controls;
 
 namespace PoshCode
 {
-    public class PoshConsole : ICSharpCode.AvalonEdit.TextEditor, IDisposable, IContentControl
+    public class PoshConsole : ConsoleControl, IDisposable, IContentControl
     {
-        private Runspace _runSpace;
-        private const string DefaultPrompt = "PS>";
-        // private string hostName = "PoshConsole";
+        internal RunspaceProxy Runner { get; set; }
         private Host _host;
 
         public void Dispose()
@@ -26,6 +28,16 @@ namespace PoshCode
                 _host = null;
             }
         }
+
+        public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
+            "Progress", typeof(object), typeof(PoshConsole), new PropertyMetadata(default(object)));
+
+        public Panel Progress
+        {
+            get { return (Panel)GetValue(ProgressProperty); }
+            set { SetValue(ProgressProperty, value); }
+        }
+
 
         public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(
             "Content", typeof (object), typeof (PoshConsole), new PropertyMetadata(default(object)));
@@ -39,156 +51,137 @@ namespace PoshCode
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
+            CommandBox.IsEnabled = false;
 
-            _host = new Host(this, new Options(this));
+            _host = new Host(this, Progress, new Options(this));
 
-            // pre-create this
-            DefaultOutputCommand = new Command("Out-Default");
-            // for now, merge the errors with the rest of the output
-            DefaultOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-            DefaultOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error |
-                                                                        PipelineResultTypes.Output;
-
-            // pre-create this
-            ContentOutputCommand = new Command("Out-PoshConsole");
-            // for now, merge the errors with the rest of the output
-            ContentOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-            ContentOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error |
-                                                                        PipelineResultTypes.Output;
-
-
-            // Create the default initial session state and add the module.
-            InitialSessionState iss = InitialSessionState.CreateDefault();
-
-            string currentUserProfilePath =
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell");
-            string allUsersProfilePath = Path.Combine(Environment.SystemDirectory, "WindowsPowerShell\\v1.0");
-
-
-            // Import the PoshWPF module automatically
-            // iss.ImportPSModule(new[] { Path.Combine(Path.GetDirectoryName(poshModule.Location), "PoshWpf.dll") });
-
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("%PSModulePath%")))
+            Runner = new RunspaceProxy(_host);
+            Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
             {
-                Environment.SetEnvironmentVariable("PSModulePath", string.Format("{0};{1};{2}",
-                    Path.Combine(currentUserProfilePath, "Modules"),
-                    Path.Combine(allUsersProfilePath, "Modules"),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                        "WindowsPowerShell\\Modules")));
-            }
+                CommandBox.IsEnabled = true;
+                ExecutePromptFunction(null, PipelineState.Completed);
+            }));
+        }
 
-
-            // We need STA so we can do WPF stuff from our console thread.
-            iss.ApartmentState = ApartmentState.STA;
-            // We need ReuseThread so that we behave, well, the way that PowerShell.exe and ISE do.
-            // We need UseCurrentThread so the output can go in our UI (not sure how to fix that).
-            iss.ThreadOptions = PSThreadOptions.UseCurrentThread;
-            // iss.Variables
-            // Load all the Cmdlets that are in this assembly automatically.
-            Assembly entryAssembly = Assembly.GetExecutingAssembly();
-
-            string path = Path.GetDirectoryName(entryAssembly.Location);
-            if (!string.IsNullOrEmpty(path))
+        public void WriteErrorRecord(ErrorRecord errorRecord)
+        {
+            // Write is Dispatcher checked
+            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord + "\n");
+            if (errorRecord.InvocationInfo != null)
             {
-                // because this should work with PowerShell2, we can't just use ImportPSModulesFromPath
-                path = Path.Combine(path, "Modules");
-                if (Directory.Exists(path))
-                {
-                    iss.ImportPSModule(Directory.GetDirectories(path));
-                }
-                else
-                {
-                    // Load the A2A.Management module
-                    path = Path.Combine(path, "A2A.Management.psd1");
-                    if(File.Exists(path))
-                    {
-                        iss.ImportPSModule(new []{path});
-                    }
-                }
+                // Write is Dispatcher checked
+                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n");
             }
-            iss.LoadCmdlets(entryAssembly);
+        }
 
-
-
-            /* TODO: Make sure we actually run the profiles, then re-enable this...
-         * 
-        var profile = new PSObject(Path.GetFullPath(Path.Combine(currentUserProfilePath, hostName + "_profile.ps1")));
-        //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
-        //  This profile applies to all users and all shells.
-        profile.Properties.Add(new PSNoteProperty("AllUsersAllHosts",
-                                                  Path.GetFullPath(Path.Combine(allUsersProfilePath, "Profile.ps1"))));
-        //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile.ps1
-        //  This profile applies to all users, but only to the Current shell.
-        profile.Properties.Add(new PSNoteProperty("AllUsersCurrentHost",
-                                                  Path.GetFullPath(Path.Combine(allUsersProfilePath,
-                                                                                hostName + "_profile.ps1"))));
-        //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
-        //  This profile applies only to the current user, but affects all shells.
-        profile.Properties.Add(new PSNoteProperty("CurrentUserAllHosts",
-                                                  Path.GetFullPath(Path.Combine(currentUserProfilePath, "Profile.ps1"))));
-        //* %UserProfile%\My Documents\WindowsPowerShell\PoshConsole_profile.ps1
-        //  This profile applies only to the current user and the Current shell.
-        profile.Properties.Add(new PSNoteProperty("CurrentUserCurrentHost", profile.ImmediateBaseObject));
-
-        iss.Variables.Add(new SessionStateVariableEntry("profile", profile,
-                                                        "The enumeration of all the available profiles the user could edit."));
-        */
-
-            _runSpace = RunspaceFactory.CreateRunspace(_host, iss);
-
-
-            // TODO: can we handle profiles this way??
-            /*
-           RunspaceConfiguration conf = RunspaceConfiguration.Create();
-           conf.InitializationScripts.Append(new ScriptConfigurationEntry("ImportPoshWpf", "$Foo = 'This is foo'")); // Import-Module .\\PoshWPF.dll
-           _runSpace = RunspaceFactory.CreateRunspace(host, conf);
-        */
-
-            // Set the default runspace, so that event handlers (and Tasks) can run in the same runspace as commands.
-            Runspace.DefaultRunspace = _runSpace;
-            // Don't openAsync, it fails to load the modules (in time?)
-            _runSpace.Open();
-            AppendText(DefaultPrompt + " ");
+        protected override void OnCommand(CommandEventArgs command)
+        {
+            ExecuteCommand(command.Command);
+            base.OnCommand(command);
         }
 
         //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public Collection<PSObject> InvokeCommand(string command, bool contentOutput = false)
+        public void ExecuteCommand(string command, bool contentOutput = false, bool defaultOutput = true)
         {
-            AppendText(command + "\n");
-            var pipeline = _runSpace.CreatePipeline(command, true);
+            Write(command + "\n");
+            var commands = new[] {new Command(command, true, true)};
+
+            Runner.Enqueue(
+                new CallbackCommand(
+                    commands, 
+                    defaultOutput, 
+                    result => {
+                        if (result.Failure != null)
+                        {
+                            // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
+                            WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                        }
+                        ExecutePromptFunction(commands, result.State);
+                    }));
 
             //var result = await Task.Factory.FromAsync(_shell.AddScript(command).BeginInvoke(), handle => _shell.EndInvoke(handle));
-            return InvokePipeline(pipeline, contentOutput);
+            //return InvokePipeline(pipeline, contentOutput, defaultOutput);
         }
 
-        public Collection<PSObject> InvokeCommand(Command command, bool contentOutput = false)
+
+        public void ExecuteCommand(Command command, bool contentOutput = false, bool defaultOutput = true)
         {
             // Echo to console
-            AppendText(command.CommandText + "\n");
+            Write(command + "\n");
 
-            var pipeline = _runSpace.CreatePipeline();
-            pipeline.Commands.Add(command);
-            return InvokePipeline(pipeline, contentOutput);
+            var commands = new[] {command};
+            Runner.Enqueue(
+                new CallbackCommand(
+                    commands,
+                    defaultOutput,
+                    result =>
+                    {
+                        if (result.Failure != null)
+                        {
+                            // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
+                            WriteErrorRecord(((RuntimeException) (result.Failure)).ErrorRecord);
+                        }
+                        ExecutePromptFunction(commands, result.State);
+                    }));
         }
 
-        private Collection<PSObject> InvokePipeline(Pipeline pipeline, bool contentOutput = false)
+        //private PipelineExecutionResult InvokePipeline(Pipeline pipeline, bool contentOutput = false, bool defaultOutput = true)
+        //{
+        //    if(contentOutput)
+        //        pipeline.Commands.Add(ContentOutputCommand);
+
+        //    if(defaultOutput)
+        //        pipeline.Commands.Add(DefaultOutputCommand);
+
+        //    Collection<PSObject> result = null;
+        //    Collection<object> errors = null;
+        //    try
+        //    {
+        //        result = pipeline.Invoke();
+        //        errors = pipeline.Error.ReadToEnd();
+        //    }
+        //    catch (Exception pe)
+        //    {
+        //        errors = pipeline.Error.ReadToEnd();
+        //        errors.Add(pe);
+        //        _host.UI.WriteErrorLine(pe.Message);
+        //    }
+
+        //    var output = new PipelineExecutionResult(result, errors, pipeline.PipelineStateInfo.Reason, pipeline.PipelineStateInfo.State);
+
+        //    pipeline.Dispose();
+
+        //    if (defaultOutput)
+        //        ExecutePromptFunction(pipeline.Commands, pipeline.PipelineStateInfo.State);
+
+        //    return output;
+        //}
+
+        private void ExecutePromptFunction(IEnumerable<Command> command, PipelineState lastState)
         {
-            if(contentOutput)
-                pipeline.Commands.Add(ContentOutputCommand);
+            OnCommandFinished(command, lastState);
+            Runner.Enqueue(_promptSequence);
+        }
 
-            pipeline.Commands.Add(DefaultOutputCommand);
+        private readonly CallbackCommand _promptSequence;
 
-            Collection<PSObject> result = null;
-            try
+        public PoshConsole() :base()
+        {
+            _promptSequence = new CallbackCommand(
+            new[]
             {
-                result = pipeline.Invoke();
-            }
-            catch (Exception pe)
+                new Command("New-Paragraph", true, true),
+                new Command("Prompt", false, true)
+            }, false, result =>
             {
-                _host.UI.WriteErrorLine(pe.Message);
-            }
-            AppendText("\n" + DefaultPrompt + " ");
-            return result;
+                var str = new StringBuilder();
+
+                foreach (PSObject obj in result.Output)
+                {
+                    str.Append(obj);
+                }
+                Prompt(str.ToString());
+            }) { DefaultOutput = false }; 
         }
 
         public Command DefaultOutputCommand { get; set; }

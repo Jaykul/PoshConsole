@@ -5,7 +5,9 @@ using System.Management.Automation.Runspaces;
 
 namespace PoshCode.PowerShell
 {
-    internal struct PipelineExecutionResult
+    internal delegate void PipelineOutputHandler(PipelineExecutionResult result);
+
+    public struct PipelineExecutionResult
     {
         private readonly Collection<object> _errors;
         private readonly Exception _failure;

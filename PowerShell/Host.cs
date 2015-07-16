@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Threading;
 using ICSharpCode.AvalonEdit;
 using System.Management.Automation.Runspaces;
+using System.Windows.Controls;
+using System.Windows.Threading;
+using PoshCode.Wpf.Controls;
 
 namespace PoshCode.PowerShell
 {
@@ -22,7 +25,7 @@ namespace PoshCode.PowerShell
 		/// <summary>
 		/// A Console Window wrapper that hides the console
 		/// </summary>
-		private NativeConsole _console;
+		private NativeConsole _nativeConsole;
 		/// <summary>
 		/// This API is called before an external application process is started.
 		/// </summary>
@@ -32,24 +35,16 @@ namespace PoshCode.PowerShell
 		/// Store the window title 
 		/// </summary>
 		private string _savedTitle = String.Empty;
-		private PSHostUserInterface _UI;
-		private TextEditor _control;
-		private Command _outDefault;
-	    private Options _options;
+		private readonly PSHostUserInterface _UI;
+        private readonly PoshConsole _control;
+	    private readonly Options _options;
 
-	    internal Host(TextEditor control, Options options)
+        internal Host(PoshConsole control, Panel progress, Options options)
 		{
-			_control = control;
+            _control = control;
 		    _options = options;
-	        _UI = new HostUI(_control);
+            _UI = new HostUI(_control, progress);
 			MakeConsole();
-
-			// pre-create this
-			_outDefault = new Command("Out-Default");
-			// for now, merge the errors with the rest of the output
-			_outDefault.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-			_outDefault.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error | PipelineResultTypes.Output;
-
 		}
 		/// <summary>
 		/// Return the culture info to use - this implementation just snapshots the
@@ -121,9 +116,9 @@ namespace PoshCode.PowerShell
 		/// <param name="exitCode"></param>
 		public override void SetShouldExit(int exitCode)
 		{
-			KillConsole();
-			// TODO: IMPLEMENT PSHost.SetShouldExit
-			throw new NotImplementedException("Cannot Exit, I'm just a Control");
+            // TODO: properly implement PSHost.SetShouldExit
+            KillConsole();
+			// throw new NotImplementedException("Cannot Exit, I'm just a Control");
 		}
 
 		/// <summary>
@@ -166,34 +161,51 @@ namespace PoshCode.PowerShell
 		}
 
 
+        public void WriteNativeOutput(string message)
+        {
+            // Write is Dispatcher checked
+            _control.Write(_control.Brushes.NativeOutputForeground, _control.Brushes.NativeOutputBackground, message, _control.Current);
+            _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
+            // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
+        }
+
+        public void WriteNativeError(string message)
+        {
+            // Write is Dispatcher checked
+            _control.Write(_control.Brushes.NativeErrorForeground, _control.Brushes.NativeErrorBackground, message, _control.Current);
+            _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
+        }
+
+
 		private void MakeConsole()
 		{
-			if (_console == null)
+			if (_nativeConsole == null)
 			{
 				try
 				{
 					// don't initialize in the constructor
-					_console = new NativeConsole(false);
+					_nativeConsole = new NativeConsole(false);
 					// this way, we can handle (report) any exception...
-					_console.Initialize();
-//TODO:					_console.WriteOutput += (source, args) => _buffer.WriteNativeOutput(args.Text.TrimEnd('\n'));
-//TODO:					_console.WriteError += (source, args) => _buffer.WriteNativeError(args.Text.TrimEnd('\n'));
+					_nativeConsole.Initialize();
+                    _nativeConsole.WriteOutput += (source, args) => WriteNativeOutput(args.Text.TrimEnd('\n'));
+					_nativeConsole.WriteError += (source, args) => WriteNativeError(args.Text.TrimEnd('\n'));
 				}
-				catch (ConsoleInteropException /*cie*/)
+				catch (ConsoleInteropException cie)
 				{
-//TODO:					_buffer.WriteErrorRecord(new ErrorRecord(cie, "Couldn't initialize the Native Console", ErrorCategory.ResourceUnavailable, null));
+                    WriteNativeError("Couldn't initialize the Native Console");
 				}
 			}
 		}
 
 		public void KillConsole()
 		{
-			if (_console != null)
+			if (_nativeConsole != null)
 			{
-				_console.Dispose();
-				// TODO: _runner.Dispose();
+				_nativeConsole.Dispose();
+			    _control.Runner.Dispose();
+			    // TODO: _runner.Dispose();
 			}
-			_console = null;
+			_nativeConsole = null;
 		}
 
 

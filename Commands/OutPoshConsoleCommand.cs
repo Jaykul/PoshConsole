@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,7 +34,7 @@ namespace PoshCode.Commands
                 if (Host.PrivateData != null && Host.PrivateData.BaseObject is Options)
                 {
                     //((IPSWpfHost)).GetWpfConsole();
-                    PoshConsole = ((Options)Host.PrivateData.BaseObject).Console;
+                    PoshConsole = (PoshConsole)((IPSWpfOptions)Host.PrivateData.BaseObject).WpfConsole;
                 }
             }
 
