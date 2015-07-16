@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Management.Automation.Host;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management.Automation;
-using PoshCode.Native;
+using System.Management.Automation.Host;
 using System.Reflection;
 using System.Threading;
-using ICSharpCode.AvalonEdit;
-using System.Management.Automation.Runspaces;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using PoshCode.Wpf.Controls;
+using PoshCode.Native;
 
 namespace PoshCode.PowerShell
 {
@@ -124,7 +119,7 @@ namespace PoshCode.PowerShell
 		/// <summary>
 		/// Not implemented by PoshCode.Console yet. The call fails with an exception.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "EnterNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
+		[SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "EnterNestedPrompt"), SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
 		public override void EnterNestedPrompt()
 		{
 			// TODO: IMPLEMENT PSHost.EnterNestedPrompt()
@@ -134,7 +129,7 @@ namespace PoshCode.PowerShell
 		/// <summary>
 		/// Not implemented by PoshCode.Console yet. The call fails with an exception.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ExitNestedPrompt"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
+		[SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ExitNestedPrompt"), SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MyHost")]
 		public override void ExitNestedPrompt()
 		{
 			// TODO: IMPLEMENT PSHost.ExitNestedPrompt()
@@ -192,7 +187,7 @@ namespace PoshCode.PowerShell
 				}
 				catch (ConsoleInteropException cie)
 				{
-                    WriteNativeError("Couldn't initialize the Native Console");
+                    WriteNativeError("Couldn't initialize the Native Console: " + cie.Message);
 				}
 			}
 		}

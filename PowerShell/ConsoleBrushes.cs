@@ -1,43 +1,44 @@
 ﻿using System;
 using System.Windows.Media;
+using Colors = PoshCode.Properties.Colors;
 
 namespace PoshCode.PowerShell
 {
 	public class ConsoleBrushes
 	{
-		public Brush Black = new SolidColorBrush(Properties.Colors.Default.Black);
-		public Brush Blue = new SolidColorBrush(Properties.Colors.Default.Blue);
-		public Brush Cyan = new SolidColorBrush(Properties.Colors.Default.Cyan);
-		public Brush DarkBlue = new SolidColorBrush(Properties.Colors.Default.DarkBlue);
-		public Brush DarkCyan = new SolidColorBrush(Properties.Colors.Default.DarkCyan);
-		public Brush DarkGray = new SolidColorBrush(Properties.Colors.Default.DarkGray);
-		public Brush DarkGreen = new SolidColorBrush(Properties.Colors.Default.DarkGreen);
-		public Brush DarkMagenta = new SolidColorBrush(Properties.Colors.Default.DarkMagenta);
-		public Brush DarkRed = new SolidColorBrush(Properties.Colors.Default.DarkRed);
-		public Brush DarkYellow = new SolidColorBrush(Properties.Colors.Default.DarkYellow);
-		public Brush Gray = new SolidColorBrush(Properties.Colors.Default.Gray);
-		public Brush Green = new SolidColorBrush(Properties.Colors.Default.Green);
-		public Brush Magenta = new SolidColorBrush(Properties.Colors.Default.Magenta);
-		public Brush Red = new SolidColorBrush(Properties.Colors.Default.Red);
-		public Brush White = new SolidColorBrush(Properties.Colors.Default.White);
-		public Brush Yellow = new SolidColorBrush(Properties.Colors.Default.Yellow);
+		public Brush Black = new SolidColorBrush(Colors.Default.Black);
+		public Brush Blue = new SolidColorBrush(Colors.Default.Blue);
+		public Brush Cyan = new SolidColorBrush(Colors.Default.Cyan);
+		public Brush DarkBlue = new SolidColorBrush(Colors.Default.DarkBlue);
+		public Brush DarkCyan = new SolidColorBrush(Colors.Default.DarkCyan);
+		public Brush DarkGray = new SolidColorBrush(Colors.Default.DarkGray);
+		public Brush DarkGreen = new SolidColorBrush(Colors.Default.DarkGreen);
+		public Brush DarkMagenta = new SolidColorBrush(Colors.Default.DarkMagenta);
+		public Brush DarkRed = new SolidColorBrush(Colors.Default.DarkRed);
+		public Brush DarkYellow = new SolidColorBrush(Colors.Default.DarkYellow);
+		public Brush Gray = new SolidColorBrush(Colors.Default.Gray);
+		public Brush Green = new SolidColorBrush(Colors.Default.Green);
+		public Brush Magenta = new SolidColorBrush(Colors.Default.Magenta);
+		public Brush Red = new SolidColorBrush(Colors.Default.Red);
+		public Brush White = new SolidColorBrush(Colors.Default.White);
+		public Brush Yellow = new SolidColorBrush(Colors.Default.Yellow);
 
 		public Brush Transparent = Brushes.Transparent;
 
 		public Brush DefaultBackground = null;
 		public Brush DefaultForeground = null;
-		public Brush DebugBackground = new SolidColorBrush(Properties.Colors.Default.DebugBackground);
-		public Brush DebugForeground = new SolidColorBrush(Properties.Colors.Default.DebugForeground);
-		public Brush ErrorBackground = new SolidColorBrush(Properties.Colors.Default.ErrorBackground);
-		public Brush ErrorForeground = new SolidColorBrush(Properties.Colors.Default.ErrorForeground);
-		public Brush VerboseBackground = new SolidColorBrush(Properties.Colors.Default.VerboseBackground);
-		public Brush VerboseForeground = new SolidColorBrush(Properties.Colors.Default.VerboseForeground);
-		public Brush WarningBackground = new SolidColorBrush(Properties.Colors.Default.WarningBackground);
-		public Brush WarningForeground = new SolidColorBrush(Properties.Colors.Default.WarningForeground);
-		public Brush NativeErrorBackground = new SolidColorBrush(Properties.Colors.Default.NativeErrorBackground);
-		public Brush NativeErrorForeground = new SolidColorBrush(Properties.Colors.Default.NativeErrorForeground);
-		public Brush NativeOutputBackground = new SolidColorBrush(Properties.Colors.Default.NativeOutputBackground);
-		public Brush NativeOutputForeground = new SolidColorBrush(Properties.Colors.Default.NativeOutputForeground);
+		public Brush DebugBackground = new SolidColorBrush(Colors.Default.DebugBackground);
+		public Brush DebugForeground = new SolidColorBrush(Colors.Default.DebugForeground);
+		public Brush ErrorBackground = new SolidColorBrush(Colors.Default.ErrorBackground);
+		public Brush ErrorForeground = new SolidColorBrush(Colors.Default.ErrorForeground);
+		public Brush VerboseBackground = new SolidColorBrush(Colors.Default.VerboseBackground);
+		public Brush VerboseForeground = new SolidColorBrush(Colors.Default.VerboseForeground);
+		public Brush WarningBackground = new SolidColorBrush(Colors.Default.WarningBackground);
+		public Brush WarningForeground = new SolidColorBrush(Colors.Default.WarningForeground);
+		public Brush NativeErrorBackground = new SolidColorBrush(Colors.Default.NativeErrorBackground);
+		public Brush NativeErrorForeground = new SolidColorBrush(Colors.Default.NativeErrorForeground);
+		public Brush NativeOutputBackground = new SolidColorBrush(Colors.Default.NativeOutputBackground);
+		public Brush NativeOutputForeground = new SolidColorBrush(Colors.Default.NativeOutputForeground);
 
 		//public static ConsoleBrushes Default;
 
@@ -53,8 +54,8 @@ namespace PoshCode.PowerShell
 
 		public void Refresh()
 		{
-			DefaultBackground = BrushFromConsoleColor(Properties.Colors.Default.DefaultBackground);
-			DefaultForeground = BrushFromConsoleColor(Properties.Colors.Default.DefaultForeground);
+			DefaultBackground = BrushFromConsoleColor(Colors.Default.DefaultBackground);
+			DefaultForeground = BrushFromConsoleColor(Colors.Default.DefaultForeground);
 		}
 
 		/// <summary>

@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
 using System.Management.Automation.Host;
-using System.Text;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
+using PoshCode.Wpf.Controls;
 
 namespace PoshCode.PowerShell
 {
 	class HostRawUI : PSHostRawUserInterface
 	{
-        private readonly PoshCode.Wpf.Controls.ConsoleControl _control;
+        private readonly ConsoleControl _control;
 
-        public HostRawUI(PoshCode.Wpf.Controls.ConsoleControl control)
+        public HostRawUI(ConsoleControl control)
 		{
 			// TODO: Complete member initialization
 			_control = control;
 		}
-
-
-
-        bool _waitingForKey = false;
-        LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
-        readonly Queue<KeyInfo> _inputBuffer = new Queue<KeyInfo>();
 
         ///<summary>
         ///Provides a way for scripts to request user input ...
@@ -100,7 +91,7 @@ namespace PoshCode.PowerShell
 
         }
 
-	    public override System.Management.Automation.Host.Size MaxPhysicalWindowSize
+	    public override Size MaxPhysicalWindowSize
         {
             get
             {
@@ -115,7 +106,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override System.Management.Automation.Host.Size MaxWindowSize
+	    public override Size MaxWindowSize
         {
             get
             {
@@ -130,7 +121,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override System.Management.Automation.Host.Size WindowSize
+	    public override Size WindowSize
         {
             get
             {

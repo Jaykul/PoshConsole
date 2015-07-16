@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Management.Automation.Runspaces;
 
 namespace PoshCode.PowerShell
 {
@@ -14,17 +10,17 @@ namespace PoshCode.PowerShell
 
         // [rgn] Public Methods (2)
 
-        public static bool IsDone(this System.Management.Automation.Runspaces.PipelineStateInfo psi)
+        public static bool IsDone(this PipelineStateInfo psi)
         {
             return
-                psi.State == System.Management.Automation.Runspaces.PipelineState.Completed ||
-                psi.State == System.Management.Automation.Runspaces.PipelineState.Stopped ||
-                psi.State == System.Management.Automation.Runspaces.PipelineState.Failed;
+                psi.State == PipelineState.Completed ||
+                psi.State == PipelineState.Stopped ||
+                psi.State == PipelineState.Failed;
         }
 
-        public static bool IsFailed(this System.Management.Automation.Runspaces.PipelineStateInfo info)
+        public static bool IsFailed(this PipelineStateInfo info)
         {
-            return info.State == System.Management.Automation.Runspaces.PipelineState.Failed;
+            return info.State == PipelineState.Failed;
         }
 
         #endregion [rgn]

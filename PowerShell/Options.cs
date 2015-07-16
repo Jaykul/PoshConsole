@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation.Host;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Management.Automation.Host;
 using System.Windows;
-using System.Windows.Controls;
+using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
 {
@@ -18,9 +13,9 @@ namespace PoshCode.PowerShell
         public IPSWpfConsole WpfConsole { get; set; }
 
 
-        public Properties.Colors Colors
+        public Colors Colors
         {
-            get { return Properties.Colors.Default; }
+            get { return Colors.Default; }
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿namespace PoshCode.PowerShell
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Management.Automation;
-    using System.Management.Automation.Runspaces;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using System.Reflection;
 
+namespace PoshCode.PowerShell
+{
     /// <summary>
     /// The SessionState Helper contains extension methods for working with SessionState or InitialSessionState objects
     /// </summary>

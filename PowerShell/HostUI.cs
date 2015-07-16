@@ -1,18 +1,10 @@
-﻿using ICSharpCode.AvalonEdit.Document;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
-using System.Management.Automation.Runspaces;
 using System.Security;
-using System.Text;
-using System.Threading;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Threading;
 using PoshCode.Wpf.Controls;
 
@@ -43,8 +35,6 @@ namespace PoshCode.PowerShell
         }
 
         #region ReadLine
-        public bool WaitingForInput;
-
         /// <summary>
         /// Provides a way for scripts to request user input ...
         /// </summary>
