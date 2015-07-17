@@ -201,7 +201,6 @@
     <Compile Include="ImageToggleButton.cs" />
     <Compile Include="Interfaces\CompatabilityInterfaces.cs" />
     <Compile Include="Interfaces\IConsoleControl.cs" />
-    <Compile Include="Interfaces\IPSWpfConsole.cs" />
     <Compile Include="Interop\KeyboardHelper.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
     <Compile Include="PopupMenu.cs" />

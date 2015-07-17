@@ -8,14 +8,14 @@ using PoshCode.Wpf.Controls.Utility;
 
 namespace PoshCode.Wpf.Controls
 {
-   partial class ConsoleControl : IPSWpfConsole
+   partial class ConsoleControl
    {
       #region IPSXamlConsole Members
 
       /// <summary>
       /// News the paragraph.
       /// </summary>
-      void IPSWpfConsole.NewParagraph()
+      public void NewParagraph()
       {
          Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)(() =>
              {
@@ -31,7 +31,7 @@ namespace PoshCode.Wpf.Controls
       /// <summary>
       /// Gets the popout windows.
       /// </summary>
-      IList<Window> IPSWpfConsole.PopoutWindows
+      public IList<Window> PopoutWindows
       {
          get 
          {
@@ -39,24 +39,24 @@ namespace PoshCode.Wpf.Controls
          }
       }
 
-      /// <summary>
-      /// Gets a <see cref="T:System.Windows.Documents.FlowDocument"/> that hosts the content to be displayed by the <see cref="T:System.Windows.Controls.FlowDocumentScrollViewer"/>.
-      /// </summary>
-      /// <returns>A <see cref="T:System.Windows.Documents.FlowDocument"/> that hosts the content to be displayed by the <see cref="T:System.Windows.Controls.FlowDocumentScrollViewer"/>. The default is null.</returns>
-      FlowDocument IPSWpfConsole.Document
-      {
-         get
-         {
-            return (FlowDocument)Dispatcher.Invoke(
-               (Func<FlowDocument>)(() => this.Document),
-               DispatcherPriority.Normal);
-         }
-      }
+      ///// <summary>
+      ///// Gets a <see cref="T:System.Windows.Documents.FlowDocument"/> that hosts the content to be displayed by the <see cref="T:System.Windows.Controls.FlowDocumentScrollViewer"/>.
+      ///// </summary>
+      ///// <returns>A <see cref="T:System.Windows.Documents.FlowDocument"/> that hosts the content to be displayed by the <see cref="T:System.Windows.Controls.FlowDocumentScrollViewer"/>. The default is null.</returns>
+      //public FlowDocument Document
+      //{
+      //   get
+      //   {
+      //      return (FlowDocument)Dispatcher.Invoke(
+      //         (Func<FlowDocument>)(() => this.Document),
+      //         DispatcherPriority.Normal);
+      //   }
+      //}
 
       /// <summary>
       /// Gets the root window.
       /// </summary>
-      Window IPSWpfConsole.RootWindow
+      public Window RootWindow
       {
          get
          {
@@ -66,7 +66,7 @@ namespace PoshCode.Wpf.Controls
          }
       }
 
-      bool IPSWpfConsole.IsInputFocused
+      public bool IsInputFocused
       {
          get
          {
@@ -74,28 +74,21 @@ namespace PoshCode.Wpf.Controls
          }
       }
 
-      void IPSWpfConsole.ClearInput()
+      public void ClearInput()
       {
          CurrentCommand = "";
       }
-      
-      void IPSWpfConsole.FocusInput()
+
+      public void FocusInput()
       {
          _commandContainer.Child.Focus();
       }
 
-      Paragraph IPSWpfConsole.CurrentBlock
+      public Paragraph CurrentBlock
       {
          get
          {
             return Current;
-         }
-      }
-
-      Dispatcher IPSWpfConsole.Dispatcher {
-         get
-         {
-            return Dispatcher;
          }
       }
       #endregion
