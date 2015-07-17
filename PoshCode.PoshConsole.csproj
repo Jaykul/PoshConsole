@@ -92,6 +92,8 @@
   <ItemGroup>
     <Compile Include="Commands\NewParagraphCommand.cs" />
     <Compile Include="Commands\OutPoshConsoleCommand.cs" />
+    <Compile Include="Commands\ScriptBlockBaseCommand.cs" />
+    <Compile Include="IRichConsole.cs" />
     <Compile Include="PoshConsole.cs" />
     <Compile Include="PowerShell\CallbackCommand.cs" />
     <Compile Include="PowerShell\ConsoleBrushes.cs" />
@@ -101,12 +103,18 @@
     <Compile Include="PowerShell\Options.cs" />
     <Compile Include="PowerShell\PipelineExecutionResult.cs" />
     <Compile Include="PowerShell\PipelineHelper.cs" />
+    <Compile Include="PowerShell\Presentation.cs" />
     <Compile Include="PowerShell\RunspaceProxy.cs" />
     <Compile Include="Native\NativeConsole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PowerShell\ScriptBlockInvoker.cs" />
     <Compile Include="PowerShell\SessionStateHelper.cs" />
     <Compile Include="PowerShell\SyncEvents.cs" />
+    <Compile Include="Wpf\BindingConverter.cs" />
+    <Compile Include="Wpf\BindingCustomTypeDescriptor.cs" />
+    <Compile Include="Wpf\BindingTypeDescriptionProvider.cs" />
+    <Compile Include="Wpf\XamlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -145,6 +153,9 @@
       <Project>{969a3cf0-3aa6-499b-995b-c84e8f15b107}</Project>
       <Name>PoshCode.Controls</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="XamlTemplates\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

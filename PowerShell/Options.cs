@@ -1,5 +1,7 @@
 ﻿using System.Management.Automation.Host;
+using System.Security.Permissions;
 using System.Windows;
+using System.Windows.Controls;
 using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
@@ -10,8 +12,9 @@ namespace PoshCode.PowerShell
         {
             WpfConsole = wpfConsole;
         }
-        public IPSWpfConsole WpfConsole { get; set; }
+        public IRichConsole WpfConsole { get; set; }
 
+        public ContentControl ContentControl { get; set;  }
 
         public Colors Colors
         {

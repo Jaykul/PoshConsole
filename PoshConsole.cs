@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using PoshCode.PowerShell;
+using PoshCode.Wpf;
 using PoshCode.Wpf.Controls;
 
 namespace PoshCode
 {
-    public class PoshConsole : ConsoleControl, IDisposable, IContentControl
+    public class PoshConsole : ConsoleControl, IDisposable, IRichConsole
     {
         internal RunspaceProxy Runner { get; set; }
         private Host _host;
@@ -25,22 +28,42 @@ namespace PoshCode
         }
 
         public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
-            "Progress", typeof(object), typeof(PoshConsole), new PropertyMetadata(default(object)));
+            "Progress", typeof(string), typeof(PoshConsole), new PropertyMetadata(null));
 
-        public Panel Progress
+        public string Progress
         {
-            get { return (Panel)GetValue(ProgressProperty); }
+            get { return (string)GetValue(ProgressProperty); }
             set { SetValue(ProgressProperty, value); }
         }
 
 
         public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(
-            "Content", typeof (object), typeof (PoshConsole), new PropertyMetadata(default(object)));
+            "Content", typeof(string), typeof(PoshConsole), new PropertyMetadata(null));
 
-        public object Content
+        public string Content
         {
-            get { return (object) GetValue(ContentProperty); }
+            get { return (string)GetValue(ContentProperty); }
             set { SetValue(ContentProperty, value); }
+        }
+
+        private Panel _progressPanel = null;
+        public Panel ProgressPanel
+        {
+            get
+            {
+                if (RootWindow == null) return null;
+                return _progressPanel ?? (_progressPanel = RootWindow.FindName(Progress) as Panel);
+            }
+        }
+
+        private Panel _contentControl = null;
+        public Panel ContentPanel
+        {
+            get
+            {
+                if (RootWindow == null) return null;
+                return _contentControl ?? (_contentControl = RootWindow.FindName(Content) as Panel);
+            }
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -48,7 +71,7 @@ namespace PoshCode
             base.OnInitialized(e);
             CommandBox.IsEnabled = false;
 
-            _host = new Host(this, Progress, new Options(this));
+            _host = new Host(this, ProgressPanel, new Options(this));
 
             Runner = new RunspaceProxy(_host);
             Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
@@ -79,7 +102,10 @@ namespace PoshCode
         public void ExecuteCommand(string command, bool contentOutput = false, bool defaultOutput = true)
         {
             Write(command + "\n");
-            var commands = new[] {new Command(command, true, true)};
+            var commands = new[] {new Command(command, true, true)}.ToList();
+
+            if (contentOutput)
+                commands.Add(new Command("Out-PoshConsole"));
 
             Runner.Enqueue(
                 new CallbackCommand(
@@ -104,7 +130,11 @@ namespace PoshCode
             // Echo to console
             Write(command + "\n");
 
-            var commands = new[] {command};
+            var commands = new[] {command}.ToList();
+
+            if (contentOutput)
+                commands.Add(new Command("Out-PoshConsole"));
+
             Runner.Enqueue(
                 new CallbackCommand(
                     commands,
@@ -182,10 +212,5 @@ namespace PoshCode
         public Command DefaultOutputCommand { get; set; }
         public Command ContentOutputCommand { get; set; }
 
-    }
-
-    public interface IContentControl
-    {
-        object Content { get; set; }
     }
 }
