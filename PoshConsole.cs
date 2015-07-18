@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -99,40 +100,27 @@ namespace PoshCode
         }
 
         //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public void ExecuteCommand(string command, bool contentOutput = false, bool defaultOutput = true)
+        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool hidden = false)
         {
-            Write(command + "\n");
-            var commands = new[] {new Command(command, true, true)}.ToList();
-
-            if (contentOutput)
-                commands.Add(new Command("Out-PoshConsole"));
-
-            Runner.Enqueue(
-                new CallbackCommand(
-                    commands, 
-                    defaultOutput, 
-                    result => {
-                        if (result.Failure != null)
-                        {
-                            // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                            WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
-                        }
-                        ExecutePromptFunction(commands, result.State);
-                    }));
-
-            //var result = await Task.Factory.FromAsync(_shell.AddScript(command).BeginInvoke(), handle => _shell.EndInvoke(handle));
-            //return InvokePipeline(pipeline, contentOutput, defaultOutput);
+            ExecuteCommand(new Command(command, true, true), showInGui, defaultOutput, hidden);
         }
 
 
-        public void ExecuteCommand(Command command, bool contentOutput = false, bool defaultOutput = true)
+        public void ExecuteCommand(Command command, bool showInGui = false, bool defaultOutput = true, bool hidden = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null )
         {
-            // Echo to console
-            Write(command + "\n");
+            if (!hidden)
+            {   // Echo to console
+                Write(command + "\n");
+            }
+
+            if (hidden)
+            {
+                defaultOutput = false;
+            }
 
             var commands = new[] {command}.ToList();
 
-            if (contentOutput)
+            if (showInGui)
                 commands.Add(new Command("Out-PoshConsole"));
 
             Runner.Enqueue(
@@ -141,18 +129,34 @@ namespace PoshCode
                     defaultOutput,
                     result =>
                     {
+
                         if (result.Failure != null)
                         {
+                            if (onErrorAction != null)
+                            {
+                                onErrorAction.Invoke((RuntimeException) result.Failure);
+                            }
+
                             // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
                             WriteErrorRecord(((RuntimeException) (result.Failure)).ErrorRecord);
                         }
-                        ExecutePromptFunction(commands, result.State);
+                        else
+                        {
+                            if (onSuccessAction != null)
+                            {
+                                onSuccessAction.Invoke(result.Output);
+                            }
+                        }
+                        if (!hidden)
+                        {   // we don't need the Prompt if there was no output
+                            ExecutePromptFunction(commands, result.State);
+                        }
                     }));
         }
 
-        //private PipelineExecutionResult InvokePipeline(Pipeline pipeline, bool contentOutput = false, bool defaultOutput = true)
+        //private PipelineExecutionResult InvokePipeline(Pipeline pipeline, bool showInGUI = false, bool defaultOutput = true)
         //{
-        //    if(contentOutput)
+        //    if(showInGUI)
         //        pipeline.Commands.Add(ContentOutputCommand);
 
         //    if(defaultOutput)

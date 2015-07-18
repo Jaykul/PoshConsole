@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Host;
+using System.Management.Automation.Runspaces;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Controls;
@@ -103,7 +104,6 @@ namespace PoshCode.PowerShell
 				return Assembly.GetEntryAssembly().GetName().Version;
 			}
 		}
-
 
 		/// <summary>
 		/// Indicate to the host application that exit has been requested. Pass the exit code that the host application should use when exiting the process.

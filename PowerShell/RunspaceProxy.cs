@@ -61,7 +61,7 @@ namespace PoshCode.PowerShell
 	        get { return _runSpace.RunspaceStateInfo; }
 	    }
 
-	    public RunspaceProxy(PSHost host)
+	    public RunspaceProxy(Host host)
 		{
 			CommandQueue = new Queue<CallbackCommand>();
 
@@ -109,7 +109,7 @@ namespace PoshCode.PowerShell
 
 				if (cmdlets != null)
 				{
-					foreach (CmdletAttribute cmdlet in cmdlets)
+					foreach (var cmdlet in cmdlets)
 					{
 						iss.Commands.Add(new SessionStateCmdletEntry(
 											string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName), t,
@@ -142,8 +142,14 @@ namespace PoshCode.PowerShell
 			iss.Variables.Add(new SessionStateVariableEntry("profile", profile,
 															"The enumeration of all the available profiles the user could edit."));
 
+            // I'm not sure why, but the default InitialSessionState doesn't match PowerShell anymore?
+	        iss.Assemblies.Clear();
+            var sma = typeof (PSParser).Assembly;
+            iss.Assemblies.Add( new SessionStateAssemblyEntry(sma.FullName, sma.CodeBase));
+
 			_runSpace = RunspaceFactory.CreateRunspace(host, iss);
-			// TODO: can we handle profiles this way?
+
+            // TODO: can we handle profiles this way?
 			/*
 			   RunspaceConfiguration conf = RunspaceConfiguration.Create();
 			   conf.InitializationScripts.Append(new ScriptConfigurationEntry("ImportPoshWpf", "$Foo = 'This is foo'")); // Import-Module .\\PoshWPF.dll
