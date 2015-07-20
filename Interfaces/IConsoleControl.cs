@@ -4,10 +4,10 @@ using System.Security;
 using System.Windows.Documents;
 using System.Xml;
 using System.IO;
-using PoshCode.Wpf.Controls.Interfaces;
+using PoshCode.Controls.Interfaces;
 using System.Windows.Controls;
 using System.Management.Automation.Runspaces;
-using PoshCode.Wpf.Controls;
+using PoshCode.Controls;
 
 
 //namespace System.Management.Automation.Host
@@ -31,7 +31,7 @@ using PoshCode.Wpf.Controls;
 //        ConsoleScrollBarVisibility HorizontalScrollBarVisibility { get; set; }
 //    }
 //}
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
     namespace Interfaces
     {

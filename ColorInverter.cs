@@ -7,7 +7,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Globalization;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    public static class ColorHelper
    {

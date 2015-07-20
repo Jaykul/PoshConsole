@@ -2,7 +2,7 @@
 using System.Management.Automation;
 using System.Windows;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
     public partial class ProgressPanel
     {

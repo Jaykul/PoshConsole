@@ -4,9 +4,9 @@ using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Threading;
-using PoshCode.Wpf.Controls.Utility;
+using PoshCode.Controls.Utility;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    partial class ConsoleControl
    {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
-using PoshCode.Wpf.Controls.Interfaces;
+using PoshCode.Controls.Interfaces;
 
 namespace System.Management.Automation.Host
 {

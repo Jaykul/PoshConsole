@@ -16,9 +16,9 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Management.Automation.Runspaces;
-using PoshCode.Wpf.Controls.Interfaces;
+using PoshCode.Controls.Interfaces;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    /// <summary>
    /// Here we EXPLICITLY implement the IPSConsoleControl interface.

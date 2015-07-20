@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:huddle="clr-namespace:PoshCode.Wpf.Controls">
+    xmlns:huddle="clr-namespace:PoshCode.Controls">
 
     <Color x:Key="BackgroundColor">#FFFFFFFF</Color>
     <Color x:Key="ForegroundColor">#FF000000</Color>

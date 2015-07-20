@@ -8,10 +8,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using PoshCode.Wpf.Controls.Utility;
-using PoshCode.Wpf.Controls.Properties;
+using PoshCode.Controls.Properties;
+using PoshCode.Controls.Utility;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    public class PopupMenu : Popup
    {

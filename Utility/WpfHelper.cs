@@ -8,7 +8,7 @@ using System.Windows.Markup;
 using System.IO;
 using System.Windows.Media;
 
-namespace PoshCode.Wpf.Controls.Utility
+namespace PoshCode.Controls.Utility
 {
    public static class WpfHelper
    {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 
-namespace PoshCode.Wpf.Controls.Utility
+namespace PoshCode.Controls.Utility
 {
    public static class OtherHelpers
    {

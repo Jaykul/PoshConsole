@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
     public class CommandHistory
     {

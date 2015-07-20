@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    public class ImageButton : Button
    {

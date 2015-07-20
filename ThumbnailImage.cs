@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    /// <summary>
    /// ========================================

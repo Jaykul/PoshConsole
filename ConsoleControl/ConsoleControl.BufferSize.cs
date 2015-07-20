@@ -9,7 +9,7 @@ using System.Windows.Documents;
 using System.Management.Automation.Host;
 using System.Windows.Controls;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    partial class ConsoleControl
    {

@@ -11,7 +11,7 @@ using System.Management.Automation.Host;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
     partial class ConsoleControl
     {

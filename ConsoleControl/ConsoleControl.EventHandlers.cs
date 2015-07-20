@@ -7,17 +7,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using PoshCode.Interop;
-using PoshCode.Wpf.Controls.Interfaces;
-using PoshCode.Wpf.Controls.Utility;
+using PoshCode.Controls.Interfaces;
+using PoshCode.Controls.Utility;
 using System.Windows.Threading;
 using System.Windows.Documents;
 using Keyboard=System.Windows.Input.Keyboard;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
 using System.Management.Automation.Host;
-using PoshCode.Wpf.Controls.Properties;
+using PoshCode.Controls.Properties;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    public partial class ConsoleControl
    {

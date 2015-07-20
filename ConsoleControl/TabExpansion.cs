@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using PoshCode.Wpf.Controls.Utility;
+using PoshCode.Controls.Utility;
 
-namespace PoshCode.Wpf.Controls
+namespace PoshCode.Controls
 {
    public delegate List<string> TabExpansionLister(string commandLine);
 
