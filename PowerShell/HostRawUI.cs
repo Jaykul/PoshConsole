@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Management.Automation.Host;
 using System.Windows.Input;
 using System.Windows.Threading;
-using PoshCode.Wpf.Controls;
+using PoshCode.Controls;
 
 namespace PoshCode.PowerShell
 {

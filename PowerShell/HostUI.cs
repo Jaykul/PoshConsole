@@ -6,7 +6,7 @@ using System.Management.Automation.Host;
 using System.Security;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using PoshCode.Wpf.Controls;
+using PoshCode.Controls;
 
 namespace PoshCode.PowerShell
 {

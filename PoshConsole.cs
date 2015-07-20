@@ -9,8 +9,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using PoshCode.PowerShell;
-using PoshCode.Wpf;
-using PoshCode.Wpf.Controls;
+using PoshCode.Controls;
 
 namespace PoshCode
 {
