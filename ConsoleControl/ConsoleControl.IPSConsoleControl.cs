@@ -56,36 +56,6 @@ namespace PoshCode.Controls
          });
       }
 
-
-
-      ConsoleScrollBarVisibility VerticalScrollBarVisibility
-      {
-         get
-         {
-            Dispatcher.VerifyAccess();
-            return (ConsoleScrollBarVisibility)base.VerticalScrollBarVisibility;
-         }
-         set
-         {
-            Dispatcher.VerifyAccess();
-            base.VerticalScrollBarVisibility = (ScrollBarVisibility)value;
-         }
-      }
-
-      ConsoleScrollBarVisibility HorizontalScrollBarVisibility
-      {
-         get
-         {
-            Dispatcher.VerifyAccess();
-            return (ConsoleScrollBarVisibility) base.HorizontalScrollBarVisibility;
-         }
-         set
-         {
-            Dispatcher.VerifyAccess();
-            base.HorizontalScrollBarVisibility = (ScrollBarVisibility)value;
-         }
-      }
-
       public RichTextBox CommandBox
       {
          get
