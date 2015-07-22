@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -15,7 +16,7 @@ using System.Windows.Markup;
 [assembly: AssemblyCopyright("© Copyright 2008-2011 Joel Bennett")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-// [assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
 // Assigning an XML Namespace Deffinition exposes the namespace to WPF
 [assembly: XmlnsDefinition("http://schemas.huddledmasses.org/wpf/controls", "Huddled.Wpf.Controls")]
