@@ -61,8 +61,11 @@ namespace PoshCode.PowerShell
 	        get { return _runSpace.RunspaceStateInfo; }
 	    }
 
+	    private Host _host;
+
 	    public RunspaceProxy(Host host)
-		{
+	    {
+	        _host = host;
 			CommandQueue = new Queue<CallbackCommand>();
 
 
@@ -207,7 +210,12 @@ namespace PoshCode.PowerShell
 
 					_pipeline = pipeline;
 
-					// This is a dynamic anonymous delegate so that it can access the Callback parameter
+				    if (!boundCommand.Secret)
+				    {
+				        _host.UI.WriteLine(boundCommand.ToString());
+				    }
+
+				    // This is a dynamic anonymous delegate so that it can access the Callback parameter
 					_pipeline.StateChanged +=
 					   (EventHandler<PipelineStateEventArgs>)delegate(object sender, PipelineStateEventArgs e) // =>
 																 {
@@ -396,7 +404,7 @@ namespace PoshCode.PowerShell
 		{
 			CommandQueue.Clear();
 
-			Enqueue(new CallbackCommand(new[] { new Command(Resources.Prompt,true,true) }, false, null));
+			Enqueue(new CallbackCommand(new[] { new Command(Resources.Prompt,true,true) }, false, null) { Secret = true });
 
 		    var existing = (
                 from profileVariable in InitialSessionState.Variables["profile"]
@@ -412,14 +420,14 @@ namespace PoshCode.PowerShell
 				Enqueue(new CallbackCommand(
 						   existing,
 						   false,
-						   ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State))); // this is super important
+                           ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) { Secret = true }); // this is super important
 			}
 			else
 			{
 				Enqueue(new CallbackCommand(
 						   new[] { new Command("New-Paragraph", true, true) },
 						   false,
-						   ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State))); // this is super important
+                           ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) { Secret = true }); // this is super important
 			}
 		}
 

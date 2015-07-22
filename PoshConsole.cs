@@ -18,13 +18,14 @@ namespace PoshCode
         internal RunspaceProxy Runner { get; set; }
         private Host _host;
 
-        public void Dispose()
+        public new void Dispose()
         {
             if (_host != null)
             {
                 _host.Dispose();
                 _host = null;
             }
+            base.Dispose();
         }
 
         public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
@@ -99,20 +100,15 @@ namespace PoshCode
         }
 
         //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool hidden = false)
+        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool secret = false)
         {
-            ExecuteCommand(new Command(command, true, true), showInGui, defaultOutput, hidden);
+            ExecuteCommand(new Command(command, true, true), showInGui, defaultOutput, secret);
         }
 
 
-        public void ExecuteCommand(Command command, bool showInGui = false, bool defaultOutput = true, bool hidden = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null )
+        public void ExecuteCommand(Command command, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null )
         {
-            if (!hidden)
-            {   // Echo to console
-                Write(command + "\n");
-            }
-
-            if (hidden)
+            if (secret)
             {
                 defaultOutput = false;
             }
@@ -146,11 +142,11 @@ namespace PoshCode
                                 onSuccessAction.Invoke(result.Output);
                             }
                         }
-                        if (!hidden)
+                        if (!secret)
                         {   // we don't need the Prompt if there was no output
                             ExecutePromptFunction(commands, result.State);
                         }
-                    }));
+                    }) { Secret = secret });
         }
 
         //private PipelineExecutionResult InvokePipeline(Pipeline pipeline, bool showInGUI = false, bool defaultOutput = true)
@@ -209,7 +205,7 @@ namespace PoshCode
                     str.Append(obj);
                 }
                 Prompt(str.ToString());
-            }) { DefaultOutput = false }; 
+            }) { DefaultOutput = false, Secret = true }; 
         }
 
         public Command DefaultOutputCommand { get; set; }
