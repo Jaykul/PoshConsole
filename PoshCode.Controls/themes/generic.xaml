@@ -1,0 +1,245 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:huddle="clr-namespace:PoshCode.Controls">
+
+    <Color x:Key="BackgroundColor">#FFFFFFFF</Color>
+    <Color x:Key="ForegroundColor">#FF000000</Color>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
+    
+    <Style TargetType="{x:Type huddle:ConsoleControl}">
+        <Setter Property="BackgroundColor" Value="Black" />
+        <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+        <Setter Property="ForegroundColor" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
+        <Setter Property="CaretColor" Value="{StaticResource ForegroundColor}"  />
+        <Setter Property="ForceCursor" Value="True" />
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="AllowDrop" Value="True" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        <!--<Setter Property="MinWidth" Value="250"/>-->
+
+        <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type huddle:ConsoleControl}">
+                    <ControlTemplate.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                        <Style BasedOn="{x:Null}" TargetType="{x:Type RichTextBox}">
+                            <!-- It turns out that setting this Background is the main way to change the cursor color too!
+                                http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
+                                -->
+                            <Setter Property="ForceCursor" Value="True" />
+                            <!--<Setter Property="TextWrapping" Value="Wrap" />-->
+                            <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type huddle:ConsoleControl}, AncestorLevel=1}}" />
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <Binding Path="CaretColor" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type huddle:ConsoleControl}, AncestorLevel=1}">
+                                        <Binding.Converter>
+                                            <huddle:ColorToBrushInverter Alpha="255" />
+                                        </Binding.Converter>
+                                    </Binding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                        <!-- The textbox insertion caret color is the inverse of it's background color. 
+                                    In order to give ourselves control over it, separate from changing the actual background color ...
+                                    We use a template with a Border that has it's own background color which can be set manually.
+
+                                    ABOUT TextBoxBase templates: The control template for a TextBox or RichTextBox must include 
+                                    an element tagged as the content host, that is, with the Name="PART_ContentHost".  
+                                    Despite assurances about template independence, the content host element *must* be 
+                                    a ScrollViewer, or an element that derives from Decorator. 
+                                    -->
+                                        <Border x:Name="Border" 
+                                           BorderThickness="0"
+                                           Background="Transparent" 
+                                           SnapsToDevicePixels="True"
+                                           Padding="0,2,10,2">
+                                            <AdornerDecorator x:Name="PART_Adorner">
+
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                            Padding="0,0,0,0" />
+                                            </AdornerDecorator>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Padding" Value="1"/>
+                            <Setter Property="AllowDrop" Value="true"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        </Style>
+                        <Style BasedOn="{x:Null}" TargetType="{x:Type PasswordBox}">
+                            <!-- It turns out that setting this Background is the main way to change the cursor color too!
+                                http://blogs.msdn.com/llobo/archive/2007/02/08/changing-caret-color-in-textbox.aspx
+                                -->
+                            <Setter Property="ForceCursor" Value="True" />
+                            <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type huddle:ConsoleControl}, AncestorLevel=1}}" />
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <Binding Path="CaretColor" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type huddle:ConsoleControl}, AncestorLevel=1}">
+                                        <Binding.Converter>
+                                            <huddle:ColorToBrushInverter Alpha="255" />
+                                        </Binding.Converter>
+                                    </Binding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type PasswordBox}">
+                                        <!-- The textbox insertion caret color is the inverse of it's background color. 
+                                    In order to give ourselves control over it, separate from changing the actual background color ...
+                                    We use a template with a Border that has it's own background color which can be set manually.
+
+                                    ABOUT TextBoxBase templates: The control template for a TextBox or RichTextBox must include 
+                                    an element tagged as the content host, that is, with the Name="PART_ContentHost".  
+                                    Despite assurances about template independence, the content host element *must* be 
+                                    a ScrollViewer, or an element that derives from Decorator. 
+                                    -->
+                                        <Border x:Name="Border" 
+                                           BorderThickness="0"
+                                           Background="{Binding Path=Background}" 
+                                           SnapsToDevicePixels="True"
+                                           Padding="0,2,10,2">
+                                            <AdornerDecorator x:Name="PART_Adorner">
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                            Padding="0,0,0,0" />
+                                            </AdornerDecorator>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Padding" Value="1"/>
+                            <Setter Property="AllowDrop" Value="true"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        </Style>
+                    </ControlTemplate.Resources>
+                    <Border Background="{TemplateBinding Background}">
+                        <AdornerDecorator x:Name="PART_Adorner">
+                            <ScrollViewer Name="PART_ContentHost" />
+                        </AdornerDecorator>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="{x:Type huddle:ImageToggleButton}">
+        <Setter Property="FocusVisualStyle">
+            <Setter.Value>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border>
+                                    <Rectangle SnapsToDevicePixels="True" Margin="4,4,4,4" Stroke="#FF000000" StrokeDashArray="1 2" StrokeThickness="1"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <SolidColorBrush/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderThickness" Value="3,3,3,3"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0,0,1,1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type huddle:ImageToggleButton}">
+                    <Border SnapsToDevicePixels="True" x:Name="ContentContainer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <StackPanel Orientation="{TemplateBinding Orientation}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image x:Name="ContentImage" Source="{TemplateBinding DefaultImage}"  Height="16px" Width="16px" />
+                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              Margin="{TemplateBinding Padding}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                              Content="{TemplateBinding Content}" 
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}" 
+                                              ContentTemplate="{TemplateBinding ContentTemplate}" RecognizesAccessKey="True"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Source" TargetName="ContentImage" Value="{DynamicResource {TemplateBinding CheckedImage}}"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Source" TargetName="ContentImage" Value="{DynamicResource {TemplateBinding CheckedImage}}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="{x:Type huddle:ImageButton}">
+        <Setter Property="FocusVisualStyle">
+            <Setter.Value>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border>
+                                    <Rectangle SnapsToDevicePixels="True" Margin="4,4,4,4" Stroke="#FF000000" StrokeDashArray="1 2" StrokeThickness="1"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <SolidColorBrush/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderThickness" Value="3,3,3,3"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0,0,1,1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type huddle:ImageButton}">
+                    <Border SnapsToDevicePixels="True" x:Name="ContentContainer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <StackPanel Orientation="{TemplateBinding Orientation}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image x:Name="ContentImage" Source="{TemplateBinding Image}"  Height="16px" Width="16px" />
+                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              Margin="{TemplateBinding Padding}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                              Content="{TemplateBinding Content}" 
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}" 
+                                              ContentTemplate="{TemplateBinding ContentTemplate}" RecognizesAccessKey="True"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
