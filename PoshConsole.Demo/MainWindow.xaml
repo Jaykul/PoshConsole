@@ -1,5 +1,4 @@
 ﻿<Fluent:RibbonWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     x:Class="PoshConsole.Demo.MainWindow"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,9 +6,11 @@
                      xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
                      xmlns:system="clr-namespace:System;assembly=mscorlib"
                      xmlns:poshCode="http://schemas.poshcode.org/wpf/poshcode"
+                     xmlns:Controls="clr-namespace:PoshCode.Controls;assembly=PoshCode.Controls"
+                     x:Class="PoshConsole.Demo.MainWindow"
                      mc:Ignorable="d" DontUseDwm="False"
                      Title="MainWindow" 
-                     Height="350" Width="525"
+                     Height="517" Width="774"
                      MinHeight="60" MinWidth="80" 
                      WindowState="Normal">
     <Fluent:RibbonWindow.Resources>
@@ -26,33 +27,31 @@
         <Fluent:Ribbon AutomaticStateManagement="True" x:Name="ribbon">
             <Fluent:Ribbon.ContextualGroups>
                 <Fluent:RibbonContextualTabGroup x:Name="setupGroup"
-                                                 BorderBrush="#FF9D00"
-                                                 Background="#FF9D00"
-                                                 Foreground="#C45300"
-                                                 Header="Setup"
-                                                 Visibility="Visible" />
+					BorderBrush="#FF9D00"
+					Background="#FF9D00"
+					Foreground="#C45300"
+					Header="Setup"
+					Visibility="Visible" />
                 <Fluent:RibbonContextualTabGroup x:Name="specialGroup"
-                                                 BorderBrush="Magenta"
-                                                 Background="Magenta"
-                                                 Foreground="Purple"
-                                                 Header="Special"
-                                                 Visibility="Visible" />
+					BorderBrush="Magenta"
+					Background="Magenta"
+					Foreground="Purple"
+					Header="Special"
+					Visibility="Visible" />
 
             </Fluent:Ribbon.ContextualGroups>
             <Fluent:Ribbon.Menu>
                 <Grid>
                     <!--Backstage items can be keytipped-->
                     <Fluent:Backstage Visibility="Visible">
-                        <Fluent:BackstageTabControl>
-                        </Fluent:BackstageTabControl>
+                        <Fluent:BackstageTabControl/>
                     </Fluent:Backstage>
 
                     <Fluent:ApplicationMenu Header="File" Visibility="Visible">
                         <Fluent:ApplicationMenu.RightPaneContent>
                             <StackPanel HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Orientation="Vertical">
-                            </StackPanel>
+								VerticalAlignment="Stretch"
+								Orientation="Vertical"/>
                         </Fluent:ApplicationMenu.RightPaneContent>
 
                         <Fluent:MenuItem Header="New">
@@ -68,8 +67,8 @@
                         <Separator />
 
                         <Fluent:MenuItem Header="Exit" 
-                                         KeyTip="X"
-                                         Command="{Binding ExitCommand}" />
+							KeyTip="X"
+							Command="{Binding ExitCommand}" />
                     </Fluent:ApplicationMenu>
                 </Grid>
             </Fluent:Ribbon.Menu>
@@ -77,11 +76,11 @@
                 <Fluent:Button Size="Small" Content="Insert" >
                     <Fluent:Button.ToolTip>
                         <Fluent:ScreenTip Title="Insert Chart"
-                                          Text="Insert a chart to illustarate and compare data. &#xa;&#xa;Bar, Pie, Line, Area and Surface are same of the available types."
-                                          HelpTopic="http:\\fluent.codeplex.com"
-                                          DisableReason="Disable reason reason."
-                                          Width="190"
-                                          IsRibbonAligned="True" />
+							Text="Insert a chart to illustarate and compare data. &#xA;&#xA;Bar, Pie, Line, Area and Surface are same of the available types."
+							HelpTopic="http:\\fluent.codeplex.com"
+							DisableReason="Disable reason reason."
+							Width="190"
+							IsRibbonAligned="True" />
                     </Fluent:Button.ToolTip>
                 </Fluent:Button>
             </Fluent:Ribbon.ToolBarItems>
@@ -93,61 +92,61 @@
                 <!--Use Content or Target Property to set QAT item-->
                 <Fluent:QuickAccessMenuItem IsChecked="true">
                     <Fluent:Button Header="Pink"
-                                   Command="{Binding TestCommand}"
+						Command="{Binding TestCommand}"
                                     />
                 </Fluent:QuickAccessMenuItem>
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=pasteButton}"
-                                            IsChecked="True" />
+					IsChecked="True" />
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=cutButton}"
-                                            IsChecked="True" />
+					IsChecked="True" />
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=copyButton}" />
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=dropDownGreen}"
-                                            IsChecked="True" />
+					IsChecked="True" />
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=gallerySampleInRibbonGallery}"
-                                            IsChecked="True" />
+					IsChecked="True" />
                 <Fluent:QuickAccessMenuItem IsChecked="True"
-                                            Target="{Binding ElementName=UndoButton}" />
+					Target="{Binding ElementName=UndoButton}" />
                 <Fluent:QuickAccessMenuItem IsChecked="True"
-                                            Target="{Binding ElementName=RedoButton}" />
+					Target="{Binding ElementName=RedoButton}" />
             </Fluent:Ribbon.QuickAccessItems>
 
             <Fluent:RibbonTabItem Header="Insert"
-                                  KeyTip="I"
-                                  IsSeparatorVisible="true"
-                                  ReduceOrder="groupLL, groupLL, groupLL, (groupLL),(groupLL),(groupLL),(groupLL),(groupLL)">
+				KeyTip="I"
+				IsSeparatorVisible="true"
+				ReduceOrder="groupLL, groupLL, groupLL, (groupLL),(groupLL),(groupLL),(groupLL),(groupLL)">
                 <Fluent:RibbonGroupBox KeyTip="FG"
-                                       Header=""
-                                       IsLauncherVisible="False"
-                                       x:Name="groupLL">
+					Header=""
+					IsLauncherVisible="False"
+					x:Name="groupLL">
 
                     <Fluent:ComboBox IsEditable="False"
-                                     InputWidth="150"
-                                     Header="Test"
-                                     ItemsSource="{Binding FontsViewModel.FontsData}"
-                                     KeyTip="FD">
+						InputWidth="150"
+						Header="Test"
+						ItemsSource="{Binding FontsViewModel.FontsData}"
+						KeyTip="FD">
                         <Fluent:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}"
-                                           FontFamily="{Binding}" />
+									FontFamily="{Binding}" />
                             </DataTemplate>
                         </Fluent:ComboBox.ItemTemplate>
                     </Fluent:ComboBox>
                     <Fluent:ComboBox IsEditable="False"
-                                     InputWidth="150"
-                                     Header="Test"
-                                     ItemsSource="{Binding FontsViewModel.FontsData}">
+						InputWidth="150"
+						Header="Test"
+						ItemsSource="{Binding FontsViewModel.FontsData}">
                         <Fluent:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}"
-                                           FontFamily="{Binding}" />
+									FontFamily="{Binding}" />
                             </DataTemplate>
                         </Fluent:ComboBox.ItemTemplate>
                     </Fluent:ComboBox>
 
-                    <Fluent:ComboBox Name="FilterComboBox"
-                                     IsReadOnly="True"
-                                     KeyTip="H"
-                                     SelectedIndex="0">
+                    <Fluent:ComboBox x:Name="FilterComboBox"
+						IsReadOnly="True"
+						KeyTip="H"
+						SelectedIndex="0">
                         <Fluent:ComboBox.Menu>
                             <Fluent:RibbonMenu>
                                 <Fluent:MenuItem Header="Test" />
@@ -159,396 +158,6 @@
                         <system:String>Read-only</system:String>
                         <system:String>Writeable</system:String>
                     </Fluent:ComboBox>
-                </Fluent:RibbonGroupBox>
-
-                <Fluent:RibbonGroupBox Header="Gallery">
-                    <Fluent:InRibbonGallery x:Name="InRibbonGallery"
-                                            Icon="pack://application:,,,/Fluent;component/Themes/Office2010/Images/Warning.png"
-                                            Header="Split"
-                                            KeyTip="S"
-                                            GroupBy="Tag"
-                                            ResizeMode="Both"
-                                            MaxItemsInRow="6"
-                                            MinItemsInRow="2"
-                                            ItemWidth="40"
-                                            ItemHeight="55"
-                                            MinItemsInDropDownRow="5">
-                        <Fluent:InRibbonGallery.Filters>
-                            <Fluent:GalleryGroupFilter Title="All"
-                                                       Groups="Group1,Group2" />
-                            <Fluent:GalleryGroupFilter Title="Group1"
-                                                       Groups="Group1" />
-                            <Fluent:GalleryGroupFilter Title="Group2"
-                                                       Groups="Group2" />
-                        </Fluent:InRibbonGallery.Filters>
-
-                        <TextBlock Tag="Group1">1</TextBlock>
-                        <TextBlock Tag="Group1">2</TextBlock>
-                        <TextBlock Tag="Group1">3</TextBlock>
-                        <TextBlock Tag="Group1">4</TextBlock>
-                        <TextBlock Tag="Group1">5</TextBlock>
-                        <TextBlock Tag="Group1">6</TextBlock>
-                        <TextBlock Tag="Group2">1 (G 2)</TextBlock>
-                        <TextBlock Tag="Group2">2 (G 2)</TextBlock>
-                        <TextBlock Tag="Group2">3 (G 2)</TextBlock>
-                    </Fluent:InRibbonGallery>
-
-                    <Fluent:InRibbonGallery MinItemsInDropDownRow="5"
-                                            MaxItemsInDropDownRow="5"
-                                            IsCollapsed="True"
-                                            ItemHeight="100"
-                                            ItemWidth="100"
-                                            ResizeMode="Both">
-                        <Fluent:GalleryItem>AAAA - First</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>BBBB</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>BBBB</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>BBBB</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>BBBB</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>BBBB</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>CCCC</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>CCCC</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>CCCC</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>CCCC</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>CCCC</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>DDDD</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>DDDD</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>DDDD</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>DDDD</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>DDDD</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>EEEE</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>EEEE</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>EEEE</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>EEEE</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>EEEE</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>FFFF</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>FFFF</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>FFFF</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>FFFF</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>FFFF</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>GGGG</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>GGGG</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>GGGG</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>GGGG</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>GGGG</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>HHHH</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>HHHH</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>HHHH</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>HHHH</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>HHHH</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>IIII</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>IIII</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>IIII</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>IIII</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>IIII</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>JJJJ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>JJJJ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>JJJJ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>JJJJ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>JJJJ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>KKKK</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>KKKK</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>KKKK</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>KKKK</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>KKKK</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>LLLL</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>LLLL</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>LLLL</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>LLLL</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>LLLL</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>MMMM</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>MMMM</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>MMMM</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>MMMM</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>MMMM</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>NNNN</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>NNNN</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>NNNN</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>NNNN</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>NNNN</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>OOOO</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>OOOO</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>OOOO</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>OOOO</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>OOOO</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>PPPP</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>PPPP</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>PPPP</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>PPPP</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>PPPP</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>QQQQ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>QQQQ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>QQQQ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>QQQQ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>QQQQ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>AAAA</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>YYYY</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>YYYY</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>YYYY</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>YYYY</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>YYYY</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>ZZZZ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>ZZZZ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>ZZZZ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>ZZZZ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>ZZZZ</Fluent:GalleryItem>
-                        <Fluent:GalleryItem>Last</Fluent:GalleryItem>
-                    </Fluent:InRibbonGallery>
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox Header="Buttons">
@@ -569,46 +178,45 @@
                 <Fluent:RibbonGroupBox Header="Test">
                     <StackPanel Orientation="Horizontal">
                         <Fluent:SplitButton x:Name="UndoButton"
-                                            KeyTip="Ctrl+Z"
-                                            Header="Undo"
-                                            Icon="{DynamicResource AppbarUndoIcon}"
-                                            SizeDefinition="Middle,Small"
-                                            Command="ApplicationCommands.Undo"
-                                            FocusManager.IsFocusScope="True"
-                                            CanAddButtonToQuickAccessToolBar="True"
-                                            ClosePopupOnMouseDown="True">
+							KeyTip="Ctrl+Z"
+							Header="Undo"
+							Icon="{DynamicResource AppbarUndoIcon}"
+							SizeDefinition="Middle,Small"
+							Command="ApplicationCommands.Undo"
+							FocusManager.IsFocusScope="True"
+							CanAddButtonToQuickAccessToolBar="True"
+							ClosePopupOnMouseDown="True">
                             <Fluent:MenuItem Header="Begin" />
                             <Fluent:MenuItem Header="Undo something" />
                             <Fluent:MenuItem Header="Undo another thing" />
                         </Fluent:SplitButton>
 
                         <Fluent:SplitButton x:Name="RedoButton"
-                                            KeyTip="Ctrl+Y"
-                                            Header="Redo"
-                                            Icon="{DynamicResource appbar_redo}"
-                                            SizeDefinition="Middle,Small"
-                                            Command="ApplicationCommands.Redo"
-                                            CanAddButtonToQuickAccessToolBar="True"
-                                            FocusManager.IsFocusScope="True">
-                        </Fluent:SplitButton>
+							KeyTip="Ctrl+Y"
+							Header="Redo"
+							Icon="{DynamicResource appbar_redo}"
+							SizeDefinition="Middle,Small"
+							Command="ApplicationCommands.Redo"
+							CanAddButtonToQuickAccessToolBar="True"
+							FocusManager.IsFocusScope="True"/>
                     </StackPanel>
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 
             <Fluent:RibbonTabItem Header="Tests"
-                                  KeyTip="TESTS">
+				KeyTip="TESTS">
                 <Fluent:RibbonGroupBox Header="LongLongGroup"
-                                       IsLauncherVisible="False">
-                    <Fluent:CheckBox>Text 1</Fluent:CheckBox>
-                    <Fluent:CheckBox>Text 2</Fluent:CheckBox>
-                    <Fluent:CheckBox>Text 3</Fluent:CheckBox>
+					IsLauncherVisible="False">
+                    <Fluent:CheckBox Header="Text 1"/>
+                    <Fluent:CheckBox Header="Text 2"/>
+                    <Fluent:CheckBox Header="Text 3"/>
                 </Fluent:RibbonGroupBox>
 
 
                 <Fluent:RibbonGroupBox Header="LongLongGroup"
-                                       IsLauncherVisible="False">
+					IsLauncherVisible="False">
                     <Fluent:ToggleButton Header="blah blah"
-                                         SizeDefinition="Small">
+						SizeDefinition="Small">
                         <Fluent:ToggleButton.Icon>
                             <Grid>
                                 <Image />
@@ -617,7 +225,7 @@
                         </Fluent:ToggleButton.Icon>
                     </Fluent:ToggleButton>
                     <Fluent:SplitButton Header="blah blah"
-                                        SizeDefinition="Small">
+						SizeDefinition="Small">
                         <Fluent:SplitButton.Icon>
                             <Grid>
                                 <Image />
@@ -628,28 +236,28 @@
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox Header="LongLongGroup"
-                                       IsLauncherVisible="False">
+					IsLauncherVisible="False">
                     <Fluent:TextBox x:Name="textBox"
-                                    InputWidth="70"
-                                    MaxLength="5"
-                                    Header="Text"
-                                    Text="CurrentText" />
+						InputWidth="70"
+						MaxLength="5"
+						Header="Text"
+						Text="CurrentText" />
 
                     <Fluent:Button Header="PrintVisual"/>
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox>
                     <Fluent:DropDownButton HorizontalAlignment="Left"
-                                           SizeDefinition="Small">
+						SizeDefinition="Small">
                         <Fluent:DropDownButton.Icon>
                             <Grid>
                                 <Image 
-                                       Width="16"
-                                       Height="16" />
+									Width="16"
+									Height="16" />
                                 <Rectangle VerticalAlignment="Bottom"
-                                           Height="4"
-                                           Width="16"
-                                           HorizontalAlignment="Center">
+									Height="4"
+									Width="16"
+									HorizontalAlignment="Center">
                                     <Rectangle.Fill>
                                         <SolidColorBrush Color="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}" />
                                     </Rectangle.Fill>
@@ -657,65 +265,65 @@
                             </Grid>
                         </Fluent:DropDownButton.Icon>
                         <Fluent:ColorGallery Mode="HighlightColors"
-                                             SelectedColor="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}"
-                                             IsAutomaticColorButtonVisible="False" />
+							SelectedColor="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}"
+							IsAutomaticColorButtonVisible="False" />
                     </Fluent:DropDownButton>
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox Header="ToggleButton">
                     <Fluent:ToggleButton Header="Button1"
-                                         GroupName="Group1" />
+						GroupName="Group1" />
                     <Fluent:ToggleButton Header="Button1"
-                                         GroupName="Group1" />
+						GroupName="Group1" />
                     <Fluent:ToggleButton Header="Button1"
-                                         GroupName="Group1" />
+						GroupName="Group1" />
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox>
                     <Fluent:ToggleButton x:Name="ShowDetailButton"
-                                         Header="Detail" />
+						Header="Detail" />
                     <Fluent:ToggleButton x:Name="ShowMoreButton"
-                                         Header="More" />
+						Header="More" />
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox Header="TestOne">
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120" />
+						InputWidth="120" />
                     <Separator />
 
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120"
-                                     Visibility="Visible" />
+						InputWidth="120"
+						Visibility="Visible" />
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox>
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120" />
+						InputWidth="120" />
                     <Separator />
 
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120"
-                                     Visibility="Visible" />
+						InputWidth="120"
+						Visibility="Visible" />
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox >
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120" />
+						InputWidth="120" />
                     <Separator />
 
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120"
-                                     Visibility="{Binding IsChecked, ElementName=ShowDetailButton, Converter={StaticResource boolToVisibilityConverter}}" />
+						InputWidth="120"
+						Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowDetailButton}" />
                 </Fluent:RibbonGroupBox>
 
-                <Fluent:RibbonGroupBox Visibility="{Binding IsChecked, ElementName=ShowMoreButton, Converter={StaticResource boolToVisibilityConverter}}">
+                <Fluent:RibbonGroupBox Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowMoreButton}">
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120" />
+						InputWidth="120" />
                     <Separator />
 
                     <Fluent:ComboBox Header="Test"
-                                     InputWidth="120"
-                                     Visibility="{Binding IsChecked, ElementName=ShowDetailButton, Converter={StaticResource boolToVisibilityConverter}}" />
+						InputWidth="120"
+						Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowDetailButton}" />
                 </Fluent:RibbonGroupBox>
 
             </Fluent:RibbonTabItem>
@@ -724,73 +332,53 @@
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Height="5" VerticalAlignment="Bottom"/>
-            <ContentControl Grid.Row="0"></ContentControl>
-           
+            <ContentControl Grid.Row="0"/>
+
             <poshCode:PoshConsole Grid.Row="1" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
-   			                Title="PoshConsole" IsSelectionEnabled="True" 
-                            Background="#00000000" 
-                            FontSize="12" FontFamily="Consolas"
-   			                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <!--FontFamily="/FontLibrary;Component/#Bitstream Vera Sans Mono"-->
-                <FlowDocument>
-                    <FlowDocument.Resources>
-                        <!-- NOTE: these Resources are EXPOSED TO BANNERS so be careful what you put here -->
-                        <Style x:Key="ConsoleFont">
-                            <Setter Property="TextElement.FontSize" Value="12" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Bitstream Vera Sans Mono" />
-                        </Style>
-                        <Style x:Key="BannerFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Pescadero" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                        <Style x:Key="SigFont">
-                            <Setter Property="TextElement.FontSize" Value="20" />
-                            <Setter Property="TextElement.FontFamily" Value="/FontLibrary;Component/#Lindsey" />
-                            <Setter Property="Typography.ContextualSwashes" Value="1" />
-                        </Style>
-                    </FlowDocument.Resources>
-                    <Paragraph ClearFloaters="Both" />
-                </FlowDocument>
-            </poshCode:PoshConsole>
+				Title="PoshConsole" IsSelectionEnabled="True" 
+				Background="#00000000" 
+				FontSize="12" FontFamily="Consolas"
+				HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />            
         </Grid>
 
-        <Fluent:StatusBar HorizontalAlignment="Stretch"
-                          VerticalAlignment="Bottom"
-                          Height="25"
-                          Grid.Row="2">
+        <Fluent:StatusBar
+			DataContext="{Binding ElementName=PoshConsole}"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Bottom"
+			Height="25"
+			Grid.Row="2">
             <Fluent:StatusBarItem Title="Words Width"
-                                  Value="150"
-                                  HorizontalAlignment="Left">
-                <TextBlock Text="150 px" />
+				Value="150"
+				HorizontalAlignment="Left">
+                <TextBlock Text="{Binding BufferSize, Mode=OneWayToSource}" />
             </Fluent:StatusBarItem>
             <Separator HorizontalAlignment="Left" />
             <Fluent:StatusBarItem Title="Selected Words"
-                                  Value="15"
-                                  ToolTip="This is Selected Words"
-                                  Content="15"
-                                  HorizontalAlignment="Left" />
+				Value="15"
+				ToolTip="This is Selected Words"
+				Content="15"
+				HorizontalAlignment="Left" />
             <Separator HorizontalAlignment="Left" />
             <Fluent:StatusBarItem Title="Zoom"
-                                  HorizontalAlignment="Right"
-                                  Value="{Binding Value, ElementName=zoomSlider, StringFormat={}{0:P}}" />
+				HorizontalAlignment="Right"
+				Value="{Binding Value, ElementName=zoomSlider, StringFormat=\{0:P\}}" />
             <Fluent:StatusBarItem Title="Zoom Slider"
-                                  HorizontalAlignment="Right">
+				HorizontalAlignment="Right">
                 <Slider x:Name="zoomSlider"
-                        Minimum="0.5"
-                        Maximum="2.0"
-                        IsDirectionReversed="False"
-                        Style="{DynamicResource ZoomSliderStyle}"
-                        Value="{Binding Zoom}"
-                        IsSnapToTickEnabled="True"
-                        TickFrequency="0.1"
-                        SmallChange="0.1"
-                        LargeChange="0.1"
-                        ValueChanged="ZoomSlider_OnValueChanged"/>
+					Minimum="0.5"
+					Maximum="2.0"
+					IsDirectionReversed="False"
+					Style="{DynamicResource ZoomSliderStyle}"
+					Value="{Binding Zoom}"
+					IsSnapToTickEnabled="True"
+					TickFrequency="0.1"
+					SmallChange="0.1"
+					LargeChange="0.1"
+					ValueChanged="ZoomSlider_OnValueChanged"/>
             </Fluent:StatusBarItem>
         </Fluent:StatusBar>
     </Grid>

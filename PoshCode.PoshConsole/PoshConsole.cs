@@ -189,8 +189,19 @@ namespace PoshCode
 
         private readonly CallbackCommand _promptSequence;
 
-        public PoshConsole() :base()
+        public PoshConsole()
         {
+            // Initialize the document.
+            // If they set it themselves, that's fine, but we have to make sure there is one!
+            var document = new FlowDocument();
+
+            document.Blocks.Add(new Paragraph { ClearFloaters = WrapDirection.Both });
+            var consoleFont = new Style();
+            consoleFont.Setters.Add(new Setter(TextElement.FontSizeProperty, 12));
+            consoleFont.Setters.Add(new Setter(TextElement.FontFamilyProperty, "Consolas"));
+            document.Resources.Add("ConsoleFont", consoleFont);
+            Document = document;
+
             _promptSequence = new CallbackCommand(
             new[]
             {
