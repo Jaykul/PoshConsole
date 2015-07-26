@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
 using System.Threading;
@@ -350,8 +349,8 @@ namespace PoshCode.PowerShell
                Path.GetFullPath(Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\PoshConsole_profile_exit.ps1")),
                // User Exit Profiles
                Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\profile_exit.ps1")), 
-               Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1")),
-            }.Where(File.Exists).Select(path => new Command(path, true, true)).ToArray();
+               Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"WindowsPowerShell\PoshConsole_profile_exit.ps1"))
+            }.Where(File.Exists).Select(path => new Command(path, false, true)).ToArray();
 
 			//StringBuilder cmd = new StringBuilder();
 
@@ -411,7 +410,7 @@ namespace PoshCode.PowerShell
 		        from pathProperty in ((PSObject) profileVariable.Value).Properties.Match("*Host*", PSMemberTypes.NoteProperty)
 		        where File.Exists(pathProperty.Value.ToString())
 		        select pathProperty.Value.ToString()
-            ).Select(path => new Command(path, true, true)).ToArray();
+            ).Select(path => new Command(path, false, true)).ToArray();
 			// This might be nice to have too (in case anyone was using it):
 			_runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
 

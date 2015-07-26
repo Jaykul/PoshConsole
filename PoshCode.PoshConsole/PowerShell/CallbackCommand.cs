@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
 using System.Text;
 
@@ -51,17 +51,23 @@ namespace PoshCode.PowerShell
             // TODO: 2) check for the script flag and wrap the command in &{ }
 
             var output = new StringBuilder();
-            foreach (var cmd in Commands)
+            var enumerator = Commands.GetEnumerator();
+            var more = enumerator.MoveNext();
+            while (more)
             {
-                if (cmd.IsScript) { output.Append("&{ "); }
+                var cmd = enumerator.Current;
+                more = enumerator.MoveNext();
+                var script = cmd.IsScript && more;
+
+                if (script) output.Append("&{ ");
 
                 output.Append(cmd.CommandText);
                 foreach (var param in cmd.Parameters)
                 {
                     output.AppendFormat(" -{0} {1}", param.Name, GetParameterValue(param.Value));
                 }
-               
-                output.Append(cmd.IsScript ? " } | " : " | ");
+
+                output.Append(script ? " } | " : " | ");
             }
 
             return output.ToString().TrimEnd(' ', '|');
