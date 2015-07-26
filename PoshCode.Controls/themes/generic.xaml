@@ -68,7 +68,7 @@
 
                                                 <ScrollViewer x:Name="PART_ContentHost"
                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                            Padding="0,0,0,0" />
+                                            Padding="0,0,0,0"/>
                                             </AdornerDecorator>
                                         </Border>
                                     </ControlTemplate>

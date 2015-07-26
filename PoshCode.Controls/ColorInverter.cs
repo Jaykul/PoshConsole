@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Globalization;
 
 namespace PoshCode.Controls
 {
@@ -13,11 +10,11 @@ namespace PoshCode.Controls
    {
       public static Color Invert(this Color color)
       {
-         return new Color { A = color.A, B = (byte)(255 - (int)color.B), R = (byte)(255 - (int)color.R), G = (byte)(255 - (int)color.G) };
+         return new Color { A = color.A, B = (byte)(255 - color.B), R = (byte)(255 - color.R), G = (byte)(255 - color.G) };
       }
       public static Color Invert(this Color color, byte Alpha)
       {
-         return new Color { A = Alpha, B = (byte)(255 - (int)color.B), R = (byte)(255 - (int)color.R), G = (byte)(255 - (int)color.G) };
+         return new Color { A = Alpha, B = (byte)(255 - color.B), R = (byte)(255 - color.R), G = (byte)(255 - color.G) };
       }
    }
 
@@ -41,7 +38,7 @@ namespace PoshCode.Controls
       {
          if (value == null || !(value is Color)) return Colors.White;
          if (Alpha != null) { return ((Color)value).Invert(Alpha.Value); }
-         else return ((Color)value).Invert();
+          return ((Color)value).Invert();
       }
 
       public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -60,11 +57,11 @@ namespace PoshCode.Controls
 
       public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
       {
-         if (value == null || !(value is Color)) return Brushes.White;
-         else return new SolidColorBrush((Color)value);
+          if (value == null || !(value is Color)) return Brushes.White;
+          return new SolidColorBrush((Color)value);
       }
 
-      public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+       public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
       {
 
          if (value == null || !(value is SolidColorBrush)) return Colors.White;
@@ -95,7 +92,7 @@ namespace PoshCode.Controls
          if (value == null || !(value is Color)) return Brushes.White;
 
          if (Alpha != null) { return new SolidColorBrush(((Color)value).Invert(Alpha.Value)); }
-         else return new SolidColorBrush(((Color)value).Invert());
+          return new SolidColorBrush(((Color)value).Invert());
       }
 
       public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Host;
-using System.Management.Automation.Runspaces;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Controls;

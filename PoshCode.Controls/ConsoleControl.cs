@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Management.Automation;
+using System.Management.Automation.Host;
+using System.Reflection;
 using System.Security;
-using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
-using System.Diagnostics;
 using System.Windows.Threading;
-using System.Globalization;
-using System.ComponentModel;
-using System.Management.Automation;
-using System.Management.Automation.Host;
-using System.Reflection;
-using System.Threading;
 
 namespace PoshCode.Controls
 {
@@ -56,7 +50,7 @@ namespace PoshCode.Controls
 
         }
 
-        bool _waitingForKey = false;
+        bool _waitingForKey;
         LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
         readonly Queue<KeyInfo> _inputBuffer = new Queue<KeyInfo>();
 
@@ -79,14 +73,14 @@ namespace PoshCode.Controls
         public ConsoleControl()
         {
             _brushes = new ConsoleBrushes();
-            _commandBox = new RichTextBox()
+            _commandBox = new RichTextBox
             {
                 IsEnabled = true,
                 Focusable = true,
                 AcceptsTab = true,
                 AcceptsReturn = true,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-                Padding = new Thickness(0.0),
+                Padding = new Thickness(0.0)
             };
             _popup = new PopupMenu(this);
             _expansion = new TabExpansion();
@@ -98,13 +92,13 @@ namespace PoshCode.Controls
             AddLogicalChild(_popup);
 
             // _commandBox.Document.TextAlignment = TextAlignment.Left;
-            _passwordBox = new PasswordBox()
-                              {
+            _passwordBox = new PasswordBox
+            {
                                   IsEnabled = true,
                                   Focusable = true
                               };
-            _commandBox.PreviewKeyDown += new KeyEventHandler(_commandBox_PreviewKeyDown);
-            _passwordBox.PreviewKeyDown += new KeyEventHandler(_passwordBox_PreviewKeyDown);
+            _commandBox.PreviewKeyDown += _commandBox_PreviewKeyDown;
+            _passwordBox.PreviewKeyDown += _passwordBox_PreviewKeyDown;
 
             _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
 
@@ -355,7 +349,7 @@ namespace PoshCode.Controls
         public static readonly DependencyProperty BackgroundColorProperty =
             DependencyProperty.Register("BackgroundColor", typeof(ConsoleColor), typeof(ConsoleControl),
             new FrameworkPropertyMetadata(ConsoleColor.Black, FrameworkPropertyMetadataOptions.None,
-            new PropertyChangedCallback(BackgroundColorPropertyChanged)));
+            BackgroundColorPropertyChanged));
 
         private static void BackgroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
@@ -394,7 +388,7 @@ namespace PoshCode.Controls
         public static readonly DependencyProperty ForegroundColorProperty =
             DependencyProperty.Register("ForegroundColor", typeof(ConsoleColor), typeof(ConsoleControl),
             new FrameworkPropertyMetadata(ConsoleColor.White, FrameworkPropertyMetadataOptions.None,
-            new PropertyChangedCallback(ForegroundColorPropertyChanged)));
+            ForegroundColorPropertyChanged));
 
         private static void ForegroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
@@ -503,7 +497,7 @@ namespace PoshCode.Controls
 
         public SecureString ReadLineAsSecureString()
         {
-            Dispatcher.Invoke((Action)(() =>
+            Dispatcher.Invoke(() =>
             {
                 lock (_commandContainer)
                 {
@@ -515,7 +509,7 @@ namespace PoshCode.Controls
                     UpdateLayout();
                     _commandContainer.Child.Focus();
                 }
-            }), DispatcherPriority.Render);
+            }, DispatcherPriority.Render);
 
             Thread.Sleep(0);
             WaitingForInput = true;
@@ -523,7 +517,7 @@ namespace PoshCode.Controls
             _gotInputLine.WaitOne();
             WaitingForInput = false;
 
-            Dispatcher.Invoke((Action)(() =>
+            Dispatcher.Invoke(() =>
             {
                 lock (_commandContainer)
                 {
@@ -534,7 +528,7 @@ namespace PoshCode.Controls
                     _commandContainer.Child.Focus();
                     UpdateLayout();
                 }
-            }), DispatcherPriority.Render);
+            }, DispatcherPriority.Render);
 
             return _lastPassword;
         }
@@ -908,7 +902,7 @@ namespace PoshCode.Controls
         private static string[] GetHotkeyAndLabel(string input)
         {
             // ReSharper disable SuggestUseVarKeywordEvident
-            string[] result = new[] { String.Empty, String.Empty };
+            string[] result = { String.Empty, String.Empty };
             string[] fragments = input.Split('&');
             // ReSharper restore SuggestUseVarKeywordEvident
             if (fragments.Length == 2)
@@ -1018,7 +1012,7 @@ namespace PoshCode.Controls
                 if (position.CompareTo(result.End) < 0)
                 {
                     position = result.Start;
-                    double top = this.PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y + this.PointFromScreen(new System.Windows.Point(0, 0)).Y;
+                    double top = PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y + PointFromScreen(new Point(0, 0)).Y;
                     Trace.WriteLine(string.Format(" Top: {0}, CharOffset: {1}", top, position));
                     ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset + top);
                     position = result.End;
@@ -1035,7 +1029,7 @@ namespace PoshCode.Controls
         /// </summary>
         private static class DocumentHelper
         {
-            private static MethodInfo findMethod = null;
+            private static MethodInfo findMethod;
             [Flags]
             public enum FindFlags
             {
@@ -1045,7 +1039,7 @@ namespace PoshCode.Controls
                 FindWholeWordsOnly = 4,
                 MatchDiacritics = 8,
                 MatchKashida = 16,
-                MatchAlefHamza = 32,
+                MatchAlefHamza = 32
             }
 
             public static TextRange FindText(TextPointer findContainerStartPosition, TextPointer findContainerEndPosition, String input, FindFlags flags, CultureInfo cultureInfo)
@@ -1117,8 +1111,7 @@ namespace PoshCode.Controls
 
                     if (last == null)
                         yield break;
-                    else
-                        yield return last;
+                    yield return last;
                     start = last.End;
                 }
             }

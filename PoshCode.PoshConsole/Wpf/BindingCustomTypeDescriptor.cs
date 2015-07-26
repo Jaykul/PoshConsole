@@ -15,7 +15,7 @@ namespace PoshCode.Wpf
             var pdc = new PropertyDescriptorCollection(base.GetProperties().Cast<PropertyDescriptor>().ToArray());
             if ((pd = pdc.Find("Source", false)) != null)
             {
-                pdc.Add(TypeDescriptor.CreateProperty(typeof(Binding), pd, new Attribute[] { new DefaultValueAttribute("null") }));
+                pdc.Add(TypeDescriptor.CreateProperty(typeof(Binding), pd, new DefaultValueAttribute("null")));
                 pdc.Remove(pd);
             }
             return pdc;
@@ -27,7 +27,7 @@ namespace PoshCode.Wpf
             var pdc = new PropertyDescriptorCollection(base.GetProperties(attributes).Cast<PropertyDescriptor>().ToArray());
             if ((pd = pdc.Find("Source", false)) != null)
             {
-                pdc.Add(TypeDescriptor.CreateProperty(typeof(Binding), pd, new Attribute[] { new DefaultValueAttribute("null") }));
+                pdc.Add(TypeDescriptor.CreateProperty(typeof(Binding), pd, new DefaultValueAttribute("null")));
                 pdc.Remove(pd);
             }
             return pdc;

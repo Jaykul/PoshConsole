@@ -4,14 +4,15 @@
 // for any purpose either express or implied. 
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation.Runspaces;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Markup;
 using System.Windows.Threading;
 using System.Xml;
 using PoshCode.Wpf;
-using PoshWpf.Utility;
 
 namespace PoshWpf
 {
@@ -42,7 +43,7 @@ namespace PoshWpf
                 var pr = (PresentationResult)obj;
                 return pr.DialogResult == DialogResult && pr.WindowTag == WindowTag;
             }
-            else return false;
+            return false;
         }
 
         public bool Equals(PresentationResult obj)
@@ -67,7 +68,7 @@ namespace PoshWpf
     // public interface can give a reference to the dispatcher associated with a window
     public interface IExposeDispatcher
     {
-        System.Windows.Threading.Dispatcher Dispatcher { get; }
+        Dispatcher Dispatcher { get; }
     }
 
     public delegate void SetWindowProperties(Window window);
@@ -83,8 +84,8 @@ namespace PoshWpf
         object StateObject;
         bool Completed;
         bool IsError;
-        System.Exception Error;
-        System.Windows.Threading.Dispatcher _Dispatcher;
+        Exception Error;
+        Dispatcher _Dispatcher;
 
         public WindowDispatcherAsyncResult(EventWaitHandle done)
         {
@@ -101,7 +102,7 @@ namespace PoshWpf
         /// <summary> returns true if the window is closed, or if initialization has failed</summary>
         public bool IsCompleted { get { return Completed; } }
         /// <summary> returns the dispatcher of the UI thread of the window</summary>
-        public System.Windows.Threading.Dispatcher Dispatcher { get { return _Dispatcher; } }
+        public Dispatcher Dispatcher { get { return _Dispatcher; } }
         /// <summary>Returns the actual Window object</summary>
         public Window Window { get { return _window; } }
 
@@ -131,7 +132,7 @@ namespace PoshWpf
         }
 
         /// <summary> used to set the result to throw an exception</summary>
-        internal void SetException(System.Exception ex)
+        internal void SetException(Exception ex)
         {
             Error = ex;
             IsError = true;
@@ -139,7 +140,7 @@ namespace PoshWpf
             DoneHandle.Set();
         }
         /// <summary>Update the AsyncState return object</summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal void SetState(object stateObject)
         {
             StateObject = stateObject;
@@ -171,12 +172,12 @@ namespace PoshWpf
         public static Dispatcher Dispatcher { get; set; }
 
         // internal method to start the window thread
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
         public static WindowDispatcherAsyncResult Start(XmlNode xaml, SetWindowProperties initialize, IntPtr? owner)
         {
             var done = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-            var windowArgs = new WindowArgs()
+            var windowArgs = new WindowArgs
             {
                 WindowXaml = xaml,
                 AsyncResult = new WindowDispatcherAsyncResult(done),
@@ -215,7 +216,7 @@ namespace PoshWpf
 
         // procedure for the window thread
         // we pass those exceptions on in another way ...
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private static void WindowProc(object obj)
         {
             WindowArgs Args = (WindowArgs)obj;
@@ -269,7 +270,7 @@ namespace PoshWpf
         /// <param name="xaml">A XAML definition of a Window object</param>
         /// <returns></returns>
         // I need the XmlNode so I can get a reader so I can feed it to XamlReader.Load
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode")]
         public static Window NewWindow(XmlNode xaml, IntPtr? owner)
         {
             object xamlObject = null;
@@ -279,7 +280,7 @@ namespace PoshWpf
             {
                 using (var xamlStream = new XmlNodeReader(xaml))
                 {
-                    xamlObject = System.Windows.Markup.XamlReader.Load(xamlStream);
+                    xamlObject = XamlReader.Load(xamlStream);
                 }
             }
 

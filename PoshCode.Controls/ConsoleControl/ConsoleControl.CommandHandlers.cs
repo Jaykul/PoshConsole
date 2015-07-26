@@ -1,15 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Management.Automation.Host;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace PoshCode.Controls
 {

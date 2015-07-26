@@ -1,10 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 
 namespace PoshCode.Controls
 {
@@ -44,8 +39,8 @@ namespace PoshCode.Controls
         }
 		
 		public string First(string currentCommand)
-        {
-            if (_history.Count > 0)
+		{
+		    if (_history.Count > 0)
             {
                 if (_index == -1)
                 {
@@ -55,10 +50,10 @@ namespace PoshCode.Controls
                 _index = 0;
                 return _history[0];
             }
-            else return currentCommand;
-        }
-		
-		public string Last(string currentCommand)
+		    return currentCommand;
+		}
+
+        public string Last(string currentCommand)
         {
             if (_index == -1)
             {
@@ -70,8 +65,8 @@ namespace PoshCode.Controls
         }
 		
 		public string Next(string currentCommand)
-        {
-            if (_index != -1)
+		{
+		    if (_index != -1)
             {
                 long length = _history.Count;
 
@@ -79,16 +74,16 @@ namespace PoshCode.Controls
                 {
                     return _history[++_index];
                 }
-                else if (_index == length - 1)
+                if (_index == length - 1)
                 {
                     return Last(currentCommand);
                 }
-                else return currentCommand;
+                return currentCommand;
             }
-            else return currentCommand;
-        }
-		
-		public string Previous(string currentCommand)
+		    return currentCommand;
+		}
+
+        public string Previous(string currentCommand)
         {
             if (_history.Count > 0)
             {
@@ -99,17 +94,16 @@ namespace PoshCode.Controls
                     _index = _history.Count - 1;
                     return _history[_index];
                 }
-                else if (_index > 0)
+                if (_index > 0)
                 {
                     return _history[--_index];
                 }
-                else return currentCommand;
-
+                return currentCommand;
             }
-            else return currentCommand;
+            return currentCommand;
         }
-		
-		public void Reset()
+
+        public void Reset()
         {
             _index = -1;
             ResetCurrentCommand();

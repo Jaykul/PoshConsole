@@ -8,8 +8,9 @@ using System.Management.Automation.Runspaces;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using PoshCode.PowerShell;
+using System.Windows.Documents;
 using PoshCode.Controls;
+using PoshCode.PowerShell;
 
 namespace PoshCode
 {
@@ -47,7 +48,7 @@ namespace PoshCode
             set { SetValue(ContentProperty, value); }
         }
 
-        private Panel _progressPanel = null;
+        private Panel _progressPanel;
         public Panel ProgressPanel
         {
             get
@@ -57,7 +58,7 @@ namespace PoshCode
             }
         }
 
-        private Panel _contentControl = null;
+        private Panel _contentControl;
         public Panel ContentPanel
         {
             get
@@ -181,13 +182,13 @@ namespace PoshCode
         //    return output;
         //}
 
-        private void ExecutePromptFunction(IEnumerable<Command> command, PipelineState lastState)
+        void ExecutePromptFunction(IEnumerable<Command> command, PipelineState lastState)
         {
             OnCommandFinished(command, lastState);
             Runner.Enqueue(_promptSequence);
         }
 
-        private readonly CallbackCommand _promptSequence;
+        readonly CallbackCommand _promptSequence;
 
         public PoshConsole()
         {

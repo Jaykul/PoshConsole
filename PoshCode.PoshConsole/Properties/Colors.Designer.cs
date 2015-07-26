@@ -19,7 +19,7 @@ namespace PoshCode.Properties {
     
     
     [CompilerGenerated()]
-    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
+    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
     internal sealed partial class Colors : ApplicationSettingsBase {
         
         private static Colors defaultInstance = ((Colors)(Synchronized(new Colors())));

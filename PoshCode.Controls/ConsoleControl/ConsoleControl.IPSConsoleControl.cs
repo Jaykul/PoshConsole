@@ -1,22 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Management.Automation.Runspaces;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Management.Automation.Host;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Windows.Threading;
-using System.Management.Automation;
-using System.Threading;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Management.Automation.Runspaces;
-using PoshCode.Controls.Interfaces;
 
 namespace PoshCode.Controls
 {
@@ -31,7 +19,7 @@ namespace PoshCode.Controls
       //public event HistoryHandler GetHistory;
       public event CommmandDelegate Command;
       public event PipelineFinished Finished;
-      private int _id = 0;
+      private int _id;
 
       /// <summary>
       /// Right before a prompt we want to insert a new paragraph...

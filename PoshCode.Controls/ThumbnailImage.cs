@@ -1,19 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-//using System.Windows.Shapes;
-
-using System.Windows.Navigation;
-using System.Windows.Interop;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using Win32;
+using Image = System.Windows.Controls.Image;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
+//using System.Windows.Shapes;
 
 namespace PoshCode.Controls
 {
@@ -52,7 +47,7 @@ namespace PoshCode.Controls
    ///
    /// </summary>
 
-   public partial class ThumbnailImage : Image
+   public class ThumbnailImage : Image
    {
       public static readonly DependencyProperty WindowSourceProperty = DependencyProperty.Register(
           "WindowSource",                                              // name
@@ -61,7 +56,7 @@ namespace PoshCode.Controls
           FrameworkPropertyMetadataOptions.AffectsMeasure |
           FrameworkPropertyMetadataOptions.AffectsArrange |
           FrameworkPropertyMetadataOptions.AffectsRender,         // Property Options
-          new PropertyChangedCallback(OnWindowSourceChanged))      // Change Callback
+          OnWindowSourceChanged)      // Change Callback
           );
 
 
@@ -71,7 +66,7 @@ namespace PoshCode.Controls
           typeof(bool), typeof(ThumbnailImage),                  // Type information
           new FrameworkPropertyMetadata(false,                     // Default Value
           FrameworkPropertyMetadataOptions.AffectsRender,         // Property Options
-          new PropertyChangedCallback(OnClientAreaOnlyChanged))      // Change Callback
+          OnClientAreaOnlyChanged)      // Change Callback
           );
 
       private static void OnWindowSourceChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs args)
@@ -134,8 +129,8 @@ namespace PoshCode.Controls
       public ThumbnailImage()
       {
          // InitializeComponent();
-         this.LayoutUpdated += new EventHandler(Thumbnail_LayoutUpdated);
-         this.Unloaded += new RoutedEventHandler(Thumbnail_Unloaded);
+         LayoutUpdated += Thumbnail_LayoutUpdated;
+         Unloaded += Thumbnail_Unloaded;
          ////// hooks for clicks
          //this.ClickMode = ClickMode.Press;
          //this.MouseDown += new MouseButtonEventHandler(Thumbnail_MouseDown);
@@ -150,8 +145,8 @@ namespace PoshCode.Controls
       /// <value>The Window source.</value>
       public IntPtr WindowSource
       {
-         get { return (IntPtr)this.GetValue(WindowSourceProperty); }
-         set { this.SetValue(WindowSourceProperty, value); }
+         get { return (IntPtr)GetValue(WindowSourceProperty); }
+         set { SetValue(WindowSourceProperty, value); }
       }
 
       /// <summary>Gets or sets a value indicating whether to show just the client area instead of the whole Window.
@@ -159,8 +154,8 @@ namespace PoshCode.Controls
       /// <value><c>true</c> to show just the client area; <c>false</c> to show the whole Window, chrome and all.</value>
       public bool ClientAreaOnly
       {
-         get { return (bool)this.GetValue(ClientAreaOnlyProperty); }
-         set { this.SetValue(ClientAreaOnlyProperty, value); }
+         get { return (bool)GetValue(ClientAreaOnlyProperty); }
+         set { SetValue(ClientAreaOnlyProperty, value); }
       }
 
       /// <summary>Gets or sets the opacity factor
@@ -171,8 +166,8 @@ namespace PoshCode.Controls
       /// <returns>The opacity factor. Default opacity is 1.0. Expected values are between 0.0 and 1.0.</returns>
       public new double Opacity
       {
-         get { return (double)this.GetValue(OpacityProperty); }
-         set { this.SetValue(OpacityProperty, value); }
+         get { return (double)GetValue(OpacityProperty); }
+         set { SetValue(OpacityProperty, value); }
       }
 
       /// <summary>Initialises the thumbnail image
@@ -190,20 +185,20 @@ namespace PoshCode.Controls
             // find our parent hwnd
             // [System.Windows.Interop.HwndSource]::FromHwnd( [Diagnostics.Process]::GetCurrentProcess().MainWindowHandle )
             //target = HwndSource.FromHwnd(System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle);
-            _target = (HwndSource)HwndSource.FromVisual((UIElement)this);
+            _target = (HwndSource)HwndSource.FromVisual(this);
             
             // if we have one, we can attempt to register the thumbnail
             if (_target != null ) {
-               int result = Win32.NativeMethods.DwmRegisterThumbnail(_target.Handle, source, out this._thumb);
+               int result = NativeMethods.DwmRegisterThumbnail(_target.Handle, source, out _thumb);
                if( 0 == result)
                {
-                  Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+                  NativeMethods.ThumbnailProperties props = new NativeMethods.ThumbnailProperties();
                   props.Visible = false;
-                  props.ClientAreaOnly = this.ClientAreaOnly;
-                  props.Opacity = (byte)(255 * this.Opacity);
-                  props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly
-                      | Win32.NativeMethods.ThumbnailFlags.Opacity;
-                  Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
+                  props.ClientAreaOnly = ClientAreaOnly;
+                  props.Opacity = (byte)(255 * Opacity);
+                  props.Flags = NativeMethods.ThumbnailFlags.Visible | NativeMethods.ThumbnailFlags.SourceClientAreaOnly
+                      | NativeMethods.ThumbnailFlags.Opacity;
+                  NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
                }
             }
          }
@@ -215,10 +210,10 @@ namespace PoshCode.Controls
       {
          if (IntPtr.Zero != _thumb)
          {
-            Win32.NativeMethods.DwmUnregisterThumbnail(_thumb);
-            this._thumb = IntPtr.Zero;
+            NativeMethods.DwmUnregisterThumbnail(_thumb);
+            _thumb = IntPtr.Zero;
          }
-         this._target = null;
+         _target = null;
       }
 
       /// <summary>Updates the thumbnail
@@ -227,11 +222,11 @@ namespace PoshCode.Controls
       {
          if (IntPtr.Zero != _thumb)
          {
-            Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
-            props.ClientAreaOnly = this.ClientAreaOnly;
-            props.Opacity = (byte)(255 * this.Opacity);
-            props.Flags = Win32.NativeMethods.ThumbnailFlags.SourceClientAreaOnly | Win32.NativeMethods.ThumbnailFlags.Opacity;
-            Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
+            NativeMethods.ThumbnailProperties props = new NativeMethods.ThumbnailProperties();
+            props.ClientAreaOnly = ClientAreaOnly;
+            props.Opacity = (byte)(255 * Opacity);
+            props.Flags = NativeMethods.ThumbnailFlags.SourceClientAreaOnly | NativeMethods.ThumbnailFlags.Opacity;
+            NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
          }
       }
 
@@ -253,7 +248,7 @@ namespace PoshCode.Controls
       {
          if (IntPtr.Zero.Equals(_thumb))
          {
-            InitialiseThumbnail(this.WindowSource);
+            InitialiseThumbnail(WindowSource);
          }
          else if (null != _target)
          {
@@ -266,15 +261,15 @@ namespace PoshCode.Controls
 
             GeneralTransform transform = TransformToAncestor(_target.RootVisual);
             Point a = transform.Transform(new Point(0, 0));
-            Point b = transform.Transform(new Point(this.ActualWidth, this.ActualHeight));
+            Point b = transform.Transform(new Point(ActualWidth, ActualHeight));
 
-            Win32.NativeMethods.ThumbnailProperties props = new Win32.NativeMethods.ThumbnailProperties();
+            NativeMethods.ThumbnailProperties props = new NativeMethods.ThumbnailProperties();
             props.Visible = true;
-            props.Destination = new Win32.NativeMethods.RECT(
+            props.Destination = new NativeMethods.RECT(
                 2 + (int)Math.Ceiling(a.X), 2 + (int)Math.Ceiling(a.Y),
                 -2 + (int)Math.Ceiling(b.X), -2 + (int)Math.Ceiling(b.Y));
-            props.Flags = Win32.NativeMethods.ThumbnailFlags.Visible | Win32.NativeMethods.ThumbnailFlags.RectDestination;
-            Win32.NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
+            props.Flags = NativeMethods.ThumbnailFlags.Visible | NativeMethods.ThumbnailFlags.RectDestination;
+            NativeMethods.DwmUpdateThumbnailProperties(_thumb, ref props);
          }
       }
 
@@ -290,10 +285,10 @@ namespace PoshCode.Controls
       {
          if (IntPtr.Zero == _thumb)
          {
-            InitialiseThumbnail(this.WindowSource);
+            InitialiseThumbnail(WindowSource);
          }
          System.Drawing.Size size;
-         Win32.NativeMethods.DwmQueryThumbnailSourceSize(_thumb, out size);
+         NativeMethods.DwmQueryThumbnailSourceSize(_thumb, out size);
 
          double scale = 1;
 
@@ -314,7 +309,7 @@ namespace PoshCode.Controls
       protected override Size ArrangeOverride(Size finalSize)
       {
          System.Drawing.Size size;
-         Win32.NativeMethods.DwmQueryThumbnailSourceSize(this._thumb, out size);
+         NativeMethods.DwmQueryThumbnailSourceSize(_thumb, out size);
 
          // scale to fit whatever size we were allocated
          double scale = finalSize.Width / size.Width;
@@ -328,7 +323,7 @@ namespace PoshCode.Controls
 namespace Win32
 {
 
-   public partial class NativeMethods
+   public class NativeMethods
    {
 
       // ************************************************
@@ -353,7 +348,7 @@ namespace Win32
       [DllImport("dwmapi.dll")]
       public static extern int DwmIsCompositionEnabled([MarshalAs(UnmanagedType.Bool)] out bool pfEnabled);
 
-      [Flags()]
+      [Flags]
       public enum ThumbnailFlags : uint
       {
          /// <summary>
@@ -436,10 +431,10 @@ namespace Win32
          public Point Location { get { return new Point(Left, Top); } }
 
          // Handy method for converting to a System.Drawing.Rectangle
-         public System.Drawing.Rectangle ToRectangle()
-         { return System.Drawing.Rectangle.FromLTRB(Left, Top, Right, Bottom); }
+         public Rectangle ToRectangle()
+         { return Rectangle.FromLTRB(Left, Top, Right, Bottom); }
 
-         public static RECT FromRectangle(System.Drawing.Rectangle rectangle)
+         public static RECT FromRectangle(Rectangle rectangle)
          {
             return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
          }
@@ -460,12 +455,12 @@ namespace Win32
          //    sRectangle.Width = rect.Width;
          //}
 
-         public static implicit operator System.Drawing.Rectangle(RECT rect)
+         public static implicit operator Rectangle(RECT rect)
          {
-            return System.Drawing.Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
+            return Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
          }
 
-         public static implicit operator RECT(System.Drawing.Rectangle rect)
+         public static implicit operator RECT(Rectangle rect)
          {
             return new RECT(rect.Left, rect.Top, rect.Right, rect.Bottom);
          }

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Management.Automation;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Xml;
@@ -23,10 +27,10 @@ namespace PoshCode.Wpf
         /// <param name="data"></param>
         /// <param name="element"></param>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        [SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public static bool TryLoadXaml<TElement>(this FileInfo source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
         {
-            error = default(System.Management.Automation.ErrorRecord);
+            error = default(ErrorRecord);
             element = default(TElement);
             try
             {
@@ -36,10 +40,7 @@ namespace PoshCode.Wpf
                     element = (TElement)loaded;
                     return true;
                 }
-                else
-                {
-                    error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
-                }
+                error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
             }
             catch (Exception ex)
             {
@@ -59,7 +60,7 @@ namespace PoshCode.Wpf
         /// <param name="data"></param>
         /// <param name="element"></param>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode"), SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#"), SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public static bool TryLoadXaml<TElement>(this XmlDocument source, out TElement element, out ErrorRecord error) //where T1 : FrameworkElement
         {
             error = default(ErrorRecord);
@@ -74,10 +75,7 @@ namespace PoshCode.Wpf
                         element = (TElement)loaded;
                         return true;
                     }
-                    else
-                    {
-                        error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
-                    }
+                    error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
                 }
             }
             catch (Exception ex)
@@ -97,9 +95,9 @@ namespace PoshCode.Wpf
             FrameworkElementFactory factoryPanel = new FrameworkElementFactory(typeof(WrapPanel));
             factoryPanel.SetValue(WrapPanel.IsItemsHostProperty, true);
             factoryPanel.SetValue(WrapPanel.OrientationProperty, Orientation.Horizontal);
-            ItemsPanelTemplate template = new ItemsPanelTemplate() { VisualTree = factoryPanel };
+            ItemsPanelTemplate template = new ItemsPanelTemplate { VisualTree = factoryPanel };
 
-            return new ItemsControl()
+            return new ItemsControl
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 ItemsPanel = template
@@ -107,7 +105,7 @@ namespace PoshCode.Wpf
         }
 
         private static readonly string defaultTemplate = Path.Combine(
-                                                      Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                                                      Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                                                       Path.Combine("XamlTemplates", "default.xaml"));
         private static List<string> __dataTemplates = new List<string>(new[] { defaultTemplate });
 
@@ -135,17 +133,17 @@ namespace PoshCode.Wpf
 
         internal static void LoadTemplates(this Window window)
         {
-            window.Dispatcher.Invoke((Action)(() =>
+            window.Dispatcher.Invoke(() =>
             {
                 window.Resources.MergedDictionaries.Clear();
 
                 foreach (var templatePath in __dataTemplates)
                 {
-                    if (System.IO.File.Exists(templatePath))
+                    if (File.Exists(templatePath))
                     {
                         ResourceDictionary resources;
                         ErrorRecord error;
-                        System.IO.FileInfo startup = new System.IO.FileInfo(templatePath);
+                        FileInfo startup = new FileInfo(templatePath);
                         // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
                         if (startup.TryLoadXaml(out resources, out error))
                         {
@@ -158,7 +156,7 @@ namespace PoshCode.Wpf
                         }
                     }
                 }
-            }));
+            });
 
         }
 
@@ -166,7 +164,7 @@ namespace PoshCode.Wpf
         {
             //TypeDescriptor.AddProvider(new BindingTypeDescriptionProvider(), typeof(System.Windows.Data.Binding));
             // this one is absolutely vital to the functioning of ConvertToXaml
-            System.ComponentModel.TypeDescriptor.AddAttributes(typeof(System.Windows.Data.BindingExpression), new Attribute[] { new System.ComponentModel.TypeConverterAttribute(typeof(BindingConverter)) });
+            TypeDescriptor.AddAttributes(typeof(BindingExpression), new TypeConverterAttribute(typeof(BindingConverter)));
         }
 
         public static string RoundtripXaml(string xaml)

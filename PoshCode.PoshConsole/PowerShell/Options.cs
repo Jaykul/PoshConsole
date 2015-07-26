@@ -1,5 +1,4 @@
 ﻿using System.Management.Automation.Host;
-using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
 using PoshCode.Properties;

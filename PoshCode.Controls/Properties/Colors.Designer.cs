@@ -8,14 +8,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System;
+using System.CodeDom.Compiler;
+using System.Configuration;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
+
 namespace PoshCode.Controls.Properties {
     
     
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
-    internal sealed partial class Colors : global::System.Configuration.ApplicationSettingsBase {
+    [CompilerGenerated()]
+    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    internal sealed partial class Colors : ApplicationSettingsBase {
         
-        private static Colors defaultInstance = ((Colors)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Colors())));
+        private static Colors defaultInstance = ((Colors)(Synchronized(new Colors())));
         
         public static Colors Default {
             get {
@@ -23,360 +30,360 @@ namespace PoshCode.Controls.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("White")]
-        public global::System.ConsoleColor DefaultForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("White")]
+        public ConsoleColor DefaultForeground {
             get {
-                return ((global::System.ConsoleColor)(this["DefaultForeground"]));
+                return ((ConsoleColor)(this["DefaultForeground"]));
             }
             set {
                 this["DefaultForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
-        public global::System.ConsoleColor DefaultBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("Black")]
+        public ConsoleColor DefaultBackground {
             get {
-                return ((global::System.ConsoleColor)(this["DefaultBackground"]));
+                return ((ConsoleColor)(this["DefaultBackground"]));
             }
             set {
                 this["DefaultBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF000000")]
-        public global::System.Windows.Media.Color Black {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF000000")]
+        public Color Black {
             get {
-                return ((global::System.Windows.Media.Color)(this["Black"]));
+                return ((Color)(this["Black"]));
             }
             set {
                 this["Black"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF0066FF")]
-        public global::System.Windows.Media.Color Blue {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF0066FF")]
+        public Color Blue {
             get {
-                return ((global::System.Windows.Media.Color)(this["Blue"]));
+                return ((Color)(this["Blue"]));
             }
             set {
                 this["Blue"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF99CCFF")]
-        public global::System.Windows.Media.Color Cyan {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF99CCFF")]
+        public Color Cyan {
             get {
-                return ((global::System.Windows.Media.Color)(this["Cyan"]));
+                return ((Color)(this["Cyan"]));
             }
             set {
                 this["Cyan"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF003399")]
-        public global::System.Windows.Media.Color DarkBlue {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF003399")]
+        public Color DarkBlue {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkBlue"]));
+                return ((Color)(this["DarkBlue"]));
             }
             set {
                 this["DarkBlue"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF006699")]
-        public global::System.Windows.Media.Color DarkCyan {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF006699")]
+        public Color DarkCyan {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkCyan"]));
+                return ((Color)(this["DarkCyan"]));
             }
             set {
                 this["DarkCyan"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF666666")]
-        public global::System.Windows.Media.Color DarkGray {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF666666")]
+        public Color DarkGray {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkGray"]));
+                return ((Color)(this["DarkGray"]));
             }
             set {
                 this["DarkGray"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF006633")]
-        public global::System.Windows.Media.Color DarkGreen {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF006633")]
+        public Color DarkGreen {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkGreen"]));
+                return ((Color)(this["DarkGreen"]));
             }
             set {
                 this["DarkGreen"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF800080")]
-        public global::System.Windows.Media.Color DarkMagenta {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF800080")]
+        public Color DarkMagenta {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkMagenta"]));
+                return ((Color)(this["DarkMagenta"]));
             }
             set {
                 this["DarkMagenta"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF800000")]
-        public global::System.Windows.Media.Color DarkRed {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF800000")]
+        public Color DarkRed {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkRed"]));
+                return ((Color)(this["DarkRed"]));
             }
             set {
                 this["DarkRed"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF9900")]
-        public global::System.Windows.Media.Color DarkYellow {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF9900")]
+        public Color DarkYellow {
             get {
-                return ((global::System.Windows.Media.Color)(this["DarkYellow"]));
+                return ((Color)(this["DarkYellow"]));
             }
             set {
                 this["DarkYellow"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFCCCCCC")]
-        public global::System.Windows.Media.Color Gray {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFCCCCCC")]
+        public Color Gray {
             get {
-                return ((global::System.Windows.Media.Color)(this["Gray"]));
+                return ((Color)(this["Gray"]));
             }
             set {
                 this["Gray"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF66CC00")]
-        public global::System.Windows.Media.Color Green {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF66CC00")]
+        public Color Green {
             get {
-                return ((global::System.Windows.Media.Color)(this["Green"]));
+                return ((Color)(this["Green"]));
             }
             set {
                 this["Green"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF1493")]
-        public global::System.Windows.Media.Color Magenta {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF1493")]
+        public Color Magenta {
             get {
-                return ((global::System.Windows.Media.Color)(this["Magenta"]));
+                return ((Color)(this["Magenta"]));
             }
             set {
                 this["Magenta"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF0000")]
-        public global::System.Windows.Media.Color Red {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF0000")]
+        public Color Red {
             get {
-                return ((global::System.Windows.Media.Color)(this["Red"]));
+                return ((Color)(this["Red"]));
             }
             set {
                 this["Red"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFFFFF")]
-        public global::System.Windows.Media.Color White {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFFFFFF")]
+        public Color White {
             get {
-                return ((global::System.Windows.Media.Color)(this["White"]));
+                return ((Color)(this["White"]));
             }
             set {
                 this["White"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFD700")]
-        public global::System.Windows.Media.Color Yellow {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFFD700")]
+        public Color Yellow {
             get {
-                return ((global::System.Windows.Media.Color)(this["Yellow"]));
+                return ((Color)(this["Yellow"]));
             }
             set {
                 this["Yellow"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#00FFFFFF")]
-        public global::System.Windows.Media.Color DebugBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#00FFFFFF")]
+        public Color DebugBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["DebugBackground"]));
+                return ((Color)(this["DebugBackground"]));
             }
             set {
                 this["DebugBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFA900")]
-        public global::System.Windows.Media.Color DebugForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFFA900")]
+        public Color DebugForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["DebugForeground"]));
+                return ((Color)(this["DebugForeground"]));
             }
             set {
                 this["DebugForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#00FFFFFF")]
-        public global::System.Windows.Media.Color ErrorBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#00FFFFFF")]
+        public Color ErrorBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["ErrorBackground"]));
+                return ((Color)(this["ErrorBackground"]));
             }
             set {
                 this["ErrorBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF0056")]
-        public global::System.Windows.Media.Color ErrorForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF0056")]
+        public Color ErrorForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["ErrorForeground"]));
+                return ((Color)(this["ErrorForeground"]));
             }
             set {
                 this["ErrorForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#00FFFFFF")]
-        public global::System.Windows.Media.Color VerboseBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#00FFFFFF")]
+        public Color VerboseBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["VerboseBackground"]));
+                return ((Color)(this["VerboseBackground"]));
             }
             set {
                 this["VerboseBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF93FF29")]
-        public global::System.Windows.Media.Color VerboseForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FF93FF29")]
+        public Color VerboseForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["VerboseForeground"]));
+                return ((Color)(this["VerboseForeground"]));
             }
             set {
                 this["VerboseForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#00FFFFFF")]
-        public global::System.Windows.Media.Color WarningBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#00FFFFFF")]
+        public Color WarningBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["WarningBackground"]));
+                return ((Color)(this["WarningBackground"]));
             }
             set {
                 this["WarningBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF7AA7")]
-        public global::System.Windows.Media.Color WarningForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF7AA7")]
+        public Color WarningForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["WarningForeground"]));
+                return ((Color)(this["WarningForeground"]));
             }
             set {
                 this["WarningForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFFFFF")]
-        public global::System.Windows.Media.Color NativeOutputForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFFFFFF")]
+        public Color NativeOutputForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["NativeOutputForeground"]));
+                return ((Color)(this["NativeOutputForeground"]));
             }
             set {
                 this["NativeOutputForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#22FFFFFF")]
-        public global::System.Windows.Media.Color NativeOutputBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#22FFFFFF")]
+        public Color NativeOutputBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["NativeOutputBackground"]));
+                return ((Color)(this["NativeOutputBackground"]));
             }
             set {
                 this["NativeOutputBackground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FFFF2771")]
-        public global::System.Windows.Media.Color NativeErrorForeground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#FFFF2771")]
+        public Color NativeErrorForeground {
             get {
-                return ((global::System.Windows.Media.Color)(this["NativeErrorForeground"]));
+                return ((Color)(this["NativeErrorForeground"]));
             }
             set {
                 this["NativeErrorForeground"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#22FFFFFF")]
-        public global::System.Windows.Media.Color NativeErrorBackground {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("#22FFFFFF")]
+        public Color NativeErrorBackground {
             get {
-                return ((global::System.Windows.Media.Color)(this["NativeErrorBackground"]));
+                return ((Color)(this["NativeErrorBackground"]));
             }
             set {
                 this["NativeErrorBackground"] = value;

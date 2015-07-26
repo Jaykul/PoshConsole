@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Threading;
@@ -35,7 +34,7 @@ namespace PoshCode.Controls
       {
          get 
          {
-            return this.children;
+            return children;
          }
       }
 
@@ -60,9 +59,9 @@ namespace PoshCode.Controls
       {
          get
          {
-            return (Window)Dispatcher.Invoke(
-               (Func<Window>)this.TryFindParent<Window>,
-               DispatcherPriority.Normal);
+            return Dispatcher.Invoke(
+                (Func<Window>)this.TryFindParent<Window>,
+                DispatcherPriority.Normal);
          }
       }
 

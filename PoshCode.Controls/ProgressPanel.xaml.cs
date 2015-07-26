@@ -29,7 +29,7 @@ namespace PoshCode.Controls
 
         public ProgressPanel()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             // Insert code required on object creation below this point.
         }
@@ -66,11 +66,11 @@ namespace PoshCode.Controls
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    this.activity.Visibility = Visibility.Collapsed;
+                    activity.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    this.activity.Visibility = Visibility.Visible;
+                    activity.Visibility = Visibility.Visible;
                 }
 
                 SetValue(ActivityProperty, value);
@@ -80,73 +80,73 @@ namespace PoshCode.Controls
 
         public string Operation
         {
-            get { return ((string)base.GetValue(OperationProperty)); }
+            get { return ((string)GetValue(OperationProperty)); }
             set
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    this.operation.Visibility = Visibility.Collapsed;
+                    operation.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    this.operation.Visibility = Visibility.Visible;
+                    operation.Visibility = Visibility.Visible;
                 }
 
-                base.SetValue(OperationProperty, value);
+                SetValue(OperationProperty, value);
             }
         }
 
         public int PercentComplete
         {
-            get { return ((int)base.GetValue(PercentCompleteProperty)); }
+            get { return ((int)GetValue(PercentCompleteProperty)); }
             set
             {
                 if (value <= 0)
                 {
-                    this.progressBar.Visibility = Visibility.Collapsed;
+                    progressBar.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    this.progressBar.Visibility = Visibility.Visible;
+                    progressBar.Visibility = Visibility.Visible;
                 }
 
-                base.SetValue(PercentCompleteProperty, value);
+                SetValue(PercentCompleteProperty, value);
             }
         }
 
         public string Status
         {
-            get { return ((string)base.GetValue(StatusProperty)); }
+            get { return ((string)GetValue(StatusProperty)); }
             set
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    this.status.Visibility = Visibility.Collapsed;
+                    status.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    this.status.Visibility = Visibility.Visible;
+                    status.Visibility = Visibility.Visible;
                 }
 
-                base.SetValue(StatusProperty, value);
+                SetValue(StatusProperty, value);
             }
         }
 
         public TimeSpan TimeRemaining
         {
-            get { return ((TimeSpan)base.GetValue(TimeRemainingProperty)); }
+            get { return ((TimeSpan)GetValue(TimeRemainingProperty)); }
             set
             {
                 if (value == null || value.TotalSeconds <= 0)
                 {
-                    this.secondsRemaining.Visibility = Visibility.Collapsed;
+                    secondsRemaining.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    this.secondsRemaining.Visibility = Visibility.Visible;
+                    secondsRemaining.Visibility = Visibility.Visible;
                 }
 
-                base.SetValue(TimeRemainingProperty, value);
+                SetValue(TimeRemainingProperty, value);
             }
         }
 

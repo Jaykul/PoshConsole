@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Windows.Media;
+using System.Management.Automation.Host;
 using System.Windows;
 using System.Windows.Documents;
-using System.Management.Automation.Host;
-using System.Windows.Controls;
+using System.Windows.Media;
+using Size = System.Management.Automation.Host.Size;
 
 namespace PoshCode.Controls
 {
@@ -33,8 +31,8 @@ namespace PoshCode.Controls
          set
          {
             base.FontFamily = value;
-            this.UpdateCharacterWidth();
-            this.Document.LineHeight = this.FontSize * this.FontFamily.LineSpacing;
+            UpdateCharacterWidth();
+            Document.LineHeight = FontSize * FontFamily.LineSpacing;
          }
       }
 
@@ -52,8 +50,8 @@ namespace PoshCode.Controls
          set
          {
             base.FontSize = value;
-            this.UpdateCharacterWidth();
-            this.Document.LineHeight = this.FontSize * this.FontFamily.LineSpacing;
+            UpdateCharacterWidth();
+            Document.LineHeight = FontSize * FontFamily.LineSpacing;
          }
       }
 
@@ -70,18 +68,18 @@ namespace PoshCode.Controls
       /// Gets or sets the size of the buffer.
       /// </summary>
       /// <value>The size of the buffer.</value>
-      public System.Management.Automation.Host.Size BufferSize
+      public Size BufferSize
       { 
          get
          {
-            return new System.Management.Automation.Host.Size(
+            return new Size(
                 (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right))/ ((Zoom/100.0)*_characterWidth))),
                 (int)Math.Floor(ScrollViewer.ExtentHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
          }
          set
          {
             // ToDo: The "Height" of the buffer SHOULD control how much buffer history we keep, in lines...
-            this.Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
+            Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ExtentWidth);
             //this.Height = (value.Width * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight)) + (ActualHeight - sv.ViewportHeight);
          }
       }
@@ -90,19 +88,19 @@ namespace PoshCode.Controls
       /// Gets or sets the size of the Window.
       /// </summary>
       /// <value>The size of the Window.</value>
-      public System.Management.Automation.Host.Size WindowSize
+      public Size WindowSize
       {
          get
          {
-            return new System.Management.Automation.Host.Size(
+            return new Size(
                 (int)Math.Floor(((ScrollViewer.ExtentWidth - (Padding.Left + Padding.Right)) / ((Zoom / 100.0) * _characterWidth))),
                 (int)Math.Floor(ScrollViewer.ViewportHeight / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
          }
          set
          {
-            this.Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
-            this.Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)) + (ActualHeight - ScrollViewer.ViewportHeight); 
+            Width = (value.Width * (Zoom / 100.0) * _characterWidth) + (ActualWidth - ScrollViewer.ViewportWidth);
+            Height = (value.Height * (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)) + (ActualHeight - ScrollViewer.ViewportHeight); 
          }
       }
 
@@ -110,15 +108,15 @@ namespace PoshCode.Controls
       /// Gets or sets the size of the max Window.
       /// </summary>
       /// <value>The size of the max Window.</value>
-      public System.Management.Automation.Host.Size MaxWindowSize
+      public Size MaxWindowSize
       {
          get
          {
             // ToDo: should reduce the reported "max" size by the difference between the viewport and the Window...
             // eg: the topmost VisualParent's ActualWidth - ScrollViewer.ViewportWidth
-            return new System.Management.Automation.Host.Size(
-                (int)(System.Windows.SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right) / ((Zoom / 100.0) * _characterWidth)),
-                (int)(System.Windows.SystemParameters.PrimaryScreenHeight - (Padding.Top + Padding.Bottom)
+            return new Size(
+                (int)(SystemParameters.PrimaryScreenWidth - (Padding.Left + Padding.Right) / ((Zoom / 100.0) * _characterWidth)),
+                (int)(SystemParameters.PrimaryScreenHeight - (Padding.Top + Padding.Bottom)
                         / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight) * (Zoom / 100.0)));
 
          }
@@ -129,19 +127,19 @@ namespace PoshCode.Controls
       /// Gets the size of the max physical Window.
       /// </summary>
       /// <value>The size of the max physical Window.</value>
-      public System.Management.Automation.Host.Size MaxPhysicalWindowSize
+      public Size MaxPhysicalWindowSize
       {
          get { return MaxWindowSize; }
          //set { myMaxPhysicalWindowSize = value; }
       }
 
-      private System.Management.Automation.Host.Coordinates _cursorPosition;
+      private Coordinates _cursorPosition;
 
       /// <summary>
       /// Gets or sets the cursor position.
       /// </summary>
       /// <value>The cursor position.</value>
-      public System.Management.Automation.Host.Coordinates CursorPosition
+      public Coordinates CursorPosition
       {
          get
          {
@@ -182,7 +180,7 @@ namespace PoshCode.Controls
 
 
          // Calculate the font width (as a percentage of it's height)            
-         foreach (var tf in this.FontFamily.GetTypefaces().Where(tf => tf.Weight == FontWeights.Normal && tf.Style == FontStyles.Normal))
+         foreach (var tf in FontFamily.GetTypefaces().Where(tf => tf.Weight == FontWeights.Normal && tf.Style == FontStyles.Normal))
          {
             GlyphTypeface glyph; 
             if (tf.TryGetGlyphTypeface(out glyph))
@@ -191,12 +189,12 @@ namespace PoshCode.Controls
                // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'M']]
                // glyph.AdvanceWidths[glyph.CharacterToGlyphMap[(int)'i']]
                // glyph.GetGlyphOutline(glyph.CharacterToGlyphMap['M'], this.FontSize, this.FontSize).Bounds.Width;
-               this._characterWidth = (new System.Windows.Media.FormattedText(
+               _characterWidth = (new FormattedText(
                                              "MMMMMMMMMM",
-                                             System.Globalization.CultureInfo.CurrentUICulture,
+                                             CultureInfo.CurrentUICulture,
                                              FlowDirection.LeftToRight, 
                                              tf, 
-                                             this.FontSize,
+                                             FontSize,
                                              System.Windows.Media.Brushes.Black, 
                                              null, 
                                              TextFormattingMode.Display)).Width / 10;
@@ -259,7 +257,7 @@ namespace PoshCode.Controls
             }
          } catch( Exception ex )
          {
-            this.Write( _brushes.ErrorForeground, _brushes.ErrorBackground, ex.Message);
+            Write( _brushes.ErrorForeground, _brushes.ErrorBackground, ex.Message);
          }
          return bufferCells;
       }

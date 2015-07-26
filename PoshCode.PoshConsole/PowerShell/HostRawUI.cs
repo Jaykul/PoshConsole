@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Management.Automation.Host;
-using System.Windows.Input;
 using System.Windows.Threading;
 using PoshCode.Controls;
 
@@ -41,10 +39,7 @@ namespace PoshCode.PowerShell
                 {
                     return _control.CurrentCommand.Length > _keyIndex;
                 }
-                else
-                {
-                    return (bool)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _control.CurrentCommand.Length > _keyIndex));
-                }
+                return (bool)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<bool>)(() => _control.CurrentCommand.Length > _keyIndex));
             }
         }
 
@@ -69,12 +64,9 @@ namespace PoshCode.PowerShell
                 {
                     return _control.BufferSize;
                 }
-                else
-                {
-                    return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => BufferSize));
-                }
+                return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => BufferSize));
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -99,10 +91,7 @@ namespace PoshCode.PowerShell
                 {
                     return _control.MaxPhysicalWindowSize;
                 }
-                else
-                {
-                    return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => MaxPhysicalWindowSize));
-                }
+                return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => MaxPhysicalWindowSize));
             }
         }
 
@@ -114,10 +103,7 @@ namespace PoshCode.PowerShell
                 {
                     return _control.MaxWindowSize;
                 }
-                else
-                {
-                    return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => MaxWindowSize));
-                }
+                return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => MaxWindowSize));
             }
         }
 
@@ -129,12 +115,9 @@ namespace PoshCode.PowerShell
                 {
                     return _control.WindowSize;
                 }
-                else
-                {
-                    return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => WindowSize));
-                }
+                return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => WindowSize));
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -159,11 +142,8 @@ namespace PoshCode.PowerShell
                 {
                     return _control.CursorPosition;
                 }
-                else
-                {
-                    return (Coordinates)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
-                                 (Func<Coordinates>)(() => _control.CursorPosition));
-                }
+                return (Coordinates)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
+                    (Func<Coordinates>)(() => _control.CursorPosition));
             }
             set
             {
@@ -190,13 +170,10 @@ namespace PoshCode.PowerShell
                 {
                     return _control.WindowPosition;
                 }
-                else
-                {
-                    return (Coordinates)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
-                                  (Func<Coordinates>)(() => _control.WindowPosition));
-                }
+                return (Coordinates)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
+                    (Func<Coordinates>)(() => _control.WindowPosition));
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -220,13 +197,10 @@ namespace PoshCode.PowerShell
                 {
                     return _control.BackgroundColor;
                 }
-                else
-                {
-                    return (ConsoleColor)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
-                       (Func<ConsoleColor>)(() => _control.BackgroundColor));
-                }
+                return (ConsoleColor)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
+                    (Func<ConsoleColor>)(() => _control.BackgroundColor));
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -250,17 +224,14 @@ namespace PoshCode.PowerShell
                 {
                     return _control.ForegroundColor;
                 }
-                else if (!_control.Dispatcher.HasShutdownStarted)
+                if (!_control.Dispatcher.HasShutdownStarted)
                 {
                     return (ConsoleColor)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
-                       (Func<ConsoleColor>)(() => _control.ForegroundColor));
+                        (Func<ConsoleColor>)(() => _control.ForegroundColor));
                 }
-                else
-                {
-                    return ConsoleColor.White;
-                }
+                return ConsoleColor.White;
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -285,12 +256,9 @@ namespace PoshCode.PowerShell
                 {
                     return _control.Title;
                 }
-                else
-                {
-                    return (string)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<string>)(() => _control.Title));
-                }
+                return (string)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<string>)(() => _control.Title));
             }
-            set
+	        set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -317,10 +285,7 @@ namespace PoshCode.PowerShell
             {
                 return _control.GetBufferContents(rectangle);
             }
-            else
-            {
-                return (BufferCell[,])_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<BufferCell[,]>)(() => _control.GetBufferContents(rectangle)));
-            }
+	        return (BufferCell[,])_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<BufferCell[,]>)(() => _control.GetBufferContents(rectangle)));
         }
 
 

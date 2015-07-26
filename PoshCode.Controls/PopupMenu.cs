@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Management.Automation.Host;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -106,7 +105,7 @@ namespace PoshCode.Controls
                   _tabbing = (_tabbing.Length == 0) ? "" : _tabbing.Substring(0, _tabbing.Length - 1);
                   _lastWord = (_lastWord.Length == 0) ? "" : _lastWord.Substring(0, _lastWord.Length - 1);
 
-                  _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
+                  _intellisense.Items.Filter = TypeAheadFilter;
                   _intellisense.SelectedIndex = 0;
                   e.Handled = true;
                } break;
@@ -196,7 +195,7 @@ namespace PoshCode.Controls
             // Update the filter
             _tabbing += e.Text;
             _lastWord += e.Text;
-            _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
+            _intellisense.Items.Filter = TypeAheadFilter;
 
             _intellisense.SelectedIndex = 0;
             if (_intellisense.Items.Count <= 1) IsOpen = false;
@@ -299,7 +298,7 @@ namespace PoshCode.Controls
             }
          }
 
-         _intellisense.Visibility = System.Windows.Visibility.Visible;
+         _intellisense.Visibility = Visibility.Visible;
          // if it's numbered, default to the last item
          _intellisense.SelectedIndex = number ? items.Count - 1 : 0;
          _intellisense.ScrollIntoView(_intellisense.SelectedItem);
@@ -342,7 +341,7 @@ namespace PoshCode.Controls
          _tabbing = currentCommand.TrimEnd('\r','\n');
          _lastWord = _tabbing.GetLastWord();
          // the sweet typeahead auto-filter
-         _intellisense.Items.Filter = new Predicate<object>(TypeAheadFilter);
+         _intellisense.Items.Filter = TypeAheadFilter;
 
          ShowPopup(placementRectangle, list, false, false);
       }

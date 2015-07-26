@@ -9,16 +9,15 @@
 // --------------------------------------------------------------------------------------------------------------------
 // ReSharper disable CheckNamespace
 
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Threading;
 using PoshCode;
 
 namespace System.Management.Automation.Host
 {
-    using System.Collections.Generic;
-    using System.Windows;
-    using System.Windows.Documents;
-    using System.Windows.Threading;
-
     /// <summary>
     /// <para>Provides an interface which extends the existing PowerShell interfaces with a Xaml
     /// based user interface which allows loading of arbitrary bits of Xaml source.  This

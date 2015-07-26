@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Management.Automation;
 using System.Windows;
 using System.Windows.Markup;
-using System.IO;
 using System.Windows.Media;
 
 namespace PoshCode.Controls.Utility
@@ -25,7 +22,7 @@ namespace PoshCode.Controls.Utility
       /// <returns></returns>
       public static bool TryLoadXaml<T1>(this FileInfo source, out T1 element, out ErrorRecord error) //where T1 : FrameworkElement
       {
-         error = default(System.Management.Automation.ErrorRecord);
+         error = default(ErrorRecord);
          element = default(T1);
          try
          {
@@ -35,10 +32,7 @@ namespace PoshCode.Controls.Utility
                element = (T1)loaded;
                return true;
             }
-            else
-            {
-               error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
-            }
+             error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
          }
          catch (Exception ex)
          {
@@ -60,8 +54,8 @@ namespace PoshCode.Controls.Utility
       {
          DependencyObject element = reference.InputHitTest(point) as DependencyObject;
          if (element == null) return null;
-         else if (element is T) return element as T;
-         else return TryFindParent<T>(element);
+          if (element is T) return element as T;
+          return TryFindParent<T>(element);
       }
 
       /// <summary>

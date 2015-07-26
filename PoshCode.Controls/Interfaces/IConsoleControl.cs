@@ -1,14 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Security;
-using System.Windows.Documents;
-using System.Xml;
-using System.IO;
-using PoshCode.Controls.Interfaces;
-using System.Windows.Controls;
 using System.Management.Automation.Runspaces;
-using PoshCode.Controls;
-
+using System.Windows.Documents;
 
 //namespace System.Management.Automation.Host
 //{
@@ -41,7 +34,7 @@ namespace PoshCode.Controls
             Disabled = 0,
             Auto = 1,
             Hidden = 2,
-            Visible = 3,
+            Visible = 3
         }
 
         public enum CommandResults

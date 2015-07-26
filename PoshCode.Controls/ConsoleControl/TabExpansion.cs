@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using PoshCode.Controls.Utility;
 
 namespace PoshCode.Controls
 {

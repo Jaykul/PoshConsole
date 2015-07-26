@@ -25,8 +25,8 @@ namespace PoshCode.PowerShell
 
 		public Brush Transparent = Brushes.Transparent;
 
-		public Brush DefaultBackground = null;
-		public Brush DefaultForeground = null;
+		public Brush DefaultBackground;
+		public Brush DefaultForeground;
 		public Brush DebugBackground = new SolidColorBrush(Colors.Default.DebugBackground);
 		public Brush DebugForeground = new SolidColorBrush(Colors.Default.DebugForeground);
 		public Brush ErrorBackground = new SolidColorBrush(Colors.Default.ErrorBackground);

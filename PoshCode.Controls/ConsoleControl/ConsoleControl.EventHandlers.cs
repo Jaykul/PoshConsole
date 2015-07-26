@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using PoshCode.Interop;
-using PoshCode.Controls.Interfaces;
-using PoshCode.Controls.Utility;
-using System.Windows.Threading;
-using System.Windows.Documents;
-using Keyboard=System.Windows.Input.Keyboard;
-using System.Management.Automation;
 using System.Collections.ObjectModel;
-using System.Management.Automation.Host;
+using System.Diagnostics;
+using System.Management.Automation;
+using System.Media;
+using System.Threading;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Threading;
 using PoshCode.Controls.Properties;
+using PoshCode.Controls.Utility;
+using PoshCode.Interop;
 
 namespace PoshCode.Controls
 {
@@ -116,7 +112,7 @@ namespace PoshCode.Controls
          // batch up the character update processing.   By synchronously executing an 
          // empty workitem at background priority, we ensure that all the prior keystrokes
          // have been completely processed.
-         Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.Background);
+         Dispatcher.Invoke(() => { }, DispatcherPriority.Background);
       }
 
 
@@ -197,7 +193,7 @@ namespace PoshCode.Controls
 
       private void OnTabPressed(KeyEventArgs e)
       {
-         System.Threading.Thread.Sleep(0);
+         Thread.Sleep(0);
          // CurrentCommand.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
          string cmdline = CurrentCommandPreCursor;
          bool hasMore = CurrentCommandPostCursor.Length > 0;
@@ -206,14 +202,14 @@ namespace PoshCode.Controls
          {
              List<string> choices = _expansion.GetChoices(cmdline);
 
-            Trace.WriteLine(((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds);
+            Trace.WriteLine((DateTime.Now - _tabTime).TotalMilliseconds);
             // DO NOT use menu mode if we're in _playbackMode 
             // OTHERWISE, DO USE it if there are more than TabCompleteMenuThreshold items
             // OR if they double-tapped
             if ((CurrentCommandPostCursor.Trim('\n', '\r').Length == 0) &&
                 ((Settings.Default.TabCompleteMenuThreshold > 0
                 && choices.Count > Settings.Default.TabCompleteMenuThreshold)
-            || (((TimeSpan)(DateTime.Now - _tabTime)).TotalMilliseconds < Settings.Default.TabCompleteDoubleTapMilliseconds)))
+            || ((DateTime.Now - _tabTime).TotalMilliseconds < Settings.Default.TabCompleteDoubleTapMilliseconds)))
             {
                
                Point position = _commandBox.PointToScreen( _commandBox.CaretPosition.GetCharacterRect(LogicalDirection.Forward).TopLeft );
@@ -328,7 +324,7 @@ namespace PoshCode.Controls
                      error.ApplyPropertyValue(Inline.TextDecorationsProperty, TextDecorations.Underline);
                      error.ApplyPropertyValue(TextElement.ForegroundProperty, System.Windows.Media.Brushes.Red);
                      // TODO: put in some sort of milder "clunk" sound here, since this isn't necessarily an error...
-                     System.Media.SystemSounds.Exclamation.Play();
+                     SystemSounds.Exclamation.Play();
                   }
                   e.Handled = true;
                   return; // out past the normal OnEnterPressed stuff...

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace PoshCode.Controls.Utility
 {
@@ -46,7 +42,7 @@ namespace PoshCode.Controls.Utility
 
       public static int LineCount(this string text)
       {
-         var lineends = new char[] { '\r', '\n' };
+         var lineends = new[] { '\r', '\n' };
          int index = 0, count = 0;
          while ((index = 1 + text.IndexOfAny(lineends, index)) > 0)
          {

@@ -31,7 +31,7 @@ namespace PoshWpf.Utility
                     {
                         _moduleBase = Environment.GetEnvironmentVariable("PSModulePath");
                         if (!String.IsNullOrEmpty(_moduleBase))
-                            _moduleBase = _moduleBase.Split(new char[] { ';' }, 2).FirstOrDefault();
+                            _moduleBase = _moduleBase.Split(new[] { ';' }, 2).FirstOrDefault();
                     }
                     if (String.IsNullOrEmpty(_moduleBase))
                     {
@@ -151,7 +151,7 @@ namespace PoshWpf.Utility
                     {
                         _moduleBase = Environment.GetEnvironmentVariable("PSModulePath");
                         if (!String.IsNullOrEmpty(_moduleBase))
-                            _moduleBase = _moduleBase.Split(new char[] { ';' }, 2).FirstOrDefault();
+                            _moduleBase = _moduleBase.Split(new[] { ';' }, 2).FirstOrDefault();
                     }
 
                 }

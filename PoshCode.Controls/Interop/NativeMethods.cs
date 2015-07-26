@@ -28,6 +28,7 @@
 // GPL 2: http://www.gnu.org/copyleft/gpl.html
 // *****************************************************************************
 // LASTLY: THIS IS NOT LICENSED UNDER GPL v3 (although the above are compatible)
+
 using System;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -36,7 +37,7 @@ using System.Text;
 namespace PoshCode.Interop
 {
     [CLSCompliant(false)]
-    public static partial class NativeMethods
+    public static class NativeMethods
     {
         #region user32!RegisterHotKey
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -91,7 +92,7 @@ namespace PoshCode.Interop
             /// <summary>Not currently documented
             /// </summary>
             /// <remarks></remarks>
-            MAPVK_VK_TO_VSC_EX = 0x4,
+            MAPVK_VK_TO_VSC_EX = 0x4
         }
 
         /// <summary>The ToUnicode function translates the specified virtual-key code and keyboard state 

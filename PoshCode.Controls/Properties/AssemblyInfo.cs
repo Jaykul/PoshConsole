@@ -59,5 +59,5 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("2.1.2011.520")]
 [assembly: AssemblyFileVersion("2.1.2011.520")]
 [assembly: AssemblyInformationalVersion("2.1.2011.520")]
-[assembly: GuidAttribute("959f8985-f26b-47ee-827e-f7ad81367475")]
-[assembly: NeutralResourcesLanguageAttribute("en-US")]
+[assembly: Guid("959f8985-f26b-47ee-827e-f7ad81367475")]
+[assembly: NeutralResourcesLanguage("en-US")]
