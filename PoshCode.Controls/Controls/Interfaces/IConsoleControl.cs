@@ -43,15 +43,15 @@ namespace PoshCode.Controls
         }
 
     }
-    public delegate void CommmandDelegate(object source, CommandEventArgs command);
-    public delegate void PipelineFinished(object source, FinishedEventArgs results);
+    public delegate void CommmandDelegate(object sender, CommandEventArgs e);
+    public delegate void PipelineFinished(object sender, FinishedEventArgs e);
 
-    public class FinishedEventArgs
+    public class FinishedEventArgs : EventArgs
     {
         public IEnumerable<Command> Commands;
         public PipelineState Results;
     }
-    public class CommandEventArgs
+    public class CommandEventArgs : EventArgs
     {
         public string Command;
         public Block OutputBlock;

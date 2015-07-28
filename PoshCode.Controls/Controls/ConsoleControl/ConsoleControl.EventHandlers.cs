@@ -4,14 +4,16 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Management.Automation;
 using System.Media;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
-using PoshCode.Controls.Properties;
+using PoshCode.Properties;
 using PoshCode.Controls.Utility;
 using PoshCode.Interop;
+using PoshCode.Utility;
 
 namespace PoshCode.Controls
 {
@@ -165,8 +167,9 @@ namespace PoshCode.Controls
             {
                Clipboard.SetText(Selection.Text, TextDataFormat.UnicodeText);
             }
-            catch {
-               // TODO: Should we warn if we can't set the clipboard?
+            catch (COMException)
+            {
+                Write(Brushes.VerboseForeground, Brushes.VerboseBackground, "Error setting clipboard.");
             }
          }
 
@@ -200,7 +203,7 @@ namespace PoshCode.Controls
 
          if (!e.IsModifierOn(ModifierKeys.Control) && !hasMore)
          {
-             List<string> choices = _expansion.GetChoices(cmdline);
+             var choices = _expansion.GetChoices(CurrentCommand, CurrentCommandCursorPos);
 
             Trace.WriteLine((DateTime.Now - _tabTime).TotalMilliseconds);
             // DO NOT use menu mode if we're in _playbackMode 
@@ -208,19 +211,15 @@ namespace PoshCode.Controls
             // OR if they double-tapped
             if ((CurrentCommandPostCursor.Trim('\n', '\r').Length == 0) &&
                 ((Settings.Default.TabCompleteMenuThreshold > 0
-                && choices.Count > Settings.Default.TabCompleteMenuThreshold)
+                && choices.CompletionMatches.Count > Settings.Default.TabCompleteMenuThreshold)
             || ((DateTime.Now - _tabTime).TotalMilliseconds < Settings.Default.TabCompleteDoubleTapMilliseconds)))
             {
                
-               Point position = _commandBox.PointToScreen( _commandBox.CaretPosition.GetCharacterRect(LogicalDirection.Forward).TopLeft );
+               var position = _commandBox.PointToScreen( _commandBox.CaretPosition.GetCharacterRect(LogicalDirection.Forward).TopLeft );
 
-               _popup.ShowTabPopup(
-                 new Rect(
-                    position.X,
-                    position.Y,
-                    Math.Abs(ScrollViewer.ViewportWidth - position.X),
-                    Math.Abs(ScrollViewer.ViewportHeight - position.Y)),
-                 choices, CurrentCommand);
+               var placement = new Rect(position.X, position.Y, Math.Abs(ScrollViewer.ViewportWidth - position.X),
+                    Math.Abs(ScrollViewer.ViewportHeight - position.Y));
+               _popup.ShowTabPopup(placement, choices, CurrentCommand);
             }
             else
             {

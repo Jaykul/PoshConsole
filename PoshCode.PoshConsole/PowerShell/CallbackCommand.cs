@@ -9,39 +9,30 @@ namespace PoshCode.PowerShell
 {
     internal struct CallbackCommand
     {
-        public bool AddToHistory;
-        public PipelineOutputHandler Callback;
-        public IEnumerable<Command> Commands;
+        public readonly PipelineOutputHandler Callback;
+        public readonly IEnumerable<Command> Commands;
+        public readonly bool ScriptCommand;
         public bool DefaultOutput;
-        public bool RunAsScript;
-        public bool UseLocalScope;
         public bool Secret;
 
         //public Pipeline Pipeline;
 
         public CallbackCommand(IEnumerable<Command> commands, PipelineOutputHandler callback)
         {
-            //Pipeline = pipeline;
             Commands = commands;
             Callback = callback;
 
-            AddToHistory = true;
+            ScriptCommand = false;
             DefaultOutput = true;
-            RunAsScript = true;
-            UseLocalScope = false;
             Secret = false;
         }
 
-        public CallbackCommand(IEnumerable<Command> commands, bool addToHistory, PipelineOutputHandler callback)
+        public CallbackCommand(string script, PipelineOutputHandler callback)
         {
-            //Pipeline = pipeline;
-            Commands = commands;
+            Commands = new[] {new Command(script, true, true)};
             Callback = callback;
-            AddToHistory = addToHistory;
-
+            ScriptCommand = true;
             DefaultOutput = true;
-            RunAsScript = true;
-            UseLocalScope = false;
             Secret = false;
         }
 

@@ -1,8 +1,8 @@
 ﻿using System.Windows.Input;
 
-namespace PoshCode.Controls.Utility
+namespace PoshCode.Utility
 {
-   public static class OtherHelpers
+   public static class KeyboardHelper
    {
       public static bool IsModifierOn(this KeyEventArgs e, ModifierKeys modifier)
       {

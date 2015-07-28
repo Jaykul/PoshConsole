@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -11,22 +12,26 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using PoshCode.Controls;
 using PoshCode.PowerShell;
+using PoshCode.Utility;
 
 namespace PoshCode
 {
-    public class PoshConsole : ConsoleControl, IDisposable, IRichConsole
+    public class PoshConsole : ConsoleControl, IRichConsole
     {
         internal RunspaceProxy Runner { get; set; }
         private Host _host;
 
-        public new void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            if (_host != null)
+            if (disposing)
             {
-                _host.Dispose();
-                _host = null;
+                if (_host != null)
+                {
+                    _host.Dispose();
+                    _host = null;
+                }
             }
-            base.Dispose();
+            base.Dispose(disposing);
         }
 
         public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
@@ -81,18 +86,30 @@ namespace PoshCode
                 CommandBox.IsEnabled = true;
                 ExecutePromptFunction(null, PipelineState.Completed);
             }));
+
+            // TODO: Improve this interface
+            Expander.TabComplete = Runner.CompleteInput;
         }
 
         public void WriteErrorRecord(ErrorRecord errorRecord)
         {
-            // Write is Dispatcher checked
-            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord + "\n");
+            // NOTE: Write is Dispatcher checked
             if (errorRecord.InvocationInfo != null)
             {
-                // Write is Dispatcher checked
+                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord.InvocationInfo.MyCommand != null
+                                                                            ? $"{errorRecord.InvocationInfo.MyCommand} : {errorRecord}\n"
+                                                                            : $"{errorRecord}\n");
                 Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n");
             }
-        }
+            else
+            {
+                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"{errorRecord}\n");
+            }
+
+            // TODO: support error formatting preference:
+            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"   + CategoryInfo            : {errorRecord.CategoryInfo}\n");
+            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"   + FullyQualifiedErrorId   : {errorRecord.FullyQualifiedErrorId}\n");
+    }
 
         protected override void OnCommand(CommandEventArgs command)
         {
@@ -101,18 +118,20 @@ namespace PoshCode
         }
 
         //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool secret = false)
+        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null)
         {
-            ExecuteCommand(new Command(command, true, true), showInGui, defaultOutput, secret);
+            Runner.Enqueue(
+                new CallbackCommand(command, PipelineOutputHandler(secret, onErrorAction, onSuccessAction, new List<Command>( new[] { new Command(command, true, true)} ) ) )
+                {
+                    Secret = secret,
+                    DefaultOutput = defaultOutput
+                });
         }
 
 
         public void ExecuteCommand(Command command, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null )
         {
-            if (secret)
-            {
-                defaultOutput = false;
-            }
+            defaultOutput &= !secret;
 
             var commands = new[] {command}.ToList();
 
@@ -120,68 +139,55 @@ namespace PoshCode
                 commands.Add(new Command("Out-PoshConsole"));
 
             Runner.Enqueue(
-                new CallbackCommand(
-                    commands,
-                    defaultOutput,
-                    result =>
-                    {
-
-                        if (result.Failure != null)
-                        {
-                            if (onErrorAction != null)
-                            {
-                                onErrorAction.Invoke((RuntimeException) result.Failure);
-                            }
-
-                            // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                            WriteErrorRecord(((RuntimeException) (result.Failure)).ErrorRecord);
-                        }
-                        else
-                        {
-                            if (onSuccessAction != null)
-                            {
-                                onSuccessAction.Invoke(result.Output);
-                            }
-                        }
-                        if (!secret)
-                        {   // we don't need the Prompt if there was no output
-                            ExecutePromptFunction(commands, result.State);
-                        }
-                    }) { Secret = secret });
+                new CallbackCommand( commands, PipelineOutputHandler(secret, onErrorAction, onSuccessAction, commands))
+                {
+                    Secret = secret,
+                    DefaultOutput = defaultOutput
+                });
         }
 
-        //private PipelineExecutionResult InvokePipeline(Pipeline pipeline, bool showInGUI = false, bool defaultOutput = true)
-        //{
-        //    if(showInGUI)
-        //        pipeline.Commands.Add(ContentOutputCommand);
+        private PipelineOutputHandler PipelineOutputHandler(bool secret, Action<RuntimeException> onErrorAction, Action<Collection<PSObject>> onSuccessAction, List<Command> commands)
+        {
+            return result =>
+            {
 
-        //    if(defaultOutput)
-        //        pipeline.Commands.Add(DefaultOutputCommand);
+                if (result.Failure != null)
+                {
+                    onErrorAction?.Invoke((RuntimeException) result.Failure);
 
-        //    Collection<PSObject> result = null;
-        //    Collection<object> errors = null;
-        //    try
-        //    {
-        //        result = pipeline.Invoke();
-        //        errors = pipeline.Error.ReadToEnd();
-        //    }
-        //    catch (Exception pe)
-        //    {
-        //        errors = pipeline.Error.ReadToEnd();
-        //        errors.Add(pe);
-        //        _host.UI.WriteErrorLine(pe.Message);
-        //    }
+                    // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
+                    WriteErrorRecord(((RuntimeException) (result.Failure)).ErrorRecord);
+                }
+                else
+                {
+                    onSuccessAction?.Invoke(result.Output);
+                }
 
-        //    var output = new PipelineExecutionResult(result, errors, pipeline.PipelineStateInfo.Reason, pipeline.PipelineStateInfo.State);
+                foreach (var err in result.Errors)
+                {
+                    var pso = (err as PSObject)?.BaseObject ?? err;
+                    var error = pso as ErrorRecord;
+                    if (error == null)
+                    {
+                        var exception = pso as Exception;
+                        if (exception == null)
+                        {
+                            WriteErrorRecord(new ErrorRecord(null, pso.ToString(), ErrorCategory.NotSpecified, pso));
+                            continue;
+                        }
+                        WriteErrorRecord(new ErrorRecord(exception, "Unspecified", ErrorCategory.NotSpecified, pso));
+                        continue;
+                    }
+                    WriteErrorRecord(error);
+                }
+                if (!secret || !result.Errors.Any() || !result.Output.Any())
+                {   // we don't need the Prompt if there was no output
+                    ExecutePromptFunction(commands, result.State);
+                }
 
-        //    pipeline.Dispose();
-
-        //    if (defaultOutput)
-        //        ExecutePromptFunction(pipeline.Commands, pipeline.PipelineStateInfo.State);
-
-        //    return output;
-        //}
-
+            };
+        }
+     
         void ExecutePromptFunction(IEnumerable<Command> command, PipelineState lastState)
         {
             OnCommandFinished(command, lastState);
@@ -208,7 +214,7 @@ namespace PoshCode
             {
                 new Command("New-Paragraph", true, true),
                 new Command("Prompt", false, true)
-            }, false, result =>
+            }, result =>
             {
                 var str = new StringBuilder();
 

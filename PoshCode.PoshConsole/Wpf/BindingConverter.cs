@@ -12,7 +12,7 @@ namespace PoshCode.Wpf
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
-            return (destinationType == typeof(MarkupExtension)) ? true : false;
+            return (destinationType == typeof(MarkupExtension));
         }
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
@@ -20,7 +20,7 @@ namespace PoshCode.Wpf
             {
                 var bindingExpression = value as BindingExpression;
                 if (bindingExpression == null)
-                    throw new ArgumentException("Invalid value, can't convert to BindingExpression", "value");
+                    throw new ArgumentException("Invalid value, can't convert to BindingExpression", nameof(value));
                 return bindingExpression.ParentBinding;
             }
 

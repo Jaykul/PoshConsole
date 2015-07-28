@@ -1,12 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace PoshCode.Controls.Utility
+namespace PoshCode.Utility
 {
    public static class StringHelper
    {
-
-
-      private static readonly Regex _CHUNKER = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      private static readonly Regex WordChunker = new Regex("[^ \"']+|([\"'])[^\\1]*?\\1[^ \"']*|([\"'])[^\\1]*$| $", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       public static string GetLastWord(this string cmdline, bool trimQuotes = true)
       {
          if (string.IsNullOrWhiteSpace(cmdline))
@@ -15,7 +13,7 @@ namespace PoshCode.Controls.Utility
          }
 
          string lastWord = null;
-         MatchCollection words = _CHUNKER.Matches(cmdline);
+         MatchCollection words = WordChunker.Matches(cmdline);
          if (words.Count >= 1)
          {
             Match lw = words[words.Count - 1];

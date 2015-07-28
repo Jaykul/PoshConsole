@@ -18,7 +18,7 @@ namespace PoshCode.Controls
         /// <param name="e">The <see cref="System.Windows.Input.ExecutedRoutedEventArgs"/> instance containing the event data.</param>
         private static void OnApplicationStop(object sender, ExecutedRoutedEventArgs e)
         {
-           ConsoleControl control = (ConsoleControl)sender;
+           var control = (ConsoleControl)sender;
             //if (!control.IsRunning)
             //{
             //    // TODO: Remove failed command from History ... control.History.ResetCurrentCommand();
@@ -57,7 +57,7 @@ namespace PoshCode.Controls
 
       private static void OnCanExecuteCut(object target, CanExecuteRoutedEventArgs args)
         {
-            ConsoleControl box = (ConsoleControl)(target);
+            var box = (ConsoleControl)(target);
             args.CanExecute = box.IsEnabled && box.Selection != null && !box.Selection.IsEmpty;
         }
       
@@ -96,17 +96,13 @@ namespace PoshCode.Controls
       
       private static void OnExecutePaste(object sender, ExecutedRoutedEventArgs e)
         {
-            RichTextBox box = ((ConsoleControl)sender)._commandContainer.Child as RichTextBox;
+            var box = ((ConsoleControl)sender)._commandContainer.Child as RichTextBox;
             if(box != null)
             {
                box.Paste();                  
             } else
             {
-               PasswordBox pw = ((ConsoleControl) sender)._commandContainer.Child as PasswordBox;
-               if (pw != null)
-               {
-                  pw.Paste();
-               }
+               (((ConsoleControl) sender)._commandContainer.Child as PasswordBox)?.Paste();
             }
          //if (Clipboard.ContainsText())
             //{

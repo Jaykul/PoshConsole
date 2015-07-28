@@ -99,11 +99,11 @@ namespace PoshWpf.Utility
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
             {
                 // Retrieve child visual at specified index value.
-                Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
+                var childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
                 if (childVisual is FrameworkElement)
                 {
                     // Do processing of the child visual object.
-                    string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
+                    var name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
                     if (!string.IsNullOrEmpty(name) && Dispatcher.CurrentDispatcher.CheckAccess())
                     {
                         ExportVariable(name, childVisual, scope);
@@ -212,11 +212,11 @@ namespace PoshWpf.Utility
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
             {
                 // Retrieve child visual at specified index value.
-                Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
+                var childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
                 if (childVisual is FrameworkElement)
                 {
                     // Do processing of the child visual object.
-                    string name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
+                    var name = childVisual.GetValue(FrameworkElement.NameProperty) as string;
                     if (!string.IsNullOrEmpty(name) && Dispatcher.CurrentDispatcher.CheckAccess())
                     {
                         ExportVariable(name, childVisual, scope);

@@ -43,14 +43,14 @@ namespace PoshCode.Interop
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32", SetLastError = true)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int uVirtKey);
+        internal static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int uVirtKey);
         #endregion
 
         #region user32!UnregisterHotKey
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32", SetLastError = true)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        internal static extern bool UnregisterHotKey(IntPtr hWnd, int id);
         #endregion
 
 
@@ -113,7 +113,7 @@ namespace PoshCode.Interop
         /// <param name="wFlags">Specifies the behavior of the function. If bit 0 is set, a menu is active. Bits 1 through 31 are reserved.</param>
         /// <returns></returns>
         [DllImport("user32.dll")]
-        public static extern int ToUnicode(
+        internal static extern int ToUnicode(
             uint wVirtKey,
             uint wScanCode,
             byte[] lpKeyState,
@@ -123,13 +123,13 @@ namespace PoshCode.Interop
             uint wFlags);
 
         [DllImport("user32.dll")]
-        public static extern bool GetKeyboardState(byte[] lpKeyState);
+        internal static extern bool GetKeyboardState(byte[] lpKeyState);
 
         [DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+        internal static extern uint MapVirtualKey(uint uCode, MapType uMapType);
 
-        [DllImport("user32.dll")]
-        public static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        internal static extern int ToAsciiEx(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags, IntPtr hkl);
 
         /// <summary> The ToAscii function translates the specified virtual-key code and keyboard state 
         /// to the corresponding character or characters. The function translates the code using 
@@ -145,8 +145,8 @@ namespace PoshCode.Interop
         /// <param name="lpChar">Pointer to the buffer that receives the translated character or characters.</param>
         /// <param name="uFlags">Specifies whether a menu is active. This parameter must be 1 if a menu is active, or 0 otherwise.</param>
         /// <returns></returns>
-        [DllImport("user32.dll")]
-        public static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        internal static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, [Out] StringBuilder lpChar, uint uFlags);
 
 
     }

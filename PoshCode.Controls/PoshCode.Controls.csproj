@@ -8,7 +8,7 @@
     <ProjectGuid>{969A3CF0-3AA6-499B-995B-C84E8F15B107}</ProjectGuid>
     <OutputType>library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PoshCode.Controls</RootNamespace>
+    <RootNamespace>PoshCode</RootNamespace>
     <AssemblyName>PoshCode.Controls</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,11 +54,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\PoshCodeRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
@@ -66,17 +66,18 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>.\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;POWERSHELL2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\_bin\a2a\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;CLR_V4</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -85,7 +86,8 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -93,7 +95,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\_bin\a2a\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;CLR_V4;POWERSHELL2</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -102,7 +104,8 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -112,7 +115,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\_bin\a2a\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -121,7 +124,8 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -130,7 +134,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>..\_bin\a2a\</OutputPath>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;POWERSHELL2</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -139,7 +143,8 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -152,7 +157,10 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\3.0\System.Management.Automation.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase">
@@ -176,28 +184,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ConsoleControl.cs">
+    <Compile Include="Controls\ConsoleControl.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColorInverter.cs" />
-    <Compile Include="ConsoleBrushes.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.BufferSize.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.EventHandlers.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.IPSXamlConsole.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.IPSConsoleControl.cs" />
-    <Compile Include="ConsoleControl\ConsoleControl.CommandHandlers.cs" />
-    <Compile Include="ConsoleControl\History.cs" />
-    <Compile Include="ConsoleControl\TabExpansion.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ImageButton.cs" />
-    <Compile Include="ImageToggleButton.cs" />
-    <Compile Include="Interfaces\CompatabilityInterfaces.cs" />
-    <Compile Include="Interfaces\IConsoleControl.cs" />
+    <Compile Include="Controls\ColorInverter.cs" />
+    <Compile Include="Controls\ConsoleBrushes.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.BufferSize.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.EventHandlers.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.IPSXamlConsole.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.IPSConsoleControl.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.CommandHandlers.cs" />
+    <Compile Include="Controls\ConsoleControl\History.cs" />
+    <Compile Include="Controls\ConsoleControl\TabExpansion.cs" />
+    <Compile Include="Controls\Utility\WpfHelper.cs" />
+    <Compile Include="Controls\ImageButton.cs" />
+    <Compile Include="Controls\ImageToggleButton.cs" />
+    <Compile Include="Controls\Interfaces\CompatabilityInterfaces.cs" />
+    <Compile Include="Controls\Interfaces\IConsoleControl.cs" />
     <Compile Include="Interop\KeyboardHelper.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
-    <Compile Include="PopupMenu.cs" />
+    <Compile Include="Controls\PopupMenu.cs" />
     <Compile Include="ProgressPanel.xaml.cs">
       <DependentUpon>ProgressPanel.xaml</DependentUpon>
     </Compile>
@@ -220,13 +228,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ThumbnailImage.cs" />
-    <Compile Include="Utility\OtherHelpers.cs" />
+    <Compile Include="Utility\KeyboardHelper.cs" />
     <Compile Include="Utility\StringHelper.cs" />
-    <Compile Include="Utility\WpfHelper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="..\PoshCodeRules.ruleset" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>

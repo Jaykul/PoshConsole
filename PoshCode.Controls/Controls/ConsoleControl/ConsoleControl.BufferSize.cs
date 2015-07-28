@@ -210,7 +210,7 @@ namespace PoshCode.Controls
          BufferCell[,] bufferCells = new BufferCell[(rectangle.Top - rectangle.Bottom), (rectangle.Right - rectangle.Left)];
          try
          {
-            int cur =
+            var cur =
                (int)
                ((Next.ElementEnd.GetCharacterRect(LogicalDirection.Backward).Bottom +
                  ScrollViewer.ContentVerticalOffset)/
@@ -271,8 +271,8 @@ namespace PoshCode.Controls
       {
          get
          {
-            int x = 0;
-            int y = (int)(ScrollViewer.ContentVerticalOffset / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
+            var x = 0;
+            var y = (int)(ScrollViewer.ContentVerticalOffset / (Double.IsNaN(Document.LineHeight) ? Document.FontSize : Document.LineHeight));
             return new Coordinates(x, y);
          }
          set

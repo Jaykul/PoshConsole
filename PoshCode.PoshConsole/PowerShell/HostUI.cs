@@ -73,26 +73,26 @@ namespace PoshCode.PowerShell
         }
 
 
-        public override void Write(string message)
+        public override void Write(string value)
         {
-            _control.Write(null, null, message);
+            _control.Write(null, null, value);
         }
 
-        public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message)
+        public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
             // Write is Dispatcher checked
-            _control.Write(foregroundColor, backgroundColor, message);
+            _control.Write(foregroundColor, backgroundColor, value);
         }
 
-        public override void WriteLine(string message)
+        public override void WriteLine(string value)
         {
-            _control.Write(message + "\n");
+            _control.Write(value + "\n");
         }
 
-        public override void WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string message)
+        public override void WriteLine(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
         {
             // Write is Dispatcher checked
-            _control.Write(foregroundColor, backgroundColor, message + "\n");
+            _control.Write(foregroundColor, backgroundColor, value + "\n");
         }
 
         public override void WriteDebugLine(string message)
@@ -101,10 +101,10 @@ namespace PoshCode.PowerShell
             _control.Write(_brushes.DebugForeground, _brushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
         }
 
-        public override void WriteErrorLine(string message)
+        public override void WriteErrorLine(string value)
         {
             // Write is Dispatcher checked
-            _control.Write(_brushes.ErrorForeground, _brushes.ErrorBackground, message + "\n");
+            _control.Write(_brushes.ErrorForeground, _brushes.ErrorBackground, value + "\n");
         }
 
         public override void WriteVerboseLine(string message)
@@ -120,7 +120,7 @@ namespace PoshCode.PowerShell
         }
 
 
-        protected Dictionary<int, ProgressPanel> ProgressRecords = new Dictionary<int, ProgressPanel>();
+        protected readonly Dictionary<int, ProgressPanel> ProgressRecords = new Dictionary<int, ProgressPanel>();
 
 
         public override void WriteProgress(long sourceId, ProgressRecord record)

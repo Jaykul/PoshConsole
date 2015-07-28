@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -182,11 +183,12 @@ namespace PoshCode.Controls
             {
                 if (Next != null)
                 {
-                    Run insert = new Run(prompt);
-                    insert.Background = Background;
-                    insert.Foreground = Foreground;
+                    var insert = new Run(prompt)
+                    {
+                        Background = Background,
+                        Foreground = Foreground
+                    };
                     Next.Inlines.Add(insert);
-
                     SetPrompt();
                 }
             });
@@ -237,14 +239,7 @@ namespace PoshCode.Controls
                 if (ch == cmd[0])
                 {
                     // emulate NoEcho by UN-echoing...
-                    if (cmd.Length > 1)
-                    {
-                        CurrentCommand = cmd.Substring(1);
-                    }
-                    else
-                    {
-                        CurrentCommand = "";
-                    }
+                    CurrentCommand = cmd.Length > 1 ? cmd.Substring(1) : "";
                     // if we're NOT NoEcho, then re-echo it:
                     if (echo)
                     {
@@ -354,17 +349,12 @@ namespace PoshCode.Controls
         private static void BackgroundColorPropertyChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
             // put code here to handle the property changed for BackgroundColor
-            ConsoleControl consoleControlObj = depObj as ConsoleControl;
+            var consoleControlObj = depObj as ConsoleControl;
             if (consoleControlObj != null)
             {
-                if (e.NewValue != DependencyProperty.UnsetValue)
-                {
-                    consoleControlObj.Background = consoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
-                }
-                else
-                {
-                    consoleControlObj.Background = consoleControlObj._brushes.DefaultBackground;
-                }
+                consoleControlObj.Background = e.NewValue != DependencyProperty.UnsetValue
+                                                    ? consoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                                                    : consoleControlObj._brushes.DefaultBackground;
             }
         }
 
@@ -394,17 +384,12 @@ namespace PoshCode.Controls
         {
 
             // put code here to handle the property changed for ForegroundColor
-            ConsoleControl ConsoleControlObj = depObj as ConsoleControl;
+            var ConsoleControlObj = depObj as ConsoleControl;
             if (ConsoleControlObj != null)
             {
-                if (e.NewValue != DependencyProperty.UnsetValue)
-                {
-                    ConsoleControlObj.Foreground = ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue);
-                }
-                else
-                {
-                    ConsoleControlObj.Foreground = ConsoleControlObj._brushes.DefaultForeground;
-                }
+                ConsoleControlObj.Foreground = e.NewValue != DependencyProperty.UnsetValue 
+                                                    ? ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                                                    : ConsoleControlObj._brushes.DefaultForeground;
             }
         }
 
@@ -418,6 +403,8 @@ namespace PoshCode.Controls
             Write(null, null, message, target);
         }
 
+        [SuppressMessage("RefactoringEssentials", "RECS0026", Justification = "Creating a Run with the target set puts it in the document automatically")]
+        [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
         public void Write(Brush foreground, Brush background, string text, Block target = null)
         {
             //if (target == null) target = Current;
@@ -431,6 +418,7 @@ namespace PoshCode.Controls
 
                 if (target == null) target = Current;
 
+                // Creating the run with the target set puts it in the document automatically.
                 new Run(text, target.ContentEnd)
                 {
                     Background = background,
@@ -441,12 +429,15 @@ namespace PoshCode.Controls
             });
         }
 
+        [SuppressMessage("RefactoringEssentials", "RECS0026", Justification = "Creating a Run with the target set puts it in the document automatically")]
+        [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
         public void Write(ConsoleColor foreground, ConsoleColor background, string text, Block target = null)
         {
             if (target == null) target = Current;
 
             Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)delegate
             {
+                // Creating the run with the target set puts it in the document automatically.
                 new Run(text, target.ContentEnd)
                 {
                     Background = (this.BackgroundColor == background) ? this.Brushes.Transparent : this._brushes.BrushFromConsoleColor(background),
@@ -569,16 +560,29 @@ namespace PoshCode.Controls
             _cmdHistory.Add(command.Command.TrimEnd());
             Trace.WriteLine("OnCommand, clearing KeyInfo queue.");
         }
+
+        public int CurrentCommandCursorPos
+        {
+            get
+            {
+                return _commandBox.CaretPosition.GetTextRunLength(LogicalDirection.Backward);
+            }
+            set
+            {
+                _commandBox.CaretPosition = _commandBox.Document.ContentStart.GetPositionAtOffset(value);                
+            }
+        }
+
         public string CurrentCommandPreCursor
         {
             get
             {
-                TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+                var preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
                 return preCursor.Text.TrimEnd('\n', '\r');
             }
             set
             {
-                TextRange preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
+                var preCursor = new TextRange(_commandBox.Document.ContentStart, _commandBox.CaretPosition);
                 // TODO: re-parse and syntax highlight
                 preCursor.Text = value.TrimEnd('\n', '\r');
             }
@@ -587,12 +591,12 @@ namespace PoshCode.Controls
         {
             get
             {
-                TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+                var postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
                 return postCursor.Text.TrimEnd('\n', '\r');
             }
             set
             {
-                TextRange postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
+                var postCursor = new TextRange(_commandBox.CaretPosition, _commandBox.Document.ContentEnd);
                 // TODO: re-parse and syntax highlight
                 postCursor.Text = value.TrimEnd('\n', '\r');
 
@@ -603,8 +607,8 @@ namespace PoshCode.Controls
         {
             get
             {
-                TextRange all = new TextRange(_commandBox.Document.ContentStart, _commandBox.Document.ContentEnd);
-                return all.Text;
+                var all = new TextRange(_commandBox.Document.ContentStart, _commandBox.Document.ContentEnd);
+                return all.Text.TrimEnd('\n', '\r');
             }
             set
             {
@@ -1119,14 +1123,18 @@ namespace PoshCode.Controls
 
         public void Dispose()
         {
-            if (_gotInputKey != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
+                // free managed resources
                 _gotInputKey.Dispose();
-            }
-            if (_gotInputLine != null)
-            {
                 _gotInputLine.Dispose();
             }
+            // free native resources (if there are any)
         }
     }
 }

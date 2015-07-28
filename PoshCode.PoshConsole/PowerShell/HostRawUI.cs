@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation.Host;
 using System.Windows.Threading;
 using PoshCode.Controls;
@@ -43,8 +44,9 @@ namespace PoshCode.PowerShell
             }
         }
 
+        [SuppressMessage("RefactoringEssentials", "RECS0029", Justification = "The set method is not implemented")]
 
-	    public override int CursorSize
+        public override int CursorSize
         {
             get
             {

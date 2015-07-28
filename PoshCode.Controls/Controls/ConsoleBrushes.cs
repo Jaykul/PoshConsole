@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Media;
-using Colors = PoshCode.Controls.Properties.Colors;
+using Colors = PoshCode.Properties.Colors;
 
 namespace PoshCode.Controls
 {

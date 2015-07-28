@@ -40,7 +40,7 @@ namespace PoshCode.Wpf
                     element = (TElement)loaded;
                     return true;
                 }
-                error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+                error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", nameof(source)), "Can't DataBind", ErrorCategory.MetadataError, loaded);
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace PoshCode.Wpf
                         element = (TElement)loaded;
                         return true;
                     }
-                    error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", "source"), "Can't DataBind", ErrorCategory.MetadataError, loaded);
+                    error = new ErrorRecord(new ArgumentException("Template file doesn't yield FrameworkElement", nameof(source)), "Can't DataBind", ErrorCategory.MetadataError, loaded);
                 }
             }
             catch (Exception ex)
@@ -92,10 +92,10 @@ namespace PoshCode.Wpf
         /// <returns>An <see cref="System.Windows.Controls.ItemsControl"/></returns>
         public static ItemsControl NewItemsControl()
         {
-            FrameworkElementFactory factoryPanel = new FrameworkElementFactory(typeof(WrapPanel));
-            factoryPanel.SetValue(WrapPanel.IsItemsHostProperty, true);
+            var factoryPanel = new FrameworkElementFactory(typeof(WrapPanel));
+            factoryPanel.SetValue(Panel.IsItemsHostProperty, true);
             factoryPanel.SetValue(WrapPanel.OrientationProperty, Orientation.Horizontal);
-            ItemsPanelTemplate template = new ItemsPanelTemplate { VisualTree = factoryPanel };
+            var template = new ItemsPanelTemplate { VisualTree = factoryPanel };
 
             return new ItemsControl
             {
@@ -143,7 +143,7 @@ namespace PoshCode.Wpf
                     {
                         ResourceDictionary resources;
                         ErrorRecord error;
-                        FileInfo startup = new FileInfo(templatePath);
+                        var startup = new FileInfo(templatePath);
                         // Application.ResourceAssembly = System.Reflection.Assembly.GetExecutingAssembly();
                         if (startup.TryLoadXaml(out resources, out error))
                         {
@@ -198,7 +198,7 @@ namespace PoshCode.Wpf
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
                 // If the child is not of the request child type child
-                T childType = child as T;
+                var childType = child as T;
                 if (childType == null)
                 {
                     // recursively drill down the tree

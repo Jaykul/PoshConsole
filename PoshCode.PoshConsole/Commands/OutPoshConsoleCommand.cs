@@ -322,7 +322,7 @@ namespace PoshWpf.Commands
             }
 
 
-            Block blockput = output as Block;
+            var blockput = output as Block;
             if (blockput == null)
             {
                 doc.Blocks.InsertAfter(par, blockput);

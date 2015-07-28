@@ -208,7 +208,7 @@ namespace PoshWpf
         public static PresentationResult Stop(WindowDispatcherAsyncResult asyncResult)
         {
             if (asyncResult == null)
-                throw new ArgumentNullException("asyncResult");
+                throw new ArgumentNullException(nameof(asyncResult));
 
             asyncResult.AsyncWaitHandle.WaitOne();
             return asyncResult.Result;
@@ -219,49 +219,49 @@ namespace PoshWpf
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private static void WindowProc(object obj)
         {
-            WindowArgs Args = (WindowArgs)obj;
-            Window LocalWindow;
-            PresentationResult FinalResult = new PresentationResult();
+            var args = (WindowArgs)obj;
+            Window localWindow;
+            var finalResult = new PresentationResult();
 
-            Runspace.DefaultRunspace = Args.ShellRunspace;
+            Runspace.DefaultRunspace = args.ShellRunspace;
             // trap initialization errors
             try
             {
-                LocalWindow = NewWindow(Args.WindowXaml, Args.OwnerHandle);
+                localWindow = NewWindow(args.WindowXaml, args.OwnerHandle);
             }
             catch (Exception ex)
             {
                 // set initialization exception
-                Args.InitException = ex;
-                Args.InitHandle.Set();
+                args.InitException = ex;
+                args.InitHandle.Set();
                 return;
             }
 
             // initialization complete
             // set the dispatcher
-            Args.AsyncResult.SetWindow(LocalWindow);
+            args.AsyncResult.SetWindow(localWindow);
 
-            Args.InitHandle.Set();
+            args.InitHandle.Set();
 
-            if (Args.Initialize != null)
+            if (args.Initialize != null)
             {
-                Args.Initialize(LocalWindow);
+                args.Initialize(localWindow);
             }
 
             // trap runtime exceptions
             try
             {
-                FinalResult.DialogResult = LocalWindow.ShowDialog().Value;
-                FinalResult.WindowTag = LocalWindow.Tag;
+                finalResult.DialogResult = localWindow.ShowDialog().Value;
+                finalResult.WindowTag = localWindow.Tag;
             }
             catch (Exception ex)
             {
                 // set the runtime exception to be rethrown by the stop method
-                Args.AsyncResult.SetException(ex);
+                args.AsyncResult.SetException(ex);
                 return;
             }
             // set the dialog result
-            Args.AsyncResult.SetComplete(FinalResult);
+            args.AsyncResult.SetComplete(finalResult);
         }
 
         /// <summary>

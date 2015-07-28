@@ -4,7 +4,7 @@ using System.Management.Automation;
 
 namespace PoshWpf.Utility
 {
-    public class ScriptBlockInvoker
+    public static class ScriptBlockInvoker
     {
         private static PSModuleInfo _module;
         internal static PSModuleInfo Module
@@ -23,7 +23,7 @@ namespace PoshWpf.Utility
         internal static ICollection<PSObject> Invoke(ScriptBlock sb, PSVariable[] variables, params object[] args)
         {
             if (variables == null)
-                throw new ArgumentNullException("variables");
+                throw new ArgumentNullException(nameof(variables));
 
             foreach (var v in variables) SetScriptVariable(v);
 

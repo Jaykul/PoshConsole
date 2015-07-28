@@ -39,6 +39,7 @@ namespace PoshCode.PowerShell
             _control = control;
 		    _options = options;
             _UI = new HostUI(_control, progress);
+
 			MakeConsole();
 		}
 		/// <summary>

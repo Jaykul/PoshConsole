@@ -50,7 +50,7 @@ namespace PoshCode.Controls
       #endregion Orientation
 
 
-      private Image _image = new Image();
+      private readonly Image _image = new Image();
 
       protected override void OnInitialized(EventArgs e)
       {

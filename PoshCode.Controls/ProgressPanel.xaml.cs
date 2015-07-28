@@ -64,17 +64,9 @@ namespace PoshCode.Controls
             get { return (string)GetValue(ActivityProperty); }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    activity.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    activity.Visibility = Visibility.Visible;
-                }
+                activity.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
 
                 SetValue(ActivityProperty, value);
-
             }
         }
 
@@ -83,14 +75,7 @@ namespace PoshCode.Controls
             get { return ((string)GetValue(OperationProperty)); }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    operation.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    operation.Visibility = Visibility.Visible;
-                }
+                operation.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
 
                 SetValue(OperationProperty, value);
             }
@@ -101,14 +86,7 @@ namespace PoshCode.Controls
             get { return ((int)GetValue(PercentCompleteProperty)); }
             set
             {
-                if (value <= 0)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    progressBar.Visibility = Visibility.Visible;
-                }
+                progressBar.Visibility = value <= 0 ? Visibility.Collapsed : Visibility.Visible;
 
                 SetValue(PercentCompleteProperty, value);
             }
@@ -119,14 +97,7 @@ namespace PoshCode.Controls
             get { return ((string)GetValue(StatusProperty)); }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    status.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    status.Visibility = Visibility.Visible;
-                }
+                status.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
 
                 SetValue(StatusProperty, value);
             }
@@ -137,14 +108,9 @@ namespace PoshCode.Controls
             get { return ((TimeSpan)GetValue(TimeRemainingProperty)); }
             set
             {
-                if (value == null || value.TotalSeconds <= 0)
-                {
-                    secondsRemaining.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    secondsRemaining.Visibility = Visibility.Visible;
-                }
+                secondsRemaining.Visibility = value.TotalSeconds <= 0
+                                                ? Visibility.Collapsed
+                                                : Visibility.Visible;
 
                 SetValue(TimeRemainingProperty, value);
             }
