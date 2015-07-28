@@ -73,12 +73,15 @@ namespace PoshCode
             }
         }
 
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
             CommandBox.IsEnabled = false;
-
             _host = new Host(this, ProgressPanel, new Options(this));
+
+            Loaded += (sender, ignored) =>
+            {
 
             Runner = new RunspaceProxy(_host);
             Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
@@ -89,6 +92,7 @@ namespace PoshCode
 
             // TODO: Improve this interface
             Expander.TabComplete = Runner.CompleteInput;
+            };
         }
 
         public void WriteErrorRecord(ErrorRecord errorRecord)
