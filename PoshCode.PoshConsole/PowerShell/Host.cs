@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using PoshCode.Controls;
 using PoshCode.Native;
 
 namespace PoshCode.PowerShell
@@ -159,7 +160,7 @@ namespace PoshCode.PowerShell
         public void WriteNativeOutput(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(_control.Brushes.NativeOutputForeground, _control.Brushes.NativeOutputBackground, message, _control.Current);
+            _control.Write(ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message, _control.Current);
             _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
             // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
         }
@@ -167,7 +168,7 @@ namespace PoshCode.PowerShell
         public void WriteNativeError(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(_control.Brushes.NativeErrorForeground, _control.Brushes.NativeErrorBackground, message, _control.Current);
+            _control.Write(ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message, _control.Current);
             _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
         }
 
@@ -194,13 +195,8 @@ namespace PoshCode.PowerShell
 
 		public void KillConsole()
 		{
-			if (_nativeConsole != null)
-			{
-				_nativeConsole.Dispose();
-			    _control.Runner.Dispose();
-			    // TODO: _runner.Dispose();
-			}
-			_nativeConsole = null;
+		    _nativeConsole?.Dispose();
+		    _nativeConsole = null;
 		}
 
 

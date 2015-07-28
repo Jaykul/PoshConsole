@@ -35,7 +35,7 @@ namespace PoshCode.Controls
             Current.Tag = _id;
             if (results != PipelineState.Completed && results != PipelineState.NotStarted)
             {
-                Write(_brushes.VerboseForeground, _brushes.VerboseBackground, $"VERBOSE: PowerShell Pipeline was: {results}\n");
+                Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, $"VERBOSE: PowerShell Pipeline was: {results}\n");
             }
              Finished?.Invoke(this, new FinishedEventArgs { Commands = command, Results = results });
          });

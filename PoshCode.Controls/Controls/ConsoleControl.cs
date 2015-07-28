@@ -31,31 +31,17 @@ namespace PoshCode.Controls
         static ConsoleControl()
         {
             InitializeCommands();
+            // initialize the brushes on our thread...
+            Dispatcher.CurrentDispatcher.InvokeAsync(ConsoleBrushes.Refresh);
 
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ConsoleControl), new FrameworkPropertyMetadata(typeof(ConsoleControl)));
         }
 
-        private static void InitializeCommands()
-        {
-            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-                                                       new CommandBinding(ApplicationCommands.Cut, OnExecuteCut, OnCanExecuteCut));
-            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-                                                       new CommandBinding(ApplicationCommands.Paste, OnExecutePaste, OnCanExecutePaste));
-            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
-                                                       new CommandBinding(ApplicationCommands.Stop, OnApplicationStop));
-
-            //CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
-            //    new CommandBinding(ApplicationCommands.Copy,
-            //    new ExecutedRoutedEventHandler(OnCopy),
-            //    new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
-
-        }
 
         bool _waitingForKey;
         LinkedList<TextCompositionEventArgs> _textBuffer = new LinkedList<TextCompositionEventArgs>();
         readonly Queue<KeyInfo> _inputBuffer = new Queue<KeyInfo>();
 
-        private readonly ConsoleBrushes _brushes;
         private readonly RichTextBox _commandBox;
         private readonly PasswordBox _passwordBox;
         private readonly InlineUIContainer _commandContainer;
@@ -64,16 +50,10 @@ namespace PoshCode.Controls
         // TODO: this should be internal
         public Paragraph Next { get; private set; }
 
-
-        public ConsoleBrushes Brushes
-        {
-            get { return _brushes; }
-        }
-
+        
 
         public ConsoleControl()
         {
-            _brushes = new ConsoleBrushes();
             _commandBox = new RichTextBox
             {
                 IsEnabled = true,
@@ -104,6 +84,11 @@ namespace PoshCode.Controls
             _commandContainer = new InlineUIContainer(_commandBox) { BaselineAlignment = BaselineAlignment.Top }; //.TextTop
 
             //ScrollViewer.SizeChanged += new SizeChangedEventHandler(ScrollViewer_SizeChanged);
+
+            this.Dispatcher.ShutdownStarted += (sender, args) =>
+            {
+                Dispose();
+            };
         }
 
 
@@ -353,8 +338,8 @@ namespace PoshCode.Controls
             if (consoleControlObj != null)
             {
                 consoleControlObj.Background = e.NewValue != DependencyProperty.UnsetValue
-                                                    ? consoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
-                                                    : consoleControlObj._brushes.DefaultBackground;
+                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                                                    : ConsoleBrushes.DefaultBackground;
             }
         }
 
@@ -384,12 +369,12 @@ namespace PoshCode.Controls
         {
 
             // put code here to handle the property changed for ForegroundColor
-            var ConsoleControlObj = depObj as ConsoleControl;
-            if (ConsoleControlObj != null)
+            var consoleControlObj = depObj as ConsoleControl;
+            if (consoleControlObj != null)
             {
-                ConsoleControlObj.Foreground = e.NewValue != DependencyProperty.UnsetValue 
-                                                    ? ConsoleControlObj._brushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
-                                                    : ConsoleControlObj._brushes.DefaultForeground;
+                consoleControlObj.Foreground = e.NewValue != DependencyProperty.UnsetValue 
+                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                                                    : ConsoleBrushes.DefaultForeground;
             }
         }
 
@@ -440,8 +425,8 @@ namespace PoshCode.Controls
                 // Creating the run with the target set puts it in the document automatically.
                 new Run(text, target.ContentEnd)
                 {
-                    Background = (this.BackgroundColor == background) ? this.Brushes.Transparent : this._brushes.BrushFromConsoleColor(background),
-                    Foreground = this._brushes.BrushFromConsoleColor(foreground)
+                    Background = (BackgroundColor == background) ? ConsoleBrushes.Transparent : ConsoleBrushes.BrushFromConsoleColor(background),
+                    Foreground = ConsoleBrushes.BrushFromConsoleColor(foreground)
                 };
                 ScrollViewer.ScrollToBottom();
             });
@@ -722,9 +707,9 @@ namespace PoshCode.Controls
             {
                 // TODO: Only show the help message if they type '?' as their entry something, in which case show help and re-prompt.
                 if (!String.IsNullOrEmpty(help))
-                    Write(_brushes.ConsoleColorFromBrush(_brushes.VerboseForeground), _brushes.ConsoleColorFromBrush(_brushes.VerboseBackground), help + "\n");
+                    Write(ConsoleBrushes.ConsoleColorFromBrush(ConsoleBrushes.VerboseForeground), ConsoleBrushes.ConsoleColorFromBrush(ConsoleBrushes.VerboseBackground), help + "\n");
 
-                Write(String.Format("{0}: ", prompt));
+                Write($"{prompt}: ");
 
                 if (null != type && typeof(SecureString) == type)
                 {
@@ -763,9 +748,8 @@ namespace PoshCode.Controls
                         }
                         if ((ice.InnerException is FormatException) || (ice.InnerException is OverflowException))
                         {
-                            Write(_brushes.ErrorForeground, _brushes.ErrorBackground,
-                               String.Format(@"Cannot recognize ""{0}"" as a {1} due to a format error.\n", userData, type.FullName)
-                               );
+                            Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground,
+                                $@"Cannot recognize ""{userData}"" as a {type.FullName} due to a format error.\n");
                         }
                         else
                         {
@@ -801,14 +785,15 @@ namespace PoshCode.Controls
                 {
                     if (element == defaultChoice)
                     {
-                        Write(_brushes.VerboseForeground, _brushes.VerboseBackground, String.Format("[{0}] {1}  ", promptData[0, element], promptData[1, element]));
+                        Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground,
+                            $"[{promptData[0, element]}] {promptData[1, element]}  ");
                     }
                     else
                     {
-                        Write(null, null, String.Format("[{0}] {1}  ", promptData[0, element], promptData[1, element]));
+                        Write(null, null, $"[{promptData[0, element]}] {promptData[1, element]}  ");
                     }
                 }
-                Write(null, null, String.Format("(default is \"{0}\"):", promptData[0, defaultChoice]));
+                Write(null, null, $"(default is \"{promptData[0, defaultChoice]}\"):");
 
                 string data = ReadLine().Trim().ToUpper();
 
@@ -830,12 +815,12 @@ namespace PoshCode.Controls
                     // Show help
                     foreach (var choice in choices)
                     {
-                        Write(string.Format("{0} - {1}\n", choice.Label.Replace("&", ""), choice.HelpMessage));
+                        Write($"{choice.Label.Replace("&", "")} - {choice.HelpMessage}\n");
                     }
                 }
                 else
                 {
-                    Write(_brushes.ErrorForeground, _brushes.ErrorBackground, "Invalid choice: " + data + "\n");
+                    Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, "Invalid choice: " + data + "\n");
                 }
             }
 
@@ -849,7 +834,7 @@ namespace PoshCode.Controls
             // NOTE: I'm not sure this is the right action for the PromptForCredential targetName
             if (!String.IsNullOrEmpty(targetName))
             {
-                caption = string.Format("Credential for {0}\n\n{1}", targetName, caption);
+                caption = $"Credential for {targetName}\n\n{caption}";
             }
 
             if ((options & PSCredentialUIOptions.ReadOnlyUserName) == PSCredentialUIOptions.Default)
@@ -875,7 +860,7 @@ namespace PoshCode.Controls
                 // and no domain
                 if (userName != null && userName.IndexOfAny(new[] { '\\', '@' }) < 0)
                 {
-                    userName = string.Format("{0}\\{1}", targetName, userName);
+                    userName = $"{targetName}\\{userName}";
                 }
             }
 
@@ -940,7 +925,7 @@ namespace PoshCode.Controls
             var count = addHelp ? choices.Count + 1 : choices.Count;
             var hotkeysAndPlainLabels = new string[2, count];
 
-            for (int i = 0; i < choices.Count; ++i)
+            for (var i = 0; i < choices.Count; ++i)
             {
                 string[] hotkeyAndLabel = GetHotkeyAndLabel(choices[i].Label);
 
@@ -1017,7 +1002,7 @@ namespace PoshCode.Controls
                 {
                     position = result.Start;
                     double top = PointToScreen(position.GetLineStartPosition(0).GetCharacterRect(LogicalDirection.Forward).TopLeft).Y + PointFromScreen(new Point(0, 0)).Y;
-                    Trace.WriteLine(string.Format(" Top: {0}, CharOffset: {1}", top, position));
+                    Trace.WriteLine($" Top: {top}, CharOffset: {position}");
                     ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset + top);
                     position = result.End;
                     return result;
@@ -1060,7 +1045,7 @@ namespace PoshCode.Controls
                         }
 
                         textRange = findMethod.Invoke(null,
-                           new Object[] { findContainerStartPosition,
+                           new object[] { findContainerStartPosition,
                                     findContainerEndPosition,
                                     input, 
                                     flags, 
@@ -1081,14 +1066,14 @@ namespace PoshCode.Controls
                 TextPointer start = document.ContentStart;
                 TextPointer end = document.ContentEnd;
                 TextRange last = null;
-                var textRange = new List<TextRange>();
 
                 try
                 {
                     if (findMethod == null)
                     {
-                        findMethod = typeof(FrameworkElement).Assembly.GetType("System.Windows.Documents.TextFindEngine").
-                               GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
+                        findMethod = typeof(FrameworkElement).Assembly
+                                        .GetType("System.Windows.Documents.TextFindEngine")
+                                        .GetMethod("Find", BindingFlags.Static | BindingFlags.Public);
                     }
                 }
                 catch (ApplicationException)
@@ -1100,13 +1085,8 @@ namespace PoshCode.Controls
                 {
                     try
                     {
-                        last = findMethod.Invoke(null,
-                                                new Object[] { start,
-                                                      end,
-                                                      input, 
-                                                      flags, 
-                                                      CultureInfo.CurrentCulture 
-                                       }) as TextRange;
+                        var parameters = new object[] { start, end, input, flags, CultureInfo.CurrentCulture };
+                        last = findMethod.Invoke(null, parameters) as TextRange;
                     }
                     catch (ApplicationException)
                     {
@@ -1115,10 +1095,16 @@ namespace PoshCode.Controls
 
                     if (last == null)
                         yield break;
+
                     yield return last;
                     start = last.End;
                 }
             }
+        }
+
+        ~ConsoleControl()
+        {
+            Dispose(false);
         }
 
         public void Dispose()
@@ -1133,6 +1119,7 @@ namespace PoshCode.Controls
                 // free managed resources
                 _gotInputKey.Dispose();
                 _gotInputLine.Dispose();
+
             }
             // free native resources (if there are any)
         }

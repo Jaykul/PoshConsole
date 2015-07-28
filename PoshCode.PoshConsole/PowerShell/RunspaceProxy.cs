@@ -99,7 +99,7 @@ namespace PoshCode.PowerShell
             }
 
             // We need STA so we can do WPF stuff from our console thread.
-            //  iss.ApartmentState = ApartmentState.STA;
+            iss.ApartmentState = ApartmentState.STA;
             // We need ReuseThread so that we behave the way that PowerShell.exe and ISE do.
             iss.ThreadOptions = PSThreadOptions.ReuseThread;
             // iss.Variables
@@ -147,10 +147,10 @@ namespace PoshCode.PowerShell
 
             // TODO: can we handle profiles this way?
             /*
-			   RunspaceConfiguration conf = RunspaceConfiguration.Create();
-			   conf.InitializationScripts.Append(new ScriptConfigurationEntry("ImportPoshWpf", "$Foo = 'This is foo'")); // Import-Module .\\PoshWPF.dll
-			   _runSpace = RunspaceFactory.CreateRunspace(host, conf);
-			*/
+               RunspaceConfiguration conf = RunspaceConfiguration.Create();
+               conf.InitializationScripts.Append(new ScriptConfigurationEntry("ImportPoshWpf", "$Foo = 'This is foo'")); // Import-Module .\\PoshWPF.dll
+               _runSpace = RunspaceFactory.CreateRunspace(host, conf);
+            */
 
             // Set the default runspace, so that event handlers (and Tasks) can run in the same runspace as commands.
             Runspace.DefaultRunspace = _runSpace;

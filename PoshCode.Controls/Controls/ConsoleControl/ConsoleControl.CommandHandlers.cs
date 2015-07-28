@@ -6,12 +6,27 @@ namespace PoshCode.Controls
 {
     partial class ConsoleControl
     {
-        
-      #region  Methods (13)
+        private static void InitializeCommands()
+        {
+            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+                                                       new CommandBinding(ApplicationCommands.Cut, OnExecuteCut, OnCanExecuteCut));
+            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+                                                       new CommandBinding(ApplicationCommands.Paste, OnExecutePaste, OnCanExecutePaste));
+            CommandManager.RegisterClassCommandBinding(typeof(ConsoleControl),
+                                                       new CommandBinding(ApplicationCommands.Stop, OnApplicationStop));
 
-      //  Private Methods (13)
+            //CommandManager.RegisterClassCommandBinding(typeof(ConsoleRichTextBox),
+            //    new CommandBinding(ApplicationCommands.Copy,
+            //    new ExecutedRoutedEventHandler(OnCopy),
+            //    new CanExecuteRoutedEventHandler(OnCanExecuteCopy)));
 
-      /// <summary>
+        }
+
+        #region  Methods (13)
+
+        //  Private Methods (13)
+
+        /// <summary>
         /// A handler for the Application.Stop event...
         /// </summary>
         /// <param name="sender">The sender.</param>

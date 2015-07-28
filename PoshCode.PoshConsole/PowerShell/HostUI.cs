@@ -14,14 +14,11 @@ namespace PoshCode.PowerShell
     {
         private readonly ConsoleControl _control;
         private readonly PSHostRawUserInterface _rawUI;
-
-        private readonly ConsoleBrushes _brushes;
-
+        
 
         public HostUI(ConsoleControl control, Panel progress)
         {
             ProgressPanel = progress;
-            _brushes = new ConsoleBrushes();
             _control = control;
             _rawUI = new HostRawUI(control);
         }
@@ -98,25 +95,25 @@ namespace PoshCode.PowerShell
         public override void WriteDebugLine(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(_brushes.DebugForeground, _brushes.DebugBackground, String.Format("DEBUG: {0}\n", message));
+            _control.Write(ConsoleBrushes.DebugForeground, ConsoleBrushes.DebugBackground, $"DEBUG: {message}\n");
         }
 
         public override void WriteErrorLine(string value)
         {
             // Write is Dispatcher checked
-            _control.Write(_brushes.ErrorForeground, _brushes.ErrorBackground, value + "\n");
+            _control.Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, value + "\n");
         }
 
         public override void WriteVerboseLine(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(_brushes.VerboseForeground, _brushes.VerboseBackground, String.Format("VERBOSE: {0}\n", message));
+            _control.Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, $"VERBOSE: {message}\n");
         }
 
         public override void WriteWarningLine(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(_brushes.WarningForeground, _brushes.WarningBackground, String.Format("WARNING: {0}\n", message), _control.Current);
+            _control.Write(ConsoleBrushes.WarningForeground, ConsoleBrushes.WarningBackground, $"WARNING: {message}\n", _control.Current);
         }
 
 

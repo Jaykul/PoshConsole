@@ -23,14 +23,11 @@ namespace PoshCode
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                if (_host != null)
-                {
-                    _host.Dispose();
-                    _host = null;
-                }
-            }
+            _host?.Dispose();
+            _host = null;
+
+            Runner?.Dispose();
+
             base.Dispose(disposing);
         }
 
@@ -82,16 +79,18 @@ namespace PoshCode
 
             Loaded += (sender, ignored) =>
             {
+                if (Runner == null)
+                {
+                    Runner = new RunspaceProxy(_host);
+                    Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action) (() =>
+                    {
+                        CommandBox.IsEnabled = true;
+                        ExecutePromptFunction(null, PipelineState.Completed);
+                    }));
 
-            Runner = new RunspaceProxy(_host);
-            Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
-            {
-                CommandBox.IsEnabled = true;
-                ExecutePromptFunction(null, PipelineState.Completed);
-            }));
-
-            // TODO: Improve this interface
-            Expander.TabComplete = Runner.CompleteInput;
+                    // TODO: Improve this interface
+                    Expander.TabComplete = Runner.CompleteInput;
+                }
             };
         }
 
@@ -100,19 +99,19 @@ namespace PoshCode
             // NOTE: Write is Dispatcher checked
             if (errorRecord.InvocationInfo != null)
             {
-                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord.InvocationInfo.MyCommand != null
+                Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, errorRecord.InvocationInfo.MyCommand != null
                                                                             ? $"{errorRecord.InvocationInfo.MyCommand} : {errorRecord}\n"
                                                                             : $"{errorRecord}\n");
-                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n");
+                Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, errorRecord.InvocationInfo.PositionMessage + "\n");
             }
             else
             {
-                Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"{errorRecord}\n");
+                Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, $"{errorRecord}\n");
             }
 
             // TODO: support error formatting preference:
-            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"   + CategoryInfo            : {errorRecord.CategoryInfo}\n");
-            Write(Brushes.ErrorForeground, Brushes.ErrorBackground, $"   + FullyQualifiedErrorId   : {errorRecord.FullyQualifiedErrorId}\n");
+            Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, $"   + CategoryInfo            : {errorRecord.CategoryInfo}\n");
+            Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, $"   + FullyQualifiedErrorId   : {errorRecord.FullyQualifiedErrorId}\n");
     }
 
         protected override void OnCommand(CommandEventArgs command)

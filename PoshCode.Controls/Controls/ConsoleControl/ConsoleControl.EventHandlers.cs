@@ -169,7 +169,7 @@ namespace PoshCode.Controls
             }
             catch (COMException)
             {
-                Write(Brushes.VerboseForeground, Brushes.VerboseBackground, "Error setting clipboard.");
+                Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground, "Error setting clipboard.");
             }
          }
 

@@ -95,19 +95,11 @@
 						Command="{Binding TestCommand}"
                                     />
                 </Fluent:QuickAccessMenuItem>
-                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=pasteButton}"
-					IsChecked="True" />
-                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=cutButton}"
-					IsChecked="True" />
+                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=pasteButton}" IsChecked="True" />
+                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=cutButton}" IsChecked="True" />
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=copyButton}" />
-                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=dropDownGreen}"
-					IsChecked="True" />
-                <Fluent:QuickAccessMenuItem Target="{Binding ElementName=gallerySampleInRibbonGallery}"
-					IsChecked="True" />
-                <Fluent:QuickAccessMenuItem IsChecked="True"
-					Target="{Binding ElementName=UndoButton}" />
-                <Fluent:QuickAccessMenuItem IsChecked="True"
-					Target="{Binding ElementName=RedoButton}" />
+                <Fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=UndoButton}" />
+                <Fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=RedoButton}" />
             </Fluent:Ribbon.QuickAccessItems>
 
             <Fluent:RibbonTabItem Header="Insert"
