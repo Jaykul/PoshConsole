@@ -124,8 +124,6 @@
 
    # Make sure Windows and .Net know where we are (they can only handle the FileSystem)
    [Environment]::CurrentDirectory = (Get-Location -PSProvider FileSystem).ProviderPath
-   # Also, put the path in the title ... (don't restrict this to the FileSystem
-   $Host.UI.RawUI.WindowTitle = "PoSh - {0} ({1})" -f $pwd.Path,$pwd.Provider.Name
    
    # Determine what nesting level we are at (if any)
    $Nesting = "$([char]0xB7)" * $NestedPromptLevel
@@ -133,16 +131,10 @@
    # Generate PUSHD(push-location) Stack level string
    $Stack = "+" * (Get-Location -Stack).count
    
-   # my New-Script and Get-PerformanceHistory functions use history IDs
-   # So, put the ID of the command in, so we can get/invoke-history easier
-   # eg: "r 4" will re-run the command that has [4]: in the prompt
-   $nextCommandId = (Get-History -count 1).Id + 1
    # Output prompt string
    # If there's an error, set the prompt foreground to "Red", otherwise, "Yellow"
    if($err) { $fg = "Red" } else { $fg = "Yellow" }
-   # Notice: no angle brackets, makes it easy to paste my buffer to the web
-   Write-Host "[${Nesting}${nextCommandId}${Stack}]:" -NoNewLine -Fore $fg
-   
+   Write-Host "${Nesting}${Stack}PS&gt;" -NoNewLine -Fore $fg
    return " "
 }</value>
   </data>
