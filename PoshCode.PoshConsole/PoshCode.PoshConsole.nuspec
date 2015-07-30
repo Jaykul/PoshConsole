@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/Jaykul/PoshConsole/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Jaykul/PoshConsole/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial release, so it can be used for hosting.</releaseNotes>
+    <copyright>Copyright (c) Joel Bennett, 2015</copyright>
+    <tags>PowerShell WPF Hosting</tags>
+  </metadata>
+</package>
