@@ -31,43 +31,36 @@ namespace PoshCode.PowerShell
         public event RunspaceReadyHandler RunspaceReady;
 
 
-        private SyncEvents _syncEvents = new SyncEvents();
-        private readonly Runspace _runSpace;
+        private readonly SyncEvents _syncEvents = new SyncEvents();
+        private Runspace _runSpace;
 
-        public Pipeline _pipeline;
+        private Pipeline _pipeline;
 
         public Command DefaultOutputCommand { get; private set; }
         public Command ContentOutputCommand { get; set; }
 
 
-        protected Queue<CallbackCommand> CommandQueue { get; private set; }
+        protected Queue<CallbackCommand> CommandQueue { get; }
         protected Thread WorkerThread;
 
 
+        protected InitialSessionState InitialSessionState => _runSpace.InitialSessionState;
 
-        public InitialSessionState InitialSessionState
-        {
-            get { return _runSpace.InitialSessionState; }
-        }
+        protected RunspaceConfiguration RunspaceConfiguration => _runSpace.RunspaceConfiguration;
 
-        public RunspaceConfiguration RunspaceConfiguration
-        {
-            get { return _runSpace.RunspaceConfiguration; }
-        }
+        protected RunspaceStateInfo RunspaceStateInfo => _runSpace.RunspaceStateInfo;
 
-        public RunspaceStateInfo RunspaceStateInfo
-        {
-            get { return _runSpace.RunspaceStateInfo; }
-        }
-
-        private Host _host;
+        private readonly Host _host;
 
         public RunspaceProxy(Host host)
         {
             _host = host;
             CommandQueue = new Queue<CallbackCommand>();
+        }
 
+        public bool IsInitialized => _runSpace != null;
 
+        public void Initialize() { 
             // pre-create reusable commands
             DefaultOutputCommand = new Command("Out-Default");
             //// for now, merge the errors with the rest of the output
@@ -120,13 +113,13 @@ namespace PoshCode.PowerShell
             var path = Path.GetDirectoryName(poshModule.Location);
             iss.ImportPSModulesFromPath(Path.Combine(path, "Modules"));
 
-            var profile = new PSObject(Path.GetFullPath(Path.Combine(currentUserProfilePath, host.Name + "_profile.ps1")));
+            var profile = new PSObject(Path.GetFullPath(Path.Combine(currentUserProfilePath, _host.Name + "_profile.ps1")));
             //* %windir%\system32\WindowsPowerShell\v1.0\profile.ps1
             //  This profile applies to all users and all shells.
             profile.Properties.Add(new PSNoteProperty("AllUsersAllHosts", Path.GetFullPath(Path.Combine(systemProfilePath, "Profile.ps1"))));
             //* %windir%\system32\WindowsPowerShell\v1.0\PoshConsole_profile.ps1
             //  This profile applies to all users, but only to the Current shell.
-            profile.Properties.Add(new PSNoteProperty("AllUsersCurrentHost", Path.GetFullPath(Path.Combine(systemProfilePath, host.Name + "_profile.ps1"))));
+            profile.Properties.Add(new PSNoteProperty("AllUsersCurrentHost", Path.GetFullPath(Path.Combine(systemProfilePath, _host.Name + "_profile.ps1"))));
             //* %UserProfile%\My Documents\WindowsPowerShell\profile.ps1
             //  This profile applies only to the current user, but affects all shells.
             profile.Properties.Add(new PSNoteProperty("CurrentUserAllHosts", Path.GetFullPath(Path.Combine(currentUserProfilePath, "Profile.ps1"))));
@@ -143,7 +136,7 @@ namespace PoshCode.PowerShell
             iss.Assemblies.Add(new SessionStateAssemblyEntry(sma.FullName, sma.CodeBase));
             */
 
-            _runSpace = RunspaceFactory.CreateRunspace(host, iss);
+            _runSpace = RunspaceFactory.CreateRunspace(_host, iss);
 
             // TODO: can we handle profiles this way?
             /*
@@ -417,28 +410,35 @@ namespace PoshCode.PowerShell
         /// </summary>
         private void ExecuteStartupProfile()
         {
-            CommandQueue.Clear();
-
-            Enqueue(new CallbackCommand(new[] { new Command(Resources.Prompt, true, true) }, null) { Secret = true });
-
-            Enqueue(new CallbackCommand(new[] { new Command(Resources.TabExpansion2, true, true) }, null) { Secret = true });
-
-            var existing = (
-                from profileVariable in InitialSessionState.Variables["profile"]
-                from pathProperty in ((PSObject)profileVariable.Value).Properties.Match("*Host*", PSMemberTypes.NoteProperty)
-                where File.Exists(pathProperty.Value.ToString())
-                select pathProperty.Value.ToString()
-            ).Select(path => new Command(path, false, true)).ToArray();
-            // This might be nice to have too (in case anyone was using it):
-            _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-
-            if (existing.Any())
+            // we're going to ensure the startup profile goes _first_
+            lock (((ICollection) CommandQueue).SyncRoot)
             {
-                Enqueue(new CallbackCommand( existing, ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) { Secret = true }); // this is super important
-            }
-            else
-            {
-                Enqueue(new CallbackCommand( "New-Paragraph", ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) { Secret = true }); // this is super important
+                CallbackCommand[] commands = new CallbackCommand[CommandQueue.Count];
+                CommandQueue.CopyTo(commands, 0);
+                CommandQueue.Clear();
+
+                var existing = (
+                    from profileVariable in InitialSessionState.Variables["profile"]
+                    from pathProperty in ((PSObject) profileVariable.Value).Properties.Match("*Host*", PSMemberTypes.NoteProperty)
+                    where File.Exists(pathProperty.Value.ToString())
+                    select pathProperty.Value.ToString()
+                    ).Select(path => new Command(path, false, true)).ToArray();
+                // This might be nice to have too (in case anyone was using it):
+                _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
+
+                if (existing.Any())
+                {
+                    CommandQueue.Enqueue(new CallbackCommand(existing,
+                        ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) {Secret = true});
+                        // this is super important
+                }
+
+                CommandQueue.Enqueue(new CallbackCommand(new[] {new Command(Resources.Prompt, true, true)}, null) {Secret = true});
+
+                foreach (var command in commands)
+                {
+                    CommandQueue.Enqueue(command);
+                }
             }
         }
 

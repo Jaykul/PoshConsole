@@ -79,17 +79,9 @@ namespace PoshCode
 
             Loaded += (sender, ignored) =>
             {
-                if (Runner == null)
+                if (!Runner.IsInitialized)
                 {
-                    Runner = new RunspaceProxy(_host);
-                    Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action) (() =>
-                    {
-                        CommandBox.IsEnabled = true;
-                        ExecutePromptFunction(null, PipelineState.Completed);
-                    }));
-
-                    // TODO: Improve this interface
-                    Expander.TabComplete = Runner.CompleteInput;
+                    Runner.Initialize();
                 }
             };
         }
@@ -226,7 +218,17 @@ namespace PoshCode
                     str.Append(obj);
                 }
                 Prompt(str.ToString());
-            }) { DefaultOutput = false, Secret = true }; 
+            }) { DefaultOutput = false, Secret = true };
+
+            Runner = new RunspaceProxy(_host);
+            Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
+            {
+                CommandBox.IsEnabled = true;
+                ExecutePromptFunction(null, PipelineState.Completed);
+            }));
+
+            // TODO: Improve this interface
+            Expander.TabComplete = Runner.CompleteInput;
         }
 
         public Command DefaultOutputCommand { get; set; }
