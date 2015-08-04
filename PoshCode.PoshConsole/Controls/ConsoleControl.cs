@@ -17,6 +17,8 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using PoshCode.Interop;
+using PoshCode.Properties;
 
 namespace PoshCode.Controls
 {
@@ -653,16 +655,26 @@ namespace PoshCode.Controls
             set { SetValue(TitleProperty, value); }
         }
 
-
-        public Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
+        public event EventHandler<PromptForObjectEventArgs> PromptForObject;
+        public Dictionary<string, PSObject> OnPromptForObject(PromptForObjectEventArgs e)
         {
-            if (!string.IsNullOrEmpty(caption))
-                Write(caption + "\n");
-            if (!string.IsNullOrEmpty(message))
-                Write(message + "\n");
+
+            EventHandler<PromptForObjectEventArgs> handler = PromptForObject;
+            if (handler != null)
+            {
+                handler(this, e);
+                return e.Results;
+            }
+
+
+
+            if (!string.IsNullOrEmpty(e.Caption))
+                Write(e.Caption + "\n");
+            if (!string.IsNullOrEmpty(e.Message))
+                Write(e.Message + "\n");
 
             var results = new Dictionary<string, PSObject>();
-            foreach (var fd in descriptions)
+            foreach (var fd in e.Descriptions)
             {
                 Type type = Type.GetType(fd.ParameterAssemblyFullName);
 
@@ -675,7 +687,7 @@ namespace PoshCode.Controls
                     int count = 0;
                     do
                     {
-                        PSObject single = GetSingle(caption, message, string.Format("{0}[{1}]", prompt, count++),
+                        PSObject single = GetSingle(e.Caption, e.Message, $"{prompt}[{count++}]",
                                                       fd.HelpMessage, fd.DefaultValue, type);
                         if (single == null) break;
 
@@ -690,7 +702,7 @@ namespace PoshCode.Controls
                 }
                 else
                 {
-                    results[fd.Name] = GetSingle(caption, message, prompt, fd.HelpMessage, fd.DefaultValue, type);
+                    results[fd.Name] = GetSingle(e.Caption, e.Message, prompt, fd.HelpMessage, fd.DefaultValue, type);
                 }
 
             }
@@ -700,7 +712,14 @@ namespace PoshCode.Controls
         {
             if (null != type && type == typeof(PSCredential))
             {
-                return PSObject.AsPSObject(PromptForCredentialInline(caption, message, String.Empty, prompt));
+                if (Settings.Default.UseCredentialUI)
+                {
+                    return PSObject.AsPSObject(CredentialUI.Prompt(caption, message, psDefault.ToString(), string.Empty));
+                }
+                else
+                {
+                    return PSObject.AsPSObject(PromptForCredentialInline(caption, message, psDefault.ToString(), prompt));
+                }
             }
 
             while (true)
@@ -765,14 +784,24 @@ namespace PoshCode.Controls
             }
         }
 
-        public int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
+
+        // public delegate void PromptForChoiceHandler(object sender, PromptForChoiceEventArgs e);
+        public event EventHandler<PromptForChoiceEventArgs> PromptForChoice;
+        public int OnPromptForChoice(PromptForChoiceEventArgs e)
         {
+            EventHandler<PromptForChoiceEventArgs> handler = PromptForChoice;
+            if (handler != null)
+            {
+                handler(this, e);
+                return e.SelectedIndex;
+            }
+
             // Write the caption and message strings in Blue.
-            Write(ConsoleColor.Blue, ConsoleColor.Black, caption + "\n" + message + "\n");
+            Write(ConsoleColor.Blue, ConsoleColor.Black, e.Caption + "\n" + e.Message + "\n");
 
             // Convert the choice collection into something that's a little easier to work with
             // See the BuildHotkeysAndPlainLabels method for details.
-            var promptData = BuildHotkeysAndPlainLabels(choices, true);
+            var promptData = BuildHotkeysAndPlainLabels(e.Choices, true);
 
 
             // Loop reading prompts until a match is made, the default is
@@ -781,9 +810,9 @@ namespace PoshCode.Controls
             {
 
                 // Format the overall choice prompt string to display...
-                for (int element = 0; element < promptData.GetLength(1); element++)
+                for (var element = 0; element < promptData.GetLength(1); element++)
                 {
-                    if (element == defaultChoice)
+                    if (element == e.SelectedIndex)
                     {
                         Write(ConsoleBrushes.VerboseForeground, ConsoleBrushes.VerboseBackground,
                             $"[{promptData[0, element]}] {promptData[1, element]}  ");
@@ -793,27 +822,27 @@ namespace PoshCode.Controls
                         Write(null, null, $"[{promptData[0, element]}] {promptData[1, element]}  ");
                     }
                 }
-                Write(null, null, $"(default is \"{promptData[0, defaultChoice]}\"):");
+                Write(null, null, $"(default is \"{promptData[0, e.SelectedIndex]}\"):");
 
                 string data = ReadLine().Trim().ToUpper();
 
                 // If the choice string was empty, use the default selection.
                 if (data.Length == 0)
-                    return defaultChoice;
+                    return e.SelectedIndex;
 
                 // See if the selection matched and return the
                 // corresponding index if it did...
-                for (int i = 0; i < choices.Count; i++)
+                for (var i = 0; i < e.Choices.Count; i++)
                 {
                     if (promptData[0, i][0] == data[0])
                         return i;
                 }
 
                 // If they picked the very last thing in the list, they want help
-                if (promptData.GetLength(1) > choices.Count && promptData[0, choices.Count] == data)
+                if (promptData.GetLength(1) > e.Choices.Count && promptData[0, e.Choices.Count] == data)
                 {
                     // Show help
-                    foreach (var choice in choices)
+                    foreach (var choice in e.Choices)
                     {
                         Write($"{choice.Label.Replace("&", "")} - {choice.HelpMessage}\n");
                     }
@@ -848,7 +877,8 @@ namespace PoshCode.Controls
                 do
                 {
                     fields = new Collection<FieldDescription>(new[] { user });
-                    var login = Prompt(caption, message, fields);
+                    var username = new PromptForObjectEventArgs(caption, message, fields);
+                    var login = OnPromptForObject(username);
                     userName = login["User"].BaseObject as string;
                 } while (userName != null && userName.Length == 0);
             }
@@ -870,7 +900,8 @@ namespace PoshCode.Controls
             pass.IsMandatory = true;
 
             fields = new Collection<FieldDescription>(new[] { pass });
-            var password = Prompt(String.Empty, String.Empty, fields);
+            var pwd = new PromptForObjectEventArgs(string.Empty, string.Empty, fields);
+            var password = OnPromptForObject(pwd);
 
             // TODO: I'm not sure what to do with the PSCredentialUIOptions options, because PowerShell.exe ignores them
             return new PSCredential(userName, (SecureString)password["Password"].BaseObject);

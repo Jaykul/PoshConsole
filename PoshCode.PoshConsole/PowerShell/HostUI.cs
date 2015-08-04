@@ -7,6 +7,8 @@ using System.Security;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using PoshCode.Controls;
+using PoshCode.Interop;
+using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
 {
@@ -50,23 +52,61 @@ namespace PoshCode.PowerShell
         public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
         {
             // TODO: allow overriding with an event handler
-            return _control.PromptForCredentialInline(caption, message, userName, targetName);
+            if (Settings.Default.UseCredentialUI)
+            {
+                return CredentialUI.PromptForWindowsCredentials(caption, message, IntPtr.Zero, userName, string.Empty);
+            }
+            else
+            {
+                return _control.PromptForCredentialInline(caption, message, userName, targetName);
+            }
         }
 
         public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
         {
-            // TODO: allow overriding with an event handler
-            return _control.PromptForCredentialInline(caption, message, userName, targetName, allowedCredentialTypes, options);
+            if (Settings.Default.UseCredentialUI)
+            {
+                // TODO: allow overriding with an event handler
+                if (string.IsNullOrEmpty(targetName))
+                    targetName = Environment.UserDomainName;
+
+                if (string.IsNullOrEmpty(caption))
+                    caption = "Credentials";
+
+                if (string.IsNullOrEmpty(message))
+                    message = "Please enter your credentials";
+
+                var credentialsOptions = new CredentialUI.PromptForCredentialsOptions(targetName, caption, message);
+
+                if (allowedCredentialTypes == PSCredentialTypes.Generic || allowedCredentialTypes == PSCredentialTypes.Default)
+                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_GENERIC_CREDENTIALS;
+
+                if (options.HasFlag(PSCredentialUIOptions.AlwaysPrompt))
+                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_ALWAYS_SHOW_UI;
+
+                if (options.HasFlag(PSCredentialUIOptions.ReadOnlyUserName))
+                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_KEEP_USERNAME;
+
+                if (options.HasFlag(PSCredentialUIOptions.ValidateUserNameSyntax) && allowedCredentialTypes == PSCredentialTypes.Generic)
+                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_VALIDATE_USERNAME;
+
+                return CredentialUI.PromptForCredentials(credentialsOptions, userName, String.Empty);
+            }
+            else
+            {
+                return _control.PromptForCredentialInline(caption, message, userName, targetName, allowedCredentialTypes, options);
+            }
+            //CredentialUI.PromptForWindowsCredentials()
         }
 
         public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
         {
-            return _control.PromptForChoice(caption, message, choices, defaultChoice);
+            return _control.OnPromptForChoice(new PromptForChoiceEventArgs(caption, message, choices, defaultChoice));
         }
 
         public override Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
         {
-            return _control.Prompt(caption, message, descriptions);
+            return _control.OnPromptForObject(new PromptForObjectEventArgs(caption, message, descriptions));
         }
 
 
