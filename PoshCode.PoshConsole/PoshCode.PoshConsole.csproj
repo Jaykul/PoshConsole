@@ -73,6 +73,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\3.0\System.Management.Automation.dll</HintPath>
@@ -90,6 +91,27 @@
     <Compile Include="Commands\NewParagraphCommand.cs" />
     <Compile Include="Commands\OutPoshConsoleCommand.cs" />
     <Compile Include="Commands\ScriptBlockBaseCommand.cs" />
+    <Compile Include="Controls\ColorInverter.cs" />
+    <Compile Include="Controls\ConsoleBrushes.cs" />
+    <Compile Include="Controls\ConsoleControl.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.BufferSize.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.CommandHandlers.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.EventHandlers.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.IPSConsoleControl.cs" />
+    <Compile Include="Controls\ConsoleControl\ConsoleControl.IPSXamlConsole.cs" />
+    <Compile Include="Controls\ConsoleControl\History.cs" />
+    <Compile Include="Controls\ConsoleControl\TabExpansion.cs" />
+    <Compile Include="Controls\ImageButton.cs" />
+    <Compile Include="Controls\ImageToggleButton.cs" />
+    <Compile Include="Controls\Interfaces\CompatabilityInterfaces.cs" />
+    <Compile Include="Controls\Interfaces\IConsoleControl.cs" />
+    <Compile Include="Controls\PopupMenu.cs" />
+    <Compile Include="Controls\PromptForChoiceEventArgs.cs" />
+    <Compile Include="Controls\PromptForObjectEventArgs.cs" />
+    <Compile Include="Controls\Utility\WpfHelper.cs" />
+    <Compile Include="Interop\CredentialUI.cs" />
+    <Compile Include="Interop\KeyboardHelper.cs" />
+    <Compile Include="Interop\NativeMethods.cs" />
     <Compile Include="IRichConsole.cs" />
     <Compile Include="PoshConsole.cs" />
     <Compile Include="PowerShell\CallbackCommand.cs" />
@@ -107,6 +129,12 @@
     <Compile Include="PowerShell\ScriptBlockInvoker.cs" />
     <Compile Include="PowerShell\SessionStateHelper.cs" />
     <Compile Include="PowerShell\SyncEvents.cs" />
+    <Compile Include="ProgressPanel.xaml.cs">
+      <DependentUpon>ProgressPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ThumbnailImage.cs" />
+    <Compile Include="Utility\KeyboardHelper.cs" />
+    <Compile Include="Utility\StringHelper.cs" />
     <Compile Include="Wpf\BindingConverter.cs" />
     <Compile Include="Wpf\BindingCustomTypeDescriptor.cs" />
     <Compile Include="Wpf\BindingTypeDescriptionProvider.cs" />
@@ -133,6 +161,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="PoshCode.PoshConsole.nuspec" />
     <None Include="Properties\Colors.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -148,10 +179,14 @@
     <Folder Include="XamlTemplates\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PoshCode.Controls\PoshCode.Controls.csproj">
-      <Project>{969a3cf0-3aa6-499b-995b-c84e8f15b107}</Project>
-      <Name>PoshCode.Controls</Name>
-    </ProjectReference>
+    <Page Include="ProgressPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

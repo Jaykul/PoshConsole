@@ -108,10 +108,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PoshCode.Controls\PoshCode.Controls.csproj">
-      <Project>{969a3cf0-3aa6-499b-995b-c84e8f15b107}</Project>
-      <Name>PoshCode.Controls</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PoshCode.PoshConsole\PoshCode.PoshConsole.csproj">
       <Project>{8135F268-594F-4536-A0A6-1B63923811F8}</Project>
       <Name>PoshCode.PoshConsole</Name>

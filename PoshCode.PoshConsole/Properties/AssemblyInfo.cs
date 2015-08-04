@@ -23,6 +23,7 @@ using System.Windows.Markup;
 
 // Assigning an XML Namespace Definition exposes the namespace to WPF
 [assembly: XmlnsDefinition("http://schemas.poshcode.org/wpf/poshcode", "PoshCode")]
+[assembly: XmlnsDefinition("http://schemas.poshcode.org/wpf/poshcode", "PoshCode.Controls")]
 
 //In order to begin building localizable applications, set 
 //<UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file
