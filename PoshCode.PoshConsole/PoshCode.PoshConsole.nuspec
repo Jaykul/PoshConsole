@@ -11,12 +11,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Fix SessionState, History, TabExpansion
-      Cleanup Prompt, TabExpansion
-      Fix Initialization so commands can be run on Window Initialized
-      Refactor PoshCode.Controls into the PoshCode.PoshConsole assembly
-      Add events for PromptForChoice and PromptForObject
-      Switch to PowerShell.exe-like CredUI prompt for Credentials    
+      Fix the prompt function
+      Fix padding on the document
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
