@@ -63,7 +63,9 @@ namespace PoshCode.Controls
                 AcceptsTab = true,
                 AcceptsReturn = true,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-                Padding = new Thickness(0.0)
+                Padding = new Thickness(0),
+                Margin = new Thickness(0),
+                Background = Brushes.BurlyWood
             };
             _popup = new PopupMenu(this);
             _expansion = new TabExpansion();

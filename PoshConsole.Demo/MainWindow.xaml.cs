@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 using System.Security;
 using System.Threading;
 using System.Windows;
@@ -239,5 +240,10 @@ namespace PoshConsole.Demo
             }
         }
         */
+
+        private void GCI_Click(object sender, RoutedEventArgs e)
+        {
+            PoshConsole.ExecuteCommand(new Command("Get-ChildItem"));
+        }
     }
 }

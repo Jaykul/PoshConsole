@@ -83,6 +83,8 @@ namespace PoshCode
                 {
                     Runner.Initialize();
                 }
+
+                Document.PagePadding = Padding;
             };
         }
 

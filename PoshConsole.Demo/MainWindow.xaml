@@ -152,18 +152,9 @@
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="Buttons">
-                    <fluent:Button Header="Enlarge"/>
-                    <fluent:Button Header="Reduce" />
-                    <fluent:Button Header="Cmd" />
-
-                    <fluent:Button Header="Button with rectangle as icon">
-                        <fluent:Button.Icon>
-                            <Rectangle Fill="Green" Height="16" Width="16" />
-                        </fluent:Button.Icon>
-                        <fluent:Button.LargeIcon>
-                            <Rectangle Fill="Blue" Height="32" Width="32" />
-                        </fluent:Button.LargeIcon>
-                    </fluent:Button>
+                    <fluent:Button Header="Get-ChildItem" Click="GCI_Click" />
+                    <fluent:Button Header="Get-Service" />
+                    <fluent:Button Header="Get-Process" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="Test">
@@ -171,7 +162,6 @@
                         <fluent:SplitButton x:Name="UndoButton"
                             KeyTip="Ctrl+Z"
                             Header="Undo"
-                            Icon="{DynamicResource AppbarUndoIcon}"
                             SizeDefinition="Middle,Small"
                             Command="ApplicationCommands.Undo"
                             FocusManager.IsFocusScope="True"
@@ -185,7 +175,6 @@
                         <fluent:SplitButton x:Name="RedoButton"
                             KeyTip="Ctrl+Y"
                             Header="Redo"
-                            Icon="{DynamicResource appbar_redo}"
                             SizeDefinition="Middle,Small"
                             Command="ApplicationCommands.Redo"
                             CanAddButtonToQuickAccessToolBar="True"
@@ -329,12 +318,13 @@
             <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Height="5" VerticalAlignment="Bottom"/>
             <ContentControl Grid.Row="0"/>
 
-            <poshCode:PoshConsole Grid.Row="1" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
+            <poshCode:PoshConsole 
+                PromptForChoice="Console_PromptForChoice"
+                Grid.Row="1" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
                 Title="PoshConsole" IsSelectionEnabled="True" 
                 Background="#00000000" 
-                FontSize="12" FontFamily="Consolas"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                PromptForChoice="Console_PromptForChoice" />            
+                FontSize="12" FontFamily="Consolas" Padding="4,0,0,0"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />            
         </Grid>
 
         <fluent:StatusBar
