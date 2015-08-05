@@ -183,7 +183,7 @@ namespace PoshCode.Interop
         /// <returns></returns>
         public static PromptCredentialsResult PromptForWindowsCredentials(string caption, string message, IntPtr hwndParent, string userName, string password)
         {
-            PromptForWindowsCredentialsOptions options = new PromptForWindowsCredentialsOptions(caption, message)
+            var options = new PromptForWindowsCredentialsOptions(caption, message)
             {
                 HwndParent = hwndParent,
                 IsSaveChecked = false
@@ -203,8 +203,8 @@ namespace PoshCode.Interop
             if (string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(password))
                 return PromptForWindowsCredentialsInternal<PromptCredentialsResult>(options, null, null);
 
-            using (SecureString userNameS = new SecureString())
-            using (SecureString passwordS = new SecureString())
+            using (var userNameS = new SecureString())
+            using (var passwordS = new SecureString())
             {
                 if (!string.IsNullOrEmpty(userName))
                 {
@@ -266,7 +266,7 @@ namespace PoshCode.Interop
         /// <returns></returns>
         public static PromptCredentialsSecureStringResult PromptForWindowsCredentialsWithSecureString(string caption, string message, IntPtr hwndParent, SecureString userName, SecureString password)
         {
-            PromptForWindowsCredentialsOptions options = new PromptForWindowsCredentialsOptions(caption, message)
+            var options = new PromptForWindowsCredentialsOptions(caption, message)
             {
                 HwndParent = hwndParent,
                 IsSaveChecked = false
@@ -287,7 +287,7 @@ namespace PoshCode.Interop
 
         private static T PromptForWindowsCredentialsInternal<T>(PromptForWindowsCredentialsOptions options, SecureString userName, SecureString password) where T : class, IPromptCredentialsResult
         {
-            NativeMethods.CREDUI_INFO creduiInfo = new NativeMethods.CREDUI_INFO()
+            var creduiInfo = new NativeMethods.CREDUI_INFO()
             {
                 pszCaptionText = options.Caption,
                 pszMessageText = options.Message,
@@ -295,16 +295,16 @@ namespace PoshCode.Interop
                 hbmBanner = options.HbmBanner
             };
 
-            PromptForWindowsCredentialsFlag credentialsFlag = options.Flags;
+            var credentialsFlag = options.Flags;
 
-            IntPtr userNamePtr = IntPtr.Zero;
-            IntPtr passwordPtr = IntPtr.Zero;
-            int authPackage = 0;
-            IntPtr outAuthBuffer = IntPtr.Zero;
-            int outAuthBufferSize = 0;
-            IntPtr inAuthBuffer = IntPtr.Zero;
-            int inAuthBufferSize = 0;
-            bool save = options.IsSaveChecked;
+            var userNamePtr = IntPtr.Zero;
+            var passwordPtr = IntPtr.Zero;
+            var authPackage = 0;
+            var outAuthBuffer = IntPtr.Zero;
+            var outAuthBufferSize = 0;
+            var inAuthBuffer = IntPtr.Zero;
+            var inAuthBufferSize = 0;
+            var save = options.IsSaveChecked;
             try
             {
                 if (userName != null || password != null)
@@ -462,8 +462,8 @@ namespace PoshCode.Interop
         /// <returns></returns>
         public static PromptCredentialsResult PromptForCredentials(PromptForCredentialsOptions options, string userName, string password)
         {
-            using (SecureString userNameS = new SecureString())
-            using (SecureString passwordS = new SecureString())
+            using (var userNameS = new SecureString())
+            using (var passwordS = new SecureString())
             {
                 if (!string.IsNullOrEmpty(userName))
                 {
@@ -555,22 +555,22 @@ namespace PoshCode.Interop
         private static T PromptForCredentialsInternal<T>(PromptForCredentialsOptions options, SecureString userName, SecureString password) where T : class, IPromptCredentialsResult
         {
             if (options == null)
-                throw new ArgumentNullException("options");
+                throw new ArgumentNullException(nameof(options));
             if (userName != null && (userName.Length > NativeMethods.CREDUI_MAX_USERNAME_LENGTH))
-                throw new ArgumentOutOfRangeException("userName", "CREDUI_MAX_USERNAME_LENGTH");
+                throw new ArgumentOutOfRangeException(nameof(userName), "CREDUI_MAX_USERNAME_LENGTH");
             if (password != null && (password.Length > NativeMethods.CREDUI_MAX_PASSWORD_LENGTH))
-                throw new ArgumentOutOfRangeException("password", "CREDUI_MAX_PASSWORD_LENGTH");
+                throw new ArgumentOutOfRangeException(nameof(password), "CREDUI_MAX_PASSWORD_LENGTH");
 
-            NativeMethods.CREDUI_INFO creduiInfo = new NativeMethods.CREDUI_INFO()
+            var creduiInfo = new NativeMethods.CREDUI_INFO()
             {
                 pszCaptionText = options.Caption,
                 pszMessageText = options.Message,
                 hwndParent = options.HwndParent,
                 hbmBanner = options.HbmBanner
             };
-            IntPtr userNamePtr = IntPtr.Zero;
-            IntPtr passwordPtr = IntPtr.Zero;
-            bool save = options.IsSaveChecked;
+            var userNamePtr = IntPtr.Zero;
+            var passwordPtr = IntPtr.Zero;
+            var save = options.IsSaveChecked;
             try
             {
                 // The maximum number of characters that can be copied to (pszUserName|szPassword) including the terminating null character.
@@ -781,7 +781,7 @@ namespace PoshCode.Interop
                 set
                 {
                     if (value.Length > NativeMethods.CREDUI_MAX_CAPTION_LENGTH)
-                        throw new ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException(nameof(value));
                     _caption = value;
                 }
             }
@@ -791,7 +791,7 @@ namespace PoshCode.Interop
                 set
                 {
                     if (value.Length > NativeMethods.CREDUI_MAX_MESSAGE_LENGTH)
-                        throw new ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException(nameof(value));
                     _message = value;
                 }
             }
@@ -803,9 +803,9 @@ namespace PoshCode.Interop
             public PromptForWindowsCredentialsOptions(string caption, string message)
             {
                 if (string.IsNullOrEmpty(caption))
-                    throw new ArgumentNullException("caption");
+                    throw new ArgumentNullException(nameof(caption));
                 if (string.IsNullOrEmpty(message))
-                    throw new ArgumentNullException("message");
+                    throw new ArgumentNullException(nameof(message));
                 Caption = caption;
                 Message = message;
                 Flags = PromptForWindowsCredentialsFlag.CREDUIWIN_GENERIC;
@@ -824,7 +824,7 @@ namespace PoshCode.Interop
                 set
                 {
                     if (value.Length > NativeMethods.CREDUI_MAX_CAPTION_LENGTH)
-                        throw new ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException(nameof(value));
                     _caption = value;
                 }
             }
@@ -834,7 +834,7 @@ namespace PoshCode.Interop
                 set
                 {
                     if (value.Length > NativeMethods.CREDUI_MAX_MESSAGE_LENGTH)
-                        throw new ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException(nameof(value));
                     _message = value;
                 }
             }
@@ -847,11 +847,11 @@ namespace PoshCode.Interop
             public PromptForCredentialsOptions(string targetName, string caption, string message)
             {
                 if (string.IsNullOrEmpty(targetName))
-                    throw new ArgumentNullException("targetName");
+                    throw new ArgumentNullException(nameof(targetName));
                 if (string.IsNullOrEmpty(caption))
-                    throw new ArgumentNullException("caption");
+                    throw new ArgumentNullException(nameof(caption));
                 if (string.IsNullOrEmpty(message))
-                    throw new ArgumentNullException("message");
+                    throw new ArgumentNullException(nameof(message));
                 TargetName = targetName;
                 Caption = caption;
                 Message = message;
@@ -970,18 +970,18 @@ namespace PoshCode.Interop
 
             public static PromptCredentialsResult CredUnPackAuthenticationBufferWrap(bool decryptProtectedCredentials, IntPtr authBufferPtr, int authBufferSize)
             {
-                StringBuilder sbUserName = new StringBuilder(255);
-                StringBuilder sbDomainName = new StringBuilder(255);
-                StringBuilder sbPassword = new StringBuilder(255);
-                int userNameSize = sbUserName.Capacity;
-                int domainNameSize = sbDomainName.Capacity;
-                int passwordSize = sbPassword.Capacity;
+                var sbUserName = new StringBuilder(255);
+                var sbDomainName = new StringBuilder(255);
+                var sbPassword = new StringBuilder(255);
+                var userNameSize = sbUserName.Capacity;
+                var domainNameSize = sbDomainName.Capacity;
+                var passwordSize = sbPassword.Capacity;
 
                 //#define CRED_PACK_PROTECTED_CREDENTIALS      0x1
                 //#define CRED_PACK_WOW_BUFFER                 0x2
                 //#define CRED_PACK_GENERIC_CREDENTIALS        0x4
 
-                bool result = CredUnPackAuthenticationBuffer((decryptProtectedCredentials ? 0x1 : 0x0),
+                var result = CredUnPackAuthenticationBuffer((decryptProtectedCredentials ? 0x1 : 0x0),
                                                                 authBufferPtr,
                                                                 authBufferSize,
                                                                 sbUserName,
@@ -1030,12 +1030,12 @@ namespace PoshCode.Interop
 
             public static PromptCredentialsSecureStringResult CredUnPackAuthenticationBufferWrapSecureString(bool decryptProtectedCredentials, IntPtr authBufferPtr, int authBufferSize)
             {
-                int userNameSize = 255;
-                int domainNameSize = 255;
-                int passwordSize = 255;
-                IntPtr userNamePtr = IntPtr.Zero;
-                IntPtr domainNamePtr = IntPtr.Zero;
-                IntPtr passwordPtr = IntPtr.Zero;
+                var userNameSize = 255;
+                var domainNameSize = 255;
+                var passwordSize = 255;
+                var userNamePtr = IntPtr.Zero;
+                var domainNamePtr = IntPtr.Zero;
+                var passwordPtr = IntPtr.Zero;
                 try
                 {
                     userNamePtr = Marshal.AllocCoTaskMem(userNameSize);
@@ -1046,7 +1046,7 @@ namespace PoshCode.Interop
                     //#define CRED_PACK_WOW_BUFFER                 0x2
                     //#define CRED_PACK_GENERIC_CREDENTIALS        0x4
 
-                    bool result = CredUnPackAuthenticationBuffer((decryptProtectedCredentials ? 0x1 : 0x0),
+                    var result = CredUnPackAuthenticationBuffer((decryptProtectedCredentials ? 0x1 : 0x0),
                                                                     authBufferPtr,
                                                                     authBufferSize,
                                                                     userNamePtr,
@@ -1105,11 +1105,11 @@ namespace PoshCode.Interop
             #region Utility Methods
             public static SecureString PtrToSecureString(IntPtr p)
             {
-                SecureString s = new SecureString();
-                int i = 0;
+                var s = new SecureString();
+                var i = 0;
                 while (true)
                 {
-                    char c = (char)Marshal.ReadInt16(p, ((i++) * sizeof(short)));
+                    var c = (char)Marshal.ReadInt16(p, ((i++) * sizeof(short)));
                     if (c == '\u0000')
                         break;
                     s.AppendChar(c);
@@ -1119,7 +1119,7 @@ namespace PoshCode.Interop
             }
             public static SecureString PtrToSecureString(IntPtr p, int length)
             {
-                SecureString s = new SecureString();
+                var s = new SecureString();
                 for (var i = 0; i < length; i++)
                     s.AppendChar((char)Marshal.ReadInt16(p, i * sizeof(short)));
                 s.MakeReadOnly();
@@ -1194,7 +1194,7 @@ namespace PoshCode.Interop
 
         internal static SecureString CreateSecureString(IntPtr ptrToString, int length = 0)
         {
-            string password = length > 0
+            var password = length > 0
                  ? Marshal.PtrToStringUni(ptrToString, length)
                  : Marshal.PtrToStringUni(ptrToString);
             return ConvertToSecureString(password);
@@ -1203,8 +1203,8 @@ namespace PoshCode.Interop
 
         internal static string ConvertToString(this SecureString secureString)
         {
-            string str = string.Empty;
-            IntPtr pointer = IntPtr.Zero;
+            var str = string.Empty;
+            var pointer = IntPtr.Zero;
             if ((secureString != null) && (secureString.Length > 0))
             {
 
