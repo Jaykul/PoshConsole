@@ -45,7 +45,7 @@ namespace PoshCode.Interop
         /// </summary>
         /// <param name="e">The KeyEventArgs</param>
         /// <returns>A KeyInfo struct</returns>
-        [CLSCompliant(false)]
+        // TODO: [CLSCompliant(false)]
         public static KeyInfo ToKeyInfo(this KeyEventArgs e)
         {
             int vk = KeyInterop.VirtualKeyFromKey(e.Key);

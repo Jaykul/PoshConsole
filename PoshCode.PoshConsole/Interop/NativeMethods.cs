@@ -36,8 +36,8 @@ using System.Text;
 
 namespace PoshCode.Interop
 {
-    [CLSCompliant(false)]
-    public static class NativeMethods
+    // TODO: [CLSCompliant(false)]
+    internal static class NativeMethods
     {
         #region user32!RegisterHotKey
         [return: MarshalAs(UnmanagedType.Bool)]
