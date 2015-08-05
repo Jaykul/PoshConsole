@@ -27,19 +27,20 @@ namespace PoshCode.PowerShell
 		/// </summary>
 		int _native;
 
-		/// <summary>
-		/// Store the window title 
-		/// </summary>
-		private string _savedTitle = String.Empty;
+        internal PoshConsole PoshConsole { get; }
+
+        /// <summary>
+        /// Store the window title 
+        /// </summary>
+        private string _savedTitle = String.Empty;
 		private readonly PSHostUserInterface _UI;
-        private readonly PoshConsole _control;
 	    private readonly Options _options;
 
         internal Host(PoshConsole control, Panel progress, Options options)
 		{
-            _control = control;
+            PoshConsole = control;
 		    _options = options;
-            _UI = new HostUI(_control, progress);
+            _UI = new HostUI(PoshConsole, progress);
 
 			MakeConsole();
 		}
@@ -160,16 +161,16 @@ namespace PoshCode.PowerShell
         public void WriteNativeOutput(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message, _control.Current);
-            _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
+            PoshConsole.Write(ConsoleBrushes.NativeOutputForeground, ConsoleBrushes.NativeOutputBackground, message, PoshConsole.Current);
+            PoshConsole.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(()=>PoshConsole.SetPrompt()));
             // TODO: REIMPLEMENT NATIVE prompt using Begin/End and Prompt()
         }
 
         public void WriteNativeError(string message)
         {
             // Write is Dispatcher checked
-            _control.Write(ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message, _control.Current);
-            _control.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(_control.SetPrompt));
+            PoshConsole.Write(ConsoleBrushes.NativeErrorForeground, ConsoleBrushes.NativeErrorBackground, message, PoshConsole.Current);
+            PoshConsole.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(() => PoshConsole.SetPrompt()));
         }
 
 

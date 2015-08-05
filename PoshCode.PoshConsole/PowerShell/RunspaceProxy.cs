@@ -9,6 +9,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using PoshCode.Properties;
 
@@ -40,8 +41,8 @@ namespace PoshCode.PowerShell
         public Command ContentOutputCommand { get; set; }
 
 
-        protected Queue<CallbackCommand> CommandQueue { get; }
-        protected Thread WorkerThread;
+        private Queue<CallbackCommand> CommandQueue { get; }
+        private Thread WorkerThread;
 
 
         protected InitialSessionState InitialSessionState => _runSpace.InitialSessionState;
@@ -52,10 +53,31 @@ namespace PoshCode.PowerShell
 
         private readonly Host _host;
 
+        private CallbackCommand _promptSequence;
+
         public RunspaceProxy(Host host)
         {
             _host = host;
             CommandQueue = new Queue<CallbackCommand>();
+
+            _promptSequence = new CallbackCommand(
+                new[] {
+                    new Command("New-Paragraph", true, true),
+                    new Command("Prompt", false, true)
+                },
+                result => {
+                    var str = new StringBuilder();
+
+                    foreach (var obj in result.Output)
+                    {
+                        str.Append(obj);
+                    }
+
+                    var prompt = str.ToString();
+                    host.PoshConsole.SetPrompt(prompt);
+                }
+            )
+            { DefaultOutput = false, Secret = true };
         }
 
         public bool IsInitialized => _runSpace != null;
@@ -294,6 +316,11 @@ namespace PoshCode.PowerShell
             lock (((ICollection)CommandQueue).SyncRoot)
             {
                 CommandQueue.Enqueue(command);
+
+                if (!command.Secret)
+                {
+                    CommandQueue.Enqueue(_promptSequence);
+                }
             }
             _syncEvents.NewItemEvent.Set();
         }
@@ -374,8 +401,7 @@ namespace PoshCode.PowerShell
                                 // WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
                             }
 
-                            if (ShouldExit != null)
-                                ShouldExit(this, exitCode);
+                            ShouldExit?.Invoke(this, exitCode);
                         })
                     );
 

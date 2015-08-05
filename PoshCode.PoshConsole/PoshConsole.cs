@@ -176,21 +176,13 @@ namespace PoshCode
                     WriteErrorRecord(error);
                 }
                 if (!secret || !result.Errors.Any() || !result.Output.Any())
-                {   // we don't need the Prompt if there was no output
-                    ExecutePromptFunction(commands, result.State);
+                {
+                    OnCommandFinished(commands, result.State);
                 }
 
             };
         }
      
-        void ExecutePromptFunction(IEnumerable<Command> command, PipelineState lastState)
-        {
-            OnCommandFinished(command, lastState);
-            Runner.Enqueue(_promptSequence);
-        }
-
-        readonly CallbackCommand _promptSequence;
-
         public PoshConsole()
         {
             // Initialize the document.
@@ -204,35 +196,15 @@ namespace PoshCode
             document.Resources.Add("ConsoleFont", consoleFont);
             Document = document;
 
-            _promptSequence = new CallbackCommand(
-            new[]
-            {
-                new Command("New-Paragraph", true, true),
-                new Command("Prompt", false, true)
-            }, result =>
-            {
-                var str = new StringBuilder();
-
-                foreach (PSObject obj in result.Output)
-                {
-                    str.Append(obj);
-                }
-                Prompt(str.ToString());
-            }) { DefaultOutput = false, Secret = true };
-
             Runner = new RunspaceProxy(_host);
             Runner.RunspaceReady += (source, args) => Dispatcher.BeginInvoke((Action)(() =>
             {
                 CommandBox.IsEnabled = true;
-                ExecutePromptFunction(null, PipelineState.Completed);
+                OnCommandFinished(null, PipelineState.Completed);
             }));
 
             // TODO: Improve this interface
             Expander.TabComplete = Runner.CompleteInput;
-        }
-
-        public Command DefaultOutputCommand { get; set; }
-        public Command ContentOutputCommand { get; set; }
-
+        }        
     }
 }

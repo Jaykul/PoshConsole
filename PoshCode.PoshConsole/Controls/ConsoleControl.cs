@@ -159,28 +159,6 @@ namespace PoshCode.Controls
             get { return _scrollViewer ?? (_scrollViewer = Template.FindName("PART_ContentHost", this) as ScrollViewer); }
         }
 
-        //private void NewParagraph()
-        //{
-
-        //}
-        public void Prompt(string prompt)
-        {
-            //Dispatcher.ExitAllFrames();
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-            {
-                if (Next != null)
-                {
-                    var insert = new Run(prompt)
-                    {
-                        Background = Background,
-                        Foreground = Foreground
-                    };
-                    Next.Inlines.Add(insert);
-                    SetPrompt();
-                }
-            });
-
-        }
 
         public KeyInfo ReadKey(ReadKeyOptions options)
         {
@@ -193,7 +171,7 @@ namespace PoshCode.Controls
             {
                 if (_inputBuffer.Count == 0)
                 {
-                    Dispatcher.BeginInvoke((Action)(SetPrompt));
+                    Dispatcher.BeginInvoke((Action)(()=>SetPrompt()));
                     _waitingForKey = true;
                     _gotInputKey.Reset();
                     _gotInputKey.WaitOne();
@@ -270,23 +248,33 @@ namespace PoshCode.Controls
 
         #region Should Be Internal
         // TODO: this should be internal
-        public void SetPrompt()
+        public void SetPrompt(string prompt = null)
         {
-            Dispatcher.VerifyAccess();
-            // the problem is, the prompt might have used Write-Host
-            // so we need to move the _commandContainer to the end.
-            lock (_commandContainer)
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
             {
-                Next.Inlines.Remove(_commandContainer);
+                // the problem is, the prompt might have used Write-Host
+                // so we need to move the CommandContainer to the end.
+                lock (_commandContainer)
+                {
+                    // if there's a parameter (the output of the prompt function), it should be added in front of the CommandContainer
+                    if (!string.IsNullOrEmpty(prompt))
+                    {
+                        Next.Inlines.Add(new Run(prompt) {Background = Background, Foreground = Foreground});
+                    }
 
-                ((Control)_commandContainer.Child).MaxWidth = Math.Max(_characterWidth * 10,
-                 ScrollViewer.ViewportWidth - Next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
-                Next.Inlines.Add(_commandContainer);
-            }
+                    Next.Inlines.Remove(_commandContainer);
 
-            UpdateLayout();
-            //ScrollViewer.ScrollToBottom();
-            _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+                    // Recalculate the size of the CommandContainer
+                    ((Control) _commandContainer.Child).MaxWidth = Math.Max(_characterWidth*10,
+                        ScrollViewer.ViewportWidth - Next.ContentEnd.GetCharacterRect(LogicalDirection.Forward).Left);
+
+                    Next.Inlines.Add(_commandContainer);
+                }
+
+                UpdateLayout();
+                //ScrollViewer.ScrollToBottom();
+                _commandContainer.Child.Focus(); // Notice this is "whichever" is active ;)
+            });
         }
 
         public void FlushInputBuffer()
