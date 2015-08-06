@@ -11,8 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Fix the prompt function
-      Fix padding on the document
+      Fix credential prompt null-pointer crash
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>

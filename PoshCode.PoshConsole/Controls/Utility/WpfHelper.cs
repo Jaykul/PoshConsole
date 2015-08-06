@@ -77,5 +77,15 @@ namespace PoshCode.Controls.Utility
             // we reached the root of the tree without finding it
             return parent as T;
         }
+
+        public static IntPtr GetHandle(this DependencyObject control)
+        {
+            return control.Dispatcher.Invoke(() => { 
+                var window = Window.GetWindow(control);
+                return window == null
+                    ? IntPtr.Zero
+                    : new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+                });
+        }
     }
 }

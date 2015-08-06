@@ -846,8 +846,8 @@ namespace PoshCode.Interop
             public int AuthErrorCode { get; set; }
             public PromptForCredentialsOptions(string targetName, string caption, string message)
             {
-                if (string.IsNullOrEmpty(targetName))
-                    throw new ArgumentNullException(nameof(targetName));
+                if (targetName == null)
+                    targetName = string.Empty; // new ArgumentNullException(nameof(targetName));
                 if (string.IsNullOrEmpty(caption))
                     throw new ArgumentNullException(nameof(caption));
                 if (string.IsNullOrEmpty(message))
@@ -1147,9 +1147,9 @@ namespace PoshCode.Interop
         
         public static implicit operator PSCredential(PromptCredentialsResult credentials)
         {
-            if (credentials == null) return null;
+            if (string.IsNullOrEmpty(credentials?.UserName)) return null;
 
-            return new PSCredential(string.IsNullOrEmpty(credentials.DomainName) ? credentials.UserName : $"{credentials.DomainName}\\{credentials.UserName}", credentials.Password.ConvertToSecureString());
+            return new PSCredential(string.IsNullOrEmpty(credentials.DomainName) ? credentials.UserName : $"{credentials.DomainName}\\{credentials.UserName}", credentials.Password?.ConvertToSecureString());
         }
     }
     /// <summary>

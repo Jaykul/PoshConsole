@@ -14,24 +14,20 @@ namespace PoshCode.PowerShell
 {
     class HostUI : PSHostUserInterface
     {
-        private readonly ConsoleControl _control;
-        private readonly PSHostRawUserInterface _rawUI;
-        
+        private readonly PoshConsole _control;
 
-        public HostUI(ConsoleControl control, Panel progress)
+
+        public HostUI(PoshConsole control, Panel progress)
         {
             ProgressPanel = progress;
             _control = control;
-            _rawUI = new HostRawUI(control);
+            RawUI = new HostRawUI(control);
         }
 
         // Possibly an alternative panel that pops up and can be closed?
         #region IPSConsole Members
 
-        public override PSHostRawUserInterface RawUI
-        {
-            get { return _rawUI; }
-        }
+        public override PSHostRawUserInterface RawUI { get; }
 
         #region ReadLine
         /// <summary>
@@ -66,37 +62,59 @@ namespace PoshCode.PowerShell
         {
             if (Settings.Default.UseCredentialUI)
             {
-                // TODO: allow overriding with an event handler
-                if (string.IsNullOrEmpty(targetName))
-                    targetName = Environment.UserDomainName;
-
                 if (string.IsNullOrEmpty(caption))
-                    caption = "Credentials";
+                    caption = "Windows PowerShell credential request";
 
                 if (string.IsNullOrEmpty(message))
                     message = "Please enter your credentials";
 
-                var credentialsOptions = new CredentialUI.PromptForCredentialsOptions(targetName, caption, message);
+                var pfwCredentialsOptions = new CredentialUI.PromptForWindowsCredentialsOptions(caption, message)
+                {
+                    HwndParent = _control.WindowHandle
+                };
 
-                if (allowedCredentialTypes == PSCredentialTypes.Generic || allowedCredentialTypes == PSCredentialTypes.Default)
-                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_GENERIC_CREDENTIALS;
+                if (allowedCredentialTypes == PSCredentialTypes.Domain)
+                {
+                    pfwCredentialsOptions.Flags ^= CredentialUI.PromptForWindowsCredentialsFlag.CREDUIWIN_GENERIC;
+                }
+                // If the targetName was set, we'd have a good way to tell one credential from another, and could save them ...
+                // pfwCredentialsOptions.Flags |= CredentialUI.PromptForWindowsCredentialsFlag.CREDUIWIN_CHECKBOX;
 
-                if (options.HasFlag(PSCredentialUIOptions.AlwaysPrompt))
-                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_ALWAYS_SHOW_UI;
+                return CredentialUI.PromptForWindowsCredentials(pfwCredentialsOptions, userName, string.Empty);
 
-                if (options.HasFlag(PSCredentialUIOptions.ReadOnlyUserName))
-                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_KEEP_USERNAME;
+                // THIS IS HOW PowerShell.exe does it ...
+                // But MSDN says we're not supposed to do that anymore.
 
-                if (options.HasFlag(PSCredentialUIOptions.ValidateUserNameSyntax) && allowedCredentialTypes == PSCredentialTypes.Generic)
-                    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_VALIDATE_USERNAME;
+                //// Defaults to GenericCredentials
+                //var credentialsOptions = new CredentialUI.PromptForCredentialsOptions(targetName, caption, message)
+                //{
+                //    HwndParent = _control.WindowHandle
+                //};
+                //if (allowedCredentialTypes.HasFlag(PSCredentialTypes.Domain))
+                //{
+                //    credentialsOptions.Flags ^= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_GENERIC_CREDENTIALS;
+                //}
+                //else if (options.HasFlag(PSCredentialUIOptions.AlwaysPrompt))
+                //{
+                //    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_ALWAYS_SHOW_UI;
+                //}
 
-                return CredentialUI.PromptForCredentials(credentialsOptions, userName, String.Empty);
+                //// Does this _ever_ happen?
+                //if (options.HasFlag(PSCredentialUIOptions.ReadOnlyUserName))
+                //     credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_KEEP_USERNAME;
+
+                //// Does this ever _not_ happen?
+                //if (options.HasFlag(PSCredentialUIOptions.ValidateUserNameSyntax))
+                //    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_VALIDATE_USERNAME;
+
+                //return CredentialUI.PromptForCredentials(credentialsOptions, userName, String.Empty);
+                
             }
             else
             {
                 return _control.PromptForCredentialInline(caption, message, userName, targetName, allowedCredentialTypes, options);
             }
-            //CredentialUI.PromptForWindowsCredentials()
+            
         }
 
         public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
