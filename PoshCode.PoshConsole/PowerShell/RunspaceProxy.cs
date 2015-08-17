@@ -61,30 +61,34 @@ namespace PoshCode.PowerShell
             CommandQueue = new Queue<CallbackCommand>();
 
             _promptSequence = new CallbackCommand(
-                new[] {
-                    new Command("New-Paragraph", true, true),
+                new[]
+                {
+                    new Command("New-Paragraph", false, true),
                     new Command("Prompt", false, true)
                 },
-                result => {
-                    var str = new StringBuilder();
-
-                    foreach (var obj in result.Output)
+                onFinished:
+                    result =>
                     {
-                        str.Append(obj);
-                    }
+                        var str = new StringBuilder();
 
-                    var prompt = str.ToString();
-                    host.PoshConsole.SetPrompt(prompt);
-                }
-            )
-            { DefaultOutput = false, Secret = true };
+                        foreach (var obj in result.Output)
+                        {
+                            str.Append(obj);
+                        }
+
+                        var prompt = str.ToString();
+                        host.PoshConsole.SetPrompt(prompt);
+                    },
+                secret: true,
+                defaultOutput: false
+                );
         }
 
         public bool IsInitialized => _runSpace != null;
 
         public void Initialize() { 
             // pre-create reusable commands
-            DefaultOutputCommand = new Command("Out-Default");
+            DefaultOutputCommand = new Command("Tee-Default");
             //// for now, merge the errors with the rest of the output
             //DefaultOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
             //DefaultOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error |
@@ -234,42 +238,36 @@ namespace PoshCode.PowerShell
                         _host.UI.WriteLine(boundCommand.ToString());
                     }
 
-                    // This is a dynamic anonymous delegate so that it can access the Callback parameter
-                    var localCommand = boundCommand;
-                    _pipeline.StateChanged +=
-                       (EventHandler<PipelineStateEventArgs>)delegate (object sender, PipelineStateEventArgs e) // =>
-                       {
-                                                                     Trace.WriteLine("Pipeline is " +
-                                                                                     e.PipelineStateInfo.State);
+                    // This is a dynamic anonymous delegate so that we can encapsulate the callback
+                    var callbackCommand = boundCommand;
 
-                                                                     if (e.PipelineStateInfo.IsDone())
-                                                                     {
-                                                                         Trace.WriteLine("Pipeline is Done");
+                    _pipeline.StateChanged += 
+                        (sender, e) =>
+                        {
+                            Trace.WriteLine("Pipeline is " + e.PipelineStateInfo.State);
 
-                                                                         Pipeline completed =
-                                                                            Interlocked.Exchange(ref _pipeline, null);
-                                                                         if (completed != null)
-                                                                         {
-                                                                             Exception failure = e.PipelineStateInfo.Reason;
+                            if (e.PipelineStateInfo.IsDone())
+                            {
+                                Trace.WriteLine("Pipeline is Done");
 
-                                                                             if (failure != null)
-                                                                             {
-                                                                                 Debug.WriteLine(failure.GetType(), "PipelineFailure");
-                                                                                 Debug.WriteLine(failure.Message, "PipelineFailure");
-                                                                             }
-                                                                             Collection<Object> errors = completed.Error.ReadToEnd();
-                                                                             Collection<PSObject> results = completed.Output.ReadToEnd();
+                                var completed = Interlocked.Exchange(ref _pipeline, null);
+                                if (completed != null)
+                                {
+                                    var failure = e.PipelineStateInfo.Reason;
 
-                                                                             completed.Dispose();
-                                                                             //_SyncEvents.PipelineFinishedEvent.Set();
+                                    if (failure != null)
+                                    {
+                                        Debug.WriteLine(failure.GetType(), "PipelineFailure");
+                                        Debug.WriteLine(failure.Message, "PipelineFailure");
+                                    }
 
-                                                                             if (localCommand.Callback != null)
-                                                                             {
-                                                                                 localCommand.Callback( new PipelineExecutionResult(results, errors, failure, e.PipelineStateInfo.State));
-                                                                             }
-                                                                         }
-                                                                     }
-                                                                 };
+                                    // Collect output for event before disposing of pipeline
+                                    callbackCommand.OnFinished(PipelineFinishedEventArgs.FromPipeline(completed, e.PipelineStateInfo));
+                                    completed.Dispose();
+                                    //_SyncEvents.PipelineFinishedEvent.Set();
+                                }
+                            }
+                        };
 
                     // I thought that maybe invoke instead of InvokeAsync() would stop the (COM) thread problems
                     // it didn't, but it means I don't need the sync, so I might as well leave it...
@@ -377,7 +375,7 @@ namespace PoshCode.PowerShell
             //  This profile applies only to the current user and the PoshConsole shell.
 
             // just for the sake of the profiles...
-            var existingProfiles = new[]
+            var shutDownProfiles = new[]
             {
                // Global Exit Profiles
                Path.GetFullPath(Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\profile_exit.ps1")),
@@ -389,16 +387,15 @@ namespace PoshCode.PowerShell
 
             //StringBuilder cmd = new StringBuilder();
 
-            if (existingProfiles.Any())
+            if (shutDownProfiles.Any())
             {
                 Enqueue(
-                    new CallbackCommand(
-                        existingProfiles,
-                        result =>
+                    new CallbackCommand( shutDownProfiles, onFinished: result =>
                         {
-                            if (result.Failure != null)
+                            var failure = result.Failure as RuntimeException;
+                            if (failure != null)
                             {
-                                // WriteErrorRecord(((RuntimeException)(result.Failure)).ErrorRecord);
+                                PoshConsole.CurrentConsole.WriteErrorRecord(failure.ErrorRecord);
                             }
 
                             ShouldExit?.Invoke(this, exitCode);
@@ -420,8 +417,7 @@ namespace PoshCode.PowerShell
             }
             else
             {
-                if (ShouldExit != null)
-                    ShouldExit(this, exitCode);
+                ShouldExit?.Invoke(this, exitCode);
             }
 
 
@@ -454,12 +450,12 @@ namespace PoshCode.PowerShell
 
                 if (existing.Any())
                 {
-                    CommandQueue.Enqueue(new CallbackCommand(existing,
-                        ignored => RunspaceReady(this, _runSpace.RunspaceStateInfo.State)) {Secret = true});
+                    CommandQueue.Enqueue(new CallbackCommand(existing, true, true,
+                        ignored => RunspaceReady?.Invoke(this, _runSpace.RunspaceStateInfo.State)));
                         // this is super important
                 }
 
-                CommandQueue.Enqueue(new CallbackCommand(new[] {new Command(Resources.Prompt, true, true)}, null) {Secret = true});
+                CommandQueue.Enqueue(new CallbackCommand(Resources.Prompt, true, true));
 
                 foreach (var command in commands)
                 {

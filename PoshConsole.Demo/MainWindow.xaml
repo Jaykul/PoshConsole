@@ -316,7 +316,7 @@
                 <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Height="5" VerticalAlignment="Bottom"/>
-            <ContentControl Grid.Row="0"/>
+            <ItemsControl x:Name="MainContent" Grid.Row="0" ItemsSource="{Binding}" />
 
             <poshCode:PoshConsole 
                 PromptForChoice="Console_PromptForChoice"

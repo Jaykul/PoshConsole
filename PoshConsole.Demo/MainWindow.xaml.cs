@@ -243,7 +243,10 @@ namespace PoshConsole.Demo
 
         private void GCI_Click(object sender, RoutedEventArgs e)
         {
-            PoshConsole.ExecuteCommand(new Command("Get-ChildItem"));
+            PoshConsole.ExecuteCommand(new Command("Get-ChildItem"), onSuccessAction: output =>
+            {
+                Dispatcher.Invoke(() => MainContent.DataContext = output);
+            });
         }
     }
 }

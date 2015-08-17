@@ -89,7 +89,7 @@ namespace PoshWpf
 
         public WindowDispatcherAsyncResult(EventWaitHandle done)
         {
-            // Completed = false; // redundant initializing
+            // OnFinished = false; // redundant initializing
             DoneHandle = done;
         }
 

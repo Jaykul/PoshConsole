@@ -26,7 +26,7 @@ namespace PoshCode.Controls
       /// But we want to trim any whitespace off the end of the output first 
       /// because the paragraph mark makes plenty of whitespace
       /// </summary>
-      protected void OnCommandFinished(IEnumerable<Command> command, PipelineState results)
+      internal void OnCommandFinished(IEnumerable<Command> command, PipelineState results)
       {
          _id++;
          //// NOTE: we are only using the dispatcher, to make sure this doesn't complete before the command output

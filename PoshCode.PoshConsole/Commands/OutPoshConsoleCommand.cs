@@ -112,7 +112,7 @@ namespace PoshWpf.Commands
 
                 if (_template != null)
                 {
-                    ErrorRecord error = _dispatcher.Invoke(() =>
+                    var error = _dispatcher.Invoke(() =>
                     {
                         ErrorRecord err;
                         _template.TryLoadXaml(out _element, out err);
@@ -120,7 +120,7 @@ namespace PoshWpf.Commands
                         var window = _element as Window;
                         if (window != null)
                         {
-                            if (Host.PrivateData != null && Host.PrivateData.BaseObject is IPSWpfOptions)
+                            if (Host.PrivateData?.BaseObject is IPSWpfOptions)
                             {
                                 _window = window;
                                 _window.Show();
@@ -143,7 +143,7 @@ namespace PoshWpf.Commands
             {
                 if (InputObject != null)
                 {
-                    object output = InputObject.BaseObject;
+                    var output = InputObject.BaseObject;
 
                     // If the output is something that goes in a document ....
                     // Then we need to ditch our NewItemsControl and use a FlowDocumentScrollViewer
@@ -234,7 +234,7 @@ namespace PoshWpf.Commands
 
 
                             // try to magically resolve the file
-                            string template = Path.Combine(CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
+                            var template = Path.Combine(CurrentProviderLocation("FileSystem").Path, FileTemplate.Name);
                             if (File.Exists(template))
                             {
                                 FileTemplate = new FileInfo(template);
@@ -244,7 +244,7 @@ namespace PoshWpf.Commands
                                 var module = Process.GetCurrentProcess().MainModule;
                                 if (module != null)
                                 {
-                                    string templates = Path.Combine(Path.GetDirectoryName(module.FileName), "XamlTemplates");
+                                    var templates = Path.Combine(Path.GetDirectoryName(module.FileName), "XamlTemplates");
                                     template = Path.Combine(templates, FileTemplate.Name);
                                 }
                                 if (File.Exists(template))

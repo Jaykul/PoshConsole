@@ -19,6 +19,13 @@ namespace PoshCode
 {
     public class PoshConsole : ConsoleControl, IRichConsole
     {
+
+        public static PoshConsole CurrentConsole
+        {
+            get;
+            private set;
+        }
+
         internal RunspaceProxy Runner { get; set; }
         private Host _host;
 
@@ -54,6 +61,7 @@ namespace PoshCode
 
             // TODO: Improve this interface
             Expander.TabComplete = Runner.CompleteInput;
+            CurrentConsole = this;
         }
 
 
@@ -142,14 +150,9 @@ namespace PoshCode
         }
 
         //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public void ExecuteCommand(string command, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null)
+        public void ExecuteCommand(string script, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null)
         {
-            Runner.Enqueue(
-                new CallbackCommand(command, PipelineOutputHandler(secret, onErrorAction, onSuccessAction, new List<Command>( new[] { new Command(command, true, true)} ) ) )
-                {
-                    Secret = secret,
-                    DefaultOutput = defaultOutput
-                });
+            ExecuteCommand(new Command(script, true, true), showInGui, defaultOutput, secret, onErrorAction, onSuccessAction);
         }
 
 
@@ -162,54 +165,7 @@ namespace PoshCode
             if (showInGui)
                 commands.Add(new Command("Out-PoshConsole"));
 
-            Runner.Enqueue(
-                new CallbackCommand( commands, PipelineOutputHandler(secret, onErrorAction, onSuccessAction, commands))
-                {
-                    Secret = secret,
-                    DefaultOutput = defaultOutput
-                });
-        }
-
-        private PipelineOutputHandler PipelineOutputHandler(bool secret, Action<RuntimeException> onErrorAction, Action<Collection<PSObject>> onSuccessAction, List<Command> commands)
-        {
-            return result =>
-            {
-
-                if (result.Failure != null)
-                {
-                    onErrorAction?.Invoke((RuntimeException) result.Failure);
-
-                    // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                    WriteErrorRecord(((RuntimeException) (result.Failure)).ErrorRecord);
-                }
-                else
-                {
-                    onSuccessAction?.Invoke(result.Output);
-                }
-
-                foreach (var err in result.Errors)
-                {
-                    var pso = (err as PSObject)?.BaseObject ?? err;
-                    var error = pso as ErrorRecord;
-                    if (error == null)
-                    {
-                        var exception = pso as Exception;
-                        if (exception == null)
-                        {
-                            WriteErrorRecord(new ErrorRecord(null, pso.ToString(), ErrorCategory.NotSpecified, pso));
-                            continue;
-                        }
-                        WriteErrorRecord(new ErrorRecord(exception, "Unspecified", ErrorCategory.NotSpecified, pso));
-                        continue;
-                    }
-                    WriteErrorRecord(error);
-                }
-                if (!secret || !result.Errors.Any() || !result.Output.Any())
-                {
-                    OnCommandFinished(commands, result.State);
-                }
-
-            };
+            Runner.Enqueue(new CallbackCommand(commands, defaultOutput, secret, onFailure: onErrorAction, onSuccess: onSuccessAction ));
         }
 
         #region PromptForUserInput (PowerShell-specific console-based user interface)

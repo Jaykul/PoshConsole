@@ -92,6 +92,7 @@
     <Compile Include="Commands\NewParagraphCommand.cs" />
     <Compile Include="Commands\OutPoshConsoleCommand.cs" />
     <Compile Include="Commands\ScriptBlockBaseCommand.cs" />
+    <Compile Include="Commands\Tee-Default.cs" />
     <Compile Include="Controls\ColorInverter.cs" />
     <Compile Include="Controls\ConsoleBrushes.cs" />
     <Compile Include="Controls\ConsoleControl.cs" />
@@ -120,7 +121,7 @@
     <Compile Include="PowerShell\HostRawUI.cs" />
     <Compile Include="PowerShell\HostUI.cs" />
     <Compile Include="PowerShell\Options.cs" />
-    <Compile Include="PowerShell\PipelineExecutionResult.cs" />
+    <Compile Include="PowerShell\PipelineFinishedEventArgs.cs" />
     <Compile Include="PowerShell\PipelineHelper.cs" />
     <Compile Include="PowerShell\Presentation.cs" />
     <Compile Include="PowerShell\RunspaceProxy.cs" />
@@ -165,7 +166,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="PoshCode.PoshConsole.nuspec" />
+    <None Include="PoshCode.PoshConsole.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Colors.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Colors.Designer.cs</LastGenOutput>
