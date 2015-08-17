@@ -4,7 +4,7 @@ using Microsoft.PowerShell.Commands;
 
 namespace PoshCode.Commands
 {
-    [Cmdlet("Tee", "Default", SupportsShouldProcess = false, ConfirmImpact = ConfirmImpact.None)]
+    [Cmdlet("Tee", "Default")]
 
     public class TeeDefault : OutDefaultCommand
     {
