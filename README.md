@@ -14,7 +14,7 @@ You can use in in WPF applications as simply as placing the control in your wind
 
 ```xaml
 <pc:PoshConsole xmlns:pc="http://schemas.poshcode.org/wpf/poshcode"
-                              x:Name="PoshConsole" />
+                x:Name="PoshConsole" />
 ```
 
 By default, it adds a "Modules" subdirectory of your application root to your PSModulePath, so you can ship your own modules there, and if you leave the window visible, your users can interact with it as though it were a full-blown PowerShell console.  

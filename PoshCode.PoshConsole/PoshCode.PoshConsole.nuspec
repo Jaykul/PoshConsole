@@ -6,7 +6,7 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/Jaykul/PoshConsole/blob/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/Jaykul/PoshConsole/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/Jaykul/PoshConsole/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
