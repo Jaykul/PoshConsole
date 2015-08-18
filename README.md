@@ -1,7 +1,16 @@
 # PoshConsole
 
-PoshConsole is a WPF control that self-hosts PowerShell. 
-It is the core of my framework for building PowerShell-based management applications (which is what I'm currently doing, as a consultant, if you want to hire me!) You can use this in WPF applications as simply as placing the control in your window:
+PoshConsole is a WPF control that self-hosts PowerShell.
+It is the core of my framework for building PowerShell-based management applications (which is what I'm currently doing, as a consultant). 
+
+You can install it from NuGet:
+
+```posh
+Install-Package PoshCode.PoshConsole 
+```
+
+
+You can use in in WPF applications as simply as placing the control in your window:
 
 ```xaml
 <pc:PoshConsole xmlns:pc="http://schemas.poshcode.org/wpf/poshcode"
@@ -32,6 +41,7 @@ PoshConsole.ExecuteCommand("Get-ADUser", onSuccessAction: users =>
 ```
 
 There is, of course, much more you can do, and I'm just getting started, so there are plenty more features on the way, and I'm still debating a few of the design choices, if you'd like to voice an opinion.
+
 
 ### A Caution:
 
