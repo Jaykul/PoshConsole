@@ -60,5 +60,5 @@ If anyone cares, I am currently debating the Execute methods and their callbacks
 
 I'd like to thank a couple of vendors who support Open Source by letting developers use their tools for free:
 
-![Analyzed by nDepend](thanks/poweredby-ndepend.png)
-![Refactored by Resharper](thanks/refactoredby-resharper.png)
+[![Analyzed by nDepend](thanks/poweredby-ndepend.png)](http://www.ndepend.com/)
+[![Refactored by Resharper](thanks/refactoredby-resharper.png)](https://www.jetbrains.com/resharper/)
