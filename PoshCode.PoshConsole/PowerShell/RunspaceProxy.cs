@@ -11,6 +11,8 @@ using System.Management.Automation.Runspaces;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
@@ -31,17 +33,14 @@ namespace PoshCode.PowerShell
         public delegate void RunspaceReadyHandler(object source, RunspaceState stateEventArgs);
         public event RunspaceReadyHandler RunspaceReady;
 
-
-        private readonly SyncEvents _syncEvents = new SyncEvents();
         private Runspace _runSpace;
-
         private Pipeline _pipeline;
 
         public Command DefaultOutputCommand { get; private set; }
         public Command ContentOutputCommand { get; set; }
 
 
-        private Queue<CallbackCommand> CommandQueue { get; }
+        private BufferBlock<PoshConsolePipeline> CommandQueue { get; }
         private Thread WorkerThread;
 
 
@@ -52,36 +51,12 @@ namespace PoshCode.PowerShell
         protected RunspaceStateInfo RunspaceStateInfo => _runSpace.RunspaceStateInfo;
 
         private readonly Host _host;
-
-        private CallbackCommand _promptSequence;
+        private CancellationTokenSource _cancellationSource;
 
         public RunspaceProxy(Host host)
         {
             _host = host;
-            CommandQueue = new Queue<CallbackCommand>();
-
-            _promptSequence = new CallbackCommand(
-                new[]
-                {
-                    new Command("New-Paragraph", false, true),
-                    new Command("Prompt", false, true)
-                },
-                onFinished:
-                    result =>
-                    {
-                        var str = new StringBuilder();
-
-                        foreach (var obj in result.Output)
-                        {
-                            str.Append(obj);
-                        }
-
-                        var prompt = str.ToString();
-                        host.PoshConsole.SetPrompt(prompt);
-                    },
-                secret: true,
-                defaultOutput: false
-                );
+            CommandQueue = new BufferBlock<PoshConsolePipeline>();
         }
 
         public bool IsInitialized => _runSpace != null;
@@ -174,161 +149,228 @@ namespace PoshCode.PowerShell
             // Set the default runspace, so that event handlers (and Tasks) can run in the same runspace as commands.
             Runspace.DefaultRunspace = _runSpace;
 
+
+            _cancellationSource = new CancellationTokenSource();
+
             // we could hypothetically make several threads to do this work...
             WorkerThread = new Thread(ThreadRun) { Name = "CommandRunner" };
             WorkerThread.SetApartmentState(ApartmentState.STA);
-            WorkerThread.Start();
-        }
-
-        private void StartRunspace()
-        {
-            _runSpace.Open();
-            ExecuteStartupProfile();
+            WorkerThread.Start(_cancellationSource.Token);
         }
 
 
         /// <summary>
         /// The ThreadStart delegate
         /// </summary>
-        public void ThreadRun()
+        public void ThreadRun(object cancellationToken)
         {
-            StartRunspace();
-            CallbackCommand boundCommand;
-            //_ExitException = null;
+            _runSpace.Open();
+            ExecuteStartupProfile();
 
-            int sync = WaitHandle.WaitAny(_syncEvents.NewItemEvents);
-            while (sync > 0)
+            // this is super important
+            RunspaceReady?.Invoke(this, _runSpace.RunspaceStateInfo.State);
+
+            // Run the prompt for the first time
+            InvokePipeline(new PoshConsolePipeline("Prompt", false, true));
+
+
+            var cancel = (CancellationToken) cancellationToken;
+            do
             {
-                Trace.WriteLineIf(ThreadTrace.TraceVerbose, "Signalled. Items in queue: " + CommandQueue.Count, "threading");
-                while (CommandQueue.Count > 0)
+                try
                 {
-                    lock (((ICollection)CommandQueue).SyncRoot)
+                    var pcPipeline = CommandQueue.Receive(cancel);
+
+                    if (!pcPipeline.Secret)
                     {
-                        boundCommand = CommandQueue.Dequeue();
+                        _host.UI.WriteLine(pcPipeline.ToString());
                     }
 
-                    Pipeline pipeline;
-
-                    if (boundCommand.ScriptCommand)
+                    InvokePipeline(pcPipeline);
+                    // Secret commands have no visible output, and thus don't need reprompting
+                    if (!pcPipeline.Secret)
                     {
-                        var command = boundCommand.Commands.First();
-                        pipeline = _runSpace.CreatePipeline(command.CommandText, !boundCommand.Secret);
+                        InvokePrompt();
                     }
-                    else
+                }
+                catch (OperationCanceledException)
+                {
+                    if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
+                        && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
                     {
-                        pipeline = _runSpace.CreatePipeline();
+                        _runSpace.Close();
+                    }
+                    break;
+                }
+            } while (true);
+        }
 
-                        foreach (var command in boundCommand.Commands)
+        private void InvokePipeline(PoshConsolePipeline pcp)
+        {
+            _pipeline = GetPowerShellPipeline(pcp);
+            _pipeline.StateChanged +=
+                (sender, e) =>
+                {
+                    Trace.WriteLine("Pipeline is " + e.PipelineStateInfo.State);
+
+                    if (e.PipelineStateInfo.IsDone())
+                    {
+                        Trace.WriteLine("Pipeline is Done");
+
+                        var completed = Interlocked.Exchange(ref _pipeline, null);
+                        if (completed != null)
                         {
-                            pipeline.Commands.Add(command);
+                            // Collect output for event before disposing of pipeline
+                            PipelineFinished(pcp, e, completed);
+
+                            if (!pcp.Secret) // || !errors.Any() || !results.Any())
+                            {
+                                PoshConsole.CurrentConsole.OnCommandFinished(pcp.Commands, e.PipelineStateInfo.State);
+                            }
+
+                            completed.Dispose();
+                            //_SyncEvents.PipelineFinishedEvent.Set();
                         }
                     }
+                };
 
-                    if (boundCommand.DefaultOutput)
-                    {
-                        pipeline.Commands.Add(DefaultOutputCommand);
-                    }
-
-                    // Trace.WriteLineIf(threadTrace.TraceVerbose, "Executing " + pipeline.Commands[0] + "... Items remaining: " + _CommandQueue.Count.ToString(), "threading");
-
-                    _pipeline = pipeline;
-
-                    if (!boundCommand.Secret)
-                    {
-                        _host.UI.WriteLine(boundCommand.ToString());
-                    }
-
-                    // This is a dynamic anonymous delegate so that we can encapsulate the callback
-                    var callbackCommand = boundCommand;
-
-                    _pipeline.StateChanged += 
-                        (sender, e) =>
-                        {
-                            Trace.WriteLine("Pipeline is " + e.PipelineStateInfo.State);
-
-                            if (e.PipelineStateInfo.IsDone())
-                            {
-                                Trace.WriteLine("Pipeline is Done");
-
-                                var completed = Interlocked.Exchange(ref _pipeline, null);
-                                if (completed != null)
-                                {
-                                    var failure = e.PipelineStateInfo.Reason;
-
-                                    if (failure != null)
-                                    {
-                                        Debug.WriteLine(failure.GetType(), "PipelineFailure");
-                                        Debug.WriteLine(failure.Message, "PipelineFailure");
-                                    }
-
-                                    // Collect output for event before disposing of pipeline
-                                    callbackCommand.OnFinished(PipelineFinishedEventArgs.FromPipeline(completed, e.PipelineStateInfo));
-                                    completed.Dispose();
-                                    //_SyncEvents.PipelineFinishedEvent.Set();
-                                }
-                            }
-                        };
-
-                    // I thought that maybe invoke instead of InvokeAsync() would stop the (COM) thread problems
-                    // it didn't, but it means I don't need the sync, so I might as well leave it...
-                    try
-                    {
-                        _pipeline.Invoke();
-                    }
-                    catch (Exception ipe)
-                    {
-                        // TODO: Handle IncompleteParseException with some elegance!
-                        //    klumsy suggested we could prevent these by using the tokenizer 
-                        // Tokenizing in OnEnterPressed (before sending it to the CommandRunner)
-                        //    would allow us to let {Enter} be handled nicely ... 
-                        // Tokenizing in KeyDown would let us do live syntax highlighting,
-                        //    is it fast enough to work?
-                        Debug.WriteLine(ipe.Message);
-                    }
-                    //catch (ParseException pe)
-                    //{
-                    //   // TODO: Handle ParseException with some elegance!
-                    //}
-                    //_Pipeline.InvokeAsync();
-                    //_Pipeline.Input.Write(boundCommand.Input, true);
-                    //_Pipeline.Input.Close();
-
-                    //_SyncEvents.PipelineFinishedEvent.WaitOne();
-                }
-                Trace.WriteLineIf(ThreadTrace.TraceVerbose, "Done. No items in Queue.", "threading");
-                _syncEvents.EmptyQueueEvent.Set();
-                sync = WaitHandle.WaitAny(_syncEvents.NewItemEvents);
-            }
-
-            if (_runSpace.RunspaceStateInfo.State != RunspaceState.Closing
-                && _runSpace.RunspaceStateInfo.State != RunspaceState.Closed)
+            // I thought that maybe invoke instead of InvokeAsync() would stop the (COM) thread problems
+            // it didn't, but it means I don't need the sync, so I might as well leave it...
+            try
             {
-                _runSpace.Close();
+                _pipeline.Invoke();
             }
+            catch (Exception ipe)
+            {
+                // TODO: Handle IncompleteParseException with some elegance!
+                //    klumsy suggested we could prevent these by using the tokenizer 
+                // Tokenizing in OnEnterPressed (before sending it to the CommandRunner)
+                //    would allow us to let {Enter} be handled nicely ... 
+                // Tokenizing in KeyDown would let us do live syntax highlighting,
+                //    is it fast enough to work?
+                Debug.WriteLine(ipe.Message);
+            }
+            //catch (ParseException pe)
+            //{
+            //   // TODO: Handle ParseException with some elegance!
+            //}
         }
 
-
-
-        public void Enqueue(CallbackCommand command)
+        private void InvokePrompt()
         {
-            lock (((ICollection)CommandQueue).SyncRoot)
-            {
-                CommandQueue.Enqueue(command);
+            PoshConsole.CurrentConsole.NewParagraph();
+            var pipeline = _runSpace.CreatePipeline("Prompt");
+            var output = pipeline.Invoke();
 
-                if (!command.Secret)
+            // NOTE: The default host doesn't write errors for prompt functions
+
+            var str = new StringBuilder();
+
+            foreach (var obj in output)
+            {
+                str.Append(obj);
+            }
+
+            var prompt = str.ToString();
+            PoshConsole.CurrentConsole.SetPrompt(prompt);
+        }
+
+        private Pipeline GetPowerShellPipeline(PoshConsolePipeline boundCommand)
+        {
+            Pipeline pipeline;
+
+            if (boundCommand.IsScript)
+            {
+                var command = boundCommand.Commands.First();
+                pipeline = _runSpace.CreatePipeline(command.CommandText, !boundCommand.Secret);
+            }
+            else
+            {
+                pipeline = _runSpace.CreatePipeline();
+
+                foreach (var command in boundCommand.Commands)
                 {
-                    CommandQueue.Enqueue(_promptSequence);
+                    pipeline.Commands.Add(command);
                 }
             }
-            _syncEvents.NewItemEvent.Set();
+
+            if (boundCommand.DefaultOutput)
+            {
+                pipeline.Commands.Add(DefaultOutputCommand);
+            }
+
+            return pipeline;
         }
+
+        private static void PipelineFinished(PoshConsolePipeline commands, PipelineStateEventArgs e, Pipeline pipeline)
+        {
+            // collect output
+            var errors = pipeline.Error.ReadToEnd();
+            var results = pipeline.Output.ReadToEnd();
+            var failure = e.PipelineStateInfo.Reason;
+
+            if (!commands.Secret)
+            {
+                PoshConsole.CurrentConsole.WriteErrorRecords(errors);
+            }
+
+            // Fail the task, if applicable
+            if (failure != null)
+            {
+                errors.Insert(0, failure);
+
+                Debug.WriteLine(failure.GetType(), "PipelineFailure");
+                Debug.WriteLine(failure.Message, "PipelineFailure");
+                if (!commands.Secret)
+                {
+                    PoshConsole.CurrentConsole.WriteErrorRecord(((RuntimeException) failure).ErrorRecord);
+                }
+                // commands.TaskSource.SetException(failure);
+            }
+
+            commands.TaskSource.SetResult(
+                new PoshConsolePipelineResults(pipeline.InstanceId, commands.Commands, results, errors, pipeline.PipelineStateInfo.State));
+
+
+        }
+
+
+        public void Enqueue(PoshConsolePipeline pipeline)
+        {
+            // Even though CommandQueue is threaded
+            // We NEED to ensure that our sets of commands stay together
+            CommandQueue.Post(pipeline);
+        }
+
+
+
+        public Task<PoshConsolePipelineResults> Invoke(PoshConsolePipeline pipeline)
+        {
+            // Even though CommandQueue is threaded
+            // We NEED to ensure that our sets of commands stay together
+            CommandQueue.Post(pipeline);
+            return pipeline.Task;
+        }
+
+        public Task<PoshConsolePipelineResults> Invoke(IList<Command> commands, bool defaultOutput = true, bool secret = false)
+        {
+            var pipeline = new PoshConsolePipeline(commands, defaultOutput, secret);
+            // Even though CommandQueue is threaded
+            // We NEED to ensure that our sets of commands stay together
+            CommandQueue.Post(pipeline);
+            return pipeline.Task;
+        }
+
+
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            _syncEvents.ExitThreadEvent.Set();
+            _cancellationSource.Cancel();
+            // WorkerThread.Abort(exitCode);
+
             WorkerThread.Join(3000);
             _runSpace.Dispose();
         }
@@ -363,7 +405,7 @@ namespace PoshCode.PowerShell
         /// <summary>
         /// Executes the shutdown profile(s).
         /// </summary>
-        internal void ExecuteShutdownProfile(int exitCode)
+        internal async void ExecuteShutdownProfile(int exitCode)
         {
             //* %windir%\system32\WindowsPowerShell\v1.0\profile_exit.ps1
             //  This profile applies to all users and all shells.
@@ -387,44 +429,21 @@ namespace PoshCode.PowerShell
 
             //StringBuilder cmd = new StringBuilder();
 
-            if (shutDownProfiles.Any())
+            try
             {
-                Enqueue(
-                    new CallbackCommand( shutDownProfiles, onFinished: result =>
-                        {
-                            var failure = result.Failure as RuntimeException;
-                            if (failure != null)
-                            {
-                                PoshConsole.CurrentConsole.WriteErrorRecord(failure.ErrorRecord);
-                            }
-
-                            ShouldExit?.Invoke(this, exitCode);
-                        })
-                    );
-
-
-                //try
-                //{
-                //    ExecuteHelper(cmd.ToString(), null, false);
-                //}
-                //catch (RuntimeException rte)
-                //{
-                //    // An exception occurred that we want to display ...
-                //    // We have to run another pipeline, and pass in the error record.
-                //    // The runtime will bind the Input to the $Input variable
-                //    ExecuteHelper("write-host ($Input | out-string) -fore darkyellow", rte.ErrorRecord, false);
-                //}
+                if (shutDownProfiles.Any())
+                {
+                    await Invoke(shutDownProfiles);
+                }
             }
-            else
+            catch (RuntimeException failure)
+            {
+                PoshConsole.CurrentConsole.WriteErrorRecord(failure.ErrorRecord);
+            }
+            finally
             {
                 ShouldExit?.Invoke(this, exitCode);
             }
-
-
-            //else
-            //{
-            //   ExecutePromptFunction();
-            //}
         }
 
         /// <summary>
@@ -432,37 +451,16 @@ namespace PoshCode.PowerShell
         /// </summary>
         private void ExecuteStartupProfile()
         {
-            // we're going to ensure the startup profile goes _first_
-            lock (((ICollection) CommandQueue).SyncRoot)
-            {
-                CallbackCommand[] commands = new CallbackCommand[CommandQueue.Count];
-                CommandQueue.CopyTo(commands, 0);
-                CommandQueue.Clear();
+            var existing = (
+                from profileVariable in InitialSessionState.Variables["profile"]
+                from pathProperty in
+                    ((PSObject)profileVariable.Value).Properties.Match("*Host*", PSMemberTypes.NoteProperty)
+                where File.Exists(pathProperty.Value.ToString())
+                select pathProperty.Value.ToString()
+                ).Select(path => new Command(path, false, true)).ToArray();
 
-                var existing = (
-                    from profileVariable in InitialSessionState.Variables["profile"]
-                    from pathProperty in ((PSObject) profileVariable.Value).Properties.Match("*Host*", PSMemberTypes.NoteProperty)
-                    where File.Exists(pathProperty.Value.ToString())
-                    select pathProperty.Value.ToString()
-                    ).Select(path => new Command(path, false, true)).ToArray();
-                // This might be nice to have too (in case anyone was using it):
-                _runSpace.SessionStateProxy.SetVariable("profiles", existing.ToArray());
-
-                if (existing.Any())
-                {
-                    CommandQueue.Enqueue(new CallbackCommand(existing, true, true,
-                        ignored => RunspaceReady?.Invoke(this, _runSpace.RunspaceStateInfo.State)));
-                        // this is super important
-                }
-
-                CommandQueue.Enqueue(new CallbackCommand(Resources.Prompt, true, true));
-
-                foreach (var command in commands)
-                {
-                    CommandQueue.Enqueue(command);
-                }
-            }
+            // go around the thread runner ...
+            InvokePipeline(new PoshConsolePipeline(existing, true, true));
         }
-
     }
 }

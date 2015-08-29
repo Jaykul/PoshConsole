@@ -9,40 +9,32 @@ using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
 {
 
-    internal class CallbackCommand
+    internal class PoshConsolePipeline
     {
-        public readonly Collection<Command> Commands;
-        public readonly bool ScriptCommand;
-        public bool DefaultOutput;
-        public bool Secret;
+        internal readonly Collection<Command> Commands;
+        internal readonly bool IsScript;
+        internal bool DefaultOutput;
+        internal bool Secret;
+        internal readonly TaskCompletionSource<PoshConsolePipelineResults> TaskSource;
+        internal Task<PoshConsolePipelineResults> Task => TaskSource.Task;
 
-        //public Pipeline Pipeline;
-
-        public CallbackCommand(IList<Command> commands, bool defaultOutput = true, bool secret = false, Action<PipelineFinishedEventArgs> onFinished = null, Action<RuntimeException> onFailure = null, Action<Collection<PSObject>> onSuccess = null)
+        internal PoshConsolePipeline(IList<Command> commands, bool defaultOutput = true, bool secret = false)
         {
+            TaskSource = new TaskCompletionSource<PoshConsolePipelineResults>();
             Commands = new Collection<Command>(commands);
-
-            if(onFinished != null)
-                this.Finished += (sender, args) => onFinished(args);
-
-            if (onFailure != null)
-                this.Error += (sender, args) => onFailure((RuntimeException)args.Failure);
-
-            if (onSuccess != null)
-                this.Success += (sender, args) => onSuccess(args.Output);
-
-            ScriptCommand = Commands[0].IsScript;
+            IsScript = Commands[0].IsScript;
             DefaultOutput = defaultOutput;
             Secret = secret;
         }
 
-        public CallbackCommand(string script, bool defaultOutput = true, bool secret = false, Action<PipelineFinishedEventArgs> onFinished = null, Action<RuntimeException> onFailure = null, Action<Collection<PSObject>> onSuccess = null) :
-            this(new[] { new Command(script, true, true) }, defaultOutput, secret, onFinished, onFailure, onSuccess)
+        internal PoshConsolePipeline(string script, bool defaultOutput = true, bool secret = false) :
+            this(new[] { new Command(script, true, true) }, defaultOutput, secret)
         {
         }
 
@@ -106,68 +98,8 @@ namespace PoshCode.PowerShell
             return stringValue ?? $"${{{value}}}";
         }
 
-
-        public event CompletedHandler Error;
-
-        public event CompletedHandler Finished;
-
-        public event CompletedHandler Success;
-
-        // Invoke the Error event; called when there's an error
-        protected virtual void OnError(PipelineFinishedEventArgs e)
-        {
-            Error?.Invoke(this, e);
-        }
-
-
-        // Invoke the Error event; called when there's an error
-        protected virtual void OnSuccess(PipelineFinishedEventArgs e)
-        {
-            Success?.Invoke(this, e);
-        }
-
-        public virtual void OnFinished(PipelineFinishedEventArgs e)
-        {
-            Finished?.Invoke(this, e);
-
-            if (e.Failure != null)
-            {
-                OnError(e);
-
-                // ToDo: if( result.Failure is IncompleteParseException ) { // trigger multiline entry
-                PoshConsole.CurrentConsole.WriteErrorRecord(((RuntimeException)(e.Failure)).ErrorRecord);
-            }
-            else
-            {
-                OnSuccess(e);
-            }
-
-            foreach (var err in e.Errors)
-            {
-                var pso = (err as PSObject)?.BaseObject ?? err;
-                var error = pso as ErrorRecord;
-                if (error == null)
-                {
-                    var exception = pso as Exception;
-                    if (exception == null)
-                    {
-                        PoshConsole.CurrentConsole.WriteErrorRecord(new ErrorRecord(null, pso.ToString(), ErrorCategory.NotSpecified, pso));
-                        continue;
-                    }
-                    PoshConsole.CurrentConsole.WriteErrorRecord(new ErrorRecord(exception, "Unspecified", ErrorCategory.NotSpecified, pso));
-                    continue;
-                }
-                PoshConsole.CurrentConsole.WriteErrorRecord(error);
-            }
-            if (!Secret || !e.Errors.Any() || !e.Output.Any())
-            {
-                PoshConsole.CurrentConsole.OnCommandFinished(Commands, e.State);
-            }
-        }
     }
-
-    // A delegate type for hooking up change notifications.
-    public delegate void CompletedHandler(object sender, PipelineFinishedEventArgs e);
+    
 
     
 }

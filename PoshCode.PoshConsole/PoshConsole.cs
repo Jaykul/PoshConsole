@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
 using System.Security;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -63,7 +64,6 @@ namespace PoshCode
             Expander.TabComplete = Runner.CompleteInput;
             CurrentConsole = this;
         }
-
 
         public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
             "Progress", typeof(string), typeof(PoshConsole), new PropertyMetadata(null));
@@ -141,31 +141,45 @@ namespace PoshCode
             // TODO: support error formatting preference:
             Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, $"   + CategoryInfo            : {errorRecord.CategoryInfo}\n");
             Write(ConsoleBrushes.ErrorForeground, ConsoleBrushes.ErrorBackground, $"   + FullyQualifiedErrorId   : {errorRecord.FullyQualifiedErrorId}\n");
-    }
+        }
+
+
+        public void WriteErrorRecords(Collection<object> errorRecords)
+        {
+            foreach (var err in errorRecords)
+            {
+                var pso = (err as PSObject)?.BaseObject ?? err;
+                var error = pso as ErrorRecord;
+                if (error == null)
+                {
+                    var exception = pso as Exception;
+                    if (exception == null)
+                    {
+                        WriteErrorRecord(new ErrorRecord( new Exception($"{pso}"), $"{pso}", ErrorCategory.NotSpecified, pso));
+                        continue;
+                    }
+                    WriteErrorRecord(new ErrorRecord(exception, "Unspecified", ErrorCategory.NotSpecified, pso));
+                    continue;
+                }
+                WriteErrorRecord(error);
+            }
+        }
 
         protected override void OnCommand(CommandEventArgs command)
         {
-            ExecuteCommand(command.Command);
+            InvokeAsync(command.Command);
             base.OnCommand(command);
         }
 
-        //        public async Task<PSDataCollection<PSObject>> InvokeCommand(string command)
-        public void ExecuteCommand(string script, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null)
+
+        public Task<PoshConsolePipelineResults> InvokeAsync(Command command, bool defaultOutput = true, bool secret = false)
         {
-            ExecuteCommand(new Command(script, true, true), showInGui, defaultOutput, secret, onErrorAction, onSuccessAction);
+            return Runner.Invoke(new []{command}, defaultOutput, secret);
         }
 
-
-        public void ExecuteCommand(Command command, bool showInGui = false, bool defaultOutput = true, bool secret = false, Action<RuntimeException> onErrorAction = null, Action<Collection<PSObject>> onSuccessAction = null )
+        public Task<PoshConsolePipelineResults> InvokeAsync(string command, bool defaultOutput = true, bool secret = false)
         {
-            defaultOutput &= !secret;
-
-            var commands = new[] {command}.ToList();
-
-            if (showInGui)
-                commands.Add(new Command("Out-PoshConsole"));
-
-            Runner.Enqueue(new CallbackCommand(commands, defaultOutput, secret, onFailure: onErrorAction, onSuccess: onSuccessAction ));
+            return Runner.Invoke(new[] { new Command(command, true) }, defaultOutput, secret);
         }
 
         #region PromptForUserInput (PowerShell-specific console-based user interface)
@@ -179,8 +193,6 @@ namespace PoshCode
                 handler(this, e);
                 return e.Results;
             }
-
-
 
             if (!string.IsNullOrEmpty(e.Caption))
                 Write(e.Caption + "\n");

@@ -119,7 +119,7 @@
   </resheader>
   <data name="Prompt" xml:space="preserve">
     <value>function global:prompt {
-   # FIRST, make a note if there was an error in the previous command
+   # FIRST, make a note if there was an error in the previous pipeline
    $err = !$?
 
    # Make sure Windows and .Net know where we are (they can only handle the FileSystem)

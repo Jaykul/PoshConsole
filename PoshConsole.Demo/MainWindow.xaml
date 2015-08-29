@@ -152,34 +152,11 @@
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="Buttons">
-                    <fluent:Button Header="Get-ChildItem" Click="GCI_Click" />
-                    <fluent:Button Header="Get-Service" />
-                    <fluent:Button Header="Get-Process" />
-                </fluent:RibbonGroupBox>
-
-                <fluent:RibbonGroupBox Header="Test">
-                    <StackPanel Orientation="Horizontal">
-                        <fluent:SplitButton x:Name="UndoButton"
-                            KeyTip="Ctrl+Z"
-                            Header="Undo"
-                            SizeDefinition="Middle,Small"
-                            Command="ApplicationCommands.Undo"
-                            FocusManager.IsFocusScope="True"
-                            CanAddButtonToQuickAccessToolBar="True"
-                            ClosePopupOnMouseDown="True">
-                            <fluent:MenuItem Header="Begin" />
-                            <fluent:MenuItem Header="Undo something" />
-                            <fluent:MenuItem Header="Undo another thing" />
-                        </fluent:SplitButton>
-
-                        <fluent:SplitButton x:Name="RedoButton"
-                            KeyTip="Ctrl+Y"
-                            Header="Redo"
-                            SizeDefinition="Middle,Small"
-                            Command="ApplicationCommands.Redo"
-                            CanAddButtonToQuickAccessToolBar="True"
-                            FocusManager.IsFocusScope="True"/>
-                    </StackPanel>
+                    <fluent:Button Header="Capture Example" Click="Capture_Click" />
+                    <fluent:Button Header="Secret Example" Click="Secret_Click" />
+                    <fluent:Button Header="Console Example" Click="Console_Click" />
+                    <fluent:Button Header="Error Example" Click="Error_Click" />
+                    <fluent:Button Header="Exception Example" Click="Exception_Click" />
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 

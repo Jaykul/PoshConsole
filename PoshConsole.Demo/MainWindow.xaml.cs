@@ -35,8 +35,8 @@ namespace PoshConsole.Demo
 
         protected override void OnInitialized(EventArgs e)
         {
-            // This is here just to make sure we can run commands in this event handler!
-            PoshConsole.ExecuteCommand("Write-Output $PSVersionTable");
+            //// This is here just to make sure we can run commands in this event handler!
+            // PoshConsole.InvokeAsync("Write-Output $PSVersionTable");
             base.OnInitialized(e);
         }
 
@@ -241,12 +241,43 @@ namespace PoshConsole.Demo
         }
         */
 
-        private void GCI_Click(object sender, RoutedEventArgs e)
+        private async void Capture_Click(object sender, RoutedEventArgs e)
         {
-            PoshConsole.ExecuteCommand(new Command("Get-ChildItem"), onSuccessAction: output =>
+            var files = await PoshConsole.InvokeAsync(new Command("Get-ChildItem"));
+            Dispatcher.Invoke(() => MainContent.DataContext = files.Output);
+        }
+
+        private async void Secret_Click(object sender, RoutedEventArgs e)
+        {
+            var processes = await PoshConsole.InvokeAsync("Get-Process | Select -First 25", false, true);
+            Dispatcher.Invoke(() => MainContent.DataContext = processes.Output);
+        }
+
+        private void Console_Click(object sender, RoutedEventArgs e)
+        {
+            PoshConsole.InvokeAsync("Write-Output $PSVersionTable");
+        }
+
+        private async void Error_Click(object sender, RoutedEventArgs e)
+        {
+            var files = await PoshConsole.InvokeAsync("Get-ChildItem NoSuchFile");
+            if (files.State == PipelineState.Failed)
             {
-                Dispatcher.Invoke(() => MainContent.DataContext = output);
-            });
+                Dispatcher.Invoke(() => MainContent.DataContext = "Failed Command");
+            }
+            else if (!files.HadErrors)
+            {
+                Dispatcher.Invoke(() => MainContent.DataContext = files.Output);
+            }
+        }
+
+        private async void Exception_Click(object sender, RoutedEventArgs e)
+        {
+            var files = await PoshConsole.InvokeAsync("throw 'whatever'");
+            if (files.State == PipelineState.Failed)
+            {
+                Dispatcher.Invoke(() => MainContent.DataContext = "Failed Command");
+            }
         }
     }
 }
