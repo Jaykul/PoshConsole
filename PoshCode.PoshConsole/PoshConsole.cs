@@ -182,9 +182,9 @@ namespace PoshCode
             return Runner.Invoke(new []{command}, input, output);
         }
 
-        public Task<PoshConsolePipelineResults> InvokeAsync(string command, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
+        public Task<PoshConsolePipelineResults> InvokeAsync(string command, bool isScript = true, bool useLocalScope = false, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
-            return Runner.Invoke(new[] { new Command(command, true) }, input, output);
+            return Runner.Invoke(new[] { new Command(command, isScript, useLocalScope) }, input, output);
         }
 
         #region PromptForUserInput (PowerShell-specific console-based user interface)

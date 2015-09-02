@@ -280,5 +280,18 @@ namespace PoshConsole.Demo
                 Dispatcher.Invoke(() => MainContent.DataContext = "Failed Command");
             }
         }
+        async void Input_Click(object sender, RoutedEventArgs e)
+        {
+            // this is not part of the test/demo ... we just need something to use as input
+            // You should _not_ do this in lieu of using the pipeline
+            var processes = await PoshConsole.InvokeAsync("Get-Process | Sort CPU -Descending | Select -First 10", output: ConsoleOutput.None);
+
+            // Now invoke a command with pipeline input:
+            await PoshConsole.InvokeAsync("Format-Table", isScript: false, input: processes.Output);
+
+
+            Dispatcher.Invoke(() => MainContent.DataContext = processes.Output);
+
+        }
     }
 }

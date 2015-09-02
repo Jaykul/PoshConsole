@@ -157,6 +157,7 @@
                     <fluent:Button Header="Console Example" Click="Console_Click" />
                     <fluent:Button Header="Error Example" Click="Error_Click" />
                     <fluent:Button Header="Exception Example" Click="Exception_Click" />
+                    <fluent:Button Header="Input Example" Click="Input_Click" />
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 

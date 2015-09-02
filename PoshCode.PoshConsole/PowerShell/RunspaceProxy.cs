@@ -234,11 +234,9 @@ namespace PoshCode.PowerShell
                     }
                 };
 
-            // I thought that maybe invoke instead of InvokeAsync() would stop the (COM) thread problems
-            // it didn't, but it means I don't need the sync, so I might as well leave it...
             try
             {
-                if (pcp.Input != null)
+                if (pcp.Input == null)
                 {
                     _pipeline.Invoke();
                 }
