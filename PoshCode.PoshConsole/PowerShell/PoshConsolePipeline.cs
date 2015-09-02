@@ -57,7 +57,14 @@ namespace PoshCode.PowerShell
                 output.Append(cmd.CommandText);
                 foreach (var param in cmd.Parameters)
                 {
-                    output.AppendFormat(" -{0} {1}", param.Name, GetParameterValue(param.Value));
+                    if (param.Value == null)
+                    {
+                        output.AppendFormat(" -{0}", param.Name);
+                    }
+                    else
+                    {
+                        output.AppendFormat(" -{0} {1}", param.Name, GetParameterValue(param.Value));
+                    }
                 }
 
                 output.Append(script ? " } | " : " | ");

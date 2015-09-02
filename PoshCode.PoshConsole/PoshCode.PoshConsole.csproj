@@ -120,7 +120,7 @@
     <Compile Include="Interop\NativeMethods.cs" />
     <Compile Include="IRichConsole.cs" />
     <Compile Include="PoshConsole.cs" />
-    <Compile Include="PowerShell\CallbackCommand.cs" />
+    <Compile Include="PowerShell\PoshConsolePipeline.cs" />
     <Compile Include="PowerShell\Host.cs" />
     <Compile Include="PowerShell\HostRawUI.cs" />
     <Compile Include="PowerShell\HostUI.cs" />
