@@ -11,9 +11,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Further refinements to the Async api.
-      Add input option, add command array option
-      Change the output from a pair of bools to an enum
+      FIX the refinements to the Async api.
+      FIX the input option
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
