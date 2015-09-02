@@ -13,6 +13,9 @@
     <releaseNotes>
       FIX the refinements to the Async api.
       FIX the input option
+      Add a synchronous Invoke method
+      FIX formatting for switch parameters in invoked scripts
+      Add additional examples
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
