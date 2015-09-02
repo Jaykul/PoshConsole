@@ -256,7 +256,7 @@ namespace PoshConsole.Demo
 
         void Console_Click(object sender, RoutedEventArgs e)
         {
-            PoshConsole.InvokeAsync("Write-Output $PSVersionTable");
+            PoshConsole.Invoke("Write-Output $PSVersionTable");
         }
 
         async void Error_Click(object sender, RoutedEventArgs e)
@@ -280,6 +280,7 @@ namespace PoshConsole.Demo
                 Dispatcher.Invoke(() => MainContent.DataContext = "Failed Command");
             }
         }
+
         async void Input_Click(object sender, RoutedEventArgs e)
         {
             // this is not part of the test/demo ... we just need something to use as input
@@ -292,6 +293,29 @@ namespace PoshConsole.Demo
 
             Dispatcher.Invoke(() => MainContent.DataContext = processes.Output);
 
+        }
+
+        async void Pipeline_Click(object sender, RoutedEventArgs e)
+        {
+            // When you want to accept user input for parameters, you should always build your pipeline using Commands
+            var ps = new Command("Get-Process");
+            var sort = new Command("Sort-Object");
+            
+            // That way, you can pass the user input to a specific parameter, and avoid code injection:
+            sort.Parameters.Add("Property", ProcessSort.SelectedValue);
+            // Switch parameters...
+            if (ProcessDescending.IsChecked == true)
+            {
+                sort.Parameters.Add("Descending");
+            }
+
+            // Note that PowerShell is still dynamic, so there's no validation going on here
+            // But these parameter values are not script, so the user can't use $(tricks) to execute code
+            var select = new Command("Select-Object");
+            select.Parameters.Add("First", (int)ProcessCount.Value);
+
+            // Now pass them in order to InvokeAsync:
+            var processes = await PoshConsole.InvokeAsync( new [] { ps, sort, select });
         }
     }
 }

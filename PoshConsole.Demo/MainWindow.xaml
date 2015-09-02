@@ -109,50 +109,86 @@
                     Header=""
                     IsLauncherVisible="False"
                     x:Name="groupLL">
+                    <fluent:ComboBox x:Name="ProcessSort" Header="Sort" IsReadOnly="False" KeyTip="S" SelectedIndex="7">
+                        <system:String>Id</system:String>
+                        <system:String>Handle</system:String>
+                        <system:String>Name</system:String>
+                        <system:String>NPM</system:String>
+                        <system:String>PM</system:String>
+                        <system:String>VM</system:String>
+                        <system:String>WS</system:String>
+                        <system:String>CPU</system:String>
+                        <system:String>Path</system:String>
+                        <system:String>Product</system:String>
 
-                    <fluent:ComboBox IsEditable="False"
-                        InputWidth="150"
-                        Header="Test"
-                        ItemsSource="{Binding FontsViewModel.FontsData}"
-                        KeyTip="FD">
-                        <fluent:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}"
-                                    FontFamily="{Binding}" />
-                            </DataTemplate>
-                        </fluent:ComboBox.ItemTemplate>
-                    </fluent:ComboBox>
-                    <fluent:ComboBox IsEditable="False"
-                        InputWidth="150"
-                        Header="Test"
-                        ItemsSource="{Binding FontsViewModel.FontsData}">
-                        <fluent:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}"
-                                    FontFamily="{Binding}" />
-                            </DataTemplate>
-                        </fluent:ComboBox.ItemTemplate>
-                    </fluent:ComboBox>
+                        <system:String>BasePriority</system:String>
+                        <system:String>Container</system:String>
+                        <system:String>EnableRaisingEvents</system:String>
+                        <system:String>ExitCode</system:String>
+                        <system:String>ExitTime</system:String>
+                        <system:String>Handles</system:String>
+                        <system:String>HandleCount</system:String>
+                        <system:String>HasExited</system:String>
+                        <system:String>MachineName</system:String>
+                        <system:String>MainModule</system:String>
+                        <system:String>MainWindowHandle</system:String>
+                        <system:String>MainWindowTitle</system:String>
+                        <system:String>MaxWorkingSet</system:String>
+                        <system:String>MinWorkingSet</system:String>
+                        <system:String>Modules</system:String>
+                        <system:String>NonpagedSystemMemorySize</system:String>
+                        <system:String>NonpagedSystemMemorySize64</system:String>
+                        <system:String>PagedMemorySize</system:String>
+                        <system:String>PagedMemorySize64</system:String>
+                        <system:String>PagedSystemMemorySize</system:String>
+                        <system:String>PagedSystemMemorySize64</system:String>
+                        <system:String>PeakPagedMemorySize</system:String>
+                        <system:String>PeakPagedMemorySize64</system:String>
+                        <system:String>PeakVirtualMemorySize</system:String>
+                        <system:String>PeakVirtualMemorySize64</system:String>
+                        <system:String>PeakWorkingSet</system:String>
+                        <system:String>PeakWorkingSet64</system:String>
+                        <system:String>PriorityBoostEnabled</system:String>
+                        <system:String>PriorityClass</system:String>
+                        <system:String>PrivateMemorySize</system:String>
+                        <system:String>PrivateMemorySize64</system:String>
+                        <system:String>PrivilegedProcessorTime</system:String>
+                        <system:String>ProcessName</system:String>
+                        <system:String>ProcessorAffinity</system:String>
+                        <system:String>Responding</system:String>
+                        <system:String>SafeHandle</system:String>
+                        <system:String>SessionId</system:String>
+                        <system:String>Site</system:String>
+                        <system:String>StandardError</system:String>
+                        <system:String>StandardInput</system:String>
+                        <system:String>StandardOutput</system:String>
+                        <system:String>StartInfo</system:String>
+                        <system:String>StartTime</system:String>
+                        <system:String>SynchronizingObject</system:String>
+                        <system:String>Threads</system:String>
+                        <system:String>TotalProcessorTime</system:String>
+                        <system:String>UserProcessorTime</system:String>
+                        <system:String>VirtualMemorySize</system:String>
+                        <system:String>VirtualMemorySize64</system:String>
+                        <system:String>WorkingSet</system:String>
+                        <system:String>WorkingSet64</system:String>
+                        <system:String>Company</system:String>
+                        <system:String>Description</system:String>
+                        <system:String>FileVersion</system:String>
+                        <system:String>ProductVersion</system:String>
 
-                    <fluent:ComboBox x:Name="FilterComboBox"
-                        IsReadOnly="True"
-                        KeyTip="H"
-                        SelectedIndex="0">
-                        <fluent:ComboBox.Menu>
-                            <fluent:RibbonMenu>
-                                <fluent:MenuItem Header="Test" />
-                                <Separator />
-                                <fluent:MenuItem Header="Test" />
-                            </fluent:RibbonMenu>
-                        </fluent:ComboBox.Menu>
-                        <system:String>Show All</system:String>
-                        <system:String>Read-only</system:String>
-                        <system:String>Writeable</system:String>
+
                     </fluent:ComboBox>
+                    <fluent:CheckBox x:Name="ProcessDescending" Header="Descending" IsChecked="True"></fluent:CheckBox>
+                    <fluent:Spinner x:Name="ProcessCount"  Header="Count" Minimum="5" Maximum="1000" Increment="5" Format="N0" ></fluent:Spinner>
+                    <fluent:Button Header="Pipeline Example" Click="Pipeline_Click" />
+
+
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="Buttons">
                     <fluent:Button Header="Capture Example" Click="Capture_Click" />
+
                     <fluent:Button Header="Secret Example" Click="Secret_Click" />
                     <fluent:Button Header="Console Example" Click="Console_Click" />
                     <fluent:Button Header="Error Example" Click="Error_Click" />
