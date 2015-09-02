@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Fluent;
 using PoshCode.Controls;
 using PoshCode.Interop;
+using PoshCode.PowerShell;
 using Button = System.Windows.Controls.Button;
 using MenuItem = Fluent.MenuItem;
 
@@ -241,24 +242,24 @@ namespace PoshConsole.Demo
         }
         */
 
-        private async void Capture_Click(object sender, RoutedEventArgs e)
+        async void Capture_Click(object sender, RoutedEventArgs e)
         {
             var files = await PoshConsole.InvokeAsync(new Command("Get-ChildItem"));
             Dispatcher.Invoke(() => MainContent.DataContext = files.Output);
         }
 
-        private async void Secret_Click(object sender, RoutedEventArgs e)
+        async void Secret_Click(object sender, RoutedEventArgs e)
         {
-            var processes = await PoshConsole.InvokeAsync("Get-Process | Select -First 25", false, true);
+            var processes = await PoshConsole.InvokeAsync("Get-Process | Select -First 25", output: ConsoleOutput.None);
             Dispatcher.Invoke(() => MainContent.DataContext = processes.Output);
         }
 
-        private void Console_Click(object sender, RoutedEventArgs e)
+        void Console_Click(object sender, RoutedEventArgs e)
         {
             PoshConsole.InvokeAsync("Write-Output $PSVersionTable");
         }
 
-        private async void Error_Click(object sender, RoutedEventArgs e)
+        async void Error_Click(object sender, RoutedEventArgs e)
         {
             var files = await PoshConsole.InvokeAsync("Get-ChildItem NoSuchFile");
             if (files.State == PipelineState.Failed)
@@ -271,7 +272,7 @@ namespace PoshConsole.Demo
             }
         }
 
-        private async void Exception_Click(object sender, RoutedEventArgs e)
+        async void Exception_Click(object sender, RoutedEventArgs e)
         {
             var files = await PoshConsole.InvokeAsync("throw 'whatever'");
             if (files.State == PipelineState.Failed)

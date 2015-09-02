@@ -11,9 +11,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Hopefully the last set of major breaking changes before a v1 release
-      Removed ExecuteCommand interface in favor of Task based Invoke/InvokeAsync
-      Simplified the command runner
+      Further refinements to the Async api.
+      Add input option, add command array option
+      Change the output from a pair of bools to an enum
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>

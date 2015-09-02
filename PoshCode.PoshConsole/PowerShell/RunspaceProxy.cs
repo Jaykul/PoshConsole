@@ -171,7 +171,7 @@ namespace PoshCode.PowerShell
             RunspaceReady?.Invoke(this, _runSpace.RunspaceStateInfo.State);
 
             // Run the prompt for the first time
-            InvokePipeline(new PoshConsolePipeline("Prompt", false, true));
+            InvokePipeline(new PoshConsolePipeline("Prompt", output: ConsoleOutput.OutputOnly));
 
 
             var cancel = (CancellationToken) cancellationToken;
@@ -181,14 +181,14 @@ namespace PoshCode.PowerShell
                 {
                     var pcPipeline = CommandQueue.Receive(cancel);
 
-                    if (!pcPipeline.Secret)
+                    if (pcPipeline.Output == ConsoleOutput.CommandOnly || pcPipeline.Output == ConsoleOutput.Default)
                     {
                         _host.UI.WriteLine(pcPipeline.ToString());
                     }
 
                     InvokePipeline(pcPipeline);
                     // Secret commands have no visible output, and thus don't need reprompting
-                    if (!pcPipeline.Secret)
+                    if (pcPipeline.Output != ConsoleOutput.None)
                     {
                         InvokePrompt();
                     }
@@ -223,7 +223,7 @@ namespace PoshCode.PowerShell
                             // Collect output for event before disposing of pipeline
                             PipelineFinished(pcp, e, completed);
 
-                            if (!pcp.Secret) // || !errors.Any() || !results.Any())
+                            if (pcp.Output != ConsoleOutput.None)
                             {
                                 PoshConsole.CurrentConsole.OnCommandFinished(pcp.Commands, e.PipelineStateInfo.State);
                             }
@@ -238,7 +238,14 @@ namespace PoshCode.PowerShell
             // it didn't, but it means I don't need the sync, so I might as well leave it...
             try
             {
-                _pipeline.Invoke();
+                if (pcp.Input != null)
+                {
+                    _pipeline.Invoke();
+                }
+                else
+                {
+                    _pipeline.Invoke(pcp.Input);
+                }
             }
             catch (Exception ipe)
             {
@@ -282,7 +289,7 @@ namespace PoshCode.PowerShell
             if (boundCommand.IsScript)
             {
                 var command = boundCommand.Commands.First();
-                pipeline = _runSpace.CreatePipeline(command.CommandText, !boundCommand.Secret);
+                pipeline = _runSpace.CreatePipeline(command.CommandText, boundCommand.Output == ConsoleOutput.Default || boundCommand.Output == ConsoleOutput.CommandOnly );
             }
             else
             {
@@ -294,7 +301,7 @@ namespace PoshCode.PowerShell
                 }
             }
 
-            if (boundCommand.DefaultOutput)
+            if(boundCommand.Output == ConsoleOutput.Default || boundCommand.Output == ConsoleOutput.OutputOnly)
             {
                 pipeline.Commands.Add(DefaultOutputCommand);
             }
@@ -309,7 +316,7 @@ namespace PoshCode.PowerShell
             var results = pipeline.Output.ReadToEnd();
             var failure = e.PipelineStateInfo.Reason;
 
-            if (!commands.Secret)
+            if (commands.Output == ConsoleOutput.CommandOnly || commands.Output == ConsoleOutput.Default)
             {
                 PoshConsole.CurrentConsole.WriteErrorRecords(errors);
             }
@@ -321,7 +328,7 @@ namespace PoshCode.PowerShell
 
                 Debug.WriteLine(failure.GetType(), "PipelineFailure");
                 Debug.WriteLine(failure.Message, "PipelineFailure");
-                if (!commands.Secret)
+                if (commands.Output != ConsoleOutput.None)
                 {
                     PoshConsole.CurrentConsole.WriteErrorRecord(((RuntimeException) failure).ErrorRecord);
                 }
@@ -352,9 +359,9 @@ namespace PoshCode.PowerShell
             return pipeline.Task;
         }
 
-        public Task<PoshConsolePipelineResults> Invoke(IList<Command> commands, bool defaultOutput = true, bool secret = false)
+        public Task<PoshConsolePipelineResults> Invoke(IList<Command> commands, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
-            var pipeline = new PoshConsolePipeline(commands, defaultOutput, secret);
+            var pipeline = new PoshConsolePipeline(commands, input, output);
             // Even though CommandQueue is threaded
             // We NEED to ensure that our sets of commands stay together
             CommandQueue.Post(pipeline);
@@ -460,7 +467,15 @@ namespace PoshCode.PowerShell
                 ).Select(path => new Command(path, false, true)).ToArray();
 
             // go around the thread runner ...
-            InvokePipeline(new PoshConsolePipeline(existing, true, true));
+            InvokePipeline(new PoshConsolePipeline(existing, output: ConsoleOutput.OutputOnly));
         }
+    }
+
+    public enum ConsoleOutput
+    {
+        None = 0,
+        OutputOnly = 1,
+        CommandOnly = 2,
+        Default = 3
     }
 }

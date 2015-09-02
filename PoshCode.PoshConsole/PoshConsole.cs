@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -171,15 +172,19 @@ namespace PoshCode
             base.OnCommand(command);
         }
 
-
-        public Task<PoshConsolePipelineResults> InvokeAsync(Command command, bool defaultOutput = true, bool secret = false)
+        public Task<PoshConsolePipelineResults> InvokeAsync(Command[] commands, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
-            return Runner.Invoke(new []{command}, defaultOutput, secret);
+            return Runner.Invoke(commands, input, output);
         }
 
-        public Task<PoshConsolePipelineResults> InvokeAsync(string command, bool defaultOutput = true, bool secret = false)
+        public Task<PoshConsolePipelineResults> InvokeAsync(Command command, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
-            return Runner.Invoke(new[] { new Command(command, true) }, defaultOutput, secret);
+            return Runner.Invoke(new []{command}, input, output);
+        }
+
+        public Task<PoshConsolePipelineResults> InvokeAsync(string command, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
+        {
+            return Runner.Invoke(new[] { new Command(command, true) }, input, output);
         }
 
         #region PromptForUserInput (PowerShell-specific console-based user interface)

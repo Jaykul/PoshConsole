@@ -18,23 +18,23 @@ namespace PoshCode.PowerShell
     internal class PoshConsolePipeline
     {
         internal readonly Collection<Command> Commands;
+        internal readonly IEnumerable Input;
         internal readonly bool IsScript;
-        internal bool DefaultOutput;
-        internal bool Secret;
+        internal ConsoleOutput Output;
         internal readonly TaskCompletionSource<PoshConsolePipelineResults> TaskSource;
         internal Task<PoshConsolePipelineResults> Task => TaskSource.Task;
 
-        internal PoshConsolePipeline(IList<Command> commands, bool defaultOutput = true, bool secret = false)
+        internal PoshConsolePipeline(IList<Command> commands, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
             TaskSource = new TaskCompletionSource<PoshConsolePipelineResults>();
             Commands = new Collection<Command>(commands);
+            Input = input;
             IsScript = Commands[0].IsScript;
-            DefaultOutput = defaultOutput;
-            Secret = secret;
+            Output = output;
         }
 
-        internal PoshConsolePipeline(string script, bool defaultOutput = true, bool secret = false) :
-            this(new[] { new Command(script, true, true) }, defaultOutput, secret)
+        internal PoshConsolePipeline(string script, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default) :
+            this(new[] { new Command(script, true, true) }, input, output)
         {
         }
 
