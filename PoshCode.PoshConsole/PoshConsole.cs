@@ -172,20 +172,56 @@ namespace PoshCode
             base.OnCommand(command);
         }
 
+        /// <summary>
+        /// Invoke the specified commands in a pipeline asynchronously, optionally providing input to the first command, and with the specified output handling.
+        /// </summary>
+        /// <param name="commands">Commands from which the pipeline will be constructed</param>
+        /// <param name="input">Optional Pipeline Input. If this is specified, your first command must accept pipeline input</param>
+        /// <param name="output">Optionally: what to print to the console (prints everything, by default, as though the user had typed the commands in the console)</param>
+        /// <returns>A Task which returns the <see cref="PoshConsolePipelineResults"/> results, including the pipeline output</returns>
         public Task<PoshConsolePipelineResults> InvokeAsync(Command[] commands, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
             return Runner.Invoke(commands, input, output);
         }
 
+        /// <summary>
+        /// Invoke the specified command in a pipeline asynchronously, optionally providing input to the first command, and with the specified output handling.
+        /// </summary>
+        /// <param name="command">The Command from which the pipeline will be constructed.</param>
+        /// <param name="input">Optional Pipeline Input. If this is specified, your first command must accept pipeline input</param>
+        /// <param name="output">Optionally: what to print to the console (prints everything, by default, as though the user had typed the commands in the console)</param>
+        /// <returns>A Task which returns the <see cref="PoshConsolePipelineResults"/> results, including the pipeline output</returns>
         public Task<PoshConsolePipelineResults> InvokeAsync(Command command, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
             return Runner.Invoke(new []{command}, input, output);
         }
 
+        /// <summary>
+        /// Invoke the specified command in a pipeline asynchronously, optionally providing input to the first command, and with the specified output handling.
+        /// </summary>
+        /// <param name="command">The Command from which the pipeline will be constructed.</param>
+        /// <param name="isScript">Whether the command is a script (defaults to true). You should set this to false if you are just naming a command.</param>
+        /// <param name="useLocalScope">Whether the command should use it's own local scope -- only valid for scripts (defaults to false)</param>
+        /// <param name="input">Optional Pipeline Input. If this is specified, your first command must accept pipeline input</param>
+        /// <param name="output">Optionally: what to print to the console (prints everything, by default, as though the user had typed the commands in the console)</param>
+        /// <returns>A Task which returns the <see cref="PoshConsolePipelineResults"/> results, including the pipeline output</returns>
         public Task<PoshConsolePipelineResults> InvokeAsync(string command, bool isScript = true, bool useLocalScope = false, IEnumerable input = null, ConsoleOutput output = ConsoleOutput.Default)
         {
             return Runner.Invoke(new[] { new Command(command, isScript, useLocalScope) }, input, output);
         }
+
+
+        /// <summary>
+        /// Invoke the specified script, synchronously, and return the pipeline output.
+        /// </summary>
+        /// <param name="script">The script from which the pipeline will be constructed. Can be just a command name, but is executed as though typed on the console.</param>
+        /// <param name="output">Optionally: what to print to the console (prints everything, by default, as though the user had typed the commands in the console)</param>
+        /// <returns>The pipeline output</returns>
+        public Collection<PSObject> Invoke(string script, ConsoleOutput output = ConsoleOutput.Default)
+        {
+            return Runner.Invoke(new[] { new Command(script, true) }, null, output).GetAwaiter().GetResult().Output;
+        }
+
 
         #region PromptForUserInput (PowerShell-specific console-based user interface)
         public event EventHandler<PromptForObjectEventArgs> PromptForObject;
