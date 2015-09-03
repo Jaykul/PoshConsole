@@ -16,4 +16,12 @@
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
   </metadata>
+  <files>
+    <file src="bin\Release\PoshCode.PoshConsole.dll" target="lib\net452" />
+    <file src="bin\Release\PoshCode.PoshConsole.pdb" target="lib\net452" />
+    <file src="**\*.cs" target="src" />
+    <file src="**\*.xaml" target="src" />
+    <file src="**\*.settings" target="src" />
+    <file src="**\*.resx" target="src" />
+  </files>
 </package>
