@@ -29,7 +29,7 @@ namespace PoshCode.PowerShell
             TaskSource = new TaskCompletionSource<PoshConsolePipelineResults>();
             Commands = new Collection<Command>(commands);
             Input = input;
-            IsScript = Commands[0].IsScript;
+            IsScript = Commands.First().IsScript;
             Output = output;
         }
 

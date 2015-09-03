@@ -129,7 +129,7 @@ namespace PoshCode.PowerShell
             profile.Properties.Add(new PSNoteProperty("CurrentUserCurrentHost", profile.ImmediateBaseObject));
 
             iss.Variables.Add(new SessionStateVariableEntry("profile", profile, "The enumeration of all the available profiles the user could edit."));
-
+            iss.Commands.Add(new SessionStateFunctionEntry("prompt", Resources.Prompt));
             // I'm not sure why, but the default InitialSessionState doesn't match PowerShell anymore?
             /*            
             iss.Assemblies.Clear();
@@ -456,6 +456,8 @@ namespace PoshCode.PowerShell
         /// </summary>
         private void ExecuteStartupProfile()
         {
+            // Before we run the user's profile, set the prompt function to a better default
+
             var existing = (
                 from profileVariable in InitialSessionState.Variables["profile"]
                 from pathProperty in
@@ -464,8 +466,16 @@ namespace PoshCode.PowerShell
                 select pathProperty.Value.ToString()
                 ).Select(path => new Command(path, false, true)).ToArray();
 
-            // go around the thread runner ...
-            InvokePipeline(new PoshConsolePipeline(existing, output: ConsoleOutput.OutputOnly));
+            if (existing.Any())
+            {
+                // go around the thread runner ...
+                InvokePipeline(new PoshConsolePipeline(existing, output: ConsoleOutput.OutputOnly));
+            }
+            else
+            {
+                // if there's no profile, run the prompt instead
+                InvokePrompt();
+            }
         }
     }
 
