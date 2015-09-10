@@ -317,5 +317,13 @@ namespace PoshConsole.Demo
             // Now pass them in order to InvokeAsync:
             var processes = await PoshConsole.InvokeAsync( new [] { ps, sort, select });
         }
+
+        private void Invoke_Click(object sender, RoutedEventArgs e)
+        {
+            if(CommandInput.Text.Length > 0)
+            // Oh man, please don't do anything like this with user inputs in the real world ... 
+            // But if you do, at least have the sense to make sure that isScript:false
+            PoshConsole.InvokeAsync(Command.Text, isScript:false, input: CommandInput.Text.Split(' '));
+        }
     }
 }

@@ -101,14 +101,13 @@
                 <fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=RedoButton}" />
             </fluent:Ribbon.QuickAccessItems>
 
-            <fluent:RibbonTabItem Header="Insert"
-                KeyTip="I"
+            <fluent:RibbonTabItem Header="Test Cases"
+                KeyTip="T"
                 IsSeparatorVisible="true"
                 ReduceOrder="groupLL, groupLL, groupLL, (groupLL),(groupLL),(groupLL),(groupLL),(groupLL)">
-                <fluent:RibbonGroupBox KeyTip="FG"
-                    Header=""
+                <fluent:RibbonGroupBox KeyTip="TP" Header="Pipeline Data to Invoke"
                     IsLauncherVisible="False"
-                    x:Name="groupLL">
+                    x:Name="PipelineGroup">
                     <fluent:ComboBox x:Name="ProcessSort" Header="Sort" IsReadOnly="False" KeyTip="S" SelectedIndex="7">
                         <system:String>Id</system:String>
                         <system:String>Handle</system:String>
@@ -186,7 +185,7 @@
 
                 </fluent:RibbonGroupBox>
 
-                <fluent:RibbonGroupBox Header="Buttons">
+                <fluent:RibbonGroupBox Header="Invocation Methods" x:Name="InvokeGroup">
                     <fluent:Button Header="Capture Example" Click="Capture_Click" />
 
                     <fluent:Button Header="Secret Example" Click="Secret_Click" />
@@ -195,6 +194,16 @@
                     <fluent:Button Header="Exception Example" Click="Exception_Click" />
                     <fluent:Button Header="Input Example" Click="Input_Click" />
                 </fluent:RibbonGroupBox>
+                <fluent:RibbonGroupBox KeyTip="TA"
+                    Header="Any Command"
+                    IsLauncherVisible="False"
+                    x:Name="AnythingGroup">
+                    <fluent:TextBox x:Name="CommandInput" Header="Pipeline">Word Up It's Fresh</fluent:TextBox>
+                    <fluent:TextBox x:Name="Command" Header="Command">Write-Host</fluent:TextBox>
+                    <fluent:Button Header="Invoke" Click="Invoke_Click" />
+
+
+                </fluent:RibbonGroupBox>                
             </fluent:RibbonTabItem>
 
             <fluent:RibbonTabItem Header="Tests"

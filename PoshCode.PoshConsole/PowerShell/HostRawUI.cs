@@ -6,15 +6,15 @@ using PoshCode.Controls;
 
 namespace PoshCode.PowerShell
 {
-	class HostRawUI : PSHostRawUserInterface
-	{
+    class HostRawUI : PSHostRawUserInterface
+    {
         private readonly ConsoleControl _control;
 
         public HostRawUI(ConsoleControl control)
-		{
-			// TODO: Complete member initialization
-			_control = control;
-		}
+        {
+            // TODO: Complete member initialization
+            _control = control;
+        }
 
         ///<summary>
         ///Provides a way for scripts to request user input ...
@@ -25,14 +25,14 @@ namespace PoshCode.PowerShell
             return _control.ReadKey(options);
         }
 
-	    public override void FlushInputBuffer()
-	    {
-	        _control.FlushInputBuffer();
-	    }
+        public override void FlushInputBuffer()
+        {
+            _control.FlushInputBuffer();
+        }
 
-	    private int _keyIndex = 0;
+        private int _keyIndex = 0;
 
-	    public override bool KeyAvailable
+        public override bool KeyAvailable
         {
             get
             {
@@ -58,7 +58,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override Size BufferSize
+        public override Size BufferSize
         {
             get
             {
@@ -68,7 +68,7 @@ namespace PoshCode.PowerShell
                 }
                 return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => BufferSize));
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -85,7 +85,7 @@ namespace PoshCode.PowerShell
 
         }
 
-	    public override Size MaxPhysicalWindowSize
+        public override Size MaxPhysicalWindowSize
         {
             get
             {
@@ -97,7 +97,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override Size MaxWindowSize
+        public override Size MaxWindowSize
         {
             get
             {
@@ -109,7 +109,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override Size WindowSize
+        public override Size WindowSize
         {
             get
             {
@@ -119,7 +119,7 @@ namespace PoshCode.PowerShell
                 }
                 return (Size)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<Size>)(() => WindowSize));
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -135,7 +135,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override Coordinates CursorPosition
+        public override Coordinates CursorPosition
         {
             get
             {
@@ -164,7 +164,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override Coordinates WindowPosition
+        public override Coordinates WindowPosition
         {
             get
             {
@@ -175,7 +175,7 @@ namespace PoshCode.PowerShell
                 return (Coordinates)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
                     (Func<Coordinates>)(() => _control.WindowPosition));
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -191,7 +191,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override ConsoleColor BackgroundColor
+        public override ConsoleColor BackgroundColor
         {
             get
             {
@@ -202,7 +202,7 @@ namespace PoshCode.PowerShell
                 return (ConsoleColor)_control.Dispatcher.Invoke(DispatcherPriority.Normal,
                     (Func<ConsoleColor>)(() => _control.BackgroundColor));
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -218,7 +218,7 @@ namespace PoshCode.PowerShell
             }
         }
 
-	    public override ConsoleColor ForegroundColor
+        public override ConsoleColor ForegroundColor
         {
             get
             {
@@ -233,7 +233,7 @@ namespace PoshCode.PowerShell
                 }
                 return ConsoleColor.White;
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -250,7 +250,7 @@ namespace PoshCode.PowerShell
 
         }
 
-	    public override string WindowTitle
+        public override string WindowTitle
         {
             get
             {
@@ -260,7 +260,7 @@ namespace PoshCode.PowerShell
                 }
                 return (string)_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<string>)(() => _control.Title));
             }
-	        set
+            set
             {
                 if (_control.Dispatcher.CheckAccess())
                 {
@@ -278,7 +278,7 @@ namespace PoshCode.PowerShell
         }
 
 
-	    public override BufferCell[,] GetBufferContents(Rectangle rectangle)
+        public override BufferCell[,] GetBufferContents(Rectangle rectangle)
         {
             // TODO: REIMPLEMENT PSHostRawUserInterface.GetBufferContents(Rectangle rectangle)
             // throw new NotImplementedException("The GetBufferContents method is not (yet) implemented!");
@@ -287,12 +287,12 @@ namespace PoshCode.PowerShell
             {
                 return _control.GetBufferContents(rectangle);
             }
-	        return (BufferCell[,])_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<BufferCell[,]>)(() => _control.GetBufferContents(rectangle)));
+            return (BufferCell[,])_control.Dispatcher.Invoke(DispatcherPriority.Normal, (Func<BufferCell[,]>)(() => _control.GetBufferContents(rectangle)));
         }
 
 
 
-	    public override void SetBufferContents(Rectangle rectangle, BufferCell fill)
+        public override void SetBufferContents(Rectangle rectangle, BufferCell fill)
         {
             _control.CompleteBackgroundWorkItems();
             if (rectangle.Left == -1 && rectangle.Right == -1)
@@ -316,7 +316,7 @@ namespace PoshCode.PowerShell
             // }
         }
 
-	    public override void SetBufferContents(Coordinates origin, BufferCell[,] contents)
+        public override void SetBufferContents(Coordinates origin, BufferCell[,] contents)
         {
             // TODO: REIMPLEMENT PSHostRawUserInterface.SetBufferContents(Coordinates origin, BufferCell[,] contents)
             throw new NotImplementedException("The SetBufferContents method is not (yet) implemented!");
@@ -333,7 +333,7 @@ namespace PoshCode.PowerShell
             // }
         }
 
-	    public override void ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
+        public override void ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
         {
             // TODO: REIMPLEMENT PSHostRawUserInterface.ScrollBufferContents(Rectangle source, Coordinates destination, Rectangle clip, BufferCell fill)
             throw new NotImplementedException("The ScrollBufferContents method is not (yet) implemented!");
@@ -351,5 +351,5 @@ namespace PoshCode.PowerShell
             //}
         }
 
-	}
+    }
 }
