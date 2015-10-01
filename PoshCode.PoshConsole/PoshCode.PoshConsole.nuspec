@@ -11,7 +11,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      FIX Bug in profile loading and prompt
+      Add $Output = ... for api invocations when appropriate
+      Add $Input | ... for api invocations when appropriate
+      Give Tee-Default the ability to -Limit how much is shown in the host
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
