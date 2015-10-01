@@ -12,7 +12,7 @@ namespace PoshCode.Commands
         private static bool _handled = false;
         private bool _isFirst = false;
         private ulong _count;
-        private bool _broken = true;
+        private bool _broken = false;
         private static ulong danger = ulong.MaxValue - 1;
 
         [Parameter()]
