@@ -37,8 +37,6 @@ namespace PoshCode.PowerShell
         private Pipeline _pipeline;
 
         public Command DefaultOutputCommand { get; private set; }
-        public Command ContentOutputCommand { get; set; }
-
 
         private BufferBlock<PoshConsolePipeline> CommandQueue { get; }
         private Thread WorkerThread;
@@ -67,13 +65,6 @@ namespace PoshCode.PowerShell
             //// for now, merge the errors with the rest of the output
             //DefaultOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
             //DefaultOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error |
-            //                                                            PipelineResultTypes.Output;
-
-            // pre-create this
-            ContentOutputCommand = new Command("Out-PoshConsole");
-            //// for now, merge the errors with the rest of the output
-            //ContentOutputCommand.MergeMyResults(PipelineResultTypes.Error, PipelineResultTypes.Output);
-            //ContentOutputCommand.MergeUnclaimedPreviousCommandResults = PipelineResultTypes.Error |
             //                                                            PipelineResultTypes.Output;
 
             // Create the default initial session state and add the module.
