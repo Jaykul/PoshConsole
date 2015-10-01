@@ -42,6 +42,11 @@ namespace PoshCode.PowerShell
         {
             var output = new StringBuilder();
 
+            if (Output != ConsoleOutput.Default)
+            {
+                output.Append("${Results} = ");
+            }
+
             // Show artificial input ...
             if (Input != null)
             {
@@ -73,6 +78,7 @@ namespace PoshCode.PowerShell
 
                 output.Append(script ? " } | " : " | ");
             }
+
 
             return output.ToString().TrimEnd(' ', '|');
         }
