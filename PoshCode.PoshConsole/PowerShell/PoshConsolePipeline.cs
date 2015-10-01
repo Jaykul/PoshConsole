@@ -40,10 +40,14 @@ namespace PoshCode.PowerShell
 
         public override string ToString()
         {
-            // TODO: 1) special-case strings and numbers (and arrays of them) so they're not wrapped in ${}
-            // TODO: 2) check for the script flag and wrap the command in &{ }
-
             var output = new StringBuilder();
+
+            // Show artificial input ...
+            if (Input != null)
+            {
+                output.Append("${Input} | ");
+            }
+
             var enumerator = Commands.GetEnumerator();
             var more = enumerator.MoveNext();
             while (more)
