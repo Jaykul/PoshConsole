@@ -11,9 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Add $Output = ... for api invocations when appropriate
-      Add $Input | ... for api invocations when appropriate
-      Give Tee-Default the ability to -Limit how much is shown in the host
+      Fix #6 History Bug
     </releaseNotes>
     <copyright>Copyright (c) Joel Bennett, 2015</copyright>
     <tags>PowerShell WPF Hosting</tags>
