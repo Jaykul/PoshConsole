@@ -513,9 +513,7 @@ namespace PoshCode.Controls
         /// <param name="command">The command.</param>
         protected virtual void OnCommand(CommandEventArgs command)
         {
-            if (Command == null) return;
-
-            Command(this, command);
+            Command?.Invoke(this, command);
             _cmdHistory.Add(command.Command.TrimEnd());
             Trace.WriteLine("OnCommand, clearing KeyInfo queue.");
         }
