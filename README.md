@@ -42,19 +42,11 @@ PoshConsole.ExecuteCommand("Get-ADUser", onSuccessAction: users =>
 
 There is, of course, much more you can do, and I'm just getting started, so there are plenty more features on the way, and I'm still debating a few of the design choices, if you'd like to voice an opinion.
 
+[![Quick Demo Video](PoshConsole.Demo/screenshot.jpg)](http://www.youtube.com/embed/x6A70RRkW_Y?autoplay=1)
 
 ### A Caution:
 
-As of this writing, I'm calling this version 0.6.5 -- until I release a 1.0, you should assume that the command API and event handlers may have breaking changes in any release. I'm hoping to firm this up in the next month or two (since I have a commercial product riding on this control).
-
-If anyone cares, I am currently debating the Execute methods and their callbacks and events:
-
-1. Should the console's CommandFinished event have the data in it, so you don't need to use the callback methods?
-2. Should the callbacks be Dispatcher invoked?
-3. Should the event handlers be Dispatcher invoked?
-4. Should the data that is returned be unwrapped (e.g. return the BaseObject when available) -- or should there be an option for that?
-5. Should the console have events for failure?
-6. What about events for other output streams like warning, debug, verbose, information?
+As of this writing, I'm calling this version 0.8.5 -- until I release a 1.0, you should assume that the command API and event handlers may have breaking changes in any release. Having said that, I have been firming this up for several few months (and I have a commercial product about to be released which uses this control), so I expect the API is just about complete.
 
 ### Thanks
 
