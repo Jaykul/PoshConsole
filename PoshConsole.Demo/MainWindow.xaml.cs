@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Management.Automation;
+﻿using Fluent;
+using PoshCode.Controls;
+using PoshCode.PowerShell;
+using System;
 using System.Management.Automation.Runspaces;
-using System.Security;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Fluent;
-using PoshCode.Controls;
-using PoshCode.Interop;
-using PoshCode.PowerShell;
 using Button = System.Windows.Controls.Button;
-using MenuItem = Fluent.MenuItem;
 
 namespace PoshConsole.Demo
 {
@@ -27,6 +19,7 @@ namespace PoshConsole.Demo
         public MainWindow()
         {
             InitializeComponent();
+            PoshConsole.ProgressPanel = Progress;
         }
 
         private void ZoomSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -300,7 +293,7 @@ namespace PoshConsole.Demo
             // When you want to accept user input for parameters, you should always build your pipeline using Commands
             var ps = new Command("Get-Process");
             var sort = new Command("Sort-Object");
-            
+
             // That way, you can pass the user input to a specific parameter, and avoid code injection:
             sort.Parameters.Add("Property", ProcessSort.SelectedValue);
             // Switch parameters...
@@ -321,7 +314,7 @@ namespace PoshConsole.Demo
         private void Invoke_Click(object sender, RoutedEventArgs e)
         {
             if(CommandInput.Text.Length > 0)
-            // Oh man, please don't do anything like this with user inputs in the real world ... 
+            // Oh man, please don't do anything like this with user inputs in the real world ...
             // But if you do, at least have the sense to make sure that isScript:false
             PoshConsole.InvokeAsync(Command.Text, isScript:false, input: CommandInput.Text.Split(' '));
         }

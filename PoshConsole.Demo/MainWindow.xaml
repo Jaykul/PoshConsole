@@ -336,14 +336,16 @@
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Height="5" VerticalAlignment="Bottom"/>
             <ItemsControl x:Name="MainContent" Grid.Row="0" ItemsSource="{Binding}" />
 
+            <StackPanel x:Name="Progress" Grid.Row="1" />
             <poshCode:PoshConsole 
                 PromptForChoice="Console_PromptForChoice"
-                Grid.Row="1" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
+                Grid.Row="2" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
                 Title="PoshConsole" IsSelectionEnabled="True" 
                 Background="#00000000" 
                 FontSize="12" FontFamily="Consolas" Padding="4,0,0,0"
