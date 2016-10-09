@@ -1,14 +1,13 @@
-﻿using System;
+﻿using PoshCode.Controls;
+using PoshCode.Interop;
+using PoshCode.Properties;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Security;
-using System.Windows.Controls;
 using System.Windows.Threading;
-using PoshCode.Controls;
-using PoshCode.Interop;
-using PoshCode.Properties;
 
 namespace PoshCode.PowerShell
 {
@@ -17,9 +16,8 @@ namespace PoshCode.PowerShell
         private readonly PoshConsole _control;
 
 
-        public HostUI(PoshConsole control, Panel progress)
+        public HostUI(PoshConsole control)
         {
-            ProgressPanel = progress;
             _control = control;
             RawUI = new HostRawUI(control);
         }
@@ -108,13 +106,13 @@ namespace PoshCode.PowerShell
                 //    credentialsOptions.Flags |= CredentialUI.PromptForCredentialsFlag.CREDUI_FLAGS_VALIDATE_USERNAME;
 
                 //return CredentialUI.PromptForCredentials(credentialsOptions, userName, String.Empty);
-                
+
             }
             else
             {
                 return _control.PromptForCredentialInline(caption, message, userName, targetName, allowedCredentialTypes, options);
             }
-            
+
         }
 
         public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
@@ -180,7 +178,7 @@ namespace PoshCode.PowerShell
 
         public override void WriteProgress(long sourceId, ProgressRecord record)
         {
-            if (ProgressPanel != null)
+            if (_control.ProgressPanel != null)
             {
                 if (!_control.Dispatcher.CheckAccess())
                 {
@@ -192,7 +190,7 @@ namespace PoshCode.PowerShell
                     {
                         if (record.RecordType == ProgressRecordType.Completed)
                         {
-                            ProgressPanel.Children.Remove(ProgressRecords[record.ActivityId]);
+                            _control.ProgressPanel.Children.Remove(ProgressRecords[record.ActivityId]);
                             ProgressRecords.Remove(record.ActivityId);
                         }
                         else
@@ -205,18 +203,16 @@ namespace PoshCode.PowerShell
                         ProgressRecords[record.ActivityId] = new ProgressPanel(record);
                         if (record.ParentActivityId < 0 || !ProgressRecords.ContainsKey(record.ParentActivityId))
                         {
-                            ProgressPanel.Children.Add(ProgressRecords[record.ActivityId]);
+                            _control.ProgressPanel.Children.Add(ProgressRecords[record.ActivityId]);
                         }
                         else
                         {
-                            ProgressPanel.Children.Insert(ProgressPanel.Children.IndexOf(ProgressRecords[record.ParentActivityId]) + 1, ProgressRecords[record.ActivityId]);
+                            _control.ProgressPanel.Children.Insert(_control.ProgressPanel.Children.IndexOf(ProgressRecords[record.ParentActivityId]) + 1, ProgressRecords[record.ActivityId]);
                         }
                     }
                 }
             }
         }
-
-        public Panel ProgressPanel { get; private set; }
 
         #endregion
 
