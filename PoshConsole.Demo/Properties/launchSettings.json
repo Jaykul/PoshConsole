@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "PoshConsole.Demo": {
+      "commandName": "Project"
+    }
+  }
+}
