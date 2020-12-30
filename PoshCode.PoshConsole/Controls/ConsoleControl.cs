@@ -49,7 +49,7 @@ namespace PoshCode.Controls
         // TODO: this should be internal
         public Paragraph Next { get; private set; }
 
-        
+
 
         public ConsoleControl()
         {
@@ -202,7 +202,7 @@ namespace PoshCode.Controls
         /// Implements the CLS command the way most command-lines do:
         /// Scroll the Window until the prompt is at the top ...
         /// (as opposed to clearing the screen and leaving the prompt at the bottom)
-        /// </summary>        
+        /// </summary>
         public void ClearScreen()
         {
             CompleteBackgroundWorkItems();
@@ -312,7 +312,7 @@ namespace PoshCode.Controls
             if (consoleControlObj != null)
             {
                 consoleControlObj.Background = e.NewValue != DependencyProperty.UnsetValue
-                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue)
                                                     : ConsoleBrushes.DefaultBackground;
             }
         }
@@ -346,8 +346,8 @@ namespace PoshCode.Controls
             var consoleControlObj = depObj as ConsoleControl;
             if (consoleControlObj != null)
             {
-                consoleControlObj.Foreground = e.NewValue != DependencyProperty.UnsetValue 
-                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue) 
+                consoleControlObj.Foreground = e.NewValue != DependencyProperty.UnsetValue
+                                                    ? ConsoleBrushes.BrushFromConsoleColor((ConsoleColor)e.NewValue)
                                                     : ConsoleBrushes.DefaultForeground;
             }
         }
@@ -370,7 +370,7 @@ namespace PoshCode.Controls
 
             Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)delegate
             {
-                // handle null values so that other methods don't have to 
+                // handle null values so that other methods don't have to
                 // use Dispatchers just to look up a color
                 if (foreground == null) foreground = Foreground;
                 if (background == null) background = Background;//Brushes.Transparent;
@@ -526,7 +526,7 @@ namespace PoshCode.Controls
             }
             set
             {
-                _commandBox.CaretPosition = _commandBox.Document.ContentStart.GetPositionAtOffset(value);                
+                _commandBox.CaretPosition = _commandBox.Document.ContentStart.GetPositionAtOffset(value);
             }
         }
 
@@ -628,7 +628,7 @@ namespace PoshCode.Controls
 
 
         // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
-        // TODO: Check if other properties ought to be backed by dependency properties so they can be bound      
+        // TODO: Check if other properties ought to be backed by dependency properties so they can be bound
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(ConsoleControl), new UIPropertyMetadata("WPF Rich Console"));
 
@@ -727,9 +727,9 @@ namespace PoshCode.Controls
                         textRange = findMethod.Invoke(null,
                            new object[] { findContainerStartPosition,
                                     findContainerEndPosition,
-                                    input, 
-                                    flags, 
-                                    CultureInfo.CurrentCulture 
+                                    input,
+                                    flags,
+                                    CultureInfo.CurrentCulture
                      }) as TextRange;
                     }
                     catch (ApplicationException)
