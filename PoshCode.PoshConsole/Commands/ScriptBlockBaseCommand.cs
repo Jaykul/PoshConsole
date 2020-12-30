@@ -33,13 +33,6 @@ namespace PoshWpf.Utility
                         if (!String.IsNullOrEmpty(_moduleBase))
                             _moduleBase = _moduleBase.Split(new[] { ';' }, 2).FirstOrDefault();
                     }
-                    if (String.IsNullOrEmpty(_moduleBase))
-                    {
-                        var name = MyInvocation.MyCommand.Name;
-                        _moduleBase = (from cmdlet in Runspace.DefaultRunspace.RunspaceConfiguration.Cmdlets
-                                       where cmdlet.Name.Equals(name)
-                                       select cmdlet.PSSnapIn.ApplicationBase).FirstOrDefault();
-                    }
                 }
                 return _moduleBase;
             }
