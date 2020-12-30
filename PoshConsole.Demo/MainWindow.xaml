@@ -1,17 +1,20 @@
-﻿<fluent:RibbonWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:local="clr-namespace:PoshConsole.Demo"
-                     xmlns:fluent="clr-namespace:Fluent;assembly=Fluent"
-                     xmlns:system="clr-namespace:System;assembly=mscorlib"
-                     xmlns:poshCode="http://schemas.poshcode.org/wpf/poshcode"
-                     x:Class="PoshConsole.Demo.MainWindow"
-                     mc:Ignorable="d" DontUseDwm="False"
-                     Title="MainWindow" 
-                     Height="517" Width="774"
-                     MinHeight="60" MinWidth="80" 
-                     WindowState="Normal">
+﻿<fluent:RibbonWindow
+    x:Class="PoshConsole.Demo.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:Fluent;assembly=Fluent"
+    xmlns:local="clr-namespace:PoshConsole.Demo"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:poshCode="http://schemas.poshcode.org/wpf/poshcode"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    Title="MainWindow"
+    Width="774"
+    Height="517"
+    MinWidth="80"
+    MinHeight="60"
+    WindowState="Normal"
+    mc:Ignorable="d">
     <fluent:RibbonWindow.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter" />
@@ -23,17 +26,19 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <fluent:Ribbon AutomaticStateManagement="True" x:Name="ribbon">
+        <fluent:Ribbon x:Name="ribbon" AutomaticStateManagement="True">
             <fluent:Ribbon.ContextualGroups>
-                <fluent:RibbonContextualTabGroup x:Name="setupGroup"
-                    BorderBrush="#FF9D00"
+                <fluent:RibbonContextualTabGroup
+                    x:Name="setupGroup"
                     Background="#FF9D00"
+                    BorderBrush="#FF9D00"
                     Foreground="#C45300"
                     Header="Setup"
                     Visibility="Visible" />
-                <fluent:RibbonContextualTabGroup x:Name="specialGroup"
-                    BorderBrush="Magenta"
+                <fluent:RibbonContextualTabGroup
+                    x:Name="specialGroup"
                     Background="Magenta"
+                    BorderBrush="Magenta"
                     Foreground="Purple"
                     Header="Special"
                     Visibility="Visible" />
@@ -41,74 +46,83 @@
             </fluent:Ribbon.ContextualGroups>
             <fluent:Ribbon.Menu>
                 <Grid>
-                    <!--Backstage items can be keytipped-->
+                    <!--  Backstage items can be keytipped  -->
                     <fluent:Backstage Visibility="Visible">
-                        <fluent:BackstageTabControl/>
+                        <fluent:BackstageTabControl />
                     </fluent:Backstage>
 
                     <fluent:ApplicationMenu Header="File" Visibility="Visible">
                         <fluent:ApplicationMenu.RightPaneContent>
-                            <StackPanel HorizontalAlignment="Stretch"
+                            <StackPanel
+                                HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
-                                Orientation="Vertical"/>
+                                Orientation="Vertical" />
                         </fluent:ApplicationMenu.RightPaneContent>
 
                         <fluent:MenuItem Header="New">
-                            <fluent:MenuItem Header="Thing"/>
-                            <fluent:MenuItem Header="Other"/>
+                            <fluent:MenuItem Header="Thing" />
+                            <fluent:MenuItem Header="Other" />
                         </fluent:MenuItem>
-                        <fluent:MenuItem Header="Open"/>
+                        <fluent:MenuItem Header="Open" />
                         <fluent:MenuItem Header="Save As" IsSplited="True">
-                            <fluent:MenuItem Header="Standard format"/>
-                            <fluent:MenuItem Header="Export"/>
+                            <fluent:MenuItem Header="Standard format" />
+                            <fluent:MenuItem Header="Export" />
                         </fluent:MenuItem>
 
                         <Separator />
 
-                        <fluent:MenuItem Header="Exit" 
-                            KeyTip="X"
-                            Command="{Binding ExitCommand}" />
+                        <fluent:MenuItem
+                            Command="{Binding ExitCommand}"
+                            Header="Exit"
+                            KeyTip="X" />
                     </fluent:ApplicationMenu>
                 </Grid>
             </fluent:Ribbon.Menu>
             <fluent:Ribbon.ToolBarItems>
-                <fluent:Button Size="Small" Content="Insert" >
+                <fluent:Button Content="Insert" Size="Small">
                     <fluent:Button.ToolTip>
-                        <fluent:ScreenTip Title="Insert Chart"
-                            Text="Insert a chart to illustarate and compare data. &#xA;&#xA;Bar, Pie, Line, Area and Surface are same of the available types."
-                            HelpTopic="http:\\fluent.codeplex.com"
-                            DisableReason="Disable reason reason."
+                        <fluent:ScreenTip
+                            Title="Insert Chart"
                             Width="190"
-                            IsRibbonAligned="True" />
+                            DisableReason="Disable reason reason."
+                            HelpTopic="http:\\fluent.codeplex.com"
+                            IsRibbonAligned="True"
+                            Text="Insert a chart to illustarate and compare data. &#xA;&#xA;Bar, Pie, Line, Area and Surface are same of the available types." />
                     </fluent:Button.ToolTip>
                 </fluent:Button>
             </fluent:Ribbon.ToolBarItems>
 
             <fluent:Ribbon.QuickAccessItems>
-                <!--Quick Access toolbar items automatically have ScreenTips of the target -->
-                <!--KeyTips in Quick Access Toolbar names automatically-->
+                <!--  Quick Access toolbar items automatically have ScreenTips of the target  -->
+                <!--  KeyTips in Quick Access Toolbar names automatically  -->
 
-                <!--Use Content or Target Property to set QAT item-->
+                <!--  Use Content or Target Property to set QAT item  -->
                 <fluent:QuickAccessMenuItem IsChecked="true">
-                    <fluent:Button Header="Pink"
-                        Command="{Binding TestCommand}"
-                                    />
+                    <fluent:Button Command="{Binding TestCommand}" Header="Pink" />
                 </fluent:QuickAccessMenuItem>
-                <fluent:QuickAccessMenuItem Target="{Binding ElementName=pasteButton}" IsChecked="True" />
-                <fluent:QuickAccessMenuItem Target="{Binding ElementName=cutButton}" IsChecked="True" />
+                <fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=pasteButton}" />
+                <fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=cutButton}" />
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=copyButton}" />
                 <fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=UndoButton}" />
                 <fluent:QuickAccessMenuItem IsChecked="True" Target="{Binding ElementName=RedoButton}" />
             </fluent:Ribbon.QuickAccessItems>
 
-            <fluent:RibbonTabItem Header="Test Cases"
-                KeyTip="T"
+            <fluent:RibbonTabItem
+                Header="Test Cases"
                 IsSeparatorVisible="true"
+                KeyTip="T"
                 ReduceOrder="groupLL, groupLL, groupLL, (groupLL),(groupLL),(groupLL),(groupLL),(groupLL)">
-                <fluent:RibbonGroupBox KeyTip="TP" Header="Pipeline Data to Invoke"
+                <fluent:RibbonGroupBox
+                    x:Name="PipelineGroup"
+                    Header="Pipeline Data to Invoke"
                     IsLauncherVisible="False"
-                    x:Name="PipelineGroup">
-                    <fluent:ComboBox x:Name="ProcessSort" Header="Sort" IsReadOnly="False" KeyTip="S" SelectedIndex="7">
+                    KeyTip="TP">
+                    <fluent:ComboBox
+                        x:Name="ProcessSort"
+                        Header="Sort"
+                        IsReadOnly="False"
+                        KeyTip="S"
+                        SelectedIndex="7">
                         <system:String>Id</system:String>
                         <system:String>Handle</system:String>
                         <system:String>Name</system:String>
@@ -178,48 +192,54 @@
 
 
                     </fluent:ComboBox>
-                    <fluent:CheckBox x:Name="ProcessDescending" Header="Descending" IsChecked="True"></fluent:CheckBox>
-                    <fluent:Spinner x:Name="ProcessCount"  Header="Count" Minimum="5" Maximum="1000" Increment="5" Format="N0" ></fluent:Spinner>
-                    <fluent:Button Header="Pipeline Example" Click="Pipeline_Click" />
+                    <fluent:CheckBox
+                        x:Name="ProcessDescending"
+                        Header="Descending"
+                        IsChecked="True" />
+                    <fluent:Spinner
+                        x:Name="ProcessCount"
+                        Format="N0"
+                        Header="Count"
+                        Increment="5"
+                        Maximum="1000"
+                        Minimum="5" />
+                    <fluent:Button Click="Pipeline_Click" Header="Pipeline Example" />
 
 
                 </fluent:RibbonGroupBox>
 
-                <fluent:RibbonGroupBox Header="Invocation Methods" x:Name="InvokeGroup">
-                    <fluent:Button Header="Capture Example" Click="Capture_Click" />
+                <fluent:RibbonGroupBox x:Name="InvokeGroup" Header="Invocation Methods">
+                    <fluent:Button Click="Capture_Click" Header="Capture Example" />
 
-                    <fluent:Button Header="Secret Example" Click="Secret_Click" />
-                    <fluent:Button Header="Console Example" Click="Console_Click" />
-                    <fluent:Button Header="Error Example" Click="Error_Click" />
-                    <fluent:Button Header="Exception Example" Click="Exception_Click" />
-                    <fluent:Button Header="Input Example" Click="Input_Click" />
+                    <fluent:Button Click="Secret_Click" Header="Secret Example" />
+                    <fluent:Button Click="Console_Click" Header="Console Example" />
+                    <fluent:Button Click="Error_Click" Header="Error Example" />
+                    <fluent:Button Click="Exception_Click" Header="Exception Example" />
+                    <fluent:Button Click="Input_Click" Header="Input Example" />
                 </fluent:RibbonGroupBox>
-                <fluent:RibbonGroupBox KeyTip="TA"
+                <fluent:RibbonGroupBox
+                    x:Name="AnythingGroup"
                     Header="Any Command"
                     IsLauncherVisible="False"
-                    x:Name="AnythingGroup">
+                    KeyTip="TA">
                     <fluent:TextBox x:Name="CommandInput" Header="Pipeline">Word Up It's Fresh</fluent:TextBox>
                     <fluent:TextBox x:Name="Command" Header="Command">Write-Host</fluent:TextBox>
-                    <fluent:Button Header="Invoke" Click="Invoke_Click" />
+                    <fluent:Button Click="Invoke_Click" Header="Invoke" />
 
 
-                </fluent:RibbonGroupBox>                
+                </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
-            <fluent:RibbonTabItem Header="Tests"
-                KeyTip="TESTS">
-                <fluent:RibbonGroupBox Header="LongLongGroup"
-                    IsLauncherVisible="False">
-                    <fluent:CheckBox Header="Text 1"/>
-                    <fluent:CheckBox Header="Text 2"/>
-                    <fluent:CheckBox Header="Text 3"/>
+            <fluent:RibbonTabItem Header="Tests" KeyTip="TESTS">
+                <fluent:RibbonGroupBox Header="LongLongGroup" IsLauncherVisible="False">
+                    <fluent:CheckBox Header="Text 1" />
+                    <fluent:CheckBox Header="Text 2" />
+                    <fluent:CheckBox Header="Text 3" />
                 </fluent:RibbonGroupBox>
 
 
-                <fluent:RibbonGroupBox Header="LongLongGroup"
-                    IsLauncherVisible="False">
-                    <fluent:ToggleButton Header="blah blah"
-                        SizeDefinition="Small">
+                <fluent:RibbonGroupBox Header="LongLongGroup" IsLauncherVisible="False">
+                    <fluent:ToggleButton Header="blah blah" SizeDefinition="Small">
                         <fluent:ToggleButton.Icon>
                             <Grid>
                                 <Image />
@@ -227,8 +247,7 @@
                             </Grid>
                         </fluent:ToggleButton.Icon>
                     </fluent:ToggleButton>
-                    <fluent:SplitButton Header="blah blah"
-                        SizeDefinition="Small">
+                    <fluent:SplitButton Header="blah blah" SizeDefinition="Small">
                         <fluent:SplitButton.Icon>
                             <Grid>
                                 <Image />
@@ -238,93 +257,87 @@
                     </fluent:SplitButton>
                 </fluent:RibbonGroupBox>
 
-                <fluent:RibbonGroupBox Header="LongLongGroup"
-                    IsLauncherVisible="False">
-                    <fluent:TextBox x:Name="textBox"
+                <fluent:RibbonGroupBox Header="LongLongGroup" IsLauncherVisible="False">
+                    <fluent:TextBox
+                        x:Name="textBox"
+                        Header="Text"
                         InputWidth="70"
                         MaxLength="5"
-                        Header="Text"
                         Text="CurrentText" />
 
-                    <fluent:Button Header="PrintVisual"/>
+                    <fluent:Button Header="PrintVisual" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox>
-                    <fluent:DropDownButton HorizontalAlignment="Left"
-                        SizeDefinition="Small">
+                    <fluent:DropDownButton HorizontalAlignment="Left" SizeDefinition="Small">
                         <fluent:DropDownButton.Icon>
                             <Grid>
-                                <Image 
+                                <Image Width="16" Height="16" />
+                                <Rectangle
                                     Width="16"
-                                    Height="16" />
-                                <Rectangle VerticalAlignment="Bottom"
                                     Height="4"
-                                    Width="16"
-                                    HorizontalAlignment="Center">
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom">
                                     <Rectangle.Fill>
                                         <SolidColorBrush Color="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}" />
                                     </Rectangle.Fill>
                                 </Rectangle>
                             </Grid>
                         </fluent:DropDownButton.Icon>
-                        <fluent:ColorGallery Mode="HighlightColors"
-                            SelectedColor="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}"
-                            IsAutomaticColorButtonVisible="False" />
+                        <fluent:ColorGallery
+                            IsAutomaticColorButtonVisible="False"
+                            Mode="HighlightColors"
+                            SelectedColor="{Binding ColorViewModel.HighlightColor, Mode=TwoWay}" />
                     </fluent:DropDownButton>
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="ToggleButton">
-                    <fluent:ToggleButton Header="Button1"
-                        GroupName="Group1" />
-                    <fluent:ToggleButton Header="Button1"
-                        GroupName="Group1" />
-                    <fluent:ToggleButton Header="Button1"
-                        GroupName="Group1" />
+                    <fluent:ToggleButton GroupName="Group1" Header="Button1" />
+                    <fluent:ToggleButton GroupName="Group1" Header="Button1" />
+                    <fluent:ToggleButton GroupName="Group1" Header="Button1" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox>
-                    <fluent:ToggleButton x:Name="ShowDetailButton"
-                        Header="Detail" />
-                    <fluent:ToggleButton x:Name="ShowMoreButton"
-                        Header="More" />
+                    <fluent:ToggleButton x:Name="ShowDetailButton" Header="Detail" />
+                    <fluent:ToggleButton x:Name="ShowMoreButton" Header="More" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Header="TestOne">
-                    <fluent:ComboBox Header="Test"
-                        InputWidth="120" />
+                    <fluent:ComboBox Header="Test" InputWidth="120" />
                     <Separator />
 
-                    <fluent:ComboBox Header="Test"
+                    <fluent:ComboBox
+                        Header="Test"
                         InputWidth="120"
                         Visibility="Visible" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox>
-                    <fluent:ComboBox Header="Test"
-                        InputWidth="120" />
+                    <fluent:ComboBox Header="Test" InputWidth="120" />
                     <Separator />
 
-                    <fluent:ComboBox Header="Test"
+                    <fluent:ComboBox
+                        Header="Test"
                         InputWidth="120"
                         Visibility="Visible" />
                 </fluent:RibbonGroupBox>
 
-                <fluent:RibbonGroupBox >
-                    <fluent:ComboBox Header="Test"
-                        InputWidth="120" />
+                <fluent:RibbonGroupBox>
+                    <fluent:ComboBox Header="Test" InputWidth="120" />
                     <Separator />
 
-                    <fluent:ComboBox Header="Test"
+                    <fluent:ComboBox
+                        Header="Test"
                         InputWidth="120"
                         Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowDetailButton}" />
                 </fluent:RibbonGroupBox>
 
                 <fluent:RibbonGroupBox Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowMoreButton}">
-                    <fluent:ComboBox Header="Test"
-                        InputWidth="120" />
+                    <fluent:ComboBox Header="Test" InputWidth="120" />
                     <Separator />
 
-                    <fluent:ComboBox Header="Test"
+                    <fluent:ComboBox
+                        Header="Test"
                         InputWidth="120"
                         Visibility="{Binding IsChecked, Converter={StaticResource boolToVisibilityConverter}, ElementName=ShowDetailButton}" />
                 </fluent:RibbonGroupBox>
@@ -335,57 +348,74 @@
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="2*" />
             </Grid.RowDefinitions>
-            <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Height="5" VerticalAlignment="Bottom"/>
-            <ItemsControl x:Name="MainContent" Grid.Row="0" ItemsSource="{Binding}" />
+            <GridSplitter
+                Grid.Row="0"
+                Height="5"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom" />
+            <ItemsControl
+                x:Name="MainContent"
+                Grid.Row="0"
+                ItemsSource="{Binding}" />
 
             <StackPanel x:Name="Progress" Grid.Row="1" />
-            <poshCode:PoshConsole 
-                PromptForChoice="Console_PromptForChoice"
-                Grid.Row="2" x:Name="PoshConsole" Content="MainContent" Progress="Progress"
-                Title="PoshConsole" IsSelectionEnabled="True" 
-                Background="#00000000" 
-                FontSize="12" FontFamily="Consolas" Padding="4,0,0,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />            
+            <poshCode:PoshConsole
+                x:Name="PoshConsole"
+                Title="PoshConsole"
+                Grid.Row="2"
+                Padding="4,0,0,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="#00000000"
+                Content="MainContent"
+                FontFamily="Consolas"
+                FontSize="12"
+                IsSelectionEnabled="True"
+                Progress="Progress"
+                PromptForChoice="Console_PromptForChoice" />
         </Grid>
 
         <fluent:StatusBar
-            DataContext="{Binding ElementName=PoshConsole}"
+            Grid.Row="2"
+            Height="25"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
-            Height="25"
-            Grid.Row="2">
-            <fluent:StatusBarItem Title="Words Width"
-                Value="150"
-                HorizontalAlignment="Left">
+            DataContext="{Binding ElementName=PoshConsole}">
+            <fluent:StatusBarItem
+                Title="Words Width"
+                HorizontalAlignment="Left"
+                Value="150">
                 <TextBlock Text="{Binding BufferSize, Mode=OneWayToSource}" />
             </fluent:StatusBarItem>
             <Separator HorizontalAlignment="Left" />
-            <fluent:StatusBarItem Title="Selected Words"
-                Value="15"
-                ToolTip="This is Selected Words"
+            <fluent:StatusBarItem
+                Title="Selected Words"
+                HorizontalAlignment="Left"
                 Content="15"
-                HorizontalAlignment="Left" />
+                ToolTip="This is Selected Words"
+                Value="15" />
             <Separator HorizontalAlignment="Left" />
-            <fluent:StatusBarItem Title="Zoom"
+            <fluent:StatusBarItem
+                Title="Zoom"
                 HorizontalAlignment="Right"
                 Value="{Binding Value, ElementName=zoomSlider, StringFormat=\{0:P\}}" />
-            <fluent:StatusBarItem Title="Zoom Slider"
-                HorizontalAlignment="Right">
-                <Slider x:Name="zoomSlider"
-                    Minimum="0.5"
-                    Maximum="2.0"
+            <fluent:StatusBarItem Title="Zoom Slider" HorizontalAlignment="Right">
+                <Slider
+                    x:Name="zoomSlider"
                     IsDirectionReversed="False"
-                    Style="{DynamicResource ZoomSliderStyle}"
-                    Value="{Binding Zoom}"
                     IsSnapToTickEnabled="True"
-                    TickFrequency="0.1"
-                    SmallChange="0.1"
                     LargeChange="0.1"
-                    ValueChanged="ZoomSlider_OnValueChanged"/>
+                    Maximum="2.0"
+                    Minimum="0.5"
+                    SmallChange="0.1"
+                    Style="{DynamicResource ZoomSliderStyle}"
+                    TickFrequency="0.1"
+                    ValueChanged="ZoomSlider_OnValueChanged"
+                    Value="{Binding Zoom}" />
             </fluent:StatusBarItem>
         </fluent:StatusBar>
     </Grid>
