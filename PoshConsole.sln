@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshConsole.Demo", "PoshConsole.Demo\PoshConsole.Demo.csproj", "{FA34EE05-0E00-4D56-8C30-25F0B5D735E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoshCode.PoshConsole", "PoshCode.PoshConsole\PoshCode.PoshConsole.csproj", "{8135F268-594F-4536-A0A6-1B63923811F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PoshCode.PoshConsole", "PoshCode.PoshConsole\PoshCode.PoshConsole.csproj", "{8135F268-594F-4536-A0A6-1B63923811F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analysis", "Analysis", "{85B6FDC5-E55C-479C-B482-9C54486BDD6C}"
 	ProjectSection(SolutionItems) = preProject
@@ -50,5 +50,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E3940D3-E3B0-4668-9EB0-182DD3EA9E03}
 	EndGlobalSection
 EndGlobal
