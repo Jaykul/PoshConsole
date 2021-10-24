@@ -22,22 +22,16 @@ By default, it adds a "Modules" subdirectory of your application root to your PS
 Of course, what makes it interesting is that you can invoke PowerShell cmdlets from code behind as easily as this:
 
 ```csharp
-PoshConsole.ExecuteCommand("Get-ChildItem");
+PoshConsole.Invoke("Get-ChildItem");
 ```
 
-And the command/script that you invoke is displayed in the console along with it's output -- so in a graphical management interface, it provides you with a way to leverage your PowerShell investment and teach your users the command-line interface at the same time.
+And the command/script that you invoke is displayed in the console along with it's output -- so in a graphical management interface, it provides you with a way to leverage your PowerShell investment _and_ teach your users the command-line interface at the same time.
 
-You can easily call a command and then populate a listbox in your UI with the results (as well as displaying the command and the output in the console pane):
+You can easily call a command with async await, and then populate a listbox in your UI with the results (as well as displaying the command and the output in the console pane):
 
 ```csharp
-PoshConsole.ExecuteCommand("Get-ADUser", onSuccessAction: users => 
-    {
-        Dispatcher.InvokeAsync(() => 
-        {
-          // Users is a collection of PSObject, let's unwrap the base objects:
-          UserList.DataContext = users.Select(u => u.BaseObject);
-        }
-    });
+    var users = await PoshConsole.InvokeAsync(new Command("Get-ADUser"));
+    Dispatcher.InvokeAsync(() => UserList.DataContext = users.Select(u => u.BaseObject))
 ```
 
 There is, of course, much more you can do, and I'm just getting started, so there are plenty more features on the way, and I'm still debating a few of the design choices, if you'd like to voice an opinion.
