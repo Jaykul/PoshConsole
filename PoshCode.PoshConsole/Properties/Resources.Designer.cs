@@ -19,10 +19,10 @@ namespace PoshCode.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace PoshCode.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PoshCode.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace PoshCode.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -62,7 +62,7 @@ namespace PoshCode.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to function global:prompt {
-        ///   # FIRST, make a note if there was an error in the previous command
+        ///   # FIRST, make a note if there was an error in the previous pipeline
         ///   $err = !$?
         ///
         ///   # Make sure Windows and .Net know where we are (they can only handle the FileSystem)
@@ -73,10 +73,9 @@ namespace PoshCode.Properties {
         ///
         ///   # Generate PUSHD(push-location) Stack level string
         ///   $Stack = &quot;+&quot; * (Get-Location -Stack).count
-        ///   
-        /// [rest of string was truncated]&quot;;.
+        ///           /// [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Prompt {
+        public static string Prompt {
             get {
                 return ResourceManager.GetString("Prompt", resourceCulture);
             }
@@ -96,7 +95,7 @@ namespace PoshCode.Properties {
         ///
         ///[CmdletBinding(Default [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string TabExpansion2 {
+        public static string TabExpansion2 {
             get {
                 return ResourceManager.GetString("TabExpansion2", resourceCulture);
             }

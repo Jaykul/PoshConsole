@@ -1,9 +1,11 @@
-﻿using System;
+﻿using PoshCode.Controls;
+using PoshCode.Controls.Utility;
+using PoshCode.PowerShell;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
@@ -13,9 +15,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Threading;
-using PoshCode.Controls;
-using PoshCode.Controls.Utility;
-using PoshCode.PowerShell;
 
 namespace PoshCode
 {
@@ -90,8 +89,11 @@ namespace PoshCode
         {
             get
             {
-                if (RootWindow == null) return null;
-                return _progressPanel ?? (_progressPanel = RootWindow.FindName(Progress) as Panel);
+                return _progressPanel;
+            }
+            set
+            {
+                _progressPanel = value;
             }
         }
 
@@ -111,7 +113,7 @@ namespace PoshCode
         {
             base.OnInitialized(e);
             CommandBox.IsEnabled = false;
-            _host = new Host(this, ProgressPanel, new Options(this));
+            _host = new Host(this, new Options(this));
 
             Loaded += (sender, ignored) =>
             {
@@ -474,8 +476,8 @@ namespace PoshCode
 
         /// <summary>
         /// Parse a string containing a hotkey character.
-        /// 
-        /// Take a string of the form: 
+        ///
+        /// Take a string of the form:
         /// "Yes to &amp;all"
         /// And return a two-dimensional array split out as
         ///    "A", "Yes to all".
@@ -505,7 +507,7 @@ namespace PoshCode
 
         /// <summary>
         /// This is a private worker function that splits out the
-        /// accelerator keys from the menu and builds a two dimentional 
+        /// accelerator keys from the menu and builds a two dimentional
         /// array with the first access containing the
         /// accelerator and the second containing the label string
         /// with &amp; removed.

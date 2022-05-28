@@ -1,14 +1,13 @@
-﻿using System;
+﻿using PoshCode.Controls;
+using PoshCode.Native;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Controls;
 using System.Windows.Threading;
-using PoshCode.Controls;
-using PoshCode.Native;
 
 namespace PoshCode.PowerShell
 {
@@ -30,17 +29,17 @@ namespace PoshCode.PowerShell
         internal PoshConsole PoshConsole { get; }
 
         /// <summary>
-        /// Store the window title 
+        /// Store the window title
         /// </summary>
         private string _savedTitle = String.Empty;
         private readonly PSHostUserInterface _UI;
         private readonly Options _options;
 
-        internal Host(PoshConsole control, Panel progress, Options options)
+        internal Host(PoshConsole control, Options options)
         {
             PoshConsole = control;
             _options = options;
-            _UI = new HostUI(PoshConsole, progress);
+            _UI = new HostUI(PoshConsole);
 
             MakeConsole();
         }
